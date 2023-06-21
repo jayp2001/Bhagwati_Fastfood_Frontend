@@ -11,7 +11,7 @@ function ConsoleCard(props) {
         }
     }
     return (
-        <div className='consoleCard'>
+        <div className='consoleCard' onClick={() => props.goToAddUSer()}>
             <div className='consoleLogo flex justify-center'>
                 <img src={getImg(props.imgName)} alt='delivery boy' />
             </div>
