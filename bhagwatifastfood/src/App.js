@@ -12,6 +12,8 @@ import EditUser from './pages/users/editUser/editUser';
 import AddSuppiler from './pages/inventory/addSuppiler/addSuppiler';
 import SuppilerTable from './pages/inventory/suppilerTable/suppilerTable';
 import EditSuppiler from './pages/inventory/editSuppiler/editSuppiler';
+import ProductList from './pages/inventory/product/productList';
+import CategoriesTable from './pages/inventory/categoriesTable/categoriesTable';
 function App() {
   return (
     <div className="">
@@ -27,7 +29,9 @@ function App() {
                 <Route path="/addUser" element={<AddUser />}/>
                 <Route path="/addSuppiler" element={<AddSuppiler />}/>
                 <Route path="/userTable" element={<UserTable />}/>
+                <Route path="/productList" element={<ProductList />}/>
                 <Route path="/suppilerTable" element={<SuppilerTable />}/>
+                <Route path="/categories" element={<CategoriesTable />}/>
                 <Route path="/editUser/:id" element={<EditUser/>}/>
                 <Route path="/editSuppiler/:id" element={<EditSuppiler/>}/>
                 {/* <Route path="/dashboard" element={<Dashboard/>}/>
