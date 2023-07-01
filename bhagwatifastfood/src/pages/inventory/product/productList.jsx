@@ -48,6 +48,7 @@ function ProductList() {
         minProductQty: 0,
         minProductUnit: ''
     })
+    const [tab, setTab] = React.useState(null);
     const [isEdit, setIsEdit] = React.useState(false);
     const [formDataError, setFormDataError] = useState({
         productName: false,
@@ -88,10 +89,21 @@ function ProductList() {
     const [loading, setLoading] = React.useState(false);
     const [error, setError] = React.useState(false);
     const [data, setData] = React.useState();
+    const [countData, setCountData] = React.useState();
     const getData = async () => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getProductList`, config)
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getProductList?productStatus=${tab}`, config)
             .then((res) => {
                 setData(res.data);
+            })
+            .catch((error) => {
+                setError(error.response.data);
+                setData(null)
+            })
+    }
+    const getCountData = async () => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getProductListCounter`, config)
+            .then((res) => {
+                setCountData(res.data);
             })
             .catch((error) => {
                 alert(error.response.data)
@@ -108,12 +120,15 @@ function ProductList() {
     }
     useEffect(() => {
         getData();
-    }, [])
+        getCountData();
+    }, [tab])
     const handleDeleteProduct = (id) => {
         if (window.confirm("Are you sure you want to delete Product?")) {
             deleteData(id);
             setTimeout(() => {
+                setTab(null)
                 getData()
+                getCountData();
             }, 1000)
         }
     }
@@ -134,6 +149,8 @@ function ProductList() {
             .then((res) => {
                 alert("success");
                 getData();
+                setTab(null)
+                getCountData();
                 handleClose();
             })
             .catch((error) => {
@@ -201,14 +218,25 @@ function ProductList() {
                 <div className='col-span-12'>
                     <div className='productTableSubContainer'>
                         <div className='h-full grid grid-cols-12'>
-                            <div className='col-span-7'>
-                                <div>
-
+                            <div className='col-span-7 h-full'>
+                                <div className='grid grid-cols-12 pl-6 gap-3 h-full'>
+                                    <div className={`flex col-span-3 justify-center ${tab === null || tab === '' || !tab ? 'productTabAll' : 'productTab'}`} onClick={() => setTab(null)}>
+                                        <div className=''>All</div> &nbsp;&nbsp; <div className={`ProductCount ${tab === null || tab === '' || !tab ? 'blueCount' : ''}`}>{countData && countData.allProduct ? countData.allProduct : 0}</div>
+                                    </div>
+                                    <div className={`flex col-span-3 justify-center ${tab === 1 || tab === '1' ? 'productTabIn' : 'productTab'}`} onClick={() => setTab(1)}>
+                                        <div className=''>In-Stock</div> &nbsp;&nbsp; <div className={`ProductCount ${tab === 1 || tab === '1' ? 'greenCount' : ''}`}>{countData && countData.instockProduct ? countData.instockProduct : 0}</div>
+                                    </div>
+                                    <div className={`flex col-span-3 justify-center ${tab === 2 || tab === '2' ? 'productTabUnder' : 'productTab'}`} onClick={() => setTab(2)}>
+                                        <div className=''>Low-Stock</div> &nbsp;&nbsp; <div className={`ProductCount ${tab === 2 || tab === '2' ? 'orangeCount' : ''}`}>{countData && countData.underStockedProduct ? countData.underStockedProduct : 0}</div>
+                                    </div>
+                                    <div className={`flex col-span-3 justify-center ${tab === 3 || tab === '3' ? 'productTabOut' : 'productTab'}`} onClick={() => setTab(3)}>
+                                        <div className=''>Out-Stock</div> &nbsp;&nbsp; <div className={`ProductCount ${tab === 3 || tab === '3' ? 'redCount' : ''}`}>{countData && countData.outOfStock ? countData.outOfStock : 0}</div>
+                                    </div>
                                 </div>
                             </div>
                             <div className=' grid col-span-2 col-start-11 pr-3 flex h-full'>
                                 <div className='self-center justify-self-end'>
-                                    <button className='addCategoryBtn' onClick={handleOpen}>Add Category</button>
+                                    <button className='addCategoryBtn' onClick={handleOpen}>Add Product</button>
                                 </div>
                             </div>
                         </div>
@@ -216,11 +244,17 @@ function ProductList() {
                     </div>
                 </div>
             </div>
-            <div className='productCardContainer mt-8 gap-6 grid grid-cols-5'>
+            <div className='productCardContainer mt-8 gap-6 grid mobile:grid-cols-2 tablet1:grid-cols-3 tablet:grid-cols-4 laptop:grid-cols-5 desktop1:grid-cols-6 desktop2:grid-cols-7 desktop2:grid-cols-8'>
                 {
-                    data && data.map((product) => (
+                    data ? data.map((product) => (
                         <ProductCard productData={product} handleDeleteProduct={handleDeleteProduct} handleEditClick={handleEditClick} />
                     ))
+                        :
+                        <div className='grid col-span-5 content-center'>
+                            <div className='text-center noDataFoundText'>
+                                {error ? error : 'No Data Found'}
+                            </div>
+                        </div>
                 }
             </div>
             <Modal
