@@ -3,6 +3,7 @@ import Menutemp from './menu';
 import './productCard.css';
 import Tooltip from '@mui/material/Tooltip';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import { orange } from '@mui/material/colors';
 function ProductCard(props) {
     const handleEdit = (row) => {
         console.log(">>>", props.productData)
@@ -28,7 +29,7 @@ function ProductCard(props) {
                 <div className='stockFieldHeader'>
                     Remaining Stock:
                 </div>
-                <div className='mt-2 stockFieldWrp'>
+                <div className={`mt-2 stockFieldWrp ${props.productData.remainingStock > props.productData.minProductQty ? 'green' : props.productData.remainingStock < props.productData.minProductQty && props.productData.remainingStock !== 0 ? 'orange' : 'red'}`}>
                     {props.productData.remainingStock}
                 </div>
             </div>
