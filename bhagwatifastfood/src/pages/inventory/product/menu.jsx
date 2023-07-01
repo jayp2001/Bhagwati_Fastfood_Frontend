@@ -18,9 +18,9 @@ function Menutemp(props) {
     const handleClose = () => {
         setAnchorEl(null);
     };
-    const handleEditClick = (id) => {
-        navigate(`/editSuppiler/${id}`)
-    }
+    // const handleEditClick = (id) => {
+    //     navigate(`/editSuppiler/${id}`)
+    // }
     return (
         <div>
             <IconButton

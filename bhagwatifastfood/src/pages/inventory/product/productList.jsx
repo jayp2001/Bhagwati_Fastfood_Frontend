@@ -3,21 +3,81 @@ import { useState, useEffect } from "react";
 import React from "react";
 import { BACKEND_BASE_URL } from '../../../url';
 import axios from 'axios';
-// import Table from '@mui/material/Table';
-// import TableBody from '@mui/material/TableBody';
-// import TableCell from '@mui/material/TableCell';
-// import TableContainer from '@mui/material/TableContainer';
-// import TableHead from '@mui/material/TableHead';
-// import TableRow from '@mui/material/TableRow';
-// import Paper from '@mui/material/Paper';
-// import TablePagination from '@mui/material/TablePagination';
-// import Menutemp from './menu';
 import ProductCard from './component/productCard/productCard';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Modal from '@mui/material/Modal';
+import TextField from '@mui/material/TextField';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 
+const style = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 600,
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    paddingLeft: '20px',
+    paddingRight: '20px',
+    paddingTop: '15px',
+    paddingBottom: '20px',
+    borderRadius: '10px'
+};
+const qtyUnit = [
+    'Kg',
+    'Ltr',
+    'Mtr',
+    'Pkts',
+    'BOX',
+    'ML',
+    'Qty',
+    'Piece',
+    'Num'
+]
 function ProductList() {
-    // const [page, setPage] = React.useState(0);
-    // const [rowsPerPage, setRowsPerPage] = React.useState(5);
-    // const [totalRows, setTotalRows] = React.useState(0);
+    const [formData, setFormData] = React.useState({
+        productName: '',
+        productId: '',
+        minProductQty: 0,
+        minProductUnit: ''
+    })
+    const [isEdit, setIsEdit] = React.useState(false);
+    const [formDataError, setFormDataError] = useState({
+        productName: false,
+        minProductQty: false,
+        minProductUnit: false,
+    })
+    const [fields, setFields] = useState([
+        'productName',
+        'minProductQty',
+        'minProductUnit',
+    ])
+    const onChange = (e) => {
+        setFormData((prevState) => ({
+            ...prevState,
+            [e.target.name]: e.target.value,
+        }))
+    }
+    const [open, setOpen] = React.useState(false);
+    const handleOpen = () => setOpen(true);
+    const handleClose = () => {
+        setOpen(false);
+        // setCategory('');
+        // setCategoryError(false);
+        setFormData({
+            stockOutCategoryName: '',
+            stockOutCategoryId: ''
+        });
+        setIsEdit(false);
+    }
+
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const config = {
         headers: {
@@ -37,68 +97,259 @@ function ProductList() {
                 alert(error.response.data)
             })
     }
-    // const getDataOnPageChange = async (pageNum, rowPerPageNum) => {
-    //     console.log("page get", page, rowsPerPage)
-    //     await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getSupplierdata?page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
-    //         .then((res) => {
-    //             setData(res.data.rows);
-    //             setTotalRows(res.data.numRows);
-    //         })
-    //         .catch((error) => {
-    //             alert(error.response.data)
-    //         })
-    // }
-    // const deleteData = async (id) => {
-    //     await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeSupplierDetails?supplierId=${id}`, config)
-    //         .then((res) => {
-    //             alert("data deleted")
-    //         })
-    //         .catch((error) => {
-    //             alert(error.response.data)
-    //         })
-    // }
+    const deleteData = async (id) => {
+        await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeProduct?productId=${id}`, config)
+            .then((res) => {
+                alert("data deleted")
+            })
+            .catch((error) => {
+                alert(error.response.data)
+            })
+    }
     useEffect(() => {
         getData();
     }, [])
-    // const handleDeleteSuppiler = (id) => {
-    //     if (window.confirm("Are you sure you want to delete User?")) {
-    //         deleteData(id);
-    //         setTimeout(() => {
-    //             getData()
-    //         }, 1000)
-    //     }
-    // }
+    const handleDeleteProduct = (id) => {
+        if (window.confirm("Are you sure you want to delete Product?")) {
+            deleteData(id);
+            setTimeout(() => {
+                getData()
+            }, 1000)
+        }
+    }
+    const editCategory = async () => {
+        await axios.post(`${BACKEND_BASE_URL}inventoryrouter/updateProduct`, formData, config)
+            .then((res) => {
+                alert("success");
+                getData();
+                handleClose()
+            })
+            .catch((error) => {
+                alert(error.response.data);
+            })
+
+    }
+    const addProduct = async () => {
+        await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addProduct`, formData, config)
+            .then((res) => {
+                alert("success");
+                getData();
+                handleClose();
+            })
+            .catch((error) => {
+                alert(error.response.data);
+            })
+    }
+
+    const submitEdit = () => {
+        const isValidate = fields.filter(element => {
+            if (element === 'emailId') {
+                return null
+            } else if (formDataError[element] === true || formData[element] === '') {
+                setFormDataError((perv) => ({
+                    ...perv,
+                    [element]: true
+                }))
+                return element;
+            }
+        })
+        if (isValidate.length > 0) {
+            alert(
+                "Please Fill All Field"
+            )
+        } else {
+            editCategory()
+        }
+    }
+    const submitAdd = () => {
+        const isValidate = fields.filter(element => {
+            if (element === 'emailId') {
+                return null
+            } else if (formDataError[element] === true || formData[element] === '' || formData[element] === 0) {
+                setFormDataError((perv) => ({
+                    ...perv,
+                    [element]: true
+                }))
+                return element;
+            }
+        })
+        if (isValidate.length > 0) {
+            alert(
+                "Please Fill All Field"
+            )
+        } else {
+            addProduct()
+        }
+    }
+
+    const handleEditClick = (row) => {
+        setOpen(true);
+        setIsEdit(true);
+        setFormData({
+            productName: row.productName,
+            productId: row.productId,
+            minProductQty: row.minProductQty,
+            minProductUnit: row.minProductUnit
+        })
+    }
+
     if (data) {
-        console.log('products', data)
     }
     return (
-        // <div className='productListContainer'>
-
-        //     <div className='grid grid-cols-6'>
-        //         <ProductCard />
-        //     </div>
-        // </div>
         <div className='productListContainer'>
             <div className='grid grid-cols-12'>
                 <div className='col-span-12'>
-                    <div className='userTableSubContainer'>
-                        <div className='flex justify-center w-full'>
-                            <div className='tableHeader flex justify-between'>
+                    <div className='productTableSubContainer'>
+                        <div className='h-full grid grid-cols-12'>
+                            <div className='col-span-7'>
                                 <div>
-                                    Product List
+
+                                </div>
+                            </div>
+                            <div className=' grid col-span-2 col-start-11 pr-3 flex h-full'>
+                                <div className='self-center justify-self-end'>
+                                    <button className='addCategoryBtn' onClick={handleOpen}>Add Category</button>
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
             <div className='productCardContainer mt-8 gap-6 grid grid-cols-5'>
                 {
                     data && data.map((product) => (
-                        <ProductCard productData={product} />
+                        <ProductCard productData={product} handleDeleteProduct={handleDeleteProduct} handleEditClick={handleEditClick} />
                     ))
                 }
             </div>
+            <Modal
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={style}>
+                    <Typography id="modal-modal-title" variant="h6" component="h2">
+                        {isEdit ? 'Edit Product' : 'Add Product'}
+                    </Typography>
+                    <div className='mt-6 grid grid-cols-12 gap-6'>
+                        <div className='col-span-6'>
+                            <TextField
+                                onBlur={(e) => {
+                                    if (e.target.value.length < 2) {
+                                        setFormDataError((perv) => ({
+                                            ...perv,
+                                            productName: true
+                                        }))
+                                    }
+                                    else {
+                                        setFormDataError((perv) => ({
+                                            ...perv,
+                                            productName: false
+                                        }))
+                                    }
+                                }}
+                                onChange={onChange}
+                                value={formData.productName}
+                                error={formDataError.productName}
+                                helperText={formDataError.productName ? "Please Enter Product Name" : ''}
+                                name="productName"
+                                id="outlined-required"
+                                label="Product Name"
+                                InputProps={{ style: { fontSize: 14 } }}
+                                InputLabelProps={{ style: { fontSize: 14 } }}
+                                fullWidth
+                            />
+                        </div>
+                        <div className='col-span-3'>
+                            <TextField
+                                onBlur={(e) => {
+                                    if (e.target.value < 1) {
+                                        setFormDataError((perv) => ({
+                                            ...perv,
+                                            minProductQty: true
+                                        }))
+                                    }
+                                    else {
+                                        setFormDataError((perv) => ({
+                                            ...perv,
+                                            minProductQty: false
+                                        }))
+                                    }
+                                }}
+                                type='number'
+                                onChange={onChange}
+                                value={formData.minProductQty}
+                                error={formDataError.minProductQty}
+                                helperText={formDataError.minProductQty ? "Enter Quantity" : ''}
+                                name="minProductQty"
+                                id="outlined-required"
+                                label="Min Qty"
+                                InputProps={{ style: { fontSize: 14 } }}
+                                InputLabelProps={{ style: { fontSize: 14 } }}
+                                fullWidth
+                            />
+                        </div>
+                        <div className='col-span-3'>
+                            <FormControl style={{ minWidth: '100%' }}>
+                                <InputLabel id="demo-simple-select-label" required error={formDataError.minProductUnit}>Units</InputLabel>
+                                <Select
+                                    labelId="demo-simple-select-label"
+                                    id="demo-simple-select"
+                                    value={formData.minProductUnit}
+                                    error={formDataError.minProductUnit}
+                                    name="minProductUnit"
+                                    label="Units"
+                                    onBlur={(e) => {
+                                        if (e.target.value.length < 2) {
+                                            setFormDataError((perv) => ({
+                                                ...perv,
+                                                minProductUnit: true
+                                            }))
+                                        }
+                                        else {
+                                            setFormDataError((perv) => ({
+                                                ...perv,
+                                                minProductUnit: false
+                                            }))
+                                        }
+                                    }}
+                                    onChange={onChange}
+                                >
+                                    {
+                                        qtyUnit ? qtyUnit.map((unit) => (
+                                            <MenuItem key={unit} value={unit}>{unit}</MenuItem>
+                                        )) : null
+                                    }
+
+                                </Select>
+                            </FormControl>
+                        </div>
+                        <div className='col-span-3'>
+                            <button className='addCategorySaveBtn' onClick={() => {
+                                isEdit ? submitEdit() : submitAdd()
+                            }}>{isEdit ? 'Save' : 'Add'}</button>
+                        </div>
+                        <div className='col-span-3'>
+                            <button className='addCategoryCancleBtn' onClick={() => {
+                                handleClose(); setFormData({
+                                    productName: '',
+                                    productId: '',
+                                    minProductQty: 0,
+                                    minProductUnit: ''
+                                });
+                                setFormDataError({
+                                    productName: false,
+                                    minProductQty: false,
+                                    minProductUnit: false,
+                                })
+                                setIsEdit(false)
+                            }}>Cancle</button>
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
         </div>
     )
 }

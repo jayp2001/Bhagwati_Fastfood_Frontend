@@ -130,15 +130,23 @@ function CategoriesTable() {
     }
     const editCategory = async () => {
         setLoading(true);
-        await axios.post(`${BACKEND_BASE_URL}inventoryrouter/updateStockOutCategory`, editCateory, config)
-            .then((res) => {
-                alert("success");
-                getData();
-                handleClose()
-            })
-            .catch((error) => {
-                alert(error.response.data);
-            })
+        if (editCateory.stockOutCategoryName.length < 2) {
+            alert(
+                "Please Fill category"
+            )
+            setCategoryError(true);
+        }
+        else {
+            await axios.post(`${BACKEND_BASE_URL}inventoryrouter/updateStockOutCategory`, editCateory, config)
+                .then((res) => {
+                    alert("success");
+                    getData();
+                    handleClose()
+                })
+                .catch((error) => {
+                    alert(error.response.data);
+                })
+        }
     }
     const addCategory = async () => {
         setLoading(true);

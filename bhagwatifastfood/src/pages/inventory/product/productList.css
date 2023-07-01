@@ -1,9 +1,13 @@
 .productListContainer{
     margin-top: 30px;
-    padding: 40px 50px;
+    /* padding: 40px 50px; */
+    padding-left: 30px;
+    padding-right: 30px;
+    padding-top: 0px;
+    padding-bottom: 10px;
 }
 .productCardContainer{
-    height: 62vh;
+    height: 73vh;
     overflow: scroll;
     padding-bottom: 20px;
     padding-top: 5px;
@@ -11,11 +15,9 @@
 
 .productTableSubContainer {
     background-color: #fff;
-    height: 100%;
+    height: 60px;
     position: relative;
-    /* padding: px; */
     border-radius: 0.75rem;
-    /* padding-top: 50px; */
     box-shadow: rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem;
 }
 

@@ -51,14 +51,14 @@ function Menutemp(props) {
                 <MenuItem key={'delete'}
                     onClick={() => {
                         handleClose();
-                        // props.deleteSuppiler(props.supplierId)
+                        props.handleDelete()
                     }}>
                     Delete
                 </MenuItem>
                 <MenuItem key={'Edit'}
                     onClick={() => {
                         handleClose();
-                        // handleEditClick(props.supplierId)
+                        props.handleEdit()
                     }}>
                     Edit
                 </MenuItem>

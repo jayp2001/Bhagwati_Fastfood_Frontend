@@ -16,6 +16,12 @@
     font-weight: 600;
     letter-spacing: 1px;
     font-family: 'Monaco',monospace;
+
+}
+.productNameDiv{
+        white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
 }
 
 /* .MuiButtonBase-root{

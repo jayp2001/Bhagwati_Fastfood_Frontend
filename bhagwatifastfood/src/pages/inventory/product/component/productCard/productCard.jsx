@@ -1,15 +1,25 @@
 import { Button } from '@mui/material';
 import Menutemp from './menu';
-import './productCard.css'
+import './productCard.css';
+import Tooltip from '@mui/material/Tooltip';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 function ProductCard(props) {
+    const handleEdit = (row) => {
+        console.log(">>>", props.productData)
+        props.handleEditClick(props.productData)
+    }
+    const handleDelete = () => {
+        props.handleDeleteProduct(props.productData.productId);
+    }
     return (
-        <div className="productCard" key={props.productId}>
+        <div className="productCard" key={props.productData.productId}>
             <div className='grid grid-cols-12'>
                 <div className='col-span-11 productName'>
-                    {props.productData.productName}
+                    <Tooltip title={props.productData.productName} placement="top-start" arrow>
+                        <div className='productNameDiv'>{props.productData.productName}</div>
+                    </Tooltip>
                 </div>
-                <Menutemp />
+                <Menutemp handleDelete={handleDelete} handleEdit={handleEdit} />
             </div>
             <div className='mt-1 minStock'>
                 Min. Stock : <span className='minStockDisplay'>{props.productData.minProductQty} {props.productData.minProductUnit}</span>
