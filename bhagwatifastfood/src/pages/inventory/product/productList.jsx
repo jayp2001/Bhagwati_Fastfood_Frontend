@@ -369,8 +369,8 @@ function ProductList() {
                 "Please Fill All Field"
             )
         } else {
-            console.log(">>", stockInFormData, stockInFormData.stockInDate, stockInFormData.stockInDate != 'Invalid Date' ? 'ue' : 'false')
-            // stockIn()
+            // console.log(">>", stockInFormData, stockInFormData.stockInDate, stockInFormData.stockInDate != 'Invalid Date' ? 'ue' : 'false')
+            stockIn()
         }
     }
 
