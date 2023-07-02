@@ -16,7 +16,7 @@ function ProductCard(props) {
             <div className='grid grid-cols-12'>
                 <div className='col-span-11 productName'>
                     <Tooltip title={props.productData.productName} placement="top-start" arrow>
-                        <div className='productNameDiv'>{props.productData.productName}</div>
+                        <div className={`productNameDiv ${props.productData.remainingStock > props.productData.minProductQty ? 'greenHeader' : props.productData.remainingStock < props.productData.minProductQty && props.productData.remainingStock !== 0 ? 'orangeHeader' : 'redHeader'}`}>{props.productData.productName}</div>
                     </Tooltip>
                 </div>
                 <Menutemp handleDelete={handleDelete} handleEdit={handleEdit} />
