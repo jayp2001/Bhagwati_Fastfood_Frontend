@@ -95,7 +95,9 @@ function LoginPage() {
                 <div className="col-span-6">
                     <div className='grid grid-cols-12'>
                         <div className='col-span-8 col-start-3'>
-                            <img src={bhagwatiLogo} alt="bhagwati logo" />
+                            <div className="logo">
+                                <img src={bhagwatiLogo} alt="bhagwati logo" />
+                            </div>
                         </div>
                     </div>
                 </div>
