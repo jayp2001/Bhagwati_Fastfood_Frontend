@@ -6,7 +6,6 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 import { orange } from '@mui/material/colors';
 function ProductCard(props) {
     const handleEdit = (row) => {
-        console.log(">>>", props.productData)
         props.handleEditClick(props.productData)
     }
     const handleDelete = () => {
@@ -52,7 +51,7 @@ function ProductCard(props) {
             <div className='mt-6 stockBtnWrp'>
                 <div className='grid gap-4 grid-cols-12'>
                     <div className='col-span-6'>
-                        <button className='stockInBtn'>Stock In</button>
+                        <button className='stockInBtn' onClick={() => props.handleOpenStockIn(props.productData)}>Stock In</button>
                     </div>
                     <div className='col-span-6'>
                         <button className='stockOutBtn'>Stock Out</button>
