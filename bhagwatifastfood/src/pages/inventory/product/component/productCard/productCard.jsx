@@ -22,22 +22,23 @@ function ProductCard(props) {
                 <Menutemp handleDelete={handleDelete} handleEdit={handleEdit} />
             </div>
             <div className='mt-1 minStock'>
-                Min. Stock : <span className='minStockDisplay'>{props.productData.minProductQty} {props.productData.minProductUnit}</span>
+                <span className='minQtyDisplay'>Min Qty : {props.productData.minProductQty} {props.productData.minProductUnit}</span><br />
+                ₹ <span className='lastPriceDisplay'>{props.productData.lastPrice} / {props.productData.minProductUnit}</span>
             </div>
             <div className='mt-4'>
                 <div className='stockFieldHeader'>
-                    Remaining Stock:
+                    Remaining Stock
                 </div>
                 <div className={`mt-2 stockFieldWrp ${props.productData.remainingStock > props.productData.minProductQty ? 'green' : props.productData.remainingStock < props.productData.minProductQty && props.productData.remainingStock !== 0 ? 'orange' : 'red'}`}>
-                    {props.productData.remainingStock}
+                    {props.productData.remainingStock} {props.productData.minProductUnit}
                 </div>
             </div>
             <div className='mt-3 grid grid-cols-12 gap-2'>
                 <div className='col-span-6 text-center stockFieldHeader'>
-                    Stocked In:
+                    Stocked In
                 </div>
                 <div className='col-span-6 text-center stockFieldHeader'>
-                    Stocked At:
+                    Stocked At
                 </div>
             </div>
             <div className='grid grid-cols-12 gap-2'>
