@@ -79,7 +79,7 @@ function ProductList() {
         stockInPaymentMethod: 'cash',
         stockInComment: "",
         // stockInDate: null
-        stockInDate: dayjs(dayjs().format('DD/MM/YYYY'))
+        stockInDate: dayjs()
     })
     const [stockInFormDataError, setStockInFormDataError] = React.useState({
         productQty: false,
@@ -99,6 +99,26 @@ function ProductList() {
         'stockInPaymentMethod',
         'stockInDate'
     ])
+    const [stockOutFormData, setStockOutFormData] = React.useState({
+        productId: "",
+        productQty: 0,
+        productUnit: "",
+        stockOutCategory: 0,
+        stockOutComment: "",
+        stockOutDate: dayjs()
+    })
+    const [stockOutFormDataError, setStockOutFormDataError] = React.useState({
+        productQty: false,
+        productUnit: false,
+        stockOutCategory: false,
+        stockOutDate: false
+    })
+    const [stockOutErrorFields, setStockOutErrorFields] = React.useState([
+        'productQty',
+        'productUnit',
+        'stockOutCategory',
+        'stockOutDate',
+    ])
     const [tab, setTab] = React.useState(null);
     const [isEdit, setIsEdit] = React.useState(false);
     const [formDataError, setFormDataError] = useState({
@@ -111,6 +131,41 @@ function ProductList() {
         'minProductQty',
         'minProductUnit',
     ])
+
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const config = {
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userInfo.token}`,
+        },
+    };
+    const [open, setOpen] = React.useState(false);
+    const [openStockIn, setOpenStockIn] = React.useState(false);
+    const [openStockOut, setOpenStockOut] = React.useState(false);
+    const [loading, setLoading] = React.useState(false);
+    const [error, setError] = React.useState(false);
+    const [data, setData] = React.useState();
+    const [suppiler, setSuppilerList] = React.useState();
+    const [categories, setCategories] = React.useState();
+    const [countData, setCountData] = React.useState();
+    const getSuppilerList = async (id) => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/productWiseSupplierDDL?productId=${id}`, config)
+            .then((res) => {
+                setSuppilerList(res.data);
+            })
+            .catch((error) => {
+                setSuppilerList(['No Data'])
+            })
+    }
+    const getCategoryList = async (id) => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/ddlStockOutCategory`, config)
+            .then((res) => {
+                setCategories(res.data);
+            })
+            .catch((error) => {
+                setCategories(['No Data'])
+            })
+    }
     const onChange = (e) => {
         setFormData((prevState) => ({
             ...prevState,
@@ -149,11 +204,16 @@ function ProductList() {
         }
         console.log('formddds', stockInFormData)
     }
-    const [open, setOpen] = React.useState(false);
-    const [openStockIn, setOpenStockIn] = React.useState(false);
+    const onChangeStockOut = (e) => {
+        setStockOutFormData((prevState) => ({
+            ...prevState,
+            [e.target.name]: e.target.value,
+        }))
+    }
     const handleOpen = () => setOpen(true);
     const handleOpenStockIn = (row) => {
         getSuppilerList(row.productId);
+
         setStockInFormData((perv) => ({
             ...perv,
             productId: row.productId,
@@ -161,6 +221,16 @@ function ProductList() {
             productUnit: row.minProductUnit
         }))
         setOpenStockIn(true);
+    }
+    const handleOpenStockOut = (row) => {
+        getCategoryList();
+        setStockOutFormData((perv) => ({
+            ...perv,
+            productId: row.productId,
+            productName: row.productName,
+            productUnit: row.minProductUnit
+        }))
+        setOpenStockOut(true);
     }
     const handleClose = () => {
         setOpen(false);
@@ -183,7 +253,7 @@ function ProductList() {
             supplierId: "",
             stockInPaymentMethod: 'cash',
             stockInComment: "",
-            stockInDate: dayjs(dayjs().format('DD/MM/YYYY'))
+            stockInDate: dayjs()
         })
         setStockInFormDataError({
             productQty: false,
@@ -203,27 +273,29 @@ function ProductList() {
         }))
     };
 
-    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-    const config = {
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${userInfo.token}`,
-        },
-    };
-    const [loading, setLoading] = React.useState(false);
-    const [error, setError] = React.useState(false);
-    const [data, setData] = React.useState();
-    const [suppiler, setSuppilerList] = React.useState();
-    const [countData, setCountData] = React.useState();
-    const getSuppilerList = async (id) => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/productWiseSupplierDDL?productId=${id}`, config)
-            .then((res) => {
-                setSuppilerList(res.data);
-            })
-            .catch((error) => {
-                setSuppilerList(['No Data'])
-            })
+    const handleCloseStockOut = () => {
+        setStockOutFormData({
+            productId: "",
+            productQty: 0,
+            productUnit: "",
+            stockOutCategory: 0,
+            stockOutComment: "",
+            stockOutDate: dayjs()
+        })
+        setStockOutFormDataError({
+            productQty: false,
+            productUnit: false,
+            stockOutCategory: false,
+            stockInDate: false
+        })
+        setOpenStockOut(false);
     }
+    const handleStockOutDate = (date) => {
+        setStockOutFormData((prevState) => ({
+            ...prevState,
+            ["stockOutDate"]: date && date['$d'] ? date['$d'] : null,
+        }))
+    };
     const getData = async () => {
         await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getProductList?productStatus=${tab}`, config)
             .then((res) => {
@@ -305,6 +377,20 @@ function ProductList() {
             })
     }
 
+    const stockOut = async () => {
+        await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addStockOutDetails`, stockOutFormData, config)
+            .then((res) => {
+                alert("success");
+                getData();
+                setTab(null)
+                getCountData();
+                handleCloseStockOut();
+            })
+            .catch((error) => {
+                alert(error.response.data);
+            })
+    }
+
     const submitEdit = () => {
         const isValidate = fields.filter(element => {
             if (element === 'emailId') {
@@ -350,14 +436,14 @@ function ProductList() {
     const submitStockIn = () => {
         const isValidate = stockInErrorFields.filter(element => {
             if (element === 'stockInDate' && stockInFormData[element] === '' || stockInFormData[element] === null || stockInFormData.stockInDate == 'Invalid Date') {
-                setFormDataError((perv) => ({
+                setStockInFormDataError((perv) => ({
                     ...perv,
                     [element]: true
                 }))
                 return element;
             }
-            else if (formDataError[element] === true || stockInFormData[element] === '' || stockInFormData[element] === 0) {
-                setFormDataError((perv) => ({
+            else if (stockInFormData[element] === true || stockInFormData[element] === '' || stockInFormData[element] === 0) {
+                setStockInFormDataError((perv) => ({
                     ...perv,
                     [element]: true
                 }))
@@ -371,6 +457,32 @@ function ProductList() {
         } else {
             // console.log(">>", stockInFormData, stockInFormData.stockInDate, stockInFormData.stockInDate != 'Invalid Date' ? 'ue' : 'false')
             stockIn()
+        }
+    }
+    const submitStockOut = () => {
+        const isValidate = stockOutErrorFields.filter(element => {
+            if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
+                setStockOutFormDataError((perv) => ({
+                    ...perv,
+                    [element]: true
+                }))
+                return element;
+            }
+            else if (stockOutFormData[element] === true || stockOutFormData[element] === '' || stockOutFormData[element] === 0) {
+                setStockOutFormDataError((perv) => ({
+                    ...perv,
+                    [element]: true
+                }))
+                return element;
+            }
+        })
+        if (isValidate.length > 0) {
+            alert(
+                "Please Fill All Field"
+            )
+        } else {
+            // console.log(">>", stockInFormData, stockInFormData.stockInDate, stockInFormData.stockInDate != 'Invalid Date' ? 'ue' : 'false')
+            stockOut()
         }
     }
 
@@ -422,7 +534,7 @@ function ProductList() {
             <div className='productCardContainer mt-8 gap-6 grid mobile:grid-cols-2 tablet1:grid-cols-3 tablet:grid-cols-4 laptop:grid-cols-5 desktop1:grid-cols-6 desktop2:grid-cols-7 desktop2:grid-cols-8'>
                 {
                     data ? data.map((product) => (
-                        <ProductCard productData={product} handleOpenStockIn={handleOpenStockIn} handleDeleteProduct={handleDeleteProduct} handleEditClick={handleEditClick} />
+                        <ProductCard productData={product} handleOpenStockOut={handleOpenStockOut} handleOpenStockIn={handleOpenStockIn} handleDeleteProduct={handleDeleteProduct} handleEditClick={handleEditClick} />
                     ))
                         :
                         <div className='grid col-span-5 content-center'>
@@ -787,6 +899,138 @@ function ProductList() {
                         <div className='col-span-3'>
                             <button className='addCategoryCancleBtn' onClick={() => {
                                 handleCloseStockIn();
+                            }}>Cancle</button>
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
+            <Modal
+                open={openStockOut}
+                onClose={handleCloseStockOut}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={styleStockIn}>
+                    <Typography id="modal-modal" variant="h6" component="h2">
+                        Stock Out
+                    </Typography>
+                    <div className='mt-6 grid grid-cols-12 gap-6'>
+                        <div className='col-span-3'>
+                            <TextField
+                                value={stockOutFormData.productName}
+                                name="productName"
+                                id="outlined-required"
+                                label="Product Name"
+                                InputProps={{ style: { fontSize: 14 } }}
+                                InputLabelProps={{ style: { fontSize: 14 } }}
+                                fullWidth
+                            />
+                        </div>
+                        <div className='col-span-3'>
+                            <TextField
+                                onBlur={(e) => {
+                                    if (e.target.value < 1) {
+                                        setStockOutFormDataError((perv) => ({
+                                            ...perv,
+                                            productQty: true
+                                        }))
+                                    }
+                                    else {
+                                        setStockOutFormDataError((perv) => ({
+                                            ...perv,
+                                            productQty: false
+                                        }))
+                                    }
+                                }}
+                                type="number"
+                                label="Qty"
+                                fullWidth
+                                onChange={onChangeStockOut}
+                                value={stockOutFormData.productQty}
+                                error={stockOutFormDataError.productQty}
+                                helperText={stockOutFormDataError.productQty ? "Enter Product Qty" : ''}
+                                name="productQty"
+                                InputProps={{
+                                    endAdornment: <InputAdornment position="end">{stockOutFormData.productUnit}</InputAdornment>,
+                                }}
+                            />
+                        </div>
+                        <div className='col-span-3'>
+                            <FormControl style={{ minWidth: '100%', maxWidth: '100%' }}>
+                                <InputLabel id="demo-simple-select-label" required error={stockOutFormDataError.stockOutCategory}>Category</InputLabel>
+                                <Select
+                                    labelId="demo-simple-select-label"
+                                    id="demo-simple-select"
+                                    value={stockOutFormData.stockOutCategory}
+                                    error={stockOutFormDataError.stockOutCategory}
+                                    name="stockOutCategory"
+                                    label="Category"
+                                    onBlur={(e) => {
+                                        if (e.target.value.length < 2) {
+                                            setStockOutFormDataError((perv) => ({
+                                                ...perv,
+                                                stockOutCategory: true
+                                            }))
+                                        }
+                                        else {
+                                            setStockOutFormDataError((perv) => ({
+                                                ...perv,
+                                                stockOutCategory: false
+                                            }))
+                                        }
+                                    }}
+                                    onChange={onChangeStockOut}
+                                >
+                                    {
+                                        categories ? categories.map((category) => (
+                                            <MenuItem key={category.stockOutCategoryId} value={category.stockOutCategoryId}>{category.stockOutCategoryName}</MenuItem>
+                                        )) : null
+                                    }
+
+                                </Select>
+                            </FormControl>
+                        </div>
+                        <div className='col-span-3'>
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DesktopDatePicker
+                                    textFieldStyle={{ width: '100%' }}
+                                    InputProps={{ style: { fontSize: 14, width: '100%' } }}
+                                    InputLabelProps={{ style: { fontSize: 14 } }}
+                                    label="Stock In Date"
+                                    format="DD/MM/YYYY"
+                                    required
+                                    error={stockOutFormDataError.stockOutDate}
+                                    value={stockOutFormData.stockOutDate}
+                                    onChange={handleStockOutDate}
+                                    name="stockOutDate"
+                                    renderInput={(params) => <TextField {...params} sx={{ width: '100%' }} />}
+                                />
+                            </LocalizationProvider>
+                        </div>
+                    </div>
+                    <div className='mt-4 grid grid-cols-12 gap-6'>
+                        <div className='col-span-12'>
+                            <TextField
+                                onChange={onChangeStockOut}
+                                value={stockOutFormData.stockOutComment}
+                                name="stockOutComment"
+                                id="outlined-required"
+                                label="Comment"
+                                InputProps={{ style: { fontSize: 14 } }}
+                                InputLabelProps={{ style: { fontSize: 14 } }}
+                                fullWidth
+                            />
+                        </div>
+                    </div>
+                    <div className='mt-4 grid grid-cols-12 gap-6'>
+                        <div className='col-span-3'>
+                            <button className='addCategorySaveBtn' onClick={() => {
+                                submitStockOut()
+                            }}>Stock Out</button>
+                        </div>
+                        <div className='col-span-3'>
+                            <button className='addCategoryCancleBtn' onClick={() => {
+                                handleCloseStockOut();
                             }}>Cancle</button>
                         </div>
                     </div>
