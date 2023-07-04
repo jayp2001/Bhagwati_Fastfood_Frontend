@@ -1,11 +1,19 @@
 import ConsoleCard from "./component/consoleCard/consoleCard";
 import './dashboard.css';
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 function Dashboard() {
     const navigate = useNavigate();
+    const [value, setValue] = useState({
+        startDate: null,
+        endDate: null
+    });
 
+    const handleValueChange = (newValue) => {
+        console.log("newValue:", newValue);
+        setValue(newValue);
+    }
     const goToAddUSer = () => {
-        // console.log(">>>");
         navigate('/addUser')
     }
     return (

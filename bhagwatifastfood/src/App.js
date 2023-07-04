@@ -14,6 +14,7 @@ import SuppilerTable from './pages/inventory/suppilerTable/suppilerTable';
 import EditSuppiler from './pages/inventory/editSuppiler/editSuppiler';
 import ProductList from './pages/inventory/product/productList';
 import CategoriesTable from './pages/inventory/categoriesTable/categoriesTable';
+import StockInOut from './pages/inventory/stockManagement/stockInOut';
 function App() {
   return (
     <div className="">
@@ -30,6 +31,7 @@ function App() {
                 <Route path="/addSuppiler" element={<AddSuppiler />}/>
                 <Route path="/userTable" element={<UserTable />}/>
                 <Route path="/productList" element={<ProductList />}/>
+                <Route path="/stockInOut" element={<StockInOut />}/>
                 <Route path="/suppilerTable" element={<SuppilerTable />}/>
                 <Route path="/categories" element={<CategoriesTable />}/>
                 <Route path="/editUser/:id" element={<EditUser/>}/>

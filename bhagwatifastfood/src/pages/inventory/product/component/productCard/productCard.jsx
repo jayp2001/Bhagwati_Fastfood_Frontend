@@ -55,7 +55,7 @@ function ProductCard(props) {
                         <button className='stockInBtn' onClick={() => props.handleOpenStockIn(props.productData)}>Stock In</button>
                     </div>
                     <div className='col-span-6'>
-                        <button className='stockOutBtn'>Stock Out</button>
+                        <button className='stockOutBtn' onClick={() => props.handleOpenStockOut(props.productData)}>Stock Out</button>
                     </div>
                 </div>
                 <div className='mt-4'>
