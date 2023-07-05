@@ -38,6 +38,9 @@ import { DateRangePicker } from 'react-date-range';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import Popover from '@mui/material/Popover';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import CloseIcon from '@mui/icons-material/Close';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
 const qtyUnit = [
     'Kg',
@@ -412,7 +415,7 @@ function StockInOut() {
             })
     }
     const getStockOutDataOnPageChange = async (pageNum, rowPerPageNum) => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockOutList?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockOutList?page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
             .then((res) => {
                 setStockOutData(res.data.rows);
                 setTotalRowsOut(res.data.numRows);
@@ -422,7 +425,7 @@ function StockInOut() {
             })
     }
     const getStockOutDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockOutList?page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockOutList?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
             .then((res) => {
                 setStockOutData(res.data.rows);
                 setTotalRowsOut(res.data.numRows);
@@ -714,7 +717,7 @@ function StockInOut() {
                                             fullWidth
                                         />
                                     </div>
-                                    <div className='col-span-2'>
+                                    <div className='col-span-3'>
                                         <FormControl style={{ minWidth: '100%', maxWidth: '100%' }}>
                                             <InputLabel id="demo-simple-select-label" required error={stockInFormDataError.supplierId}>Suppiler</InputLabel>
                                             <Select
@@ -798,7 +801,7 @@ function StockInOut() {
                                             />
                                         </LocalizationProvider>
                                     </div>
-                                    <div className='col-span-6'>
+                                    <div className='col-span-5'>
                                         <TextField
                                             onChange={onChangeStockIn}
                                             value={stockInFormData.stockInComment}
@@ -949,11 +952,27 @@ function StockInOut() {
                 <div className='col-span-12'>
                     <div className='userTableSubContainer'>
                         <div className='grid grid-cols-12 pt-6'>
-                            <div className='ml-6 col-span-6' >
-
-                                <div className='dateRange' aria-describedby={id} onClick={handleClick}>
-                                    {(state[0].startDate ? state[0].startDate.toDateString() : 'Select Date')} --- {(state[0].endDate ? state[0].endDate.toDateString() : 'Select Date')}
+                            <div className='ml-6 col-span-4' >
+                                <div className='flex'>
+                                    <div className='dateRange text-center' aria-describedby={id} onClick={handleClick}>
+                                        <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
+                                    </div>
+                                    <div className='resetBtnWrap col-span-3'>
+                                        <button className='reSetBtn' onClick={() => {
+                                            setFilter(false);
+                                            tab === 1 || tab === '1' ?
+                                                getStockInData() : getStockOutData();
+                                            setState([
+                                                {
+                                                    startDate: new Date(),
+                                                    endDate: new Date(),
+                                                    key: 'selection'
+                                                }
+                                            ])
+                                        }}><CloseIcon /></button>
+                                    </div>
                                 </div>
+
                                 <Popover
                                     id={id}
                                     open={open}
@@ -985,22 +1004,8 @@ function StockInOut() {
                                     </Box>
                                 </Popover>
                             </div>
-                            <div className='resetBtnWrap ml-6 col-span-3'>
-                                <button className='addCategoryBtn' onClick={() => {
-                                    setFilter(false);
-                                    tab === 1 || tab === '1' ?
-                                        getStockInData() : getStockOutData();
-                                    setState([
-                                        {
-                                            startDate: new Date(),
-                                            endDate: new Date(),
-                                            key: 'selection'
-                                        }
-                                    ])
-                                }}>Reset Filter</button>
-                            </div>
-                            <div className='col-span-2 col-start-11'>
-                                <button className='addCategoryBtn' onClick={() => { tab === 1 || tab === '1' ? stockInExportExcel() : stockOutExportExcel() }}>Export Excle</button>
+                            <div className='col-span-6 col-start-11 flex-col-reverse'>
+                                <button className='exportExcelBtn' onClick={() => { tab === 1 || tab === '1' ? stockInExportExcel() : stockOutExportExcel() }}><FileDownloadIcon />&nbsp;&nbsp;Export Excle</button>
                             </div>
                         </div>
                         {tab === 1 || tab === '1' ?

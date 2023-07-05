@@ -1,20 +1,59 @@
-.stockAccordinHeader{
+.stockAccordinHeader {
     padding-left: 8px;
     font-size: 16px;
-        font-weight: 600;
-        color: rgba(0, 0, 0, 0.5);
+    font-weight: 600;
+    color: rgba(0, 0, 0, 0.5);
 }
 
-.stockInOutContainer{
+.stockInOutContainer {
     padding-left: 8px;
     padding-right: 8px;
     padding-top: 10px;
     padding-bottom: 10px;
 }
 
-.dateRange{
+.dateRange {
     height: 40px;
-    min-width: 100px;
+    width: fit-content;
     color: #fff;
-    background-color: red;
+    padding: 8px;
+    background-color: rgba(0, 0, 6, 0.056);
+    color: black;
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+.dateRange:hover {
+    cursor: pointer;
+    background-color: rgba(0, 0, 6, 0.1);
+}
+
+.reSetBtn {
+    height: 40px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    padding: 5px 15px;
+    text-align: center;
+    /* border-radius: 5px; */
+    background-image: linear-gradient(195deg, rgb(235, 239, 244), rgb(206, 212, 218));
+    color: gray;
+}
+
+.exportExcelBtn {
+    height: 40px;
+    width: 210px;
+    padding: 5px 15px;
+    text-align: center;
+    border-radius: 5px;
+    background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(0, 122, 255, 1) 0%, rgba(0, 156, 255, 1) 78%);
+    color: #fff;
+}
+
+.exportExcelBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 9px 0 rgba(0, 0, 0, 0.15);
+}
+
+.calIcon {
+    padding-top: 1px;
 }
