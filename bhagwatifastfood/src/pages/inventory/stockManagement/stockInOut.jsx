@@ -322,10 +322,29 @@ function StockInOut() {
         })
     }
     const onChangeStockOut = (e) => {
-        setStockOutFormData((prevState) => ({
-            ...prevState,
-            [e.target.name]: e.target.value,
-        }))
+        if (e.target.name === 'productQty') {
+            if (e.target.value > stockOutFormData.productName.remainingStock) {
+                setStockOutFormDataError((perv) => ({
+                    ...perv,
+                    [e.target.name]: true
+                }))
+            }
+            else {
+                setStockOutFormDataError((perv) => ({
+                    ...perv,
+                    [e.target.name]: false
+                }))
+            }
+            setStockOutFormData((prevState) => ({
+                ...prevState,
+                [e.target.name]: e.target.value,
+            }))
+        } else {
+            setStockOutFormData((prevState) => ({
+                ...prevState,
+                [e.target.name]: e.target.value,
+            }))
+        }
     }
     const stockOut = async () => {
         await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addStockOutDetails`, stockOutFormData, config)
@@ -842,7 +861,7 @@ function StockInOut() {
                                     <div className='col-span-3'>
                                         <TextField
                                             onBlur={(e) => {
-                                                if (e.target.value < 1) {
+                                                if (e.target.value < 1 || e.target.value > stockOutFormData.productName.remainingStock) {
                                                     setStockOutFormDataError((perv) => ({
                                                         ...perv,
                                                         productQty: true
@@ -861,7 +880,7 @@ function StockInOut() {
                                             onChange={onChangeStockOut}
                                             value={stockOutFormData.productQty}
                                             error={stockOutFormDataError.productQty}
-                                            helperText={stockOutFormDataError.productQty ? "Enter Product Qty" : ''}
+                                            helperText={stockOutFormData.productName && !stockOutFormDataError.productQty ? `Remaining Stock:-  ${stockOutFormData.productName.remainingStock}  ${stockOutFormData.productUnit}` : stockOutFormDataError.productQty ? stockOutFormDataError.productQty && stockOutFormData.productQty > stockOutFormData.productName.remainingStock ? `StockOut qty can't be more than ${stockOutFormData.productName.remainingStock}  ${stockOutFormData.productUnit}` : "Please Enter Qty" : ''}
                                             name="productQty"
                                             InputProps={{
                                                 endAdornment: <InputAdornment position="end">{stockOutFormData.productUnit}</InputAdornment>,
