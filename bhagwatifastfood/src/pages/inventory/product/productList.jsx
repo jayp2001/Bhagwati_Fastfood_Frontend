@@ -205,10 +205,29 @@ function ProductList() {
         console.log('formddds', stockInFormData)
     }
     const onChangeStockOut = (e) => {
-        setStockOutFormData((prevState) => ({
-            ...prevState,
-            [e.target.name]: e.target.value,
-        }))
+        if (e.target.name === 'productQty') {
+            if (e.target.value > stockOutFormData.remainingStock) {
+                setStockOutFormDataError((perv) => ({
+                    ...perv,
+                    [e.target.name]: true
+                }))
+            }
+            else {
+                setStockOutFormDataError((perv) => ({
+                    ...perv,
+                    [e.target.name]: false
+                }))
+            }
+            setStockOutFormData((prevState) => ({
+                ...prevState,
+                [e.target.name]: e.target.value,
+            }))
+        } else {
+            setStockOutFormData((prevState) => ({
+                ...prevState,
+                [e.target.name]: e.target.value,
+            }))
+        }
     }
     const handleOpen = () => setOpen(true);
     const handleOpenStockIn = (row) => {
@@ -228,7 +247,8 @@ function ProductList() {
             ...perv,
             productId: row.productId,
             productName: row.productName,
-            productUnit: row.minProductUnit
+            productUnit: row.minProductUnit,
+            remainingStock: row.remainingStock
         }))
         setOpenStockOut(true);
     }
@@ -929,7 +949,7 @@ function ProductList() {
                         <div className='col-span-3'>
                             <TextField
                                 onBlur={(e) => {
-                                    if (e.target.value < 1) {
+                                    if (e.target.value < 1 || e.target.value > stockOutFormData.remainingStock) {
                                         setStockOutFormDataError((perv) => ({
                                             ...perv,
                                             productQty: true
@@ -948,7 +968,7 @@ function ProductList() {
                                 onChange={onChangeStockOut}
                                 value={stockOutFormData.productQty}
                                 error={stockOutFormDataError.productQty}
-                                helperText={stockOutFormDataError.productQty ? "Enter Product Qty" : ''}
+                                helperText={stockOutFormData.productName && !stockOutFormDataError.productQty ? `Remain Stock  ${stockOutFormData.remainingStock}  ${stockOutFormData.productUnit}` : stockOutFormDataError.productQty ? stockOutFormDataError.productQty && stockOutFormData.productQty > stockOutFormData.remainingStock ? `StockOut qty can't be more than ${stockOutFormData.remainingStock}  ${stockOutFormData.productUnit}` : "Please Enter Qty" : ''}
                                 name="productQty"
                                 InputProps={{
                                     endAdornment: <InputAdornment position="end">{stockOutFormData.productUnit}</InputAdornment>,
