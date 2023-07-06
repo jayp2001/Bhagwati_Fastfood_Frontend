@@ -35,8 +35,6 @@ import Paper from '@mui/material/Paper';
 import 'react-date-range/dist/styles.css'; // main style file
 import 'react-date-range/dist/theme/default.css';
 import { DateRangePicker } from 'react-date-range';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import Popover from '@mui/material/Popover';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import CloseIcon from '@mui/icons-material/Close';
@@ -977,7 +975,7 @@ function StockInOut() {
                                         <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
                                     </div>
                                     <div className='resetBtnWrap col-span-3'>
-                                        <button className='reSetBtn' onClick={() => {
+                                        <button className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`} onClick={() => {
                                             setFilter(false);
                                             tab === 1 || tab === '1' ?
                                                 getStockInData() : getStockOutData();
