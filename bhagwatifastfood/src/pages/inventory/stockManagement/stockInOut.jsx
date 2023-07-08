@@ -18,6 +18,7 @@ import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
+import Tooltip from '@mui/material/Tooltip';
 import Select from '@mui/material/Select';
 import InputAdornment from '@mui/material/InputAdornment';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -1064,7 +1065,7 @@ function StockInOut() {
                                                         <TableCell align="left" >{row.billNumber}</TableCell>
                                                         <TableCell align="left" >{row.supplier}</TableCell>
                                                         <TableCell align="left" >{row.stockInPaymentMethod}</TableCell>
-                                                        <TableCell align="left" >{row.stockInComment}</TableCell>
+                                                        <Tooltip title={row.stockInComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.stockInComment}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.stockInDate}</TableCell>
                                                     </TableRow> :
                                                     <TableRow
@@ -1118,7 +1119,7 @@ function StockInOut() {
                                                         <TableCell align="left" >{row.productName}</TableCell>
                                                         <TableCell align="left" >{row.Quantity}</TableCell>
                                                         <TableCell align="left" >{row.stockOutCategoryName}</TableCell>
-                                                        <TableCell align="left" >{row.stockOutComment}</TableCell>
+                                                        <Tooltip title={row.stockOutComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.stockOutComment}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.stockOutDate}</TableCell>
                                                     </TableRow> :
                                                     <TableRow

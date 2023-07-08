@@ -12,9 +12,33 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import TablePagination from '@mui/material/TablePagination';
 import Menutemp from './menu';
+import Typography from '@mui/material/Typography';
+import Modal from '@mui/material/Modal';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import InputAdornment from '@mui/material/InputAdornment';
+import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
+import { useNavigate } from "react-router-dom";
+
+const styleStockIn = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 800,
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    paddingLeft: '20px',
+    paddingRight: '20px',
+    paddingTop: '15px',
+    paddingBottom: '20px',
+    borderRadius: '10px'
+};
 
 function SuppilerTable() {
+    const navigate = useNavigate();
     const [page, setPage] = React.useState(0);
+    const [open, setOpen] = React.useState(false);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [totalRows, setTotalRows] = React.useState(0);
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
@@ -24,6 +48,22 @@ function SuppilerTable() {
             Authorization: `Bearer ${userInfo.token}`,
         },
     };
+    const [formData, setFormData] = React.useState({
+        supplierId: '',
+        receivedBy: '',
+        paidAmount: '',
+        transactionNote: '',
+        remainingAmount: '',
+        supplierName: ''
+    });
+    const [formDataError, setFormDataError] = React.useState({
+        receivedBy: false,
+        paidAmount: false,
+    });
+    const [formDataErrorFeild, setFormDataErrorFeild] = React.useState([
+        'receivedBy',
+        'paidAmount',
+    ]);
     const [loading, setLoading] = React.useState(false);
     const [error, setError] = React.useState(false);
     const [data, setData] = React.useState();
@@ -37,6 +77,59 @@ function SuppilerTable() {
             .catch((error) => {
                 alert(error.response.data)
             })
+    }
+    const handleClose = () => {
+        setFormData({
+            supplierId: '',
+            receivedBy: '',
+            paidAmount: '',
+            transactionNote: '',
+            remainingAmount: '',
+            supplierName: ''
+        })
+        setFormDataError({
+            receivedBy: false,
+            paidAmount: false,
+        })
+        setOpen(false);
+    }
+    const onChange = (e) => {
+        if (e.target.name === 'paidAmount') {
+            if (e.target.value > formData.remainingAmount) {
+                setFormDataError((perv) => ({
+                    ...perv,
+                    [e.target.name]: true
+                }))
+            }
+            else {
+                setFormDataError((perv) => ({
+                    ...perv,
+                    [e.target.name]: false
+                }))
+            }
+            setFormData((prevState) => ({
+                ...prevState,
+                [e.target.name]: e.target.value,
+            }))
+        } else {
+            setFormData((prevState) => ({
+                ...prevState,
+                [e.target.name]: e.target.value,
+            }))
+        }
+    }
+    const handleSuppilerOnClick = (id) => {
+        navigate(`/suppilerDetails/${id}`)
+    }
+    const handleOpen = (row) => {
+        // getCategoryList();
+        setFormData((perv) => ({
+            ...perv,
+            supplierId: row.supplierId,
+            supplierName: row.supplierName,
+            remainingAmount: row.remainingAmount,
+        }))
+        setOpen(true);
     }
     const getDataOnPageChange = async (pageNum, rowPerPageNum) => {
         console.log("page get", page, rowsPerPage)
@@ -79,79 +172,210 @@ function SuppilerTable() {
             }, 1000)
         }
     }
+    const makePayment = async () => {
+        await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addSupplierTransactionDetails`, formData, config)
+            .then((res) => {
+                alert("success");
+                getData();
+                handleClose();
+            })
+            .catch((error) => {
+                alert(error.response.data);
+            })
+    }
+
+    const submitPayment = () => {
+        const isValidate = formDataErrorFeild.filter(element => {
+            if (formData[element] === true || formData[element] === '' || formData[element] === 0) {
+                setFormDataError((perv) => ({
+                    ...perv,
+                    [element]: true
+                }))
+                return element;
+            }
+        })
+        if (isValidate.length > 0) {
+            alert(
+                "Please Fill All Field"
+            )
+        } else {
+            // console.log(">>", stockInFormData, stockInFormData.stockInDate, stockInFormData.stockInDate != 'Invalid Date' ? 'ue' : 'false')
+            makePayment()
+        }
+    }
 
     return (
-        <div className='grid grid-cols-12 userTableContainer'>
-            <div className='col-span-10 col-start-2'>
-                <div className='userTableSubContainer'>
-                    <div className='flex justify-center w-full'>
-                        <div className='tableHeader flex justify-between'>
-                            <div>
-                                Suppiler List
+        <div className='suppilerListContainer'>
+            <div className='grid grid-cols-12 userTableContainer'>
+                <div className='col-span-12'>
+                    <div className='userTableSubContainer'>
+                        <div className='flex justify-center w-full'>
+                            <div className='tableHeader flex justify-between'>
+                                <div>
+                                    Suppiler List
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div className='tableContainerWrapper'>
-                        <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
-                            <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell>No.</TableCell>
-                                        <TableCell>Name</TableCell>
-                                        <TableCell align="left">Firm</TableCell>
-                                        <TableCell align="left">Products</TableCell>
-                                        <TableCell align="right">Phone Number</TableCell>
-                                        {/* <TableCell align="left">Role</TableCell>
-                                        <TableCell align="left">email</TableCell> */}
-                                        <TableCell align="right"></TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {data?.map((row, index) => (
-                                        totalRows !== 0 ?
-                                            <TableRow
-                                                key={row.supplierId}
-                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                                style={{ cursor: "pointer" }}
-                                                className='tableRow'
-                                            >
-                                                <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
-                                                <TableCell component="th" scope="row">
-                                                    {row.supplierName}
-                                                </TableCell>
-                                                <TableCell align="left" >{row.supplierFirmName}</TableCell>
-                                                <TableCell align="left" >{row.productList}</TableCell>
-                                                <TableCell align="left" >{row.supplierPhoneNumber}</TableCell>
-                                                {/* <TableCell align="left" >{row.rightsName}</TableCell>
-                                                <TableCell align="left" >{row.emailAddress}</TableCell> */}
-                                                <TableCell align="right">
-                                                    <Menutemp supplierId={row.supplierId} deleteSuppiler={handleDeleteSuppiler} />
-                                                </TableCell>
-                                            </TableRow> :
-                                            <TableRow
-                                                key={row.userId}
-                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                            >
-                                                <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
-                                            </TableRow>
+                        <div className='tableContainerWrapper'>
+                            <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
+                                <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell>No.</TableCell>
+                                            <TableCell>Name</TableCell>
+                                            <TableCell align="left">Firm</TableCell>
+                                            <TableCell align="left">Products</TableCell>
+                                            <TableCell align="left">Phone Number</TableCell>
+                                            {/* <TableCell align="left">Role</TableCell> */}
+                                            <TableCell align="left">Remaining Payment</TableCell>
+                                            <TableCell align="right"></TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {data?.map((row, index) => (
+                                            totalRows !== 0 ?
+                                                <TableRow
+                                                    key={row.supplierId}
+                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                    style={{ cursor: "pointer" }}
+                                                    className='tableRow'
+                                                >
+                                                    <TableCell align="left" onClick={() => handleSuppilerOnClick(row.supplierId)} >{(index + 1) + (page * rowsPerPage)}</TableCell>
+                                                    <TableCell onClick={() => handleSuppilerOnClick(row.supplierId)} component="th" scope="row">
+                                                        {row.supplierName}
+                                                    </TableCell>
+                                                    <TableCell onClick={() => handleSuppilerOnClick(row.supplierId)} align="left" >{row.supplierFirmName}</TableCell>
+                                                    <TableCell onClick={() => handleSuppilerOnClick(row.supplierId)} align="left" >{row.productList}</TableCell>
+                                                    <TableCell onClick={() => handleSuppilerOnClick(row.supplierId)} align="left" >{row.supplierPhoneNumber}</TableCell>
+                                                    {/* <TableCell align="left" >{row.rightsName}</TableCell> */}
+                                                    <TableCell onClick={() => handleSuppilerOnClick(row.supplierId)} align="left" >{row.remainingAmount}</TableCell>
+                                                    <TableCell align="right">
+                                                        <Menutemp supplierId={row.supplierId} handleOpen={handleOpen} data={row} deleteSuppiler={handleDeleteSuppiler} />
+                                                    </TableCell>
+                                                </TableRow> :
+                                                <TableRow
+                                                    key={row.userId}
+                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                >
+                                                    <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
+                                                </TableRow>
 
-                                    ))}
-                                </TableBody>
-                            </Table>
-                            <TablePagination
-                                rowsPerPageOptions={[5, 10, 25]}
-                                component="div"
-                                count={totalRows}
-                                rowsPerPage={rowsPerPage}
-                                page={page}
-                                onPageChange={handleChangePage}
-                                onRowsPerPageChange={handleChangeRowsPerPage}
-                            />
-                        </TableContainer>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                                <TablePagination
+                                    rowsPerPageOptions={[5, 10, 25]}
+                                    component="div"
+                                    count={totalRows}
+                                    rowsPerPage={rowsPerPage}
+                                    page={page}
+                                    onPageChange={handleChangePage}
+                                    onRowsPerPageChange={handleChangeRowsPerPage}
+                                />
+                            </TableContainer>
+                        </div>
                     </div>
                 </div>
-            </div>
 
+            </div>
+            <Modal
+                open={open}
+                onClose={handleClose}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={styleStockIn}>
+                    <Typography id="modal-modal" variant="h6" component="h2">
+                        <span className='makePaymentHeader'>Make Payment to : </span><span className='makePaymentName'>{formData.supplierName}</span>
+                    </Typography>
+                    <div className='mt-6 grid grid-cols-12 gap-6'>
+                        <div className='col-span-6'>
+                            <TextField
+                                onBlur={(e) => {
+                                    if (e.target.value < 2) {
+                                        setFormDataError((perv) => ({
+                                            ...perv,
+                                            receivedBy: true
+                                        }))
+                                    }
+                                    else {
+                                        setFormDataError((perv) => ({
+                                            ...perv,
+                                            receivedBy: false
+                                        }))
+                                    }
+                                }}
+                                value={formData.receivedBy}
+                                error={formDataError.receivedBy}
+                                helperText={formDataError.receivedBy ? 'Enter Reciver Name' : ''}
+                                name="receivedBy"
+                                id="outlined-required"
+                                label="Received By"
+                                onChange={onChange}
+                                InputProps={{ style: { fontSize: 14 } }}
+                                InputLabelProps={{ style: { fontSize: 14 } }}
+                                fullWidth
+                            />
+                        </div>
+                        <div className='col-span-6'>
+                            <TextField
+                                onBlur={(e) => {
+                                    if (e.target.value < 1 || e.target.value > formData.remainingAmount) {
+                                        setFormDataError((perv) => ({
+                                            ...perv,
+                                            paidAmount: true
+                                        }))
+                                    }
+                                    else {
+                                        setFormDataError((perv) => ({
+                                            ...perv,
+                                            paidAmount: false
+                                        }))
+                                    }
+                                }}
+                                type="number"
+                                label="Paid Amount"
+                                fullWidth
+                                onChange={onChange}
+                                value={formData.paidAmount}
+                                error={formDataError.paidAmount}
+                                // helperText={formData.supplierName && !formDataError.productQty ? `Remain Payment  ${formData.remainingAmount}` : formDataError.paidAmount ? formData.paidAmount > formData.remainingAmount ? `Payment Amount can't be more than ${formData.remainingAmount}` : "Please Enter Amount" : ''}
+                                helperText={formData.paidAmount ? formData.paidAmount > formData.remainingAmount ? `Payment Amount can't be more than ${formData.remainingAmount}` : `Remaining Payment ${formData.remainingAmount}` : formDataError.paidAmount ? "Please Enter Amount" : `Remaining Payment ${formData.remainingAmount}`}
+                                name="paidAmount"
+                                InputProps={{
+                                    startAdornment: <InputAdornment position="start"><CurrencyRupeeIcon /></InputAdornment>,
+                                }}
+                            />
+                        </div>
+                    </div>
+                    <div className='mt-4 grid grid-cols-12 gap-6'>
+                        <div className='col-span-12'>
+                            <TextField
+                                onChange={onChange}
+                                value={formData.transactionNote}
+                                name="transactionNote"
+                                id="outlined-required"
+                                label="Comment"
+                                InputProps={{ style: { fontSize: 14 } }}
+                                InputLabelProps={{ style: { fontSize: 14 } }}
+                                fullWidth
+                            />
+                        </div>
+                    </div>
+                    <div className='mt-4 grid grid-cols-12 gap-6'>
+                        <div className='col-span-3'>
+                            <button className='addCategorySaveBtn' onClick={() => {
+                                submitPayment()
+                            }}>Make Payment</button>
+                        </div>
+                        <div className='col-span-3'>
+                            <button className='addCategoryCancleBtn' onClick={() => {
+                                handleClose();
+                            }}>Cancle</button>
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
         </div>
     )
 }

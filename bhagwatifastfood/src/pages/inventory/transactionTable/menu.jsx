@@ -4,7 +4,7 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useNavigate } from "react-router-dom";
-
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 const ITEM_HEIGHT = 48;
 
@@ -21,7 +21,6 @@ function Menutemp(props) {
     const handleEditClick = (id) => {
         navigate(`/editSuppiler/${id}`)
     }
-
     return (
         <div>
             <IconButton
@@ -49,26 +48,19 @@ function Menutemp(props) {
                     },
                 }}
             >
-                <MenuItem key={'makePayment'}
-                    onClick={() => {
-                        handleClose();
-                        props.handleOpen(props.data)
-                    }}>
-                    Make Payment
-                </MenuItem>
                 <MenuItem key={'delete'}
                     onClick={() => {
                         handleClose();
-                        props.deleteSuppiler(props.supplierId)
+                        props.deleteTransaction(props.transactionId)
                     }}>
                     Delete
                 </MenuItem>
-                <MenuItem key={'Edit'}
+                <MenuItem key={'InVoice'}
                     onClick={() => {
                         handleClose();
-                        handleEditClick(props.supplierId)
+                        props.getInvoice(props.transactionId)
                     }}>
-                    Edit
+                    Download Invoice
                 </MenuItem>
             </Menu>
         </div >

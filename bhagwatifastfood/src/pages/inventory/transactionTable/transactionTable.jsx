@@ -24,6 +24,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import Autocomplete from '@mui/material/Autocomplete';
+import Tooltip from '@mui/material/Tooltip';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -40,7 +41,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import CloseIcon from '@mui/icons-material/Close';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import CountCard from '../countCard/countCard';
-
+import Menutemp from './menu';
 function TransactionTable() {
     const [tab, setTab] = React.useState(2);
     const [cashCount, setCashCount] = React.useState();
@@ -293,6 +294,47 @@ function TransactionTable() {
             });
         }
     }
+    const deleteData = async (id) => {
+        await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeSupplierTransactionDetails?supplierTransactionId=${id}`, config)
+            .then((res) => {
+                alert("data deleted")
+            })
+            .catch((error) => {
+                alert(error.response.data)
+            })
+    }
+    const handleDeleteTransaction = (id) => {
+        if (window.confirm("Are you sure you want to delete transaction?")) {
+            deleteData(id);
+            setTimeout(() => {
+                getDebitData();
+            }, 1000)
+        }
+    }
+    const getInvoice = async (tId) => {
+        if (window.confirm('Are you sure you want to Download Invoice ... ?')) {
+            await axios({
+                url: `${BACKEND_BASE_URL}inventoryrouter/exportTransactionInvoice?transactionId=${tId}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = 'bookList' + new Date().toLocaleDateString() + '.pdf'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
 
     useEffect(() => {
         // getCategoryList();
@@ -350,7 +392,7 @@ function TransactionTable() {
                                 </div>
                             </div>
                             <div className='col-span-4 col-start-9 flex justify-end pr-4'>
-                                <div className='dateRange text-center self-center' aria-describedby={'id'} onClick={handleClick}>
+                                <div className='dateRange text-center self-center' aria-describedby={id} onClick={handleClick}>
                                     <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
                                 </div>
                                 <div className='resetBtnWrap col-span-3 self-center'>
@@ -447,8 +489,8 @@ function TransactionTable() {
                                                 <TableCell align="left">Comment</TableCell>
                                                 <TableCell align="left">Date</TableCell>
                                                 <TableCell align="left">Time</TableCell>
-                                                {/* <TableCell align="left">Comment</TableCell>
-                                                <TableCell align="left">Date</TableCell> */}
+                                                <TableCell align="left"></TableCell>
+                                                {/* <TableCell align="left">Date</TableCell> */}
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
@@ -468,9 +510,12 @@ function TransactionTable() {
                                                         <TableCell align="left" >{row.receivedBy}</TableCell>
                                                         <TableCell align="right" >{row.pendingAmount}</TableCell>
                                                         <TableCell align="right" >{row.paidAmount}</TableCell>
-                                                        <TableCell align="left" >{row.transactionNote}</TableCell>
+                                                        <Tooltip title={row.transactionNote} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.transactionNote}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.transactionDate}</TableCell>
                                                         <TableCell align="left" >{row.transactionTime}</TableCell>
+                                                        <TableCell align="right">
+                                                            <Menutemp transactionId={row.supplierTransactionId} getInvoice={getInvoice} data={row} deleteTransaction={handleDeleteTransaction} />
+                                                        </TableCell>
                                                     </TableRow> :
                                                     <TableRow
                                                         key={row.userId}
