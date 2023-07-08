@@ -40,6 +40,7 @@ import Popover from '@mui/material/Popover';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import CloseIcon from '@mui/icons-material/Close';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import MenuStockInOut from './menu';
 
 const qtyUnit = [
     'Kg',
@@ -566,6 +567,41 @@ function StockInOut() {
         }
     }
 
+    const deleteStockIn = async (id) => {
+        await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeStockInTransaction?stockInId=${id}`, config)
+            .then((res) => {
+                alert("data deleted")
+            })
+            .catch((error) => {
+                alert(error.response.data)
+            })
+    }
+    const handleDeleteStockIn = (id) => {
+        if (window.confirm("Are you sure you want to delete Stock In?")) {
+            deleteStockIn(id);
+            setTimeout(() => {
+                getStockInData();
+            }, 1000)
+        }
+    }
+    const deleteStockOut = async (id) => {
+        await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeStockOutTransaction?stockOutId=${id}`, config)
+            .then((res) => {
+                alert("data deleted")
+            })
+            .catch((error) => {
+                alert(error.response.data)
+            })
+    }
+    const handleDeleteStockOut = (id) => {
+        if (window.confirm("Are you sure you want to delete Stock Out?")) {
+            deleteStockOut(id);
+            setTimeout(() => {
+                getStockOutData();
+            }, 1000)
+        }
+    }
+
     useEffect(() => {
         getCategoryList();
         getProductList();
@@ -1043,6 +1079,7 @@ function StockInOut() {
                                                 <TableCell align="left">Pay Mode</TableCell>
                                                 <TableCell align="left">Comment</TableCell>
                                                 <TableCell align="left">Date</TableCell>
+                                                <TableCell align="left"></TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
@@ -1055,9 +1092,11 @@ function StockInOut() {
                                                         className='tableRow'
                                                     >
                                                         <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
-                                                        <TableCell component="th" scope="row">
-                                                            {row.enteredBy}
-                                                        </TableCell>
+                                                        <Tooltip title={row.userName} placement="top-start" arrow>
+                                                            <TableCell component="th" scope="row">
+                                                                {row.enteredBy}
+                                                            </TableCell>
+                                                        </Tooltip>
                                                         <TableCell align="left" >{row.productName}</TableCell>
                                                         <TableCell align="left" >{row.Quantity}</TableCell>
                                                         <TableCell align="right" >{row.productPrice}</TableCell>
@@ -1067,6 +1106,9 @@ function StockInOut() {
                                                         <TableCell align="left" >{row.stockInPaymentMethod}</TableCell>
                                                         <Tooltip title={row.stockInComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.stockInComment}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.stockInDate}</TableCell>
+                                                        <TableCell align="right">
+                                                            <MenuStockInOut stockInOutId={row.stockInId} data={row} deleteStockInOut={handleDeleteStockIn} />
+                                                        </TableCell>
                                                     </TableRow> :
                                                     <TableRow
                                                         key={row.userId}
@@ -1101,6 +1143,7 @@ function StockInOut() {
                                                 <TableCell align="left">stockOutCategoryName</TableCell>
                                                 <TableCell align="left">stockOutComment</TableCell>
                                                 <TableCell align="left">stockOutDate</TableCell>
+                                                <TableCell align="left"></TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
@@ -1113,14 +1156,19 @@ function StockInOut() {
                                                         className='tableRow'
                                                     >
                                                         <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
-                                                        <TableCell component="th" scope="row">
-                                                            {row.outBy}
-                                                        </TableCell>
+                                                        <Tooltip title={row.userName} placement="top-start" arrow>
+                                                            <TableCell component="th" scope="row">
+                                                                {row.outBy}
+                                                            </TableCell>
+                                                        </Tooltip>
                                                         <TableCell align="left" >{row.productName}</TableCell>
                                                         <TableCell align="left" >{row.Quantity}</TableCell>
                                                         <TableCell align="left" >{row.stockOutCategoryName}</TableCell>
                                                         <Tooltip title={row.stockOutComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.stockOutComment}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.stockOutDate}</TableCell>
+                                                        <TableCell align="right">
+                                                            <MenuStockInOut stockInOutId={row.stockOutId} data={row} deleteStockInOut={handleDeleteStockOut} />
+                                                        </TableCell>
                                                     </TableRow> :
                                                     <TableRow
                                                         key={row.userId}

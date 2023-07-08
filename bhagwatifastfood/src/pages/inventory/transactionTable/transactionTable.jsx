@@ -470,7 +470,7 @@ function TransactionTable() {
                 <div className='col-span-12'>
                     <div className='userTableSubContainer'>
                         <div className='grid grid-cols-12 pt-6'>
-                            <div className='col-span-6 col-start-11 flex-col-reverse'>
+                            <div className='col-span-6 col-start-7 pr-5 flex justify-end'>
                                 <button className='exportExcelBtn' onClick={() => { tab === 1 || tab === '1' ? debitExportExcel() : CashExportExcel() }}><FileDownloadIcon />&nbsp;&nbsp;Export Excle</button>
                             </div>
                         </div>

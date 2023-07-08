@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import React from "react";
 import { BACKEND_BASE_URL } from '../../../url';
 import axios from 'axios';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { useParams, useNavigate } from 'react-router-dom';
 import CountCard from '../countCard/countCard';
 import CloseIcon from '@mui/icons-material/Close';
@@ -30,6 +31,7 @@ import TableRow from '@mui/material/TableRow';
 import TablePagination from '@mui/material/TablePagination';
 import Paper from '@mui/material/Paper';
 import Menutemp from '../transactionTable/menu';
+import MenuStockInOut from '../stockManagement/menu';
 
 function SuppilerDetail() {
     let { id } = useParams();
@@ -133,16 +135,16 @@ function SuppilerDetail() {
                 alert(error.response.data)
             })
     }
-    const getStockInDataonRemoveFilter = async (tab) => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockInList?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${page + 1}&numPerPage=${rowsPerPage}&supplierId=${id}&payType=${tab}`, config)
-            .then((res) => {
-                setStockInData(res.data.rows);
-                setTotalRows(res.data.numRows);
-            })
-            .catch((error) => {
-                alert(error.response.data)
-            })
-    }
+    // const getStockInDataonRemoveFilter = async (tab) => {
+    //     await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockInList?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${page + 1}&numPerPage=${rowsPerPage}&supplierId=${id}&payType=${tabStockIn}`, config)
+    //         .then((res) => {
+    //             setStockInData(res.data.rows);
+    //             setTotalRows(res.data.numRows);
+    //         })
+    //         .catch((error) => {
+    //             alert(error.response.data)
+    //         })
+    // }
     const getStockInDataOnPageChange = async (pageNum, rowPerPageNum) => {
         await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockInList?page=${pageNum}&numPerPage=${rowPerPageNum}&supplierId=${id}&payType=${tabStockIn}`, config)
             .then((res) => {
@@ -300,17 +302,6 @@ function SuppilerDetail() {
                 alert(error.response.data)
             })
     }
-    // const getDebitDataByFilterByTab = async () => {
-    //     await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getDebitTransactionList?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${1}&numPerPage=${5}&supplierId=${id}`, config)
-    //         .then((res) => {
-    //             setDebitTransaction(res.data.rows);
-    //             setTotalRowsDebit(res.data.numRows);
-    //         })
-    //         .catch((error) => {
-    //             alert(error.response.data)
-    //         })
-    // }
-
     useEffect(() => {
         getProductCount();
         getStatistics();
@@ -382,10 +373,27 @@ function SuppilerDetail() {
             makePayment()
         }
     }
-
+    const deleteStockIn = async (id) => {
+        await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeStockInTransaction?stockInId=${id}`, config)
+            .then((res) => {
+                alert("data deleted")
+            })
+            .catch((error) => {
+                alert(error.response.data)
+            })
+    }
+    const handleDeleteStockIn = (id) => {
+        if (window.confirm("Are you sure you want to delete Stock In?")) {
+            deleteStockIn(id);
+            setTimeout(() => {
+                getStockInData();
+            }, 1000)
+        }
+    }
     const deleteData = async (id) => {
         await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeSupplierTransactionDetails?supplierTransactionId=${id}`, config)
             .then((res) => {
+                getStatistics();
                 alert("data deleted")
             })
             .catch((error) => {
@@ -413,6 +421,57 @@ function SuppilerDetail() {
                 // create "a" HTML element with href to file & click
                 const link = document.createElement('a');
                 const name = 'bookList' + new Date().toLocaleDateString() + '.pdf'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+
+    const stockInExportExcel = async () => {
+        if (window.confirm('Are you sure you want to export Excel ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}inventoryrouter/exportExcelSheetForStockin?startDate=${state[0].startDate}&endDate=${state[0].endDate}&supplierId=${id}&payType=${tabStockIn}` : `${BACKEND_BASE_URL}inventoryrouter/exportExcelSheetForStockin?startDate=${''}&endDate=${''}&supplierId=${id}&payType=${tabStockIn}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = 'bookList' + new Date().toLocaleDateString() + '.xlsx'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+
+
+    const transactionExportExcel = async () => {
+        if (window.confirm('Are you sure you want to export Excel ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}inventoryrouter/exportExcelSheetForDebitTransactionList?startDate=${state[0].startDate}&endDate=${state[0].endDate}&supplierId=${id}` : `${BACKEND_BASE_URL}inventoryrouter/exportExcelSheetForDebitTransactionList?startDate=${''}&endDate=${''}&supplierId=${id}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = 'bookList' + new Date().toLocaleDateString() + '.xlsx'
                 link.href = href;
                 link.setAttribute('download', name); //or any other extension
                 document.body.appendChild(link);
@@ -757,128 +816,141 @@ function SuppilerDetail() {
                     </div>
                 </div>
             </div>
-            <div className='tableContainerWrapper'>
-                {
-                    tabStockIn !== 'transaction' ?
-                        <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
-                            <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell>No.</TableCell>
-                                        <TableCell>Entered By</TableCell>
-                                        <TableCell align="left">Product Name</TableCell>
-                                        <TableCell align="left">Qty</TableCell>
-                                        <TableCell align="right">Price</TableCell>
-                                        <TableCell align="right">Total Price</TableCell>
-                                        <TableCell align="left">Bill No.</TableCell>
-                                        <TableCell align="left">Pay Mode</TableCell>
-                                        <TableCell align="left">Comment</TableCell>
-                                        <TableCell align="left">Date</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {stockInData?.map((row, index) => (
-                                        totalRows !== 0 ?
-                                            <TableRow
-                                                key={row.stockInId}
-                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                                style={{ cursor: "pointer" }}
-                                                className='tableRow'
-                                            >
-                                                <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
-                                                <Tooltip title={row.userName} placement="top-start" arrow>
-                                                    <TableCell component="th" scope="row">
-                                                        {row.enteredBy}
+            <div className='userTableSubContainer mt-6'>
+                <div className='grid grid-cols-12 pt-6'>
+                    <div className='col-span-6 col-start-7 pr-5 flex justify-end'>
+                        <button className='exportExcelBtn'
+                            onClick={() => { tabStockIn !== 'transaction' ? stockInExportExcel() : transactionExportExcel() }}
+                        ><FileDownloadIcon />&nbsp;&nbsp;Export Excle</button>
+                    </div>
+                </div>
+                <div className='tableContainerWrapper'>
+                    {
+                        tabStockIn !== 'transaction' ?
+                            <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
+                                <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell>No.</TableCell>
+                                            <TableCell>Entered By</TableCell>
+                                            <TableCell align="left">Product Name</TableCell>
+                                            <TableCell align="left">Qty</TableCell>
+                                            <TableCell align="right">Price</TableCell>
+                                            <TableCell align="right">Total Price</TableCell>
+                                            <TableCell align="left">Bill No.</TableCell>
+                                            <TableCell align="left">Pay Mode</TableCell>
+                                            <TableCell align="left">Comment</TableCell>
+                                            <TableCell align="left">Date</TableCell>
+                                            <TableCell align="left"></TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {stockInData?.map((row, index) => (
+                                            totalRows !== 0 ?
+                                                <TableRow
+                                                    key={row.stockInId}
+                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                    style={{ cursor: "pointer" }}
+                                                    className='tableRow'
+                                                >
+                                                    <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
+                                                    <Tooltip title={row.userName} placement="top-start" arrow>
+                                                        <TableCell component="th" scope="row">
+                                                            {row.enteredBy}
+                                                        </TableCell>
+                                                    </Tooltip>
+                                                    <TableCell align="left" >{row.productName}</TableCell>
+                                                    <TableCell align="left" >{row.Quantity}</TableCell>
+                                                    <TableCell align="right" >{row.productPrice}</TableCell>
+                                                    <TableCell align="right" >{row.totalPrice}</TableCell>
+                                                    <TableCell align="left" >{row.billNumber}</TableCell>
+                                                    <TableCell align="left" >{row.stockInPaymentMethod}</TableCell>
+                                                    <Tooltip title={row.stockInComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.stockInComment}</div></TableCell></Tooltip>
+                                                    <TableCell align="left" >{row.stockInDate}</TableCell>
+                                                    <TableCell align="right">
+                                                        <MenuStockInOut stockInOutId={row.stockInId} data={row} deleteStockInOut={handleDeleteStockIn} />
                                                     </TableCell>
-                                                </Tooltip>
-                                                <TableCell align="left" >{row.productName}</TableCell>
-                                                <TableCell align="left" >{row.Quantity}</TableCell>
-                                                <TableCell align="right" >{row.productPrice}</TableCell>
-                                                <TableCell align="right" >{row.totalPrice}</TableCell>
-                                                <TableCell align="left" >{row.billNumber}</TableCell>
-                                                <TableCell align="left" >{row.stockInPaymentMethod}</TableCell>
-                                                <Tooltip title={row.stockInComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.stockInComment}</div></TableCell></Tooltip>
-                                                <TableCell align="left" >{row.stockInDate}</TableCell>
-                                            </TableRow> :
-                                            <TableRow
-                                                key={row.userId}
-                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                            >
-                                                <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
-                                            </TableRow>
+                                                </TableRow> :
+                                                <TableRow
+                                                    key={row.userId}
+                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                >
+                                                    <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
+                                                </TableRow>
 
-                                    ))}
-                                </TableBody>
-                            </Table>
-                            <TablePagination
-                                rowsPerPageOptions={[5, 10, 25]}
-                                component="div"
-                                count={totalRows}
-                                rowsPerPage={rowsPerPage}
-                                page={page}
-                                onPageChange={handleChangePage}
-                                onRowsPerPageChange={handleChangeRowsPerPage}
-                            />
-                        </TableContainer> :
-                        <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
-                            <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell>No.</TableCell>
-                                        <TableCell>Paid By</TableCell>
-                                        <TableCell align="left">Received By</TableCell>
-                                        <TableCell align="right">Pending Amount</TableCell>
-                                        <TableCell align="right">Paid Amount</TableCell>
-                                        <TableCell align="left">Comment</TableCell>
-                                        <TableCell align="left">Date</TableCell>
-                                        <TableCell align="left">Time</TableCell>
-                                        <TableCell align="left"></TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {debitTransaction?.map((row, index) => (
-                                        totalRowsDebit !== 0 ?
-                                            <TableRow
-                                                key={row.supplierTransactionId}
-                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                                style={{ cursor: "pointer" }}
-                                                className='tableRow'
-                                            >
-                                                <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
-                                                <TableCell component="th" scope="row">
-                                                    {row.paidBy}
-                                                </TableCell>
-                                                <TableCell align="left" >{row.receivedBy}</TableCell>
-                                                <TableCell align="right" >{row.pendingAmount}</TableCell>
-                                                <TableCell align="right" >{row.paidAmount}</TableCell>
-                                                <Tooltip title={row.transactionNote} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.transactionNote}</div></TableCell></Tooltip>
-                                                <TableCell align="left" >{row.transactionDate}</TableCell>
-                                                <TableCell align="left" >{row.transactionTime}</TableCell>
-                                                <TableCell align="right">
-                                                    <Menutemp transactionId={row.supplierTransactionId} getInvoice={getInvoice} data={row} deleteTransaction={handleDeleteTransaction} />
-                                                </TableCell>
-                                            </TableRow> :
-                                            <TableRow
-                                                key={row.userId}
-                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                            >
-                                                <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
-                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                                <TablePagination
+                                    rowsPerPageOptions={[5, 10, 25]}
+                                    component="div"
+                                    count={totalRows}
+                                    rowsPerPage={rowsPerPage}
+                                    page={page}
+                                    onPageChange={handleChangePage}
+                                    onRowsPerPageChange={handleChangeRowsPerPage}
+                                />
+                            </TableContainer> :
+                            <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
+                                <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
+                                    <TableHead>
+                                        <TableRow>
+                                            <TableCell>No.</TableCell>
+                                            <TableCell>Paid By</TableCell>
+                                            <TableCell align="left">Received By</TableCell>
+                                            <TableCell align="right">Pending Amount</TableCell>
+                                            <TableCell align="right">Paid Amount</TableCell>
+                                            <TableCell align="left">Comment</TableCell>
+                                            <TableCell align="left">Date</TableCell>
+                                            <TableCell align="left">Time</TableCell>
+                                            <TableCell align="left"></TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {debitTransaction?.map((row, index) => (
+                                            totalRowsDebit !== 0 ?
+                                                <TableRow
+                                                    key={row.supplierTransactionId}
+                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                    style={{ cursor: "pointer" }}
+                                                    className='tableRow'
+                                                >
+                                                    <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
+                                                    <TableCell component="th" scope="row">
+                                                        {row.paidBy}
+                                                    </TableCell>
+                                                    <TableCell align="left" >{row.receivedBy}</TableCell>
+                                                    <TableCell align="right" >{row.pendingAmount}</TableCell>
+                                                    <TableCell align="right" >{row.paidAmount}</TableCell>
+                                                    <Tooltip title={row.transactionNote} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.transactionNote}</div></TableCell></Tooltip>
+                                                    <TableCell align="left" >{row.transactionDate}</TableCell>
+                                                    <TableCell align="left" >{row.transactionTime}</TableCell>
+                                                    <TableCell align="right">
+                                                        <Menutemp transactionId={row.supplierTransactionId} getInvoice={getInvoice} data={row} deleteTransaction={handleDeleteTransaction} />
+                                                    </TableCell>
+                                                </TableRow> :
+                                                <TableRow
+                                                    key={row.userId}
+                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                >
+                                                    <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
+                                                </TableRow>
 
-                                    ))}
-                                </TableBody>
-                            </Table>
-                            <TablePagination
-                                rowsPerPageOptions={[5, 10, 25]}
-                                component="div"
-                                count={totalRowsDebit}
-                                rowsPerPage={rowsPerPage}
-                                page={page}
-                                onPageChange={handleChangePage}
-                                onRowsPerPageChange={handleChangeRowsPerPage}
-                            />
-                        </TableContainer>
-                }
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                                <TablePagination
+                                    rowsPerPageOptions={[5, 10, 25]}
+                                    component="div"
+                                    count={totalRowsDebit}
+                                    rowsPerPage={rowsPerPage}
+                                    page={page}
+                                    onPageChange={handleChangePage}
+                                    onRowsPerPageChange={handleChangeRowsPerPage}
+                                />
+                            </TableContainer>
+                    }
+                </div>
             </div>
         </div>
     )
