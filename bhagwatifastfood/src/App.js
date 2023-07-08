@@ -17,6 +17,7 @@ import CategoriesTable from './pages/inventory/categoriesTable/categoriesTable';
 import StockInOut from './pages/inventory/stockManagement/stockInOut';
 import TransactionTable from './pages/inventory/transactionTable/transactionTable';
 import SuppilerDetail from './pages/inventory/suppilerDetails/suppilerDetail';
+import ProductDetails from './pages/inventory/productDetails/productDetails';
 function App() {
   return (
     <div className="">
@@ -40,6 +41,7 @@ function App() {
                 <Route path="/editUser/:id" element={<EditUser/>}/>
                 <Route path="/editSuppiler/:id" element={<EditSuppiler/>}/>
                 <Route path="/suppilerDetails/:id" element={<SuppilerDetail/>}/>
+                <Route path="/productDetails/:id/:name/:unit/:remainingQty" element={<ProductDetails/>}/>
                 {/* <Route path="/dashboard" element={<Dashboard/>}/>
                 <Route path="/dealer/:id" element={<DealerDetail/>}/>
                 <Route path="/editDealer/:id" element={<EditDealer/>}/>
