@@ -19,7 +19,7 @@ function ProductCard(props) {
             <div className='grid grid-cols-12'>
                 <div className='col-span-11 productName'>
                     <Tooltip title={props.productData.productName} placement="top-start" arrow>
-                        <div className={`productNameDiv ${props.productData.remainingStock > props.productData.minProductQty ? 'greenHeader' : props.productData.remainingStock < props.productData.minProductQty && props.productData.remainingStock !== 0 ? 'orangeHeader' : 'redHeader'}`}>{props.productData.productName}</div>
+                        <div className={`productNameDiv ${props.productData.remainingStock >= props.productData.minProductQty ? 'greenHeader' : props.productData.remainingStock < props.productData.minProductQty && props.productData.remainingStock !== 0 ? 'orangeHeader' : 'redHeader'}`}>{props.productData.productName}</div>
                     </Tooltip>
                 </div>
                 <Menutemp handleDelete={handleDelete} handleEdit={handleEdit} />
@@ -32,7 +32,7 @@ function ProductCard(props) {
                 <div className='stockFieldHeader'>
                     Remaining Stock
                 </div>
-                <div className={`mt-2 stockFieldWrp ${props.productData.remainingStock > props.productData.minProductQty ? 'green' : props.productData.remainingStock < props.productData.minProductQty && props.productData.remainingStock !== 0 ? 'orange' : 'red'}`}>
+                <div className={`mt-2 stockFieldWrp ${props.productData.remainingStock >= props.productData.minProductQty ? 'green' : props.productData.remainingStock < props.productData.minProductQty && props.productData.remainingStock !== 0 ? 'orange' : 'red'}`}>
                     {props.productData.remainingStock} {props.productData.minProductUnit}
                 </div>
             </div>

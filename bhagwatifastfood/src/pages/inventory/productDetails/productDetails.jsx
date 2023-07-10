@@ -93,7 +93,6 @@ function ProductDetails() {
         stockInDate: dayjs()
     })
     const [stockInFormDataError, setStockInFormDataError] = React.useState({
-        productQty: false,
         productPrice: false,
         totalPrice: false,
         supplierId: false,
@@ -101,8 +100,6 @@ function ProductDetails() {
         stockInDate: false
     })
     const [stockInErrorFields, setStockInErrorFields] = React.useState([
-        'productQty',
-        'productName',
         'productPrice',
         'totalPrice',
         'supplierId',
@@ -268,6 +265,7 @@ function ProductDetails() {
         }
     }
     const submitStockIn = () => {
+        console.log('submitStockIn')
         const isValidate = stockInErrorFields.filter(element => {
             if (element === 'stockInDate' && stockInFormData[element] === '' || stockInFormData[element] === null || stockInFormData.stockInDate == 'Invalid Date') {
                 setStockInFormDataError((perv) => ({
@@ -295,7 +293,15 @@ function ProductDetails() {
         }
     }
     const stockOut = async () => {
-        await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addStockOutDetails`, stockOutFormData, config)
+        const formdata = {
+            productId: id,
+            productQty: stockOutFormData.productQty,
+            productUnit: unit,
+            stockOutCategory: stockOutFormData.stockOutCategory,
+            stockOutComment: stockOutFormData.stockOutComment,
+            stockOutDate: stockOutFormData.stockOutDate,
+        }
+        await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addStockOutDetails`, formdata, config)
             .then((res) => {
                 alert("success");
                 // getData();
@@ -319,6 +325,7 @@ function ProductDetails() {
             })
     }
     const submitStockOut = () => {
+        console.log('submitStockOut')
         const isValidate = stockOutErrorFields.filter(element => {
             if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
                 setStockOutFormDataError((perv) => ({
@@ -336,6 +343,7 @@ function ProductDetails() {
             }
         })
         if (isValidate.length > 0) {
+            console.log('velidate', isValidate)
             alert(
                 "Please Fill All Field"
             )
@@ -444,7 +452,19 @@ function ProductDetails() {
         }
     };
     const stockIn = async () => {
-        await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addStockInDetails`, stockInFormData, config)
+        const formdata = {
+            productId: id,
+            productQty: stockInFormData.productQty,
+            productUnit: unit,
+            productPrice: stockInFormData.productPrice,
+            totalPrice: stockInFormData.totalPrice,
+            billNumber: stockInFormData.billNumber,
+            supplierId: stockInFormData.supplierId,
+            stockInPaymentMethod: stockInFormData.stockInPaymentMethod,
+            stockInComment: stockInFormData.stockInComment,
+            stockInDate: stockInFormData.stockInDate,
+        }
+        await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addStockInDetails`, formdata, config)
             .then((res) => {
                 alert("success");
                 // getData();
@@ -642,10 +662,7 @@ function ProductDetails() {
 
     const resetStockInEdit = () => {
         setStockInFormData({
-            productId: "",
-            productName: null,
             productQty: 0,
-            productUnit: "",
             productPrice: 0,
             totalPrice: 0,
             billNumber: "",
@@ -656,8 +673,6 @@ function ProductDetails() {
         });
         setStockInFormDataError({
             productQty: false,
-            productName: false,
-            productUnit: false,
             productPrice: false,
             totalPrice: false,
             supplierId: false,
@@ -791,6 +806,7 @@ function ProductDetails() {
             })
     }
     const editSubmitStockOut = () => {
+        console.log('editSubmitStockOut')
         const isValidate = stockOutErrorFields.filter(element => {
             if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
                 setStockOutFormDataError((perv) => ({
@@ -817,6 +833,7 @@ function ProductDetails() {
         }
     }
     const editStockIn = () => {
+        console.log('editStockIn');
         const isValidate = stockInErrorFields.filter(element => {
             if (element === 'stockInDate' && stockInFormData[element] === '' || stockInFormData[element] === null || stockInFormData.stockInDate == 'Invalid Date') {
                 setStockInFormDataError((perv) => ({
