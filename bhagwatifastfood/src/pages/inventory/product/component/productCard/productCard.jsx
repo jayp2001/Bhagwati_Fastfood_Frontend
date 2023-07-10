@@ -11,6 +11,9 @@ function ProductCard(props) {
     const handleDelete = () => {
         props.handleDeleteProduct(props.productData.productId);
     }
+    const handleClick = () => {
+        props.handleViewDetail(props.productData.productId, props.productData.productName, props.productData.minProductUnit, props.productData.remainingStock)
+    }
     return (
         <div className="productCard" key={props.productData.productId}>
             <div className='grid grid-cols-12'>
@@ -59,7 +62,7 @@ function ProductCard(props) {
                     </div>
                 </div>
                 <div className='mt-4'>
-                    <button className='viewDetailBtn'><VisibilityIcon fontSize='small' /> &nbsp;&nbsp;View Details</button>
+                    <button className='viewDetailBtn' onClick={handleClick} ><VisibilityIcon fontSize='small' /> &nbsp;&nbsp;View Details</button>
                 </div>
             </div>
         </div>

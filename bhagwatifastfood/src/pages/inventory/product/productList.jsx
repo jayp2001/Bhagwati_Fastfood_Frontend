@@ -20,6 +20,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { useNavigate } from "react-router-dom";
 
 const style = {
     position: 'absolute',
@@ -62,6 +63,7 @@ const qtyUnit = [
     'Num'
 ]
 function ProductList() {
+    const navigate = useNavigate();
     const [formData, setFormData] = React.useState({
         productName: '',
         productId: '',
@@ -516,9 +518,11 @@ function ProductList() {
             minProductUnit: row.minProductUnit
         })
     }
-
-    if (data) {
+    const handleViewDetail = (id, name, unit, remainingQty) => {
+        navigate(`/productDetails/${id}/${name}/${unit}/${remainingQty}`)
     }
+    // if (data) {
+    // }
     return (
         <div className='productListContainer'>
             <div className='grid grid-cols-12'>
@@ -554,7 +558,7 @@ function ProductList() {
             <div className='productCardContainer mt-8 gap-6 grid mobile:grid-cols-2 tablet1:grid-cols-3 tablet:grid-cols-4 laptop:grid-cols-5 desktop1:grid-cols-6 desktop2:grid-cols-7 desktop2:grid-cols-8'>
                 {
                     data ? data.map((product) => (
-                        <ProductCard productData={product} handleOpenStockOut={handleOpenStockOut} handleOpenStockIn={handleOpenStockIn} handleDeleteProduct={handleDeleteProduct} handleEditClick={handleEditClick} />
+                        <ProductCard productData={product} handleViewDetail={handleViewDetail} handleOpenStockOut={handleOpenStockOut} handleOpenStockIn={handleOpenStockIn} handleDeleteProduct={handleDeleteProduct} handleEditClick={handleEditClick} />
                     ))
                         :
                         <div className='grid col-span-5 content-center'>

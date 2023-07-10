@@ -1,4 +1,5 @@
 import './countCard.css';
+import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 
 function CountCard(props) {
     return (
@@ -10,7 +11,7 @@ function CountCard(props) {
             </div>
             <div className='self-center w-full'>
                 <div className='countText'>
-                    {props.count}
+                    <span>{props.productDetail ? props.unitDesc === 0 ? <CurrencyRupeeIcon fontSize='large' /> : '' : ''}</span> {props.count} <span className='unitDisplay'>{props.productDetail ? props.unitDesc !== 0 ? props.unitDesc : '' : ''}</span>
                 </div>
                 <div className='countDescription'>
                     {props.desc}

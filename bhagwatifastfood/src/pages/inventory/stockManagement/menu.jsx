@@ -55,13 +55,13 @@ function MenuStockInOut(props) {
                     }}>
                     Delete
                 </MenuItem>
-                {/* <MenuItem key={'InVoice'}
+                <MenuItem key={'InVoice'}
                     onClick={() => {
                         handleClose();
-                        props.getInvoice(props.transactionId)
+                        props.handleAccordionOpenOnEdit(props.stockInOutId)
                     }}>
-                    Download Invoice
-                </MenuItem> */}
+                    Edit
+                </MenuItem>
             </Menu>
         </div >
     );

@@ -1,30 +1,28 @@
-import './stockInOut.css';
-import * as React from "react";
+import './productDetails.css';
+import { useState, useEffect } from "react";
+import React from "react";
+import { BACKEND_BASE_URL } from '../../../url';
+import axios from 'axios';
+import dayjs from 'dayjs';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import { useParams, useNavigate } from 'react-router-dom';
+import CountCard from '../countCard/countCard';
+import CloseIcon from '@mui/icons-material/Close';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import Popover from '@mui/material/Popover';
+import Tooltip from '@mui/material/Tooltip';
+import { DateRangePicker } from 'react-date-range';
+import 'react-date-range/dist/styles.css'; // main style file
+import 'react-date-range/dist/theme/default.css';
+import Box from '@mui/material/Box';
+import ProductQtyCountCard from '../productQtyCard/productQtyCard';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
-import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import dayjs from 'dayjs';
-import { useState, useEffect } from "react";
-import { BACKEND_BASE_URL } from '../../../url';
-import axios from 'axios';
-import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import Tooltip from '@mui/material/Tooltip';
-import Select from '@mui/material/Select';
 import InputAdornment from '@mui/material/InputAdornment';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import Autocomplete from '@mui/material/Autocomplete';
+import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -33,49 +31,600 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TablePagination from '@mui/material/TablePagination';
 import Paper from '@mui/material/Paper';
-import 'react-date-range/dist/styles.css'; // main style file
-import 'react-date-range/dist/theme/default.css';
-import { DateRangePicker } from 'react-date-range';
-import Popover from '@mui/material/Popover';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import CloseIcon from '@mui/icons-material/Close';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import MenuStockInOut from './menu';
+import Menutemp from '../transactionTable/menu';
+import MenuStockInOut from '../stockManagement/menu';
+import InputLabel from '@mui/material/InputLabel';
+import FormControl from '@mui/material/FormControl';
+import Autocomplete from '@mui/material/Autocomplete';
+import Select from '@mui/material/Select';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import MenuItem from '@mui/material/MenuItem';
 
-const qtyUnit = [
-    'Kg',
-    'Gm',
-    'Ltr',
-    'Mtr',
-    'Pkts',
-    'BOX',
-    'ML',
-    'Qty',
-    'Piece',
-    'Num'
-]
-
-function StockInOut() {
+function ProductDetails() {
     var customParseFormat = require('dayjs/plugin/customParseFormat')
     dayjs.extend(customParseFormat)
     const [expanded, setExpanded] = React.useState(false);
+    let { id, name, unit } = useParams();
     const [isEdit, setIsEdit] = React.useState(false);
-    const [suppiler, setSuppilerList] = React.useState();
-    const [filter, setFilter] = React.useState(false);
-    const [stockInData, setStockInData] = React.useState();
     const [stockOutData, setStockOutData] = React.useState();
-    const [categories, setCategories] = React.useState();
-    const [productList, setProductList] = React.useState();
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [suppiler, setSuppilerList] = React.useState();
+    const [stockInData, setStockInData] = React.useState();
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [totalRows, setTotalRows] = React.useState(0);
-    const [totalRowsOut, setTotalRowsOut] = React.useState(0);
-    const [anchorEl, setAnchorEl] = React.useState(null);
+    const [totalRowsDebit, setTotalRowsDebit] = React.useState(0);
+    const [filter, setFilter] = React.useState(false);
     const [tab, setTab] = React.useState(1);
-
+    const [tabStockInOut, setTabStockInOut] = React.useState(1);
+    const [statisticsCount, setStatisticsCounts] = useState();
+    const [suppilerNameAndCount, setSuppilerNameAndCount] = useState();
+    const [categoryNameAndCount, setCategoryNameAndCount] = useState();
+    const [categories, setCategories] = React.useState();
+    const [debitTransaction, setDebitTransaction] = React.useState();
+    const [totalRowsOut, setTotalRowsOut] = React.useState(0);
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const config = {
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userInfo.token}`,
+        },
+    };
+    const [state, setState] = useState([
+        {
+            startDate: new Date(),
+            endDate: new Date(),
+            key: 'selection'
+        }
+    ]);
+    const [stockInFormData, setStockInFormData] = React.useState({
+        productId: id,
+        productName: name,
+        productQty: 0,
+        productUnit: unit,
+        productPrice: 0,
+        totalPrice: 0,
+        billNumber: "",
+        supplierId: "",
+        stockInPaymentMethod: 'cash',
+        stockInComment: "",
+        stockInDate: dayjs()
+    })
+    const [stockInFormDataError, setStockInFormDataError] = React.useState({
+        productQty: false,
+        productPrice: false,
+        totalPrice: false,
+        supplierId: false,
+        stockInPaymentMethod: false,
+        stockInDate: false
+    })
+    const [stockInErrorFields, setStockInErrorFields] = React.useState([
+        'productQty',
+        'productName',
+        'productPrice',
+        'totalPrice',
+        'supplierId',
+        'stockInPaymentMethod',
+        'stockInDate'
+    ])
+    const [stockOutFormData, setStockOutFormData] = React.useState({
+        productId: id,
+        productQty: 0,
+        productUnit: unit,
+        stockOutCategory: 0,
+        stockOutComment: "",
+        stockOutDate: dayjs()
+    })
+    const [stockOutFormDataError, setStockOutFormDataError] = React.useState({
+        productQty: false,
+        stockOutCategory: false,
+        stockOutDate: false
+    })
+    const [stockOutErrorFields, setStockOutErrorFields] = React.useState([
+        'productQty',
+        'stockOutCategory',
+        'stockOutDate',
+    ])
+    const open = Boolean(anchorEl);
+    const ids = open ? 'simple-popover' : undefined;
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+    const onChangeStockIn = (e) => {
+        if (e.target.name === 'productPrice' && stockInFormData.productQty > 0) {
+            setStockInFormData((prevState) => ({
+                ...prevState,
+                productPrice: e.target.value,
+                totalPrice: (parseFloat(e.target.value) * parseFloat(stockInFormData.productQty)).toString()
+
+            }))
+        } else if (e.target.name === 'totalPrice' && stockInFormData.productQty > 0) {
+            setStockInFormData((prevState) => ({
+                ...prevState,
+                totalPrice: e.target.value,
+                productPrice: (parseFloat(e.target.value) / parseFloat(stockInFormData.productQty)).toString()
+
+            }))
+        }
+        else if (e.target.name === 'productQty' && stockInFormData.productPrice > 0) {
+            setStockInFormData((prevState) => ({
+                ...prevState,
+                productQty: e.target.value,
+                totalPrice: (parseFloat(e.target.value) * parseFloat(stockInFormData.productPrice)).toString()
+
+            }))
+        }
+        else {
+            setStockInFormData((prevState) => ({
+                ...prevState,
+                [e.target.name]: e.target.value,
+            }))
+        }
+    }
+    const handleResetStockIn = () => {
+        setStockInFormData({
+            productId: id,
+            productName: null,
+            productQty: 0,
+            productUnit: "",
+            productPrice: 0,
+            totalPrice: 0,
+            billNumber: "",
+            supplierId: "",
+            stockInPaymentMethod: 'cash',
+            stockInComment: "",
+            stockInDate: dayjs()
+        })
+        setStockInFormDataError({
+            productQty: false,
+            productUnit: false,
+            productPrice: false,
+            totalPrice: false,
+            supplierId: false,
+            stockInPaymentMethod: false,
+            stockInDate: false
+        })
+    }
+    const handleResetStockOut = () => {
+        setStockOutFormData({
+            productId: id,
+            productQty: 0,
+            productUnit: "",
+            stockOutCategory: null,
+            stockOutComment: "",
+            stockOutDate: dayjs()
+        })
+        setStockOutFormDataError({
+            productQty: false,
+            productUnit: false,
+            stockOutCategory: false,
+            stockInDate: false
+        })
+    }
+    const getSuppilerList = async (id) => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/productWiseSupplierDDL?productId=${id}`, config)
+            .then((res) => {
+                setSuppilerList(res.data);
+            })
+            .catch((error) => {
+                setSuppilerList(['No Data'])
+            })
+    }
+    const handleStockInDate = (date) => {
+        console.log("stockIn", date, date && date['$d'] ? date['$d'] : null)
+        setStockInFormData((prevState) => ({
+            ...prevState,
+            ["stockInDate"]: date && date['$d'] ? date['$d'] : null,
+        }))
+    };
+    const handleStockOutDate = (date) => {
+        setStockOutFormData((prevState) => ({
+            ...prevState,
+            ["stockOutDate"]: date && date['$d'] ? date['$d'] : null,
+        }))
+    };
+    const onChangeStockOut = (e) => {
+        if (e.target.name === 'productQty') {
+            if (e.target.value > statisticsCount?.remainingStock) {
+                setStockOutFormDataError((perv) => ({
+                    ...perv,
+                    [e.target.name]: true
+                }))
+            }
+            else {
+                setStockOutFormDataError((perv) => ({
+                    ...perv,
+                    [e.target.name]: false
+                }))
+            }
+            setStockOutFormData((prevState) => ({
+                ...prevState,
+                [e.target.name]: e.target.value,
+            }))
+        } else {
+            setStockOutFormData((prevState) => ({
+                ...prevState,
+                [e.target.name]: e.target.value,
+            }))
+        }
+    }
+    const submitStockIn = () => {
+        const isValidate = stockInErrorFields.filter(element => {
+            if (element === 'stockInDate' && stockInFormData[element] === '' || stockInFormData[element] === null || stockInFormData.stockInDate == 'Invalid Date') {
+                setStockInFormDataError((perv) => ({
+                    ...perv,
+                    [element]: true
+                }))
+                return element;
+            }
+            else if (stockInFormData[element] === true || stockInFormData[element] === '' || stockInFormData[element] === 0) {
+                setStockInFormDataError((perv) => ({
+                    ...perv,
+                    [element]: true
+                }))
+                return element;
+            }
+        })
+        if (isValidate.length > 0) {
+            console.log('velidate', isValidate)
+            alert(
+                "Please Fill All Field"
+            )
+        } else {
+            // console.log(">>", stockInFormData, stockInFormData.stockInDate, stockInFormData.stockInDate != 'Invalid Date' ? 'ue' : 'false')
+            stockIn()
+        }
+    }
+    const stockOut = async () => {
+        await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addStockOutDetails`, stockOutFormData, config)
+            .then((res) => {
+                alert("success");
+                // getData();
+                // setTab(null)
+                setState([
+                    {
+                        startDate: new Date(),
+                        endDate: new Date(),
+                        key: 'selection'
+                    }
+                ])
+                getStatistics();
+                getCategoryNameAndCount();
+                getSuppilerNameAndCount();
+                setFilter(false);
+                getStockOutData();
+                handleResetStockOut();
+            })
+            .catch((error) => {
+                alert(error.response.data);
+            })
+    }
+    const submitStockOut = () => {
+        const isValidate = stockOutErrorFields.filter(element => {
+            if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
+                setStockOutFormDataError((perv) => ({
+                    ...perv,
+                    [element]: true
+                }))
+                return element;
+            }
+            else if (stockOutFormData[element] === true || stockOutFormData[element] === '' || stockOutFormData[element] === 0) {
+                setStockOutFormDataError((perv) => ({
+                    ...perv,
+                    [element]: true
+                }))
+                return element;
+            }
+        })
+        if (isValidate.length > 0) {
+            alert(
+                "Please Fill All Field"
+            )
+        } else {
+            // console.log(">>", stockInFormData, stockInFormData.stockInDate, stockInFormData.stockInDate != 'Invalid Date' ? 'ue' : 'false')
+            stockOut()
+        }
+    }
+    const getStockInDataOnPageChange = async (pageNum, rowPerPageNum) => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockInList?page=${pageNum}&numPerPage=${rowPerPageNum}&productId=${id}`, config)
+            .then((res) => {
+                setStockInData(res.data.rows);
+                setTotalRows(res.data.numRows);
+            })
+            .catch((error) => {
+                alert(error.response.data)
+            })
+    }
+    const getStockInDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockInList?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${pageNum}&numPerPage=${rowPerPageNum}&productId=${id}`, config)
+            .then((res) => {
+                setStockInData(res.data.rows);
+                setTotalRows(res.data.numRows);
+            })
+            .catch((error) => {
+                alert(error.response.data)
+            })
+    }
+    const getStockInData = async () => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockInList?&page=${1}&numPerPage=${5}&productId=${id}`, config)
+            .then((res) => {
+                setStockInData(res.data.rows);
+                setTotalRows(res.data.numRows);
+            })
+            .catch((error) => {
+                alert(error.response.data)
+            })
+    }
+    const getStockInDataByFilter = async () => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockInList?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${1}&numPerPage=${5}&productId=${id}`, config)
+            .then((res) => {
+                setStockInData(res.data.rows);
+                setTotalRows(res.data.numRows);
+            })
+            .catch((error) => {
+                alert(error.response.data)
+            })
+    }
+    const getStockOutDataOnPageChange = async (pageNum, rowPerPageNum) => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockOutList?page=${pageNum}&numPerPage=${rowPerPageNum}&productId=${id}`, config)
+            .then((res) => {
+                setStockOutData(res.data.rows);
+                setTotalRowsOut(res.data.numRows);
+            })
+            .catch((error) => {
+                alert(error.response.data)
+            })
+    }
+    const getStockOutDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockOutList?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${pageNum}&numPerPage=${rowPerPageNum}&productId=${id}`, config)
+            .then((res) => {
+                setStockOutData(res.data.rows);
+                setTotalRowsOut(res.data.numRows);
+            })
+            .catch((error) => {
+                alert(error.response.data)
+            })
+    }
+    const getStockOutData = async () => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockOutList?page=${page + 1}&numPerPage=${rowsPerPage}&productId=${id}`, config)
+            .then((res) => {
+                setStockOutData(res.data.rows);
+                setTotalRowsOut(res.data.numRows);
+            })
+            .catch((error) => {
+                alert(error.response.data)
+            })
+    }
+    const getStockOutDataByFilter = async () => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockOutList?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${1}&numPerPage=${rowsPerPage}&productId=${id}`, config)
+            .then((res) => {
+                setStockOutData(res.data.rows);
+                setTotalRowsOut(res.data.numRows);
+            })
+            .catch((error) => {
+                alert(error.response.data)
+            })
+    }
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+        console.log("page change")
+        if (tab === 2 || tab === '2') {
+            if (filter) {
+                getStockOutDataOnPageChangeByFilter(newPage + 1, rowsPerPage)
+            }
+            else {
+                getStockOutDataOnPageChange(newPage + 1, rowsPerPage)
+            }
+        } else {
+            if (filter) {
+                getStockInDataOnPageChangeByFilter(newPage + 1, rowsPerPage)
+            }
+            else {
+                getStockInDataOnPageChange(newPage + 1, rowsPerPage)
+            }
+        }
+    };
+    const stockIn = async () => {
+        await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addStockInDetails`, stockInFormData, config)
+            .then((res) => {
+                alert("success");
+                // getData();
+                setState([
+                    {
+                        startDate: new Date(),
+                        endDate: new Date(),
+                        key: 'selection'
+                    }
+                ])
+                getStatistics();
+                getCategoryNameAndCount();
+                getSuppilerNameAndCount();
+                setFilter(false)
+                getStockInData()
+                handleResetStockIn();
+            })
+            .catch((error) => {
+                alert(error.response.data);
+            })
+    }
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+        if (tab === '1' || tab === 1) {
+            if (filter) {
+                getStockInDataOnPageChangeByFilter(1, parseInt(event.target.value, 10))
+            }
+            else {
+                getStockInDataOnPageChange(1, parseInt(event.target.value, 10))
+            }
+        } else {
+            if (filter) {
+                getStockOutDataOnPageChangeByFilter(1, parseInt(event.target.value, 10))
+            }
+            else {
+                getStockOutDataOnPageChange(1, parseInt(event.target.value, 10))
+            }
+        }
+    };
+    const deleteStockIn = async (id) => {
+        await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeStockInTransaction?stockInId=${id}`, config)
+            .then((res) => {
+                alert("data deleted")
+                getStatistics();
+                getStockInData();
+                getSuppilerNameAndCount();
+                getCategoryNameAndCount();
+            })
+            .catch((error) => {
+                alert(error.response.data)
+            })
+    }
+    const handleDeleteStockIn = (id) => {
+        if (window.confirm("Are you sure you want to delete Stock In?")) {
+            deleteStockIn(id);
+            setTimeout(() => {
+                getStockInData();
+            }, 1000)
+        }
+    }
+    const deleteStockOut = async (id) => {
+        await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeStockOutTransaction?stockOutId=${id}`, config)
+            .then((res) => {
+                alert("data deleted")
+                getStatistics();
+                getStockOutData();
+                getCategoryNameAndCount();
+                getSuppilerNameAndCount();
+            })
+            .catch((error) => {
+                alert(error.response.data)
+            })
+    }
+    const handleDeleteStockOut = (id) => {
+        if (window.confirm("Are you sure you want to delete Stock Out?")) {
+            deleteStockOut(id);
+            setTimeout(() => {
+                getStockOutData();
+            }, 1000)
+        }
+    }
+    const stockOutExportExcel = async () => {
+        if (window.confirm('Are you sure you want to export Excel ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}inventoryrouter/exportExcelSheetForStockout?startDate=${state[0].startDate}&endDate=${state[0].endDate}&productId=${id}` : `${BACKEND_BASE_URL}inventoryrouter/exportExcelSheetForStockout?startDate=${''}&endDate=${''}&productId=${id}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = 'bookList' + new Date().toLocaleDateString() + '.xlsx'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+    const stockInExportExcel = async () => {
+        if (window.confirm('Are you sure you want to export Excel ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}inventoryrouter/exportExcelSheetForStockin?startDate=${state[0].startDate}&endDate=${state[0].endDate}&productId=${id}` : `${BACKEND_BASE_URL}inventoryrouter/exportExcelSheetForStockin?startDate=${''}&endDate=${''}&productId=${id}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = 'bookList' + new Date().toLocaleDateString() + '.xlsx'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+    const getCategoryList = async () => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/ddlStockOutCategory`, config)
+            .then((res) => {
+                setCategories(res.data);
+            })
+            .catch((error) => {
+                setCategories(['No Data'])
+            })
+    }
+    const getStatistics = async () => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getProductCountDetailsById?productId=${id}`, config)
+            .then((res) => {
+                setStatisticsCounts(res.data);
+            })
+            .catch((error) => {
+                alert(error.response.data)
+            })
+    }
+    const getStatisticsByFilter = async () => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getProductCountDetailsById?startDate=${state[0].startDate}&endDate=${state[0].endDate}&productId=${id}`, config)
+            .then((res) => {
+                setStatisticsCounts(res.data);
+            })
+            .catch((error) => {
+                alert(error.response.data)
+            })
+    }
+    const getSuppilerNameAndCount = async () => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getSupplierByProductId?productId=${id}`, config)
+            .then((res) => {
+                setSuppilerNameAndCount(res.data);
+            })
+            .catch((error) => {
+                alert(error.response.data)
+            })
+    }
+    const getSuppilerNameAndCountByFilter = async () => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getSupplierByProductId?startDate=${state[0].startDate}&endDate=${state[0].endDate}&productId=${id}`, config)
+            .then((res) => {
+                setSuppilerNameAndCount(res.data);
+            })
+            .catch((error) => {
+                alert(error.response.data)
+            })
+    }
+    const getCategoryNameAndCount = async () => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getCategoryWiseUsedByProduct?productId=${id}`, config)
+            .then((res) => {
+                setCategoryNameAndCount(res.data);
+            })
+            .catch((error) => {
+                alert(error.response.data)
+            })
+    }
+    const getCategoryNameAndCountByFilter = async () => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getCategoryWiseUsedByProduct?startDate=${state[0].startDate}&endDate=${state[0].endDate}&productId=${id}`, config)
+            .then((res) => {
+                setCategoryNameAndCount(res.data);
+            })
+            .catch((error) => {
+                alert(error.response.data)
+            })
+    }
+
 
     const resetStockInEdit = () => {
         setStockInFormData({
@@ -169,7 +718,7 @@ function StockInOut() {
     }
 
     const handleAccordionOpenOnEdit = (data) => {
-        if (tab === 1 || tab === '1') {
+        if (tabStockInOut === 1 || tabStockInOut === '1') {
             fillStockInEdit(data);
         }
         else {
@@ -178,124 +727,6 @@ function StockInOut() {
         setIsEdit(true)
         setExpanded(true)
     }
-
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
-    const open = Boolean(anchorEl);
-    const id = open ? 'simple-popover' : undefined;
-
-    const [stockInFormData, setStockInFormData] = React.useState({
-        productId: "",
-        productName: null,
-        productQty: 0,
-        productUnit: "",
-        productPrice: 0,
-        totalPrice: 0,
-        billNumber: "",
-        supplierId: "",
-        stockInPaymentMethod: 'cash',
-        stockInComment: "",
-        stockInDate: dayjs()
-    })
-    const [stockInFormDataError, setStockInFormDataError] = React.useState({
-        productQty: false,
-        productName: false,
-        productUnit: false,
-        productPrice: false,
-        totalPrice: false,
-        supplierId: false,
-        stockInPaymentMethod: false,
-        stockInDate: false
-    })
-    const [stockInErrorFields, setStockInErrorFields] = React.useState([
-        'productQty',
-        'productName',
-        'productUnit',
-        'productPrice',
-        'totalPrice',
-        'supplierId',
-        'stockInPaymentMethod',
-        'stockInDate'
-    ])
-    const [stockOutFormData, setStockOutFormData] = React.useState({
-        productId: "",
-        productQty: 0,
-        productUnit: "",
-        stockOutCategory: 0,
-        stockOutComment: "",
-        stockOutDate: dayjs()
-    })
-    const [stockOutFormDataError, setStockOutFormDataError] = React.useState({
-        productQty: false,
-        productUnit: false,
-        stockOutCategory: false,
-        stockOutDate: false
-    })
-    const [stockOutErrorFields, setStockOutErrorFields] = React.useState([
-        'productQty',
-        'productUnit',
-        'stockOutCategory',
-        'stockOutDate',
-    ])
-    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-    const config = {
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${userInfo.token}`,
-        },
-    };
-    const getCategoryList = async (id) => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/ddlStockOutCategory`, config)
-            .then((res) => {
-                setCategories(res.data);
-            })
-            .catch((error) => {
-                setCategories(['No Data'])
-            })
-    }
-    const getProductList = async () => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/ddlProduct`, config)
-            .then((res) => {
-                setProductList(res.data);
-            })
-            .catch((error) => {
-                // setError(error.response.data);
-                setProductList(null)
-            })
-    }
-
-    const getSuppilerList = async (id) => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/productWiseSupplierDDL?productId=${id}`, config)
-            .then((res) => {
-                setSuppilerList(res.data);
-            })
-            .catch((error) => {
-                setSuppilerList(['No Data'])
-            })
-    }
-    const stockIn = async () => {
-        await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addStockInDetails`, stockInFormData, config)
-            .then((res) => {
-                alert("success");
-                // getData();
-                setState([
-                    {
-                        startDate: new Date(),
-                        endDate: new Date(),
-                        key: 'selection'
-                    }
-                ])
-                setFilter(false)
-                getStockInData()
-                handleResetStockIn();
-            })
-            .catch((error) => {
-                alert(error.response.data);
-            })
-    }
-
     const stockInEdit = async () => {
         await axios.post(`${BACKEND_BASE_URL}inventoryrouter/updateStockInTransaction`, stockInFormData, config)
             .then((res) => {
@@ -310,70 +741,52 @@ function StockInOut() {
                 ])
                 setFilter(false)
                 setExpanded(false)
-                getStockInData()
+                getStockInData();
+                getStatistics();
+                getCategoryNameAndCount();
+                getSuppilerNameAndCount();
                 handleResetStockIn();
             })
             .catch((error) => {
                 alert(error.response.data);
             })
     }
-
-    const onChangeStockIn = (e) => {
-        if (e.target.name === 'productPrice' && stockInFormData.productQty > 0) {
-            setStockInFormData((prevState) => ({
-                ...prevState,
-                productPrice: e.target.value,
-                totalPrice: (parseFloat(e.target.value) * parseFloat(stockInFormData.productQty)).toString()
-
-            }))
-        } else if (e.target.name === 'totalPrice' && stockInFormData.productQty > 0) {
-            setStockInFormData((prevState) => ({
-                ...prevState,
-                totalPrice: e.target.value,
-                productPrice: (parseFloat(e.target.value) / parseFloat(stockInFormData.productQty)).toString()
-
-            }))
-        }
-        else if (e.target.name === 'productQty' && stockInFormData.productPrice > 0) {
-            setStockInFormData((prevState) => ({
-                ...prevState,
-                productQty: e.target.value,
-                totalPrice: (parseFloat(e.target.value) * parseFloat(stockInFormData.productPrice)).toString()
-
-            }))
-        }
-        else {
-            setStockInFormData((prevState) => ({
-                ...prevState,
-                [e.target.name]: e.target.value,
-            }))
-        }
-        console.log('formddds', stockInFormData)
+    const stockOutEdit = async () => {
+        await axios.post(`${BACKEND_BASE_URL}inventoryrouter/updateStockOutTransaction`, stockOutFormData, config)
+            .then((res) => {
+                alert("success");
+                // getData();
+                // setTab(null)
+                setState([
+                    {
+                        startDate: new Date(),
+                        endDate: new Date(),
+                        key: 'selection'
+                    }
+                ])
+                setFilter(false);
+                setExpanded(false);
+                getStatistics();
+                getCategoryNameAndCount();
+                getSuppilerNameAndCount();
+                getStockOutData();
+                handleResetStockOut();
+            })
+            .catch((error) => {
+                alert(error.response.data);
+            })
     }
-    const handleStockInDate = (date) => {
-        console.log("stockIn", date, date && date['$d'] ? date['$d'] : null)
-        setStockInFormData((prevState) => ({
-            ...prevState,
-            ["stockInDate"]: date && date['$d'] ? date['$d'] : null,
-        }))
-    };
-    const handleStockOutDate = (date) => {
-        setStockOutFormData((prevState) => ({
-            ...prevState,
-            ["stockOutDate"]: date && date['$d'] ? date['$d'] : null,
-        }))
-    };
-    const submitStockIn = () => {
-        const isValidate = stockInErrorFields.filter(element => {
-            if (element === 'stockInDate' && stockInFormData[element] === '' || stockInFormData[element] === null || stockInFormData.stockInDate == 'Invalid Date') {
-                setStockInFormDataError((perv) => ({
+    const editSubmitStockOut = () => {
+        const isValidate = stockOutErrorFields.filter(element => {
+            if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
+                setStockOutFormDataError((perv) => ({
                     ...perv,
                     [element]: true
                 }))
                 return element;
             }
-            else if (stockInFormData[element] === true || stockInFormData[element] === '' || stockInFormData[element] === 0) {
-                setStockInFormDataError((perv) => ({
+            else if (stockOutFormData[element] === true || stockOutFormData[element] === '' || stockOutFormData[element] === 0) {
+                setStockOutFormDataError((perv) => ({
                     ...perv,
                     [element]: true
                 }))
@@ -386,7 +799,7 @@ function StockInOut() {
             )
         } else {
             // console.log(">>", stockInFormData, stockInFormData.stockInDate, stockInFormData.stockInDate != 'Invalid Date' ? 'ue' : 'false')
-            stockIn()
+            stockOutEdit()
         }
     }
     const editStockIn = () => {
@@ -415,437 +828,198 @@ function StockInOut() {
             stockInEdit()
         }
     }
-    const handleProductNameAutoComplete = (event, value) => {
-        setStockInFormData((prevState) => ({
-            ...prevState,
-            ['productName']: value,
-            productId: value && value.productId ? value.productId : '',
-            supplierId: '',
-            productUnit: value && value.productUnit ? value.productUnit : ''
-        }))
-        getSuppilerList(value && value.productId ? value.productId : '')
-        console.log('formddds', stockInFormData)
-    }
-    const handleProductNameAutoCompleteOut = (event, value) => {
-        setStockOutFormData((prevState) => ({
-            ...prevState,
-            ['productName']: value,
-            productId: value && value.productId ? value.productId : '',
-            productUnit: value && value.productUnit ? value.productUnit : ''
-        }))
-        console.log('formddds', stockInFormData)
-    }
-    const handleResetStockIn = () => {
-        setStockInFormData({
-            productId: "",
-            productName: null,
-            productQty: 0,
-            productUnit: "",
-            productPrice: 0,
-            totalPrice: 0,
-            billNumber: "",
-            supplierId: "",
-            stockInPaymentMethod: 'cash',
-            stockInComment: "",
-            stockInDate: dayjs()
-        })
-        setStockInFormDataError({
-            productQty: false,
-            productUnit: false,
-            productPrice: false,
-            totalPrice: false,
-            supplierId: false,
-            stockInPaymentMethod: false,
-            stockInDate: false
-        })
-    }
-    const handleResetStockOut = () => {
-        setStockOutFormData({
-            productId: "",
-            productQty: 0,
-            productUnit: "",
-            stockOutCategory: null,
-            stockOutComment: "",
-            stockOutDate: dayjs()
-        })
-        setStockOutFormDataError({
-            productQty: false,
-            productUnit: false,
-            stockOutCategory: false,
-            stockInDate: false
-        })
-    }
-    const onChangeStockOut = (e) => {
-        if (e.target.name === 'productQty') {
-            if (e.target.value > stockOutFormData.productName?.remainingStock) {
-                setStockOutFormDataError((perv) => ({
-                    ...perv,
-                    [e.target.name]: true
-                }))
-            }
-            else {
-                setStockOutFormDataError((perv) => ({
-                    ...perv,
-                    [e.target.name]: false
-                }))
-            }
-            setStockOutFormData((prevState) => ({
-                ...prevState,
-                [e.target.name]: e.target.value,
-            }))
-        } else {
-            setStockOutFormData((prevState) => ({
-                ...prevState,
-                [e.target.name]: e.target.value,
-            }))
-        }
-    }
-    const stockOut = async () => {
-        await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addStockOutDetails`, stockOutFormData, config)
-            .then((res) => {
-                alert("success");
-                // getData();
-                // setTab(null)
-                setState([
-                    {
-                        startDate: new Date(),
-                        endDate: new Date(),
-                        key: 'selection'
-                    }
-                ])
-                setFilter(false);
-                getStockOutData();
-                handleResetStockOut();
-            })
-            .catch((error) => {
-                alert(error.response.data);
-            })
-    }
-
-    const stockOutEdit = async () => {
-        await axios.post(`${BACKEND_BASE_URL}inventoryrouter/updateStockOutTransaction`, stockOutFormData, config)
-            .then((res) => {
-                alert("success");
-                // getData();
-                // setTab(null)
-                setState([
-                    {
-                        startDate: new Date(),
-                        endDate: new Date(),
-                        key: 'selection'
-                    }
-                ])
-                setFilter(false);
-                setExpanded(false);
-                getStockOutData();
-                handleResetStockOut();
-            })
-            .catch((error) => {
-                alert(error.response.data);
-            })
-    }
-
-    const submitStockOut = () => {
-        const isValidate = stockOutErrorFields.filter(element => {
-            if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
-                setStockOutFormDataError((perv) => ({
-                    ...perv,
-                    [element]: true
-                }))
-                return element;
-            }
-            else if (stockOutFormData[element] === true || stockOutFormData[element] === '' || stockOutFormData[element] === 0) {
-                setStockOutFormDataError((perv) => ({
-                    ...perv,
-                    [element]: true
-                }))
-                return element;
-            }
-        })
-        if (isValidate.length > 0) {
-            alert(
-                "Please Fill All Field"
-            )
-        } else {
-            // console.log(">>", stockInFormData, stockInFormData.stockInDate, stockInFormData.stockInDate != 'Invalid Date' ? 'ue' : 'false')
-            stockOut()
-        }
-    }
-
-    const editSubmitStockOut = () => {
-        const isValidate = stockOutErrorFields.filter(element => {
-            if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
-                setStockOutFormDataError((perv) => ({
-                    ...perv,
-                    [element]: true
-                }))
-                return element;
-            }
-            else if (stockOutFormData[element] === true || stockOutFormData[element] === '' || stockOutFormData[element] === 0) {
-                setStockOutFormDataError((perv) => ({
-                    ...perv,
-                    [element]: true
-                }))
-                return element;
-            }
-        })
-        if (isValidate.length > 0) {
-            alert(
-                "Please Fill All Field"
-            )
-        } else {
-            // console.log(">>", stockInFormData, stockInFormData.stockInDate, stockInFormData.stockInDate != 'Invalid Date' ? 'ue' : 'false')
-            stockOutEdit()
-        }
-    }
-
-    const getStockInDataOnPageChange = async (pageNum, rowPerPageNum) => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockInList?page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
-            .then((res) => {
-                setStockInData(res.data.rows);
-                setTotalRows(res.data.numRows);
-            })
-            .catch((error) => {
-                alert(error.response.data)
-            })
-    }
-    const getStockInDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockInList?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
-            .then((res) => {
-                setStockInData(res.data.rows);
-                setTotalRows(res.data.numRows);
-            })
-            .catch((error) => {
-                alert(error.response.data)
-            })
-    }
-    const getStockInData = async () => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockInList?&page=${page + 1}&numPerPage=${rowsPerPage}`, config)
-            .then((res) => {
-                setStockInData(res.data.rows);
-                setTotalRows(res.data.numRows);
-            })
-            .catch((error) => {
-                alert(error.response.data)
-            })
-    }
-    const getStockInDataByFilter = async () => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockInList?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${1}&numPerPage=${rowsPerPage}`, config)
-            .then((res) => {
-                setStockInData(res.data.rows);
-                setTotalRows(res.data.numRows);
-            })
-            .catch((error) => {
-                alert(error.response.data)
-            })
-    }
-    const getStockOutDataOnPageChange = async (pageNum, rowPerPageNum) => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockOutList?page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
-            .then((res) => {
-                setStockOutData(res.data.rows);
-                setTotalRowsOut(res.data.numRows);
-            })
-            .catch((error) => {
-                alert(error.response.data)
-            })
-    }
-    const getStockOutDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockOutList?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
-            .then((res) => {
-                setStockOutData(res.data.rows);
-                setTotalRowsOut(res.data.numRows);
-            })
-            .catch((error) => {
-                alert(error.response.data)
-            })
-    }
-    const getStockOutData = async () => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockOutList?page=${page + 1}&numPerPage=${rowsPerPage}`, config)
-            .then((res) => {
-                setStockOutData(res.data.rows);
-                setTotalRowsOut(res.data.numRows);
-            })
-            .catch((error) => {
-                alert(error.response.data)
-            })
-    }
-    const getStockOutDataByFilter = async () => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockOutList?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${1}&numPerPage=${rowsPerPage}`, config)
-            .then((res) => {
-                setStockOutData(res.data.rows);
-                setTotalRowsOut(res.data.numRows);
-            })
-            .catch((error) => {
-                alert(error.response.data)
-            })
-    }
-    const handleChangePage = (event, newPage) => {
-        setPage(newPage);
-        console.log("page change")
-        if (tab === 2 || tab === '2') {
-            if (filter) {
-                getStockOutDataOnPageChangeByFilter(newPage + 1, rowsPerPage)
-            }
-            else {
-                getStockOutDataOnPageChange(newPage + 1, rowsPerPage)
-            }
-        } else {
-            if (filter) {
-                getStockInDataOnPageChangeByFilter(newPage + 1, rowsPerPage)
-            }
-            else {
-                getStockInDataOnPageChange(newPage + 1, rowsPerPage)
-            }
-        }
-    };
-    const handleChangeRowsPerPage = (event) => {
-        setRowsPerPage(parseInt(event.target.value, 10));
-        setPage(0);
-        if (tab === '1' || tab === 1) {
-            if (filter) {
-                getStockInDataOnPageChangeByFilter(1, parseInt(event.target.value, 10))
-            }
-            else {
-                getStockInDataOnPageChange(1, parseInt(event.target.value, 10))
-            }
-        } else {
-            if (filter) {
-                getStockOutDataOnPageChangeByFilter(1, parseInt(event.target.value, 10))
-            }
-            else {
-                getStockOutDataOnPageChange(1, parseInt(event.target.value, 10))
-            }
-        }
-    };
-    const stockInExportExcel = async () => {
-        if (window.confirm('Are you sure you want to export Excel ... ?')) {
-            await axios({
-                url: filter ? `${BACKEND_BASE_URL}inventoryrouter/exportExcelSheetForStockin?startDate=${state[0].startDate}&endDate=${state[0].endDate}` : `${BACKEND_BASE_URL}inventoryrouter/exportExcelSheetForStockin?startDate=${''}&endDate=${''}`,
-                method: 'GET',
-                headers: { Authorization: `Bearer ${userInfo.token}` },
-                responseType: 'blob', // important
-            }).then((response) => {
-                // create file link in browser's memory
-                const href = URL.createObjectURL(response.data);
-                // create "a" HTML element with href to file & click
-                const link = document.createElement('a');
-                const name = 'bookList' + new Date().toLocaleDateString() + '.xlsx'
-                link.href = href;
-                link.setAttribute('download', name); //or any other extension
-                document.body.appendChild(link);
-                link.click();
-
-                // clean up "a" element & remove ObjectURL
-                document.body.removeChild(link);
-                URL.revokeObjectURL(href);
-            });
-        }
-    }
-    const [state, setState] = useState([
-        {
-            startDate: new Date(),
-            endDate: new Date(),
-            key: 'selection'
-        }
-    ]);
-    const stockOutExportExcel = async () => {
-        if (window.confirm('Are you sure you want to export Excel ... ?')) {
-            await axios({
-                url: filter ? `${BACKEND_BASE_URL}inventoryrouter/exportExcelSheetForStockout?startDate=${state[0].startDate}&endDate=${state[0].endDate}` : `${BACKEND_BASE_URL}inventoryrouter/exportExcelSheetForStockout?startDate=${''}&endDate=${''}`,
-                method: 'GET',
-                headers: { Authorization: `Bearer ${userInfo.token}` },
-                responseType: 'blob', // important
-            }).then((response) => {
-                // create file link in browser's memory
-                const href = URL.createObjectURL(response.data);
-                // create "a" HTML element with href to file & click
-                const link = document.createElement('a');
-                const name = 'bookList' + new Date().toLocaleDateString() + '.xlsx'
-                link.href = href;
-                link.setAttribute('download', name); //or any other extension
-                document.body.appendChild(link);
-                link.click();
-
-                // clean up "a" element & remove ObjectURL
-                document.body.removeChild(link);
-                URL.revokeObjectURL(href);
-            });
-        }
-    }
-
-    const deleteStockIn = async (id) => {
-        await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeStockInTransaction?stockInId=${id}`, config)
-            .then((res) => {
-                alert("data deleted")
-            })
-            .catch((error) => {
-                alert(error.response.data)
-            })
-    }
-    const handleDeleteStockIn = (id) => {
-        if (window.confirm("Are you sure you want to delete Stock In?")) {
-            deleteStockIn(id);
-            setTimeout(() => {
-                getStockInData();
-            }, 1000)
-        }
-    }
-    const deleteStockOut = async (id) => {
-        await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeStockOutTransaction?stockOutId=${id}`, config)
-            .then((res) => {
-                alert("data deleted")
-            })
-            .catch((error) => {
-                alert(error.response.data)
-            })
-    }
-    const handleDeleteStockOut = (id) => {
-        if (window.confirm("Are you sure you want to delete Stock Out?")) {
-            deleteStockOut(id);
-            setTimeout(() => {
-                getStockOutData();
-            }, 1000)
-        }
-    }
-
     useEffect(() => {
+        getSuppilerList(id)
         getCategoryList();
-        getProductList();
         getStockInData();
+        getStatistics();
+        getCategoryNameAndCount();
+        getSuppilerNameAndCount();
         // getCountData();
     }, [])
-
     return (
-        <div className='productListContainer'>
-            <div className='grid grid-cols-12'>
-                <div className='col-span-12'>
-                    <div className='productTableSubContainer'>
-                        <div className='h-full grid grid-cols-12'>
-                            <div className='h-full mobile:col-span-10  tablet1:col-span-10  tablet:col-span-7  laptop:col-span-7  desktop1:col-span-7  desktop2:col-span-7  desktop2:col-span-7 '>
-                                <div className='grid grid-cols-12 pl-6 gap-3 h-full'>
-                                    <div className={`flex col-span-3 justify-center ${tab === 1 || tab === '1' ? 'productTabIn' : 'productTab'}`} onClick={() => {
-                                        setTab(1); setPage(0); setRowsPerPage(5); getStockInData(); setFilter(false);
-                                        setState([
-                                            {
-                                                startDate: new Date(),
-                                                endDate: new Date(),
-                                                key: 'selection'
-                                            }
-                                        ])
-                                    }}>
-                                        <div className='statusTabtext'>In-Stock</div>
+        <div className='suppilerListContainer'>
+            <div className='grid grid-cols-12 gap-8'>
+                <div className='col-span-12 mt-6'>
+                    <div className='datePickerWrp mb-4'>
+                        <div className='grid grid-cols-12'>
+                            <div className='col-span-12'>
+                                <div className='productTableSubContainer'>
+                                    <div className='h-full grid grid-cols-12'>
+                                        <div className='h-full col-span-3'>
+                                            <div className='grid grid-cols-12 pl-6 gap-3 h-full'>
+                                                <Tooltip title={name + '  ' + (statisticsCount && statisticsCount.minProductQty ? statisticsCount?.remainingStock < statisticsCount.minProductQty ? statisticsCount?.remainingStock != 0 ? 'Low Stock' : 'Out Of Stock' : '' : '')} placement="top-start" arrow>
+                                                    <div className={`flex col-span-12 justify-between productTab`}>
+                                                        <div className='productNameHeader'>{name}</div>
+                                                        <div className='status' style={{ color: `${statisticsCount && statisticsCount.minProductQty ? statisticsCount?.remainingStock < statisticsCount.minProductQty ? statisticsCount?.remainingStock != 0 ? 'orange' : 'red' : 'black' : 'black'}` }}>{statisticsCount && statisticsCount.minProductQty ? statisticsCount?.remainingStock < statisticsCount.minProductQty ? statisticsCount?.remainingStock != 0 ? 'Low Stock' : 'Out Of Stock' : '' : ''}</div>
+                                                    </div>
+                                                </Tooltip>
+                                            </div>
+                                        </div>
+                                        <div className='h-full col-span-4'>
+                                            <div className='grid grid-cols-12 pl-6 gap-3 h-full'>
+                                                <div className={`flex col-span-4 justify-center ${tab === 1 || tab === '1' || !tab ? 'productTabAll' : 'productTab'}`}
+                                                    onClick={() => {
+                                                        setTab(1);
+                                                    }} >
+                                                    <div className='statusTabtext'>Statistics</div>
+                                                </div>
+                                                <div className={`flex col-span-4 justify-center ${tab === 2 || tab === '2' ? 'productTabIn' : 'productTab'}`}
+                                                    onClick={() => {
+                                                        setTab(2);
+                                                    }}>
+                                                    <div className='statusTabtext'>Suppiler</div>
+                                                </div>
+                                                <div className={`flex col-span-4 justify-center ${tab === 3 || tab === '3' ? 'productTabOut' : 'productTab'}`}
+                                                    onClick={() => {
+                                                        setTab(3);
+                                                    }}>
+                                                    <div className='statusTabtext'>Category</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div className='col-span-5 flex justify-end pr-4'>
+                                            <div className='dateRange text-center self-center' aria-describedby={ids} onClick={handleClick}>
+                                                <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
+                                            </div>
+                                            <div className='resetBtnWrap col-span-3 self-center'>
+                                                <button
+                                                    className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`}
+                                                    onClick={() => {
+                                                        setFilter(false);
+                                                        setState([
+                                                            {
+                                                                startDate: new Date(),
+                                                                endDate: new Date(),
+                                                                key: 'selection'
+                                                            }
+                                                        ])
+                                                        // getProductCount();
+                                                        getStatistics()
+                                                        setTabStockInOut(1);
+                                                        getStockInData(); setPage(0); setRowsPerPage(5); getSuppilerNameAndCount(); getCategoryNameAndCount()
+                                                    }}><CloseIcon /></button>
+                                            </div>
+                                            <Popover
+                                                id={ids}
+                                                open={open}
+                                                style={{ zIndex: 10000, borderRadius: '10px', boxShadow: 'rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem' }}
+                                                anchorEl={anchorEl}
+                                                onClose={handleClose}
+                                                anchorOrigin={{
+                                                    vertical: 'bottom',
+                                                    horizontal: 'right',
+                                                }}
+                                            >
+                                                <Box sx={{ bgcolor: 'background.paper', padding: '20px', width: 'auto', height: 'auto', borderRadius: '10px' }}>
+                                                    <DateRangePicker
+                                                        ranges={state}
+                                                        onChange={item => { setState([item.selection]); console.log([item.selection]) }}
+                                                        direction="horizontal"
+                                                        months={2}
+                                                        showSelectionPreview={true}
+                                                        moveRangeOnFirstSelection={false}
+                                                    />
+                                                    <div className='mt-8 grid gap-4 grid-cols-12'>
+                                                        <div className='col-span-3 col-start-7'>
+                                                            <button className='stockInBtn' onClick={() => {
+                                                                setFilter(true); handleClose();
+                                                                // getStatisticsByFilter();
+                                                                setTabStockInOut(1);
+                                                                setPage(0);
+                                                                setRowsPerPage(5);
+                                                                getStockInDataByFilter();
+                                                                getStatisticsByFilter();
+                                                                getSuppilerNameAndCountByFilter();
+                                                                getCategoryNameAndCountByFilter();
+                                                            }}>Apply</button>
+                                                        </div>
+                                                        <div className='col-span-3'>
+                                                            <button className='stockOutBtn' onClick={handleClose}>cancle</button>
+                                                        </div>
+                                                    </div>
+                                                </Box>
+                                            </Popover>
+                                        </div>
                                     </div>
-                                    <div className={`flex col-span-3 justify-center ${tab === 2 || tab === '2' ? 'productTabOut' : 'productTab'}`} onClick={() => {
-                                        setTab(2); setPage(0); setRowsPerPage(5); getStockOutData(); setFilter(false);
-                                        setState([
-                                            {
-                                                startDate: new Date(),
-                                                endDate: new Date(),
-                                                key: 'selection'
-                                            }
-                                        ])
-                                    }}>
-                                        <div className='statusTabtext'>Out-Stock</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {tab === 1 || tab === '1' ?
+                        <div className='grid gap-4 mt-12'>
+                            <div className='grid grid-cols-12 gap-6'>
+                                <div className='col-span-3'>
+                                    <CountCard color={'black'} count={statisticsCount && statisticsCount.totalPurchase ? statisticsCount.totalPurchase : 0} desc={'Total Purchase'} productDetail={true} unitDesc={unit} />
+                                </div>
+                                <div className='col-span-3'>
+                                    <CountCard color={'pink'} count={statisticsCount && statisticsCount.totalRs ? statisticsCount.totalRs : 0} desc={'Total Cost'} productDetail={true} unitDesc={0} />
+                                </div>
+                                <div className='col-span-3'>
+                                    <CountCard color={'blue'} count={statisticsCount && statisticsCount.totalUsed ? statisticsCount.totalUsed : 0} desc={'Total Used'} productDetail={true} unitDesc={unit} />
+                                </div>
+                                <div className='col-span-3'>
+                                    <CountCard color={'orange'} count={statisticsCount && statisticsCount.remainingStock ? statisticsCount.remainingStock : 0} desc={'Remaining Stock'} productDetail={true} unitDesc={unit} />
+                                </div>
+                            </div>
+                            <div className='grid grid-cols-12 gap-6'>
+                                <div className='col-span-3'>
+                                    <CountCard color={'green'} count={statisticsCount && statisticsCount.lastPrice ? statisticsCount.lastPrice : 0} desc={'Last Purchase Price'} productDetail={true} unitDesc={0} />
+                                </div>
+                                <div className='col-span-3'>
+                                    <CountCard color={'yellow'} count={statisticsCount && statisticsCount.minProductQty ? statisticsCount.minProductQty : 0} desc={'Min Product Qty'} productDetail={true} unitDesc={unit} />
+                                </div>
+                                {/* <div className='col-span-3'>
+                                    <CountCard color={'green'} count={statisticsCount && statisticsCount.totalBusinessOfCash ? statisticsCount.totalBusinessOfCash : 0} desc={'Total Cash'} />
+                                </div>
+                                <div className='col-span-3'>
+                                    <CountCard color={'yellow'} count={statisticsCount && statisticsCount.totalProduct ? statisticsCount.totalProduct : 0} desc={'Total Product'} />
+                                </div> */}
+                            </div>
+                        </div> :
+                        tab === 2 || tab === '2' ?
+                            <div className='grid gap-4 mt-12' style={{ minHeight: '216px', maxHeight: '216px', overflowY: 'scroll' }}>
+                                <div className='grid grid-cols-4 gap-6 pb-3'>
+                                    {
+                                        suppilerNameAndCount && suppilerNameAndCount?.map((row, index) => (
+                                            <ProductQtyCountCard productQtyUnit={unit} productQty={row.Quantity} productName={row.supplierNickName} index={index} />
+                                        ))
+                                    }
+                                </div>
+                            </div>
+                            :
+                            <div className='grid gap-4 mt-12' style={{ minHeight: '216px', maxHeight: '332px', overflowY: 'scroll' }}>
+                                <div className='grid grid-cols-4 gap-6 pb-3'>
+                                    {
+                                        categoryNameAndCount && categoryNameAndCount?.map((row, index) => (
+                                            <ProductQtyCountCard productQtyUnit={unit} productQty={row.usedQty} productName={row.stockOutCategoryName} index={index} />
+                                        ))
+                                    }
+                                </div>
+                            </div>
+                    }
+                </div>
+            </div>
+            <div className='datePickerWrp mt-6'>
+                <div className='grid grid-cols-12'>
+                    <div className='col-span-12'>
+                        <div className='productTableSubContainer'>
+                            <div className='h-full grid grid-cols-12'>
+                                <div className='h-full col-span-5'>
+                                    <div className='grid grid-cols-12 pl-6 gap-3 h-full'>
+                                        <div className={`flex col-span-6 justify-center ${tabStockInOut === 1 || tabStockInOut === '1' ? 'productTabAll' : 'productTab'}`}
+                                            onClick={() => {
+                                                setTabStockInOut(1);
+                                            }} >
+                                            <div className='statusTabtext'>Stock In</div>
+                                        </div>
+                                        <div className={`flex col-span-6 justify-center ${tabStockInOut === 2 || tabStockInOut === '2' ? 'productTabIn' : 'productTab'}`}
+                                            onClick={() => {
+                                                setTabStockInOut(2);
+                                                filter ? getStockOutDataByFilter() : getStockOutData();
+                                            }}>
+                                            <div className='statusTabtext'>Stock Out</div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -853,7 +1027,7 @@ function StockInOut() {
                     </div>
                 </div>
             </div>
-            <div className='mt-6 grid grid-col-12'>
+            <div className='mt-10 grid grid-col-12'>
                 <Accordion expanded={expanded} square='false' sx={{ width: "100%", borderRadius: '12px', boxShadow: 'rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem' }}>
                     <AccordionSummary
                         sx={{ height: '60px', borderRadius: '0.75rem' }}
@@ -862,23 +1036,22 @@ function StockInOut() {
                         id="panel1a-header"
                         onClick={() => { setExpanded(!expanded); resetStockInEdit(); resetStockOutEdit(); }}
                     >
-                        <div className='stockAccordinHeader'>{tab && tab === '1' || tab === 1 ? "Stock In" : "Stock Out"}</div>
+                        <div className='stockAccordinHeader'>{tabStockInOut && tabStockInOut === '1' || tabStockInOut === 1 ? "Stock In" : "Stock Out"}</div>
                     </AccordionSummary>
                     <AccordionDetails>
                         <div className='stockInOutContainer'>
-                            {tab === '1' || tab === 1 ?
+                            {tabStockInOut === '1' || tabStockInOut === 1 ?
                                 <div className='mt-6 grid grid-cols-12 gap-6'>
                                     <div className='col-span-3'>
                                         <FormControl fullWidth>
-                                            <Autocomplete
-                                                disablePortal
-                                                sx={{ width: '100%' }}
-                                                disabled={isEdit}
-                                                value={stockInFormData.productName}
-                                                onChange={handleProductNameAutoComplete}
-                                                options={productList ? productList : []}
-                                                getOptionLabel={(options) => options.productName}
-                                                renderInput={(params) => <TextField {...params} label="Product Name" />}
+                                            <TextField
+                                                value={name}
+                                                name="productName"
+                                                id="outlined-required"
+                                                label="Product Name"
+                                                InputProps={{ style: { fontSize: 14 } }}
+                                                InputLabelProps={{ style: { fontSize: 14 } }}
+                                                fullWidth
                                             />
                                         </FormControl>
                                     </div>
@@ -907,7 +1080,7 @@ function StockInOut() {
                                             helperText={stockInFormDataError.productQty ? "Enter Qty" : ''}
                                             name="productQty"
                                             InputProps={{
-                                                endAdornment: <InputAdornment position="end">{stockInFormData.productUnit}</InputAdornment>,
+                                                endAdornment: <InputAdornment position="end">{unit}</InputAdornment>,
                                             }}
                                         />
                                     </div>
@@ -923,7 +1096,8 @@ function StockInOut() {
                                                 else {
                                                     setStockInFormDataError((perv) => ({
                                                         ...perv,
-                                                        productPrice: false
+                                                        productPrice: false,
+                                                        totalPrice: false
                                                     }))
                                                 }
                                             }}
@@ -951,7 +1125,8 @@ function StockInOut() {
                                                 else {
                                                     setStockInFormDataError((perv) => ({
                                                         ...perv,
-                                                        totalPrice: false
+                                                        totalPrice: false,
+                                                        productPrice: false
                                                     }))
                                                 }
                                             }}
@@ -1092,22 +1267,21 @@ function StockInOut() {
                                 <div className='mt-6 grid grid-cols-12 gap-6'>
                                     <div className='col-span-3'>
                                         <FormControl fullWidth>
-                                            <Autocomplete
-                                                disablePortal
-                                                disabled={isEdit}
-                                                sx={{ width: '100%' }}
-                                                value={stockOutFormData.productName}
-                                                onChange={handleProductNameAutoCompleteOut}
-                                                options={productList ? productList : []}
-                                                getOptionLabel={(options) => options.productName}
-                                                renderInput={(params) => <TextField {...params} label="Product Name" />}
+                                            <TextField
+                                                value={name}
+                                                name="productName"
+                                                id="outlined-required"
+                                                label="Product Name"
+                                                InputProps={{ style: { fontSize: 14 } }}
+                                                InputLabelProps={{ style: { fontSize: 14 } }}
+                                                fullWidth
                                             />
                                         </FormControl>
                                     </div>
                                     <div className='col-span-3'>
                                         <TextField
                                             onBlur={(e) => {
-                                                if (e.target.value < 1 || e.target.value > stockOutFormData.productName?.remainingStock) {
+                                                if (e.target.value < 1 || e.target.value > statisticsCount?.remainingStock) {
                                                     setStockOutFormDataError((perv) => ({
                                                         ...perv,
                                                         productQty: true
@@ -1123,14 +1297,13 @@ function StockInOut() {
                                             type="number"
                                             label="Qty"
                                             fullWidth
-                                            disabled={!stockOutFormData.productName}
                                             onChange={onChangeStockOut}
                                             value={stockOutFormData.productQty}
                                             error={stockOutFormDataError.productQty}
-                                            helperText={stockOutFormData.productName && !stockOutFormDataError.productQty ? `Remaining Stock:-  ${stockOutFormData.productName?.remainingStock}  ${stockOutFormData.productUnit}` : stockOutFormDataError.productQty ? stockOutFormDataError.productQty && stockOutFormData.productQty > stockOutFormData.productName?.remainingStock ? `StockOut qty can't be more than ${stockOutFormData.productName?.remainingStock}  ${stockOutFormData.productUnit}` : "Please Enter Qty" : ''}
+                                            helperText={name && !stockOutFormDataError.productQty ? `Remaining Stock:-  ${statisticsCount?.remainingStock}  ${stockOutFormData.productUnit}` : stockOutFormDataError.productQty ? stockOutFormDataError.productQty && stockOutFormData.productQty > statisticsCount?.remainingStock ? `StockOut qty can't be more than ${statisticsCount?.remainingStock}  ${stockOutFormData.productUnit}` : "Please Enter Qty" : ''}
                                             name="productQty"
                                             InputProps={{
-                                                endAdornment: <InputAdornment position="end">{stockOutFormData.productUnit}</InputAdornment>,
+                                                endAdornment: <InputAdornment position="end">{unit}</InputAdornment>,
                                             }}
                                         />
                                     </div>
@@ -1220,63 +1393,11 @@ function StockInOut() {
                 <div className='col-span-12'>
                     <div className='userTableSubContainer'>
                         <div className='grid grid-cols-12 pt-6'>
-                            <div className='ml-6 col-span-6' >
-                                <div className='flex'>
-                                    <div className='dateRange text-center' aria-describedby={id} onClick={handleClick}>
-                                        <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
-                                    </div>
-                                    <div className='resetBtnWrap col-span-3'>
-                                        <button className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`} onClick={() => {
-                                            setFilter(false);
-                                            tab === 1 || tab === '1' ?
-                                                getStockInData() : getStockOutData();
-                                            setState([
-                                                {
-                                                    startDate: new Date(),
-                                                    endDate: new Date(),
-                                                    key: 'selection'
-                                                }
-                                            ])
-                                        }}><CloseIcon /></button>
-                                    </div>
-                                </div>
-
-                                <Popover
-                                    id={id}
-                                    open={open}
-                                    style={{ zIndex: 10000, borderRadius: '10px', boxShadow: 'rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem' }}
-                                    anchorEl={anchorEl}
-                                    onClose={handleClose}
-                                    anchorOrigin={{
-                                        vertical: 'bottom',
-                                        horizontal: 'left',
-                                    }}
-                                >
-                                    <Box sx={{ bgcolor: 'background.paper', padding: '20px', width: 'auto', height: 'auto', borderRadius: '10px' }}>
-                                        <DateRangePicker
-                                            ranges={state}
-                                            onChange={item => { setState([item.selection]); console.log([item.selection]) }}
-                                            direction="horizontal"
-                                            months={2}
-                                            showSelectionPreview={true}
-                                            moveRangeOnFirstSelection={false}
-                                        />
-                                        <div className='mt-8 grid gap-4 grid-cols-12'>
-                                            <div className='col-span-3 col-start-7'>
-                                                <button className='stockInBtn' onClick={() => { tab === 1 || tab === '1' ? getStockInDataByFilter() : getStockOutDataByFilter(); setFilter(true); setPage(0); handleClose() }}>Apply</button>
-                                            </div>
-                                            <div className='col-span-3'>
-                                                <button className='stockOutBtn' onClick={handleClose}>cancle</button>
-                                            </div>
-                                        </div>
-                                    </Box>
-                                </Popover>
-                            </div>
                             <div className='col-span-6 col-start-7 pr-5 flex justify-end'>
-                                <button className='exportExcelBtn' onClick={() => { tab === 1 || tab === '1' ? stockInExportExcel() : stockOutExportExcel() }}><FileDownloadIcon />&nbsp;&nbsp;Export Excle</button>
+                                <button className='exportExcelBtn' onClick={() => { tabStockInOut === 1 || tabStockInOut === '1' ? stockInExportExcel() : stockOutExportExcel() }}><FileDownloadIcon />&nbsp;&nbsp;Export Excle</button>
                             </div>
                         </div>
-                        {tab === 1 || tab === '1' ?
+                        {tabStockInOut === 1 || tabStockInOut === '1' ?
                             <div className='tableContainerWrapper'>
                                 <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
                                     <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
@@ -1413,4 +1534,4 @@ function StockInOut() {
     )
 }
 
-export default StockInOut;
+export default ProductDetails;
