@@ -52,7 +52,7 @@ function NavBar() {
             <Divider />
             <List>
                 <ListItem key={1}>
-                    <ListItemButton>
+                    <ListItemButton to="/dashboard">
                         <ListItemIcon>
                             <DashboardIcon />
                         </ListItemIcon>

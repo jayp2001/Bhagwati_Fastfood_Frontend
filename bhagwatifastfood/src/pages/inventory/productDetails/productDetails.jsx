@@ -1010,12 +1010,16 @@ function ProductDetails() {
                                         <div className={`flex col-span-6 justify-center ${tabStockInOut === 1 || tabStockInOut === '1' ? 'productTabAll' : 'productTab'}`}
                                             onClick={() => {
                                                 setTabStockInOut(1);
+                                                resetStockOutEdit();
+                                                setPage(0); setRowsPerPage(5);
                                             }} >
                                             <div className='statusTabtext'>Stock In</div>
                                         </div>
                                         <div className={`flex col-span-6 justify-center ${tabStockInOut === 2 || tabStockInOut === '2' ? 'productTabIn' : 'productTab'}`}
                                             onClick={() => {
                                                 setTabStockInOut(2);
+                                                resetStockInEdit();
+                                                setPage(0); setRowsPerPage(5);
                                                 filter ? getStockOutDataByFilter() : getStockOutData();
                                             }}>
                                             <div className='statusTabtext'>Stock Out</div>

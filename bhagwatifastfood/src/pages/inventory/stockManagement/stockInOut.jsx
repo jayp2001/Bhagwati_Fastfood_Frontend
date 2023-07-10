@@ -155,6 +155,7 @@ function StockInOut() {
                     stockOutId: id,
                     productName: res.data,
                     productId: res.data.productId,
+                    remainingStock: res.data.remainingStock,
                     productQty: res.data.productQty,
                     productUnit: res.data.productUnit,
                     stockOutCategory: res.data.stockOutCategory,
@@ -477,7 +478,7 @@ function StockInOut() {
     }
     const onChangeStockOut = (e) => {
         if (e.target.name === 'productQty') {
-            if (e.target.value > stockOutFormData.productName?.remainingStock) {
+            if (e.target.value > stockOutFormData?.remainingStock) {
                 setStockOutFormDataError((perv) => ({
                     ...perv,
                     [e.target.name]: true
@@ -825,6 +826,7 @@ function StockInOut() {
                                 <div className='grid grid-cols-12 pl-6 gap-3 h-full'>
                                     <div className={`flex col-span-3 justify-center ${tab === 1 || tab === '1' ? 'productTabIn' : 'productTab'}`} onClick={() => {
                                         setTab(1); setPage(0); setRowsPerPage(5); getStockInData(); setFilter(false);
+                                        resetStockOutEdit();
                                         setState([
                                             {
                                                 startDate: new Date(),
@@ -837,6 +839,7 @@ function StockInOut() {
                                     </div>
                                     <div className={`flex col-span-3 justify-center ${tab === 2 || tab === '2' ? 'productTabOut' : 'productTab'}`} onClick={() => {
                                         setTab(2); setPage(0); setRowsPerPage(5); getStockOutData(); setFilter(false);
+                                        resetStockInEdit();
                                         setState([
                                             {
                                                 startDate: new Date(),
@@ -1107,7 +1110,7 @@ function StockInOut() {
                                     <div className='col-span-3'>
                                         <TextField
                                             onBlur={(e) => {
-                                                if (e.target.value < 1 || e.target.value > stockOutFormData.productName?.remainingStock) {
+                                                if (e.target.value < 1 || e.target.value > stockOutFormData?.remainingStock) {
                                                     setStockOutFormDataError((perv) => ({
                                                         ...perv,
                                                         productQty: true
@@ -1127,7 +1130,7 @@ function StockInOut() {
                                             onChange={onChangeStockOut}
                                             value={stockOutFormData.productQty}
                                             error={stockOutFormDataError.productQty}
-                                            helperText={stockOutFormData.productName && !stockOutFormDataError.productQty ? `Remaining Stock:-  ${stockOutFormData.productName?.remainingStock}  ${stockOutFormData.productUnit}` : stockOutFormDataError.productQty ? stockOutFormDataError.productQty && stockOutFormData.productQty > stockOutFormData.productName?.remainingStock ? `StockOut qty can't be more than ${stockOutFormData.productName?.remainingStock}  ${stockOutFormData.productUnit}` : "Please Enter Qty" : ''}
+                                            helperText={stockOutFormData.productName && !stockOutFormDataError.productQty ? `Remaining Stock:-  ${stockOutFormData?.remainingStock}  ${stockOutFormData.productUnit}` : stockOutFormDataError.productQty ? stockOutFormDataError.productQty && stockOutFormData.productQty > stockOutFormData?.remainingStock ? `StockOut qty can't be more than ${stockOutFormData?.remainingStock}  ${stockOutFormData.productUnit}` : "Please Enter Qty" : ''}
                                             name="productQty"
                                             InputProps={{
                                                 endAdornment: <InputAdornment position="end">{stockOutFormData.productUnit}</InputAdornment>,

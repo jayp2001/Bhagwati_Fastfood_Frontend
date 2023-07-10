@@ -1,13 +1,15 @@
 import './consoleCard.css'
 import deliveryBoyLogo from '../../../../../assets/deliveryBoy.svg'
-import bhagwatiLogo from '../../../../../assets/bhagwatiLogo.png'
+import bhagwatiLogo from '../../../../../assets/bhagwatiLogo.png';
+import img11 from '../../../../../assets/img11.png';
+import userAdd from '../../../../../assets/userAdd.png';
 function ConsoleCard(props) {
     const getImg = (imgname) => {
         switch (imgname) {
-            case 'deliveryBoyLogo':
-                return deliveryBoyLogo;
+            case 'img11':
+                return img11;
             default:
-                return bhagwatiLogo;
+                return userAdd;
         }
     }
     return (

@@ -16,11 +16,15 @@ function Dashboard() {
     const goToAddUSer = () => {
         navigate('/addUser')
     }
+    const goToProductList = () => {
+        navigate('/productList')
+    }
     return (
         <div className='mainBody'>
             <div className="cardWrp">
-                <div className="grid lg:grid-cols-6 md:grid-cols-4 sm:grid-cols-3 gap-6">
-                    <ConsoleCard goToAddUSer={goToAddUSer} name={"Inventory"} imgName={'deliveryBoyLogo'} />
+                <div className="grid lg:grid-cols-3 mobile:grid-cols-2 tablet1:grid-cols-3 tablet:grid-cols-4 laptop:grid-cols-5 desktop1:grid-cols-6 desktop2:grid-cols-7 desktop2:grid-cols-8' gap-6">
+                    <ConsoleCard goToAddUSer={goToProductList} name={"Inventory"} imgName={'img11'} />
+                    <ConsoleCard goToAddUSer={goToAddUSer} name={"Add User"} imgName={'userAdd'} />
                 </div>
             </div>
         </div>
