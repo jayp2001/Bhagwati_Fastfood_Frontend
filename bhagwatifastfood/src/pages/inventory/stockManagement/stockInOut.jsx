@@ -327,13 +327,26 @@ function StockInOut() {
                 totalPrice: (parseFloat(e.target.value) * parseFloat(stockInFormData.productQty)).toString()
 
             }))
+            if (parseFloat(e.target.value) > 0) {
+                setStockInFormDataError((perv) => ({
+                    ...perv,
+                    totalPrice: false,
+                    productPrice: false
+                }))
+            }
         } else if (e.target.name === 'totalPrice' && stockInFormData.productQty > 0) {
             setStockInFormData((prevState) => ({
                 ...prevState,
                 totalPrice: e.target.value,
                 productPrice: (parseFloat(e.target.value) / parseFloat(stockInFormData.productQty)).toString()
-
             }))
+            if (parseFloat(e.target.value) > 0) {
+                setStockInFormDataError((perv) => ({
+                    ...perv,
+                    totalPrice: false,
+                    productPrice: false
+                }))
+            }
         }
         else if (e.target.name === 'productQty' && stockInFormData.productPrice > 0) {
             setStockInFormData((prevState) => ({
@@ -432,7 +445,8 @@ function StockInOut() {
             ...prevState,
             ['productName']: value,
             productId: value && value.productId ? value.productId : '',
-            productUnit: value && value.productUnit ? value.productUnit : ''
+            productUnit: value && value.productUnit ? value.productUnit : '',
+            remainingStock: value && value.remainingStock ? value.remainingStock : ''
         }))
         console.log('formddds', stockInFormData)
     }

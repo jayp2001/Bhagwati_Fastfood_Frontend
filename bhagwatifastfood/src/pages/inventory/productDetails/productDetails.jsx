@@ -143,6 +143,13 @@ function ProductDetails() {
                 totalPrice: (parseFloat(e.target.value) * parseFloat(stockInFormData.productQty)).toString()
 
             }))
+            if (parseFloat(e.target.value) > 0) {
+                setStockInFormDataError((perv) => ({
+                    ...perv,
+                    totalPrice: false,
+                    productPrice: false
+                }))
+            }
         } else if (e.target.name === 'totalPrice' && stockInFormData.productQty > 0) {
             setStockInFormData((prevState) => ({
                 ...prevState,
@@ -150,6 +157,13 @@ function ProductDetails() {
                 productPrice: (parseFloat(e.target.value) / parseFloat(stockInFormData.productQty)).toString()
 
             }))
+            if (parseFloat(e.target.value) > 0) {
+                setStockInFormDataError((perv) => ({
+                    ...perv,
+                    totalPrice: false,
+                    productPrice: false
+                }))
+            }
         }
         else if (e.target.name === 'productQty' && stockInFormData.productPrice > 0) {
             setStockInFormData((prevState) => ({
@@ -1166,7 +1180,6 @@ function ProductDetails() {
                                                 id="demo-simple-select"
                                                 value={stockInFormData.supplierId}
                                                 error={stockInFormDataError.supplierId}
-                                                disabled={stockInFormData.productId ? false : true}
                                                 name="supplierId"
                                                 label="Suppiler"
                                                 onBlur={(e) => {
@@ -1262,8 +1275,8 @@ function ProductDetails() {
                                     <div className='col-span-2'>
                                         <button className='addCategoryCancleBtn' onClick={() => {
                                             handleResetStockIn();
+                                            isEdit ? setExpanded(false) : setExpanded(true);
                                             setIsEdit(false);
-                                            setExpanded(false);
                                         }}>{isEdit ? 'Cancle' : 'Reset'}</button>
                                     </div>
                                 </div>
@@ -1384,7 +1397,7 @@ function ProductDetails() {
                                         <button className='addCategoryCancleBtn' onClick={() => {
                                             handleResetStockOut();
                                             setIsEdit(false);
-                                            setExpanded(false);
+                                            isEdit ? setExpanded(false) : setExpanded(true);
                                         }}>{isEdit ? "cancle" : "reset"}</button>
                                     </div>
                                 </div>

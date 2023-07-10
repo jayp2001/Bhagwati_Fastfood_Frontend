@@ -344,6 +344,7 @@ function SuppilerDetail() {
                     transactionNote: '',
                 }))
                 getStatistics();
+                getDebitData();
                 setFormDataError((perv) => ({
                     ...perv,
                     receivedBy: false,
