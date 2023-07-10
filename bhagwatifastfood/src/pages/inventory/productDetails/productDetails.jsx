@@ -230,7 +230,7 @@ function ProductDetails() {
     };
     const onChangeStockOut = (e) => {
         if (e.target.name === 'productQty') {
-            if (e.target.value > statisticsCount.remainingStock) {
+            if (e.target.value > statisticsCount?.remainingStock) {
                 setStockOutFormDataError((perv) => ({
                     ...perv,
                     [e.target.name]: true
@@ -848,10 +848,10 @@ function ProductDetails() {
                                     <div className='h-full grid grid-cols-12'>
                                         <div className='h-full col-span-3'>
                                             <div className='grid grid-cols-12 pl-6 gap-3 h-full'>
-                                                <Tooltip title={name + '  ' + (statisticsCount && statisticsCount.minProductQty ? statisticsCount.remainingStock < statisticsCount.minProductQty ? statisticsCount.remainingStock != 0 ? 'Low Stock' : 'Out Of Stock' : '' : '')} placement="top-start" arrow>
+                                                <Tooltip title={name + '  ' + (statisticsCount && statisticsCount.minProductQty ? statisticsCount?.remainingStock < statisticsCount.minProductQty ? statisticsCount?.remainingStock != 0 ? 'Low Stock' : 'Out Of Stock' : '' : '')} placement="top-start" arrow>
                                                     <div className={`flex col-span-12 justify-between productTab`}>
                                                         <div className='productNameHeader'>{name}</div>
-                                                        <div className='status' style={{ color: `${statisticsCount && statisticsCount.minProductQty ? statisticsCount.remainingStock < statisticsCount.minProductQty ? statisticsCount.remainingStock != 0 ? 'orange' : 'red' : 'black' : 'black'}` }}>{statisticsCount && statisticsCount.minProductQty ? statisticsCount.remainingStock < statisticsCount.minProductQty ? statisticsCount.remainingStock != 0 ? 'Low Stock' : 'Out Of Stock' : '' : ''}</div>
+                                                        <div className='status' style={{ color: `${statisticsCount && statisticsCount.minProductQty ? statisticsCount?.remainingStock < statisticsCount.minProductQty ? statisticsCount?.remainingStock != 0 ? 'orange' : 'red' : 'black' : 'black'}` }}>{statisticsCount && statisticsCount.minProductQty ? statisticsCount?.remainingStock < statisticsCount.minProductQty ? statisticsCount?.remainingStock != 0 ? 'Low Stock' : 'Out Of Stock' : '' : ''}</div>
                                                     </div>
                                                 </Tooltip>
                                             </div>
@@ -1281,7 +1281,7 @@ function ProductDetails() {
                                     <div className='col-span-3'>
                                         <TextField
                                             onBlur={(e) => {
-                                                if (e.target.value < 1 || e.target.value > statisticsCount.remainingStock) {
+                                                if (e.target.value < 1 || e.target.value > statisticsCount?.remainingStock) {
                                                     setStockOutFormDataError((perv) => ({
                                                         ...perv,
                                                         productQty: true
@@ -1300,7 +1300,7 @@ function ProductDetails() {
                                             onChange={onChangeStockOut}
                                             value={stockOutFormData.productQty}
                                             error={stockOutFormDataError.productQty}
-                                            helperText={name && !stockOutFormDataError.productQty ? `Remaining Stock:-  ${statisticsCount.remainingStock}  ${stockOutFormData.productUnit}` : stockOutFormDataError.productQty ? stockOutFormDataError.productQty && stockOutFormData.productQty > statisticsCount.remainingStock ? `StockOut qty can't be more than ${statisticsCount.remainingStock}  ${stockOutFormData.productUnit}` : "Please Enter Qty" : ''}
+                                            helperText={name && !stockOutFormDataError.productQty ? `Remaining Stock:-  ${statisticsCount?.remainingStock}  ${stockOutFormData.productUnit}` : stockOutFormDataError.productQty ? stockOutFormDataError.productQty && stockOutFormData.productQty > statisticsCount?.remainingStock ? `StockOut qty can't be more than ${statisticsCount?.remainingStock}  ${stockOutFormData.productUnit}` : "Please Enter Qty" : ''}
                                             name="productQty"
                                             InputProps={{
                                                 endAdornment: <InputAdornment position="end">{unit}</InputAdornment>,
@@ -1393,7 +1393,7 @@ function ProductDetails() {
                 <div className='col-span-12'>
                     <div className='userTableSubContainer'>
                         <div className='grid grid-cols-12 pt-6'>
-                            <div className='col-span-6 col-start-11 flex-col-reverse'>
+                            <div className='col-span-6 col-start-7 pr-5 flex justify-end'>
                                 <button className='exportExcelBtn' onClick={() => { tabStockInOut === 1 || tabStockInOut === '1' ? stockInExportExcel() : stockOutExportExcel() }}><FileDownloadIcon />&nbsp;&nbsp;Export Excle</button>
                             </div>
                         </div>

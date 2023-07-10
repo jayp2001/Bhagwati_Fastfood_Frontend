@@ -477,7 +477,7 @@ function StockInOut() {
     }
     const onChangeStockOut = (e) => {
         if (e.target.name === 'productQty') {
-            if (e.target.value > stockOutFormData.productName.remainingStock) {
+            if (e.target.value > stockOutFormData.productName?.remainingStock) {
                 setStockOutFormDataError((perv) => ({
                     ...perv,
                     [e.target.name]: true
@@ -1107,7 +1107,7 @@ function StockInOut() {
                                     <div className='col-span-3'>
                                         <TextField
                                             onBlur={(e) => {
-                                                if (e.target.value < 1 || e.target.value > stockOutFormData.productName.remainingStock) {
+                                                if (e.target.value < 1 || e.target.value > stockOutFormData.productName?.remainingStock) {
                                                     setStockOutFormDataError((perv) => ({
                                                         ...perv,
                                                         productQty: true
@@ -1123,10 +1123,11 @@ function StockInOut() {
                                             type="number"
                                             label="Qty"
                                             fullWidth
+                                            disabled={!stockOutFormData.productName}
                                             onChange={onChangeStockOut}
                                             value={stockOutFormData.productQty}
                                             error={stockOutFormDataError.productQty}
-                                            helperText={stockOutFormData.productName && !stockOutFormDataError.productQty ? `Remaining Stock:-  ${stockOutFormData.productName.remainingStock}  ${stockOutFormData.productUnit}` : stockOutFormDataError.productQty ? stockOutFormDataError.productQty && stockOutFormData.productQty > stockOutFormData.productName.remainingStock ? `StockOut qty can't be more than ${stockOutFormData.productName.remainingStock}  ${stockOutFormData.productUnit}` : "Please Enter Qty" : ''}
+                                            helperText={stockOutFormData.productName && !stockOutFormDataError.productQty ? `Remaining Stock:-  ${stockOutFormData.productName?.remainingStock}  ${stockOutFormData.productUnit}` : stockOutFormDataError.productQty ? stockOutFormDataError.productQty && stockOutFormData.productQty > stockOutFormData.productName?.remainingStock ? `StockOut qty can't be more than ${stockOutFormData.productName?.remainingStock}  ${stockOutFormData.productUnit}` : "Please Enter Qty" : ''}
                                             name="productQty"
                                             InputProps={{
                                                 endAdornment: <InputAdornment position="end">{stockOutFormData.productUnit}</InputAdornment>,
@@ -1219,7 +1220,7 @@ function StockInOut() {
                 <div className='col-span-12'>
                     <div className='userTableSubContainer'>
                         <div className='grid grid-cols-12 pt-6'>
-                            <div className='ml-6 col-span-4' >
+                            <div className='ml-6 col-span-6' >
                                 <div className='flex'>
                                     <div className='dateRange text-center' aria-describedby={id} onClick={handleClick}>
                                         <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
@@ -1271,7 +1272,7 @@ function StockInOut() {
                                     </Box>
                                 </Popover>
                             </div>
-                            <div className='col-span-6 col-start-11 flex-col-reverse'>
+                            <div className='col-span-6 col-start-7 pr-5 flex justify-end'>
                                 <button className='exportExcelBtn' onClick={() => { tab === 1 || tab === '1' ? stockInExportExcel() : stockOutExportExcel() }}><FileDownloadIcon />&nbsp;&nbsp;Export Excle</button>
                             </div>
                         </div>
