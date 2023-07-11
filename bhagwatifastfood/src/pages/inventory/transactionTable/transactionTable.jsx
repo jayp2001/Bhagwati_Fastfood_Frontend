@@ -42,8 +42,12 @@ import CloseIcon from '@mui/icons-material/Close';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import CountCard from '../countCard/countCard';
 import Menutemp from './menu';
+import { ToastContainer, toast } from 'react-toastify';
 function TransactionTable() {
     const [tab, setTab] = React.useState(2);
+    const [loading, setLoading] = React.useState(false);
+    const [error, setError] = React.useState(false);
+    const [success, setSuccess] = React.useState(false);
     const [cashCount, setCashCount] = React.useState();
     const [debitCount, setDebitCount] = React.useState();
     const [page, setPage] = React.useState(0);
@@ -86,7 +90,7 @@ function TransactionTable() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
 
@@ -97,7 +101,7 @@ function TransactionTable() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
 
@@ -108,7 +112,7 @@ function TransactionTable() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
 
@@ -119,7 +123,7 @@ function TransactionTable() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getCashDataByFilter = async () => {
@@ -129,7 +133,7 @@ function TransactionTable() {
                 setTotalRowsCash(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
 
@@ -140,7 +144,7 @@ function TransactionTable() {
                 setTotalRowsCash(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getCashCounts = async () => {
@@ -149,7 +153,7 @@ function TransactionTable() {
                 setCashCount(res.data);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getCashCountsByFilter = async () => {
@@ -158,7 +162,7 @@ function TransactionTable() {
                 setCashCount(res.data);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getDebitCounts = async () => {
@@ -167,7 +171,7 @@ function TransactionTable() {
                 setDebitCount(res.data);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getDebitCountsByFilter = async () => {
@@ -176,7 +180,7 @@ function TransactionTable() {
                 setDebitCount(res.data);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
 
@@ -188,7 +192,7 @@ function TransactionTable() {
                 setTotalRowsCash(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
 
@@ -199,7 +203,7 @@ function TransactionTable() {
                 setTotalRowsCash(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
 
@@ -297,10 +301,10 @@ function TransactionTable() {
     const deleteData = async (id) => {
         await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeSupplierTransactionDetails?supplierTransactionId=${id}`, config)
             .then((res) => {
-                alert("data deleted")
+                setSuccess(true)
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const handleDeleteTransaction = (id) => {
@@ -334,6 +338,48 @@ function TransactionTable() {
                 URL.revokeObjectURL(href);
             });
         }
+    }
+    if (loading) {
+        console.log('>>>>??')
+        toast.loading("Please wait...", {
+            toastId: 'loading'
+        })
+    }
+    if (success) {
+        toast.dismiss('loading');
+        toast('success',
+            {
+                type: 'success',
+                toastId: 'success',
+                position: "bottom-right",
+                toastId: 'error',
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+            });
+        setTimeout(() => {
+            setSuccess(false)
+        }, 50)
+    }
+    if (error) {
+        toast.dismiss('loading');
+        toast(error, {
+            type: 'error',
+            position: "bottom-right",
+            toastId: 'error',
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+        });
+        setError(false);
     }
 
     useEffect(() => {
@@ -596,6 +642,7 @@ function TransactionTable() {
                     </div>
                 </div>
             </div>
+            <ToastContainer />
         </div >
     )
 }

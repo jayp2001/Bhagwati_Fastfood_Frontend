@@ -1,13 +1,16 @@
-import './productList.css'
+import './productListTable.css';
 import dayjs from 'dayjs';
 import { useState, useEffect } from "react";
 import React from "react";
 import { BACKEND_BASE_URL } from '../../../url';
 import axios from 'axios';
-import ProductCard from './component/productCard/productCard';
+// import ProductCard from './component/productCard/productCard';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import CloseIcon from '@mui/icons-material/Close';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -21,6 +24,20 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { useNavigate } from "react-router-dom";
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import TablePagination from '@mui/material/TablePagination';
+import Paper from '@mui/material/Paper';
+import 'react-date-range/dist/styles.css'; // main style file
+import 'react-date-range/dist/theme/default.css';
+import { DateRangePicker } from 'react-date-range';
+import Popover from '@mui/material/Popover';
+import Tooltip from '@mui/material/Tooltip';
+import Menutemp from './menu';
 import { ToastContainer, toast } from 'react-toastify';
 
 const style = {
@@ -63,8 +80,28 @@ const qtyUnit = [
     'Piece',
     'Num'
 ]
-function ProductList() {
+
+
+
+function ProductListTable() {
+    const [state, setState] = useState([
+        {
+            startDate: new Date(),
+            endDate: new Date(),
+            key: 'selection'
+        }
+    ]);
+
+    const [filter, setFilter] = React.useState(false);
+    const [page, setPage] = React.useState(0);
+    const [rowsPerPage, setRowsPerPage] = React.useState(10);
+    const [totalRows, setTotalRows] = React.useState(0);
+    const [totalRowsOut, setTotalRowsOut] = React.useState(0);
+    const [anchorEl, setAnchorEl] = React.useState(null);
     const navigate = useNavigate();
+
+    const open = Boolean(anchorEl);
+    const id = open ? 'simple-popover' : undefined;
     const [formData, setFormData] = React.useState({
         productName: '',
         productId: '',
@@ -142,13 +179,13 @@ function ProductList() {
             Authorization: `Bearer ${userInfo.token}`,
         },
     };
-    const [open, setOpen] = React.useState(false);
+    const [openM, setOpenM] = React.useState(false);
     const [openStockIn, setOpenStockIn] = React.useState(false);
     const [openStockOut, setOpenStockOut] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
     const [error, setError] = React.useState(false);
     const [success, setSuccess] = React.useState(false);
-    const [data, setData] = React.useState();
+    const [allData, setAllData] = React.useState();
     const [suppiler, setSuppilerList] = React.useState();
     const [categories, setCategories] = React.useState();
     const [countData, setCountData] = React.useState();
@@ -233,7 +270,7 @@ function ProductList() {
             }))
         }
     }
-    const handleOpen = () => setOpen(true);
+    const handleOpen = () => setOpenM(true);
     const handleOpenStockIn = (row) => {
         getSuppilerList(row.productId);
 
@@ -256,8 +293,11 @@ function ProductList() {
         }))
         setOpenStockOut(true);
     }
+    const handleCloseDate = () => {
+        setAnchorEl(null);
+    };
     const handleClose = () => {
-        setOpen(false);
+        setOpenM(false);
         // setCategory('');
         // setCategoryError(false);
         setFormData({
@@ -320,14 +360,37 @@ function ProductList() {
             ["stockOutDate"]: date && date['$d'] ? date['$d'] : null,
         }))
     };
-    const getData = async () => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getProductList?productStatus=${tab}`, config)
+    const getAllData = async () => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getProductDetailsTable?productStatus=${tab}&page=${1}&numPerPage=${10}`, config)
             .then((res) => {
-                setData(res.data);
+                setAllData(res.data.rows);
+                setTotalRows(res.data.numRows)
             })
             .catch((error) => {
                 setError(error.response.data);
-                setData(null)
+                setAllData(null)
+            })
+    }
+    const getAllDataByTab = async (tab) => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getProductDetailsTable?productStatus=${tab}&page=${1}&numPerPage=${10}`, config)
+            .then((res) => {
+                setAllData(res.data.rows);
+                setTotalRows(res.data.numRows)
+            })
+            .catch((error) => {
+                setError(error.response.data);
+                setAllData(null)
+            })
+    }
+    const getAllDataByFilter = async () => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getProductDetailsTable?startDate=${state[0].startDate}&endDate=${state[0].endDate}&productStatus=${tab}&page=${1}&numPerPage=${10}`, config)
+            .then((res) => {
+                setAllData(res.data.rows);
+                setTotalRows(res.data.numRows)
+            })
+            .catch((error) => {
+                setError(error.response.data);
+                setAllData(null)
             })
     }
     const getCountData = async () => {
@@ -343,21 +406,35 @@ function ProductList() {
         await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeProduct?productId=${id}`, config)
             .then((res) => {
                 setSuccess(true)
+                setPage(0);
+                setTab('')
+                setRowsPerPage(10);
+                setFilter(false);
+                setState([
+                    {
+                        startDate: new Date(),
+                        endDate: new Date(),
+                        key: 'selection'
+                    }
+                ])
+                getCountData();
+                getAllData('');
+
             })
             .catch((error) => {
                 setError(error.response.data)
             })
     }
     useEffect(() => {
-        getData();
+        getAllData();
         getCountData();
-    }, [tab])
+    }, [])
     const handleDeleteProduct = (id) => {
         if (window.confirm("Are you sure you want to delete Product?")) {
             deleteData(id);
             setTimeout(() => {
                 setTab(null)
-                getData()
+                getAllData()
                 getCountData();
             }, 1000)
         }
@@ -366,9 +443,21 @@ function ProductList() {
         setLoading(true)
         await axios.post(`${BACKEND_BASE_URL}inventoryrouter/updateProduct`, formData, config)
             .then((res) => {
-                setLoading(false)
                 setSuccess(true);
-                getData();
+                setLoading(false)
+                setTab('')
+                setPage(0);
+                setRowsPerPage(0);
+                setFilter(false);
+                setState([
+                    {
+                        startDate: new Date(),
+                        endDate: new Date(),
+                        key: 'selection'
+                    }
+                ])
+                getAllData();
+                getCountData();
                 handleClose()
             })
             .catch((error) => {
@@ -380,9 +469,9 @@ function ProductList() {
         setLoading(true)
         await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addProduct`, formData, config)
             .then((res) => {
-                setLoading(false)
                 setSuccess(true);
-                getData();
+                setLoading(false)
+                getAllData();
                 setTab(null)
                 getCountData();
                 handleClose();
@@ -395,11 +484,20 @@ function ProductList() {
         setLoading(true)
         await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addStockInDetails`, stockInFormData, config)
             .then((res) => {
-                setLoading(false)
                 setSuccess(true);
-                getData();
-                setTab(null)
+                setTab('')
+                setPage(0);
+                setRowsPerPage(10);
+                setFilter(false);
+                setState([
+                    {
+                        startDate: new Date(),
+                        endDate: new Date(),
+                        key: 'selection'
+                    }
+                ])
                 getCountData();
+                getAllData('');
                 handleCloseStockIn();
             })
             .catch((error) => {
@@ -411,11 +509,21 @@ function ProductList() {
         setLoading(true)
         await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addStockOutDetails`, stockOutFormData, config)
             .then((res) => {
-                setLoading(false)
                 setSuccess(true);
-                getData();
-                setTab(null)
+                setLoading(false)
+                setTab('')
+                setPage(0);
+                setRowsPerPage(10);
+                setFilter(false);
+                setState([
+                    {
+                        startDate: new Date(),
+                        endDate: new Date(),
+                        key: 'selection'
+                    }
+                ])
                 getCountData();
+                getAllData('');
                 handleCloseStockOut();
             })
             .catch((error) => {
@@ -519,7 +627,7 @@ function ProductList() {
     }
 
     const handleEditClick = (row) => {
-        setOpen(true);
+        setOpenM(true);
         setIsEdit(true);
         setFormData({
             productName: row.productName,
@@ -528,11 +636,84 @@ function ProductList() {
             minProductUnit: row.minProductUnit
         })
     }
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const getAllDataOnPageChange = async (pageNum, rowPerPageNum) => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getProductDetailsTable?page=${pageNum}&numPerPage=${rowPerPageNum}&productStatus=${tab}`, config)
+            .then((res) => {
+                setAllData(res.data.rows);
+                setTotalRows(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response.data)
+            })
+    }
+    const getAllDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getProductDetailsTable?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${pageNum}&numPerPage=${rowPerPageNum}&productStatus=${tab}`, config)
+            .then((res) => {
+                setAllData(res.data.rows);
+                setTotalRows(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response.data)
+            })
+    }
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+        console.log("page change")
+        if (tab === 1 || tab === '1' || tab === 2 || tab === '2' || tab === 3 || tab === '3') {
+            getAllDataOnPageChange(newPage + 1, rowsPerPage)
+        } else {
+            if (filter) {
+                getAllDataOnPageChangeByFilter(newPage + 1, rowsPerPage)
+            }
+            else {
+                getAllDataOnPageChange(newPage + 1, rowsPerPage)
+            }
+        }
+    };
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+        if (tab === 1 || tab === '1' || tab === 2 || tab === '2' || tab === 3 || tab === '3') {
+            getAllDataOnPageChange(1, parseInt(event.target.value, 10))
+        } else {
+            if (filter) {
+                getAllDataOnPageChangeByFilter(1, parseInt(event.target.value, 10))
+            }
+            else {
+                getAllDataOnPageChange(1, parseInt(event.target.value, 10))
+            }
+        }
+    };
+    const productExportExcel = async () => {
+        if (window.confirm('Are you sure you want to export Excel ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}inventoryrouter/exportExcelSheetForProductTable?startDate=${state[0].startDate}&endDate=${state[0].endDate}` : `${BACKEND_BASE_URL}inventoryrouter/exportExcelSheetForProductTable?startDate=${''}&endDate=${''}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = 'bookList' + new Date().toLocaleDateString() + '.xlsx'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
     const handleViewDetail = (id, name, unit, remainingQty) => {
         navigate(`/productDetails/${id}/${name}/${unit}/${remainingQty}`)
     }
-    // if (data) {
-    // }
     if (loading) {
         console.log('>>>>??')
         toast.loading("Please wait...", {
@@ -583,16 +764,68 @@ function ProductList() {
                         <div className='h-full grid grid-cols-12'>
                             <div className='h-full mobile:col-span-10  tablet1:col-span-10  tablet:col-span-7  laptop:col-span-7  desktop1:col-span-7  desktop2:col-span-7  desktop2:col-span-7 '>
                                 <div className='grid grid-cols-12 pl-6 gap-3 h-full'>
-                                    <div className={`flex col-span-3 justify-center ${tab === null || tab === '' || !tab ? 'productTabAll' : 'productTab'}`} onClick={() => setTab(null)}>
+                                    <div className={`flex col-span-3 justify-center ${tab === null || tab === '' || !tab ? 'productTabAll' : 'productTab'}`} onClick={() => {
+                                        setTab('');
+                                        setPage(0);
+                                        setRowsPerPage(10);
+                                        setFilter(false);
+                                        getAllDataByTab('');
+                                        setState([
+                                            {
+                                                startDate: new Date(),
+                                                endDate: new Date(),
+                                                key: 'selection'
+                                            }
+                                        ])
+                                    }}>
                                         <div className='statusTabtext'>All</div> &nbsp;&nbsp; <div className={`ProductCount ${tab === null || tab === '' || !tab ? 'blueCount' : ''}`}>{countData && countData.allProduct ? countData.allProduct : 0}</div>
                                     </div>
-                                    <div className={`flex col-span-3 justify-center ${tab === 1 || tab === '1' ? 'productTabIn' : 'productTab'}`} onClick={() => setTab(1)}>
+                                    <div className={`flex col-span-3 justify-center ${tab === 1 || tab === '1' ? 'productTabIn' : 'productTab'}`} onClick={() => {
+                                        setTab(1);
+                                        setFilter(false);
+                                        setPage(0);
+                                        setRowsPerPage(10);
+                                        getAllDataByTab(1);
+                                        setState([
+                                            {
+                                                startDate: new Date(),
+                                                endDate: new Date(),
+                                                key: 'selection'
+                                            }
+                                        ])
+                                    }}>
                                         <div className='statusTabtext'>In-Stock</div> &nbsp;&nbsp; <div className={`ProductCount ${tab === 1 || tab === '1' ? 'greenCount' : ''}`}>{countData && countData.instockProduct ? countData.instockProduct : 0}</div>
                                     </div>
-                                    <div className={`flex col-span-3 justify-center ${tab === 2 || tab === '2' ? 'productTabUnder' : 'productTab'}`} onClick={() => setTab(2)}>
+                                    <div className={`flex col-span-3 justify-center ${tab === 2 || tab === '2' ? 'productTabUnder' : 'productTab'}`} onClick={() => {
+                                        setTab(2);
+                                        setFilter(false);
+                                        setPage(0);
+                                        setRowsPerPage(10);
+                                        getAllDataByTab(2);
+                                        setState([
+                                            {
+                                                startDate: new Date(),
+                                                endDate: new Date(),
+                                                key: 'selection'
+                                            }
+                                        ])
+                                    }}>
                                         <div className='statusTabtext'>Low-Stock</div> &nbsp;&nbsp; <div className={`ProductCount ${tab === 2 || tab === '2' ? 'orangeCount' : ''}`}>{countData && countData.underStockedProduct ? countData.underStockedProduct : 0}</div>
                                     </div>
-                                    <div className={`flex col-span-3 justify-center ${tab === 3 || tab === '3' ? 'productTabOut' : 'productTab'}`} onClick={() => setTab(3)}>
+                                    <div className={`flex col-span-3 justify-center ${tab === 3 || tab === '3' ? 'productTabOut' : 'productTab'}`} onClick={() => {
+                                        setTab(3);
+                                        setFilter(false);
+                                        setPage(0);
+                                        setRowsPerPage(10);
+                                        getAllDataByTab(3);
+                                        setState([
+                                            {
+                                                startDate: new Date(),
+                                                endDate: new Date(),
+                                                key: 'selection'
+                                            }
+                                        ])
+                                    }}>
                                         <div className='statusTabtext'>Out-Stock</div> &nbsp;&nbsp; <div className={`ProductCount ${tab === 3 || tab === '3' ? 'redCount' : ''}`}>{countData && countData.outOfStock ? countData.outOfStock : 0}</div>
                                     </div>
                                 </div>
@@ -607,7 +840,7 @@ function ProductList() {
                     </div>
                 </div>
             </div>
-            <div className='productCardContainer mt-8 gap-6 grid mobile:grid-cols-2 tablet1:grid-cols-3 tablet:grid-cols-4 laptop:grid-cols-5 desktop1:grid-cols-6 desktop2:grid-cols-7 desktop2:grid-cols-8'>
+            {/* <div className='productCardContainer mt-8 gap-6 grid mobile:grid-cols-2 tablet1:grid-cols-3 tablet:grid-cols-4 laptop:grid-cols-5 desktop1:grid-cols-6 desktop2:grid-cols-7 desktop2:grid-cols-8'>
                 {
                     data ? data.map((product) => (
                         <ProductCard productData={product} handleViewDetail={handleViewDetail} handleOpenStockOut={handleOpenStockOut} handleOpenStockIn={handleOpenStockIn} handleDeleteProduct={handleDeleteProduct} handleEditClick={handleEditClick} />
@@ -619,9 +852,210 @@ function ProductList() {
                             </div>
                         </div>
                 }
+            </div> */}
+            <div className='grid grid-cols-12 mt-6'>
+                <div className='col-span-12'>
+                    <div className='userTableSubContainer'>
+                        <div className='grid grid-cols-12 pt-6'>
+                            <div className='ml-6 col-span-6' >
+                                {tab === 1 || tab === '1' || tab === 2 || tab === '2' || tab === 3 || tab === '3' ? null
+                                    :
+                                    <div className='flex'>
+                                        <div className='dateRange text-center' aria-describedby={id} onClick={handleClick}>
+                                            <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0] && state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0] && state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
+                                        </div>
+                                        <div className='resetBtnWrap col-span-3'>
+                                            <button className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`} onClick={() => {
+                                                setFilter(false);
+                                                setPage(0);
+                                                setRowsPerPage(10);
+                                                getAllDataByTab('');
+                                                setState([
+                                                    {
+                                                        startDate: new Date(),
+                                                        endDate: new Date(),
+                                                        key: 'selection'
+                                                    }
+                                                ])
+                                            }}><CloseIcon /></button>
+                                        </div>
+                                    </div>}
+
+
+                                <Popover
+                                    id={id}
+                                    open={open}
+                                    style={{ zIndex: 10000, borderRadius: '10px', boxShadow: 'rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem' }}
+                                    anchorEl={anchorEl}
+                                    onClose={handleCloseDate}
+                                    anchorOrigin={{
+                                        vertical: 'bottom',
+                                        horizontal: 'left',
+                                    }}
+                                >
+                                    <Box sx={{ bgcolor: 'background.paper', padding: '20px', width: 'auto', height: 'auto', borderRadius: '10px' }}>
+                                        <DateRangePicker
+                                            ranges={state}
+                                            onChange={item => { setState([item.selection]); console.log([item.selection]) }}
+                                            direction="horizontal"
+                                            months={2}
+                                            showSelectionPreview={true}
+                                            moveRangeOnFirstSelection={false}
+                                        />
+                                        <div className='mt-8 grid gap-4 grid-cols-12'>
+                                            <div className='col-span-3 col-start-7'>
+                                                <button className='stockInBtn' onClick={() => { getAllDataByFilter(); setTab(''); setFilter(true); setPage(0); setRowsPerPage(10); handleCloseDate() }}>Apply</button>
+                                            </div>
+                                            <div className='col-span-3'>
+                                                <button className='stockOutBtn' onClick={handleCloseDate}>cancle</button>
+                                            </div>
+                                        </div>
+                                    </Box>
+                                </Popover>
+                            </div>
+                            <div className='col-span-6 col-start-7 pr-5 flex justify-end'>
+                                {tab === 1 || tab === '1' || tab === 2 || tab === '2' || tab === 3 || tab === '3' ? null : <button className='exportExcelBtn' onClick={productExportExcel}><FileDownloadIcon />&nbsp;&nbsp;Export Excle</button>}
+                            </div>
+                        </div>
+                        {tab === 1 || tab === '1' || tab === 2 || tab === '2' || tab === 3 || tab === '3' ?
+                            <div className='tableContainerWrapper'>
+                                <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
+                                    <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>No.</TableCell>
+                                                <TableCell>Product Name</TableCell>
+                                                <TableCell align="left">Remaining Stock</TableCell>
+                                                <TableCell align="left">Last StockedIn</TableCell>
+                                                <TableCell align="left">Last Price</TableCell>
+                                                <TableCell align="left">Min. Product Qty</TableCell>
+                                                <TableCell align="left">Status</TableCell>
+                                                <TableCell align="left">LastIn Date</TableCell>
+                                                <TableCell align="left"></TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {allData?.map((row, index) => (
+                                                totalRows !== 0 ?
+                                                    <TableRow
+                                                        key={row.productId}
+                                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                        style={{ cursor: "pointer" }}
+                                                        className='tableRow'
+                                                    >
+                                                        <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>{(index + 1) + (page * rowsPerPage)}</TableCell>
+                                                        {/* <Tooltip title={row.userName} placement="top-start" arrow> */}
+                                                        <TableCell component="th" scope="row" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>
+                                                            {row.productName}
+                                                        </TableCell>
+                                                        {/* </Tooltip> */}
+                                                        <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>{row.remainingStock} {row.minProductUnit}</TableCell>
+                                                        <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>{row.lastUpdatedQty} {row.minProductUnit}</TableCell>
+                                                        <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>{row.lastPrice}</TableCell>
+                                                        <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>{row.minProductQty} {row.minProductUnit}</TableCell>
+                                                        <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}><div className={row.remainingStock >= row.minProductQty ? 'greenStatus' : row.remainingStock < row.minProductQty && row.remainingStock !== 0 ? 'orangeStatus' : 'redStatus'}>{row.stockStatus}</div></TableCell>
+                                                        <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>{row.lastUpdatedStockInDate}</TableCell>
+                                                        <TableCell align="right">
+                                                            <Menutemp productId={row.productId} data={row} handleOpenStockOut={handleOpenStockOut} handleOpenStockIn={handleOpenStockIn} handleDeleteProduct={handleDeleteProduct} handleEditClick={handleEditClick} />
+                                                        </TableCell>
+                                                    </TableRow> :
+                                                    <TableRow
+                                                        key={row.userId}
+                                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                    >
+                                                        <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
+                                                    </TableRow>
+
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                    <TablePagination
+                                        rowsPerPageOptions={[10, 25, 50]}
+                                        component="div"
+                                        count={totalRows}
+                                        rowsPerPage={rowsPerPage}
+                                        page={page}
+                                        onPageChange={handleChangePage}
+                                        onRowsPerPageChange={handleChangeRowsPerPage}
+                                    />
+                                </TableContainer>
+                            </div> :
+                            <div className='tableContainerWrapper'>
+                                <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
+                                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>No.</TableCell>
+                                                <TableCell>Product Name</TableCell>
+                                                <TableCell align="left">Total StockIn</TableCell>
+                                                <TableCell align="left">Total Used</TableCell>
+                                                <TableCell align="left">Remaining Stock</TableCell>
+                                                <TableCell align="left">Total Expense</TableCell>
+                                                <TableCell align="left">Last StockedIn</TableCell>
+                                                <TableCell align="left">Last Price</TableCell>
+                                                <TableCell align="left">Min ProductQty</TableCell>
+                                                <TableCell align="center">Status</TableCell>
+                                                <TableCell align="left">LastIn Date</TableCell>
+                                                <TableCell align="left"></TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {allData?.map((row, index) => (
+                                                totalRows !== 0 ?
+                                                    <TableRow
+                                                        key={row.productId}
+                                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                        style={{ cursor: "pointer" }}
+                                                        className='tableRow'
+                                                    >
+                                                        <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>{(index + 1) + (page * rowsPerPage)}</TableCell>
+                                                        {/* <Tooltip title={row.productName} placement="top-start" arrow> */}
+                                                        <TableCell component="th" scope="row" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>
+                                                            {row.productName}
+                                                        </TableCell>
+                                                        {/* </Tooltip> */}
+                                                        <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>{row.purchese} {row.minProductUnit}</TableCell>
+                                                        {/* <Tooltip title={row.stockOutComment} placement="top-start" arrow> */}
+                                                        <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}><div className='Comment'>{row.totalUsed} {row.minProductUnit}</div></TableCell>
+                                                        {/* </Tooltip> */}
+                                                        <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>{row.remainingStock} {row.minProductUnit}</TableCell>
+                                                        <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>{row.totalExpense}</TableCell>
+                                                        <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>{row.lastUpdatedQty} {row.minProductUnit}</TableCell>
+                                                        <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>{row.lastPrice}</TableCell>
+                                                        <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>{row.minProductQty} {row.minProductUnit}</TableCell>
+                                                        <TableCell align="center" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}><div className={row.remainingStock >= row.minProductQty ? 'greenStatus' : row.remainingStock < row.minProductQty && row.remainingStock !== 0 ? 'orangeStatus' : 'redStatus'}>{row.stockStatus}</div></TableCell>
+                                                        <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>{row.lastUpdatedStockInDate}</TableCell>
+                                                        <TableCell align="right">
+                                                            <Menutemp productId={row.productId} data={row} handleOpenStockOut={handleOpenStockOut} handleOpenStockIn={handleOpenStockIn} handleDeleteProduct={handleDeleteProduct} handleEditClick={handleEditClick} />
+                                                        </TableCell>
+                                                    </TableRow> :
+                                                    <TableRow
+                                                        key={row.userId}
+                                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                    >
+                                                        <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
+                                                    </TableRow>
+
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                    <TablePagination
+                                        rowsPerPageOptions={[10, 25, 50]}
+                                        component="div"
+                                        count={totalRows}
+                                        rowsPerPage={rowsPerPage}
+                                        page={page}
+                                        onPageChange={handleChangePage}
+                                        onRowsPerPageChange={handleChangeRowsPerPage}
+                                    />
+                                </TableContainer>
+                            </div>
+                        }
+                    </div>
+                </div>
             </div>
             <Modal
-                open={open}
+                open={openM}
                 onClose={handleClose}
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
@@ -1113,8 +1547,7 @@ function ProductList() {
                 </Box>
             </Modal>
             <ToastContainer />
-        </div>
+        </div >
     )
 }
-
-export default ProductList;
+export default ProductListTable;

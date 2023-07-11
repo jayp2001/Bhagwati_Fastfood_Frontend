@@ -32,6 +32,8 @@ import TablePagination from '@mui/material/TablePagination';
 import Paper from '@mui/material/Paper';
 import Menutemp from '../transactionTable/menu';
 import MenuStockInOut from '../stockManagement/menu';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function SuppilerDetail() {
     let { id } = useParams();
@@ -52,11 +54,15 @@ function SuppilerDetail() {
         'receivedBy',
         'paidAmount',
     ]);
+    const [loading, setLoading] = React.useState(false);
+    const [error, setError] = React.useState(false);
+    const [success, setSuccess] = React.useState(false);
     const [stockInData, setStockInData] = React.useState();
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [totalRows, setTotalRows] = React.useState(0);
     const [totalRowsDebit, setTotalRowsDebit] = React.useState(0);
+    const [totalRowsProduct, setTotalRowsProduct] = React.useState(0);
     const [filter, setFilter] = React.useState(false);
     const [tab, setTab] = React.useState(1);
     const [tabStockIn, setTabStockIn] = React.useState('');
@@ -64,6 +70,7 @@ function SuppilerDetail() {
     const [statisticsCount, setStatisticsCounts] = useState();
     const [productQtyCount, setProductQty] = useState();
     const [debitTransaction, setDebitTransaction] = React.useState();
+    const [productTable, setProductTable] = React.useState();
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const config = {
         headers: {
@@ -89,7 +96,7 @@ function SuppilerDetail() {
                 }))
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getStatistics = async () => {
@@ -102,7 +109,7 @@ function SuppilerDetail() {
                 }))
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getStockInData = async () => {
@@ -112,7 +119,7 @@ function SuppilerDetail() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getStockInDataByTab = async (tab) => {
@@ -122,7 +129,7 @@ function SuppilerDetail() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getStockInDataByTabByFilter = async (tab) => {
@@ -132,7 +139,7 @@ function SuppilerDetail() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     // const getStockInDataonRemoveFilter = async (tab) => {
@@ -142,7 +149,7 @@ function SuppilerDetail() {
     //             setTotalRows(res.data.numRows);
     //         })
     //         .catch((error) => {
-    //             alert(error.response.data)
+    //             setError(error.response.data)
     //         })
     // }
     const getStockInDataOnPageChange = async (pageNum, rowPerPageNum) => {
@@ -152,7 +159,7 @@ function SuppilerDetail() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getStockInDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
@@ -162,7 +169,7 @@ function SuppilerDetail() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getStockInDataByFilter = async () => {
@@ -172,7 +179,7 @@ function SuppilerDetail() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getStatisticsByFilter = async () => {
@@ -181,7 +188,7 @@ function SuppilerDetail() {
                 setStatisticsCounts(res.data);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getProductCount = async () => {
@@ -190,7 +197,7 @@ function SuppilerDetail() {
                 setProductQty(res.data);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getProductCountByFilter = async () => {
@@ -199,7 +206,7 @@ function SuppilerDetail() {
                 setProductQty(res.data);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const handleClick = (event) => {
@@ -210,14 +217,22 @@ function SuppilerDetail() {
     };
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
-        if (tabStockIn !== 'transaction') {
+        if (tabStockIn !== 'transaction' && tabStockIn !== 'products') {
             if (filter) {
                 getStockInDataOnPageChangeByFilter(newPage + 1, rowsPerPage)
             }
             else {
                 getStockInDataOnPageChange(newPage + 1, rowsPerPage)
             }
-        } else {
+        } else if (tabStockIn === 'products') {
+            if (filter) {
+                getProductDataOnPageChangeByFilter(newPage + 1, rowsPerPage)
+            }
+            else {
+                getProductDataOnPageChange(newPage + 1, rowsPerPage)
+            }
+        }
+        else {
             if (filter) {
                 getDebitDataOnPageChangeByFilter(newPage + 1, rowsPerPage)
             }
@@ -229,12 +244,20 @@ function SuppilerDetail() {
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
-        if (tabStockIn !== 'transaction') {
+        if (tabStockIn !== 'transaction' && tabStockIn !== 'products') {
             if (filter) {
                 getStockInDataOnPageChangeByFilter(1, parseInt(event.target.value, 10))
             }
             else {
                 getStockInDataOnPageChange(1, parseInt(event.target.value, 10))
+            }
+        }
+        else if (tabStockIn === 'products') {
+            if (filter) {
+                getProductDataOnPageChangeByFilter(1, parseInt(event.target.value, 10))
+            }
+            else {
+                getProductDataOnPageChange(1, parseInt(event.target.value, 10))
             }
         }
         else {
@@ -256,7 +279,7 @@ function SuppilerDetail() {
                 setTotalRowsDebit(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getDebitDataByTab = async () => {
@@ -266,7 +289,17 @@ function SuppilerDetail() {
                 setTotalRowsDebit(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
+            })
+    }
+    const getProductDataByTab = async () => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getAllProductDetailsBySupplierId?&page=${1}&numPerPage=${5}&supplierId=${id}`, config)
+            .then((res) => {
+                setProductTable(res.data.rows);
+                setTotalRowsProduct(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response.data)
             })
     }
 
@@ -277,7 +310,18 @@ function SuppilerDetail() {
                 setTotalRowsDebit(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
+            })
+    }
+
+    const getProductDataOnPageChange = async (pageNum, rowPerPageNum) => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getAllProductDetailsBySupplierId?page=${pageNum}&numPerPage=${rowPerPageNum}&supplierId=${id}`, config)
+            .then((res) => {
+                setProductTable(res.data.rows);
+                setTotalRowsProduct(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response.data)
             })
     }
 
@@ -288,7 +332,18 @@ function SuppilerDetail() {
                 setTotalRowsDebit(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
+            })
+    }
+
+    const getProductDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getAllProductDetailsBySupplierId?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${pageNum}&numPerPage=${rowPerPageNum}&supplierId=${id}`, config)
+            .then((res) => {
+                setProductTable(res.data.rows);
+                setTotalRowsProduct(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response.data)
             })
     }
 
@@ -299,7 +354,17 @@ function SuppilerDetail() {
                 setTotalRowsDebit(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
+            })
+    }
+    const getProductDataByFilter = async () => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getAllProductDetailsBySupplierId?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${1}&numPerPage=${5}&supplierId=${id}`, config)
+            .then((res) => {
+                setProductTable(res.data.rows);
+                setTotalRowsProduct(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response.data)
             })
     }
     useEffect(() => {
@@ -334,9 +399,11 @@ function SuppilerDetail() {
         }
     }
     const makePayment = async () => {
+        setLoading(true)
         await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addSupplierTransactionDetails`, formData, config)
             .then((res) => {
-                alert("success");
+                setSuccess(true)
+                setLoading(false)
                 setFormData((perv) => ({
                     ...perv,
                     receivedBy: '',
@@ -353,7 +420,7 @@ function SuppilerDetail() {
 
             })
             .catch((error) => {
-                alert(error.response.data);
+                setError(error.response.data);
             })
     }
     const submitPayment = () => {
@@ -367,7 +434,7 @@ function SuppilerDetail() {
             }
         })
         if (isValidate.length > 0) {
-            alert(
+            setError(
                 "Please Fill All Field"
             )
         } else {
@@ -377,10 +444,10 @@ function SuppilerDetail() {
     const deleteStockIn = async (id) => {
         await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeStockInTransaction?stockInId=${id}`, config)
             .then((res) => {
-                alert("data deleted")
+                setSuccess(true)
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const handleDeleteStockIn = (id) => {
@@ -395,10 +462,10 @@ function SuppilerDetail() {
         await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeSupplierTransactionDetails?supplierTransactionId=${id}`, config)
             .then((res) => {
                 getStatistics();
-                alert("data deleted")
+                setSuccess(true)
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const handleDeleteTransaction = (id) => {
@@ -459,6 +526,30 @@ function SuppilerDetail() {
         }
     }
 
+    const allProductExportExcel = async () => {
+        if (window.confirm('Are you sure you want to export Excel ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}inventoryrouter/exportExcelSheetForAllProductBySupplierId?startDate=${state[0].startDate}&endDate=${state[0].endDate}&supplierId=${id}&payType=${tabStockIn}` : `${BACKEND_BASE_URL}inventoryrouter/exportExcelSheetForAllProductBySupplierId?startDate=${''}&endDate=${''}&supplierId=${id}&payType=${tabStockIn}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = 'bookList' + new Date().toLocaleDateString() + '.xlsx'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
 
     const transactionExportExcel = async () => {
         if (window.confirm('Are you sure you want to export Excel ... ?')) {
@@ -487,6 +578,49 @@ function SuppilerDetail() {
 
     if (!suppilerDetails) {
         return null;
+    }
+
+    if (loading) {
+        console.log('>>>>??')
+        toast.loading("Please wait...", {
+            toastId: 'loading'
+        })
+    }
+    if (success) {
+        toast.dismiss('loading');
+        toast('success',
+            {
+                type: 'success',
+                toastId: 'success',
+                position: "top-right",
+                toastId: 'error',
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+            });
+        setTimeout(() => {
+            setSuccess(false)
+        }, 50)
+    }
+    if (error) {
+        toast.dismiss('loading');
+        toast(error, {
+            type: 'error',
+            position: "top-right",
+            toastId: 'error',
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+        });
+        setError(false);
     }
     return (
         <div className='suppilerListContainer'>
@@ -789,19 +923,19 @@ function SuppilerDetail() {
                 <div className='col-span-12'>
                     <div className='productTableSubContainer'>
                         <div className='h-full grid grid-cols-12'>
-                            <div className='h-full mobile:col-span-10  tablet1:col-span-10  tablet:col-span-7  laptop:col-span-7  desktop1:col-span-7  desktop2:col-span-7  desktop2:col-span-7 '>
+                            <div className='h-full col-span-12'>
                                 <div className='grid grid-cols-12 pl-6 gap-3 h-full'>
-                                    <div className={`flex col-span-3 justify-center ${tabStockIn === null || tabStockIn === '' ? 'productTabAll' : 'productTab'}`} onClick={() => {
+                                    <div className={`flex col-span-2 justify-center ${tabStockIn === null || tabStockIn === '' ? 'productTabAll' : 'productTab'}`} onClick={() => {
                                         setTabStockIn(''); setPage(0); setRowsPerPage(5); filter ? getStockInDataByTabByFilter('') : getStockInDataByTab('');
                                     }}>
                                         <div className='statusTabtext'>In-Stock</div>
                                     </div>
-                                    <div className={`flex col-span-3 justify-center ${tabStockIn === 'debit' ? 'tabDebit' : 'productTab'}`} onClick={() => {
+                                    <div className={`flex col-span-2 justify-center ${tabStockIn === 'debit' ? 'tabDebit' : 'productTab'}`} onClick={() => {
                                         setTabStockIn('debit'); setPage(0); filter ? getStockInDataByTabByFilter('debit') : getStockInDataByTab('debit'); setRowsPerPage(5);
                                     }}>
                                         <div className='statusTabtext'>Debit</div>
                                     </div>
-                                    <div className={`flex col-span-3 justify-center ${tabStockIn === 'cash' ? 'tabCash' : 'productTab'}`} onClick={() => {
+                                    <div className={`flex col-span-2 justify-center ${tabStockIn === 'cash' ? 'tabCash' : 'productTab'}`} onClick={() => {
                                         setTabStockIn('cash'); setPage(0); filter ? getStockInDataByTabByFilter('cash') : getStockInDataByTab('cash'); setRowsPerPage(5);
                                     }}>
                                         <div className='statusTabtext'>Cash</div>
@@ -810,6 +944,11 @@ function SuppilerDetail() {
                                         setTabStockIn('transaction'); setPage(0); filter ? getDebitDataByFilter() : getDebitDataByTab(); setRowsPerPage(5);
                                     }}>
                                         <div className='statusTabtext'>Transactions</div>
+                                    </div>
+                                    <div className={`flex col-span-2 justify-center ${tabStockIn === 'products' ? 'products' : 'productTab'}`} onClick={() => {
+                                        setTabStockIn('products'); setPage(0); filter ? getProductDataByFilter() : getProductDataByTab(); setRowsPerPage(5);
+                                    }}>
+                                        <div className='statusTabtext'>products</div>
                                     </div>
                                 </div>
                             </div>
@@ -821,13 +960,13 @@ function SuppilerDetail() {
                 <div className='grid grid-cols-12 pt-6'>
                     <div className='col-span-6 col-start-7 pr-5 flex justify-end'>
                         <button className='exportExcelBtn'
-                            onClick={() => { tabStockIn !== 'transaction' ? stockInExportExcel() : transactionExportExcel() }}
+                            onClick={() => { tabStockIn !== 'transaction' && tabStockIn !== 'products' ? stockInExportExcel() : tabStockIn === 'products' ? allProductExportExcel() : transactionExportExcel() }}
                         ><FileDownloadIcon />&nbsp;&nbsp;Export Excle</button>
                     </div>
                 </div>
                 <div className='tableContainerWrapper'>
                     {
-                        tabStockIn !== 'transaction' ?
+                        tabStockIn !== 'transaction' && tabStockIn !== 'products' ?
                             <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
                                 <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
                                     <TableHead>
@@ -892,68 +1031,122 @@ function SuppilerDetail() {
                                     onRowsPerPageChange={handleChangeRowsPerPage}
                                 />
                             </TableContainer> :
-                            <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
-                                <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell>No.</TableCell>
-                                            <TableCell>Paid By</TableCell>
-                                            <TableCell align="left">Received By</TableCell>
-                                            <TableCell align="right">Pending Amount</TableCell>
-                                            <TableCell align="right">Paid Amount</TableCell>
-                                            <TableCell align="left">Comment</TableCell>
-                                            <TableCell align="left">Date</TableCell>
-                                            <TableCell align="left">Time</TableCell>
-                                            <TableCell align="left"></TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {debitTransaction?.map((row, index) => (
-                                            totalRowsDebit !== 0 ?
-                                                <TableRow
-                                                    key={row.supplierTransactionId}
-                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                                    style={{ cursor: "pointer" }}
-                                                    className='tableRow'
-                                                >
-                                                    <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
-                                                    <TableCell component="th" scope="row">
-                                                        {row.paidBy}
-                                                    </TableCell>
-                                                    <TableCell align="left" >{row.receivedBy}</TableCell>
-                                                    <TableCell align="right" >{row.pendingAmount}</TableCell>
-                                                    <TableCell align="right" >{row.paidAmount}</TableCell>
-                                                    <Tooltip title={row.transactionNote} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.transactionNote}</div></TableCell></Tooltip>
-                                                    <TableCell align="left" >{row.transactionDate}</TableCell>
-                                                    <TableCell align="left" >{row.transactionTime}</TableCell>
-                                                    <TableCell align="right">
-                                                        <Menutemp transactionId={row.supplierTransactionId} getInvoice={getInvoice} data={row} deleteTransaction={handleDeleteTransaction} />
-                                                    </TableCell>
-                                                </TableRow> :
-                                                <TableRow
-                                                    key={row.userId}
-                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                                >
-                                                    <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
-                                                </TableRow>
+                            tabStockIn === 'products' ?
+                                <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
+                                    <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>No.</TableCell>
+                                                <TableCell>Product Name</TableCell>
+                                                <TableCell align="left">Total Stock</TableCell>
+                                                <TableCell align="left">Total Expense</TableCell>
+                                                <TableCell align="left">Last Stock</TableCell>
+                                                <TableCell align="left">Last Price</TableCell>
+                                                <TableCell align="left">Last Stock Date</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {productTable?.map((row, index) => (
+                                                totalRowsProduct !== 0 ?
+                                                    <TableRow
+                                                        key={row.productId}
+                                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                        style={{ cursor: "pointer" }}
+                                                        className='tableRow'
+                                                    >
+                                                        <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
+                                                        <TableCell component="th" scope="row">
+                                                            {row.productName}
+                                                        </TableCell>
+                                                        <TableCell align="left" >{row.productQuantity} {row.productUnit}</TableCell>
+                                                        <TableCell align="left" >{row.totalExpense}</TableCell>
+                                                        <TableCell align="left" >{row.lastStockIN} {row.productUnit}</TableCell>
+                                                        <TableCell align="left" ><div >{row.lastUpdatedPrice}</div></TableCell>
+                                                        <TableCell align="left" >{row.lastStockdInAt}</TableCell>
+                                                    </TableRow> :
+                                                    <TableRow
+                                                        key={row.userId}
+                                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                    >
+                                                        <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
+                                                    </TableRow>
 
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                                <TablePagination
-                                    rowsPerPageOptions={[5, 10, 25]}
-                                    component="div"
-                                    count={totalRowsDebit}
-                                    rowsPerPage={rowsPerPage}
-                                    page={page}
-                                    onPageChange={handleChangePage}
-                                    onRowsPerPageChange={handleChangeRowsPerPage}
-                                />
-                            </TableContainer>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                    <TablePagination
+                                        rowsPerPageOptions={[5, 10, 25]}
+                                        component="div"
+                                        count={totalRowsProduct}
+                                        rowsPerPage={rowsPerPage}
+                                        page={page}
+                                        onPageChange={handleChangePage}
+                                        onRowsPerPageChange={handleChangeRowsPerPage}
+                                    />
+                                </TableContainer> :
+                                <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
+                                    <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>No.</TableCell>
+                                                <TableCell>Paid By</TableCell>
+                                                <TableCell align="left">Received By</TableCell>
+                                                <TableCell align="right">Pending Amount</TableCell>
+                                                <TableCell align="right">Paid Amount</TableCell>
+                                                <TableCell align="left">Comment</TableCell>
+                                                <TableCell align="left">Date</TableCell>
+                                                <TableCell align="left">Time</TableCell>
+                                                <TableCell align="left"></TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {debitTransaction?.map((row, index) => (
+                                                totalRowsDebit !== 0 ?
+                                                    <TableRow
+                                                        key={row.supplierTransactionId}
+                                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                        style={{ cursor: "pointer" }}
+                                                        className='tableRow'
+                                                    >
+                                                        <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
+                                                        <TableCell component="th" scope="row">
+                                                            {row.paidBy}
+                                                        </TableCell>
+                                                        <TableCell align="left" >{row.receivedBy}</TableCell>
+                                                        <TableCell align="right" >{row.pendingAmount}</TableCell>
+                                                        <TableCell align="right" >{row.paidAmount}</TableCell>
+                                                        <Tooltip title={row.transactionNote} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.transactionNote}</div></TableCell></Tooltip>
+                                                        <TableCell align="left" >{row.transactionDate}</TableCell>
+                                                        <TableCell align="left" >{row.transactionTime}</TableCell>
+                                                        <TableCell align="right">
+                                                            <Menutemp transactionId={row.supplierTransactionId} getInvoice={getInvoice} data={row} deleteTransaction={handleDeleteTransaction} />
+                                                        </TableCell>
+                                                    </TableRow> :
+                                                    <TableRow
+                                                        key={row.userId}
+                                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                    >
+                                                        <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
+                                                    </TableRow>
+
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                    <TablePagination
+                                        rowsPerPageOptions={[5, 10, 25]}
+                                        component="div"
+                                        count={totalRowsDebit}
+                                        rowsPerPage={rowsPerPage}
+                                        page={page}
+                                        onPageChange={handleChangePage}
+                                        onRowsPerPageChange={handleChangeRowsPerPage}
+                                    />
+                                </TableContainer>
                     }
                 </div>
             </div>
-        </div>
+            <ToastContainer />
+        </div >
     )
 }
 

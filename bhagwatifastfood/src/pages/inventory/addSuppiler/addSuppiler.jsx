@@ -17,6 +17,12 @@ import Box from '@mui/material/Box';
 import Chip from '@mui/material/Chip';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
+import Checkbox from '@mui/material/Checkbox';
+import Autocomplete from '@mui/material/Autocomplete';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -64,46 +70,42 @@ function AddSuppiler() {
         productId: []
     });
     const [formDataError, setFormDataError] = useState({
-        supplierFirstName: false,
-        supplierLastName: false,
+        supplierNickName: false,
         supplierFirmName: false,
         supplierFirmAddress: false,
         supplierPhoneNumber: false,
-        supplierEmailId: false,
         productId: false
     })
-    const handleChange = (event) => {
-        const {
-            target: { value },
-        } = event;
-        const products = productList.map((obj) => {
-            if (value.includes(obj.productName)) {
-                return obj.productId;
-            } else {
-                return null;
-            }
+    const handleChange = (event, value) => {
+        const products = value?.map((obj) => {
+            return obj.productId
         });
         var res = products.filter(elements => {
             return (elements != null && elements !== undefined && elements !== "");
         });
-        console.log("res", res)
-        setProductName(
-            // On autofill we get a stringified value.
-            typeof value === 'string' ? value.split(',') : value,
-        );
+        if (!value.length > 0) {
+            setFormDataError((perv) => ({
+                ...perv,
+                productId: true
+            }))
+        } else {
+            setFormDataError((perv) => ({
+                ...perv,
+                productId: false
+            }))
+        }
+        setProductName(value);
         setFormData((pervState) => ({
             ...pervState,
-            productId: res,
+            productId: value.length > 0 ? res : [],
         }))
-        console.log('array', typeof value === 'string' ? value.split(',') : value)
     };
+
     const [fields, setFields] = useState([
-        'supplierFirstName',
-        'supplierLastName',
+        'supplierNickName',
         'supplierFirmName',
         'supplierFirmAddress',
         'supplierPhoneNumber',
-        'supplierEmailId',
         'productId',
     ])
 
@@ -135,6 +137,13 @@ function AddSuppiler() {
             supplierEmailId: '',
             productId: []
         });
+        setFormDataError({
+            supplierFirstName: false,
+            supplierFirmName: false,
+            supplierFirmAddress: false,
+            supplierPhoneNumber: false,
+            productId: false
+        })
         setProductName([]);
     }
     const addSuppiler = async () => {
@@ -143,13 +152,10 @@ function AddSuppiler() {
             .then((res) => {
                 setLoading(false);
                 setSuccess(true);
-                alert("success");
-                reset();
             })
             .catch((error) => {
                 setLoading(false);
                 setError(error.response.data);
-                alert(error.response.data);
             })
     }
     const submit = () => {
@@ -159,12 +165,13 @@ function AddSuppiler() {
             if (element === 'supplierEmailId') {
                 return null
             } else if (element === 'productId') {
-                if (formDataError[element] === true || formData[element] === []) {
+                console.log('temp', formData[element])
+                if (!formData[element].length > 0) {
                     setFormDataError((perv) => ({
                         ...perv,
                         [element]: true
                     }))
-                    return element;
+                    return 'productId';
                 }
             } else if (formDataError[element] === true || formData[element] === '') {
                 setFormDataError((perv) => ({
@@ -176,61 +183,58 @@ function AddSuppiler() {
         })
         console.log('????', isValidate);
         if (isValidate.length > 0) {
-            alert(
+            setError(
                 "Please Fill All Field"
             )
         } else {
-            addSuppiler()
-            // console.log('submit', formData);
+            addSuppiler();
         }
     }
 
-    // if (loading) {
-    //     console.log('>>>>??')
-    //     toast.loading("Please wait...", {
-    //         toastId: 'loading'
-    //     })
-    //     // window.alert()
-    // }
-    // if (success) {
-    //     toast.dismiss('loading');
-    //     toast.dismiss('error');
-    //     toast('success',
-    //         {
-    //             type: 'success',
-    //             toastId: 'success',
-    //             position: "bottom-right",
-    //             toastId: 'error',
-    //             autoClose: 3000,
-    //             hideProgressBar: false,
-    //             closeOnClick: true,
-    //             pauseOnHover: true,
-    //             draggable: true,
-    //             progress: undefined,
-    //             theme: "colored",
-    //         });
-
-    //     setSuccess(false)
-    //     setTimeout(() => {
-    //         reset()
-    //     }, 50)
-    // }
-    // if (error) {
-    //     toast.dismiss('loading');
-    //     toast(error, {
-    //         type: 'error',
-    //         position: "bottom-right",
-    //         toastId: 'error',
-    //         autoClose: 3000,
-    //         hideProgressBar: false,
-    //         closeOnClick: true,
-    //         pauseOnHover: true,
-    //         draggable: true,
-    //         progress: undefined,
-    //         theme: "colored",
-    //     });
-    //     setError(false);
-    // }
+    if (loading) {
+        console.log('>>>>??')
+        toast.loading("Please wait...", {
+            toastId: 'loading'
+        })
+        // window.alert()
+    }
+    if (success) {
+        toast.dismiss('loading');
+        toast('success',
+            {
+                type: 'success',
+                toastId: 'success',
+                position: "bottom-right",
+                toastId: 'error',
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+            });
+        setTimeout(() => {
+            setSuccess(false)
+            reset()
+        }, 50)
+    }
+    if (error) {
+        toast.dismiss('loading');
+        toast(error, {
+            type: 'error',
+            position: "bottom-right",
+            toastId: 'error',
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+        });
+        setError(false);
+    }
 
 
     return (
@@ -250,20 +254,6 @@ function AddSuppiler() {
                                 <div className='grid grid-cols-12 gap-6'>
                                     <div className="col-span-4">
                                         <TextField
-                                            onBlur={(e) => {
-                                                if (e.target.value.length < 2) {
-                                                    setFormDataError((perv) => ({
-                                                        ...perv,
-                                                        supplierFirstName: true
-                                                    }))
-                                                }
-                                                else {
-                                                    setFormDataError((perv) => ({
-                                                        ...perv,
-                                                        supplierFirstName: false
-                                                    }))
-                                                }
-                                            }}
                                             onChange={onChange}
                                             value={formData.supplierFirstName}
                                             error={formDataError.supplierFirstName}
@@ -278,20 +268,6 @@ function AddSuppiler() {
                                     </div>
                                     <div className="col-span-4">
                                         <TextField
-                                            onBlur={(e) => {
-                                                if (e.target.value.length < 2) {
-                                                    setFormDataError((perv) => ({
-                                                        ...perv,
-                                                        supplierLastName: true
-                                                    }))
-                                                }
-                                                else {
-                                                    setFormDataError((perv) => ({
-                                                        ...perv,
-                                                        supplierLastName: false
-                                                    }))
-                                                }
-                                            }}
                                             onChange={onChange}
                                             value={formData.supplierLastName}
                                             error={formDataError.supplierLastName}
@@ -364,20 +340,6 @@ function AddSuppiler() {
                                     </div>
                                     <div className="col-span-4">
                                         <TextField
-                                            onBlur={(e) => {
-                                                if (emailRegx.test(e.target.value) || e.target.value === '') {
-                                                    setFormDataError((perv) => ({
-                                                        ...perv,
-                                                        supplierEmailId: false
-                                                    }))
-                                                }
-                                                else {
-                                                    setFormDataError((perv) => ({
-                                                        ...perv,
-                                                        supplierEmailId: true
-                                                    }))
-                                                }
-                                            }}
                                             error={formDataError.supplierEmailId}
                                             helperText={formDataError.supplierEmailId ? "Please Enter valid Email" : ''}
                                             onChange={onChange}
@@ -455,85 +417,34 @@ function AddSuppiler() {
                                 </div>
                                 <div className='grid grid-cols-12 gap-6'>
                                     <div className="col-span-12">
-                                        {/* <FormControl style={{ minWidth: '100%' }}>
-                                            <InputLabel id="demo-simple-select-label" required error={formDataError.userRights}>User Role</InputLabel>
-                                            <Select
-                                                onBlur={(e) => {
-                                                    if (e.target.value.length < 2) {
-                                                        setFormDataError((perv) => ({
-                                                            ...perv,
-                                                            userRights: true
-                                                        }))
-                                                    }
-                                                    else {
-                                                        setFormDataError((perv) => ({
-                                                            ...perv,
-                                                            userRights: false
-                                                        }))
-                                                    }
-                                                }}
-                                                labelId="demo-simple-select-label"
-                                                id="demo-simple-select"
-                                                value={formData.userRights}
-                                                error={formDataError.userRights}
-                                                name="userRights"
-                                                label="User Role"
-                                                onChange={onChange}
-                                            >
-                                                {
-                                                    rights ? rights.map((right) => (
-                                                        <MenuItem key={right.rightsId} value={right.rightsId}>{right.rightsName}</MenuItem>
-                                                    )) : null
-                                                }
-
-                                            </Select>
-                                        </FormControl> */}
-                                        {/* labelId="demo-multiple-chip-label"
-                                        id="demo-multiple-chip"
-                                        multiple
-                                        value={productName}
-                                        onChange={handleChange}
-                                        input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
-                                        renderValue={(selected) => (
-                                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                                {selected.map((value) => (
-                                                    <Chip key={value} label={value} />
-                                                ))}
-                                            </Box>
-                                        )}
-                                        MenuProps={MenuProps} */}
-                                        <FormControl style={{ minWidth: '100%' }}>
-                                            <InputLabel id="demo-multiple-chip-label">Products</InputLabel>
-                                            <Select
-                                                multiple
-                                                labelId="demo-simple-select-label"
-                                                id="demo-simple-select"
-                                                value={productName}
-                                                error={formDataError.productId}
-                                                name="productId"
-                                                label="Products"
-                                                onChange={handleChange}
-                                                input={<OutlinedInput id="demo-simple-select" label="Products" />}
-                                                renderValue={(selected) => (
-                                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                                        {selected.map((value) => (
-                                                            <Chip key={value} label={value} />
-                                                        ))}
-                                                    </Box>
-                                                )}
-                                                MenuProps={MenuProps}
-                                            >
-                                                {productList ? productList.map((product) => (
-                                                    <MenuItem
-                                                        key={product.productId}
-                                                        value={product.productName}
-                                                        style={getStyles(product.productName, productName, theme)}
-                                                    >
-                                                        {product.productName}
-                                                    </MenuItem>
-                                                )) : null}
-                                            </Select>
-                                        </FormControl>
+                                        <Autocomplete
+                                            multiple
+                                            style={{ minWidth: '100%' }}
+                                            limitTags={8}
+                                            name='productName'
+                                            value={productName}
+                                            fullWidth
+                                            id="checkboxes-tags-demo"
+                                            options={productList ? productList : []}
+                                            disableCloseOnSelect
+                                            onChange={handleChange}
+                                            error={formDataError.productId}
+                                            getOptionLabel={(option) => option.productName}
+                                            renderOption={(props, option, { selected }) => (
+                                                <li {...props}>
+                                                    <Checkbox
+                                                        icon={icon}
+                                                        checkedIcon={checkedIcon}
+                                                        style={{ marginRight: 8 }}
+                                                        checked={selected}
+                                                    />
+                                                    {option.productName}
+                                                </li>
+                                            )}
+                                            renderInput={(params) => (
+                                                <TextField {...params} error={formDataError.productId} label="products" placeholder="Products" />
+                                            )}
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -551,6 +462,7 @@ function AddSuppiler() {
                     </div>
                 </div>
             </div>
+            <ToastContainer />
         </div>
     )
 }

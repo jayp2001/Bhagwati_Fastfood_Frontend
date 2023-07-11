@@ -19,6 +19,7 @@ import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from 'react-toastify';
 
 const styleStockIn = {
     position: 'absolute',
@@ -66,16 +67,17 @@ function SuppilerTable() {
     ]);
     const [loading, setLoading] = React.useState(false);
     const [error, setError] = React.useState(false);
+    const [success, setSuccess] = React.useState(false);
     const [data, setData] = React.useState();
     const getData = async () => {
         console.log("page get", page, rowsPerPage)
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getSupplierdata?page=${page + 1}&numPerPage=${rowsPerPage}`, config)
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getSupplierdata?page=${1}&numPerPage=${5}`, config)
             .then((res) => {
                 setData(res.data.rows);
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const handleClose = () => {
@@ -139,16 +141,18 @@ function SuppilerTable() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const deleteData = async (id) => {
         await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeSupplierDetails?supplierId=${id}`, config)
             .then((res) => {
-                alert("data deleted")
+                setPage(0);
+                setRowsPerPage(5);
+                getData();
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     useEffect(() => {
@@ -173,14 +177,16 @@ function SuppilerTable() {
         }
     }
     const makePayment = async () => {
+        setLoading(true);
         await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addSupplierTransactionDetails`, formData, config)
             .then((res) => {
-                alert("success");
+                setLoading(false)
+                setSuccess(true)
                 getData();
                 handleClose();
             })
             .catch((error) => {
-                alert(error.response.data);
+                setError(error.response.data);
             })
     }
 
@@ -195,13 +201,56 @@ function SuppilerTable() {
             }
         })
         if (isValidate.length > 0) {
-            alert(
+            setError(
                 "Please Fill All Field"
             )
         } else {
             // console.log(">>", stockInFormData, stockInFormData.stockInDate, stockInFormData.stockInDate != 'Invalid Date' ? 'ue' : 'false')
             makePayment()
         }
+    }
+
+    if (loading) {
+        console.log('>>>>??')
+        toast.loading("Please wait...", {
+            toastId: 'loading'
+        })
+    }
+    if (success) {
+        toast.dismiss('loading');
+        toast('success',
+            {
+                type: 'success',
+                toastId: 'success',
+                position: "bottom-right",
+                toastId: 'error',
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+            });
+        setTimeout(() => {
+            setSuccess(false)
+        }, 50)
+    }
+    if (error) {
+        toast.dismiss('loading');
+        toast(error, {
+            type: 'error',
+            position: "bottom-right",
+            toastId: 'error',
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+        });
+        setError(false);
     }
 
     return (
@@ -376,6 +425,7 @@ function SuppilerTable() {
                     </div>
                 </Box>
             </Modal>
+            <ToastContainer />
         </div>
     )
 }

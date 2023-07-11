@@ -18,6 +18,12 @@ import Chip from '@mui/material/Chip';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useTheme } from '@mui/material/styles';
+import Checkbox from '@mui/material/Checkbox';
+import Autocomplete from '@mui/material/Autocomplete';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -68,45 +74,40 @@ function EditSuppiler() {
     });
     const [formDataError, setFormDataError] = useState({
         supplierFirstName: false,
-        supplierLastName: false,
         supplierFirmName: false,
         supplierFirmAddress: false,
         supplierPhoneNumber: false,
-        supplierEmailId: false,
         productId: false
     })
-    const handleChange = (event) => {
-        const {
-            target: { value },
-        } = event;
-        const products = productList.map((obj) => {
-            if (value.includes(obj.productName)) {
-                return obj.productId;
-            } else {
-                return null;
-            }
+    const handleChange = (event, value) => {
+        const products = value?.map((obj) => {
+            return obj.productId
         });
         var res = products.filter(elements => {
             return (elements != null && elements !== undefined && elements !== "");
         });
-        console.log("res", res)
-        setProductName(
-            // On autofill we get a stringified value.
-            typeof value === 'string' ? value.split(',') : value,
-        );
+        if (!value.length > 0) {
+            setFormDataError((perv) => ({
+                ...perv,
+                productId: true
+            }))
+        } else {
+            setFormDataError((perv) => ({
+                ...perv,
+                productId: false
+            }))
+        }
+        setProductName(value);
         setFormData((pervState) => ({
             ...pervState,
-            productId: res,
+            productId: value.length > 0 ? res : [],
         }))
-        console.log('array', typeof value === 'string' ? value.split(',') : value)
     };
     const [fields, setFields] = useState([
         'supplierFirstName',
-        'supplierLastName',
         'supplierFirmName',
         'supplierFirmAddress',
         'supplierPhoneNumber',
-        'supplierEmailId',
         'productId',
     ])
 
@@ -127,28 +128,11 @@ function EditSuppiler() {
                 await axios.get(`${BACKEND_BASE_URL}inventoryrouter/fillSupplierDetails?supplierId=${id}`, config)
                     .then((res) => {
                         setFormData(res.data);
-                        if (response.data) {
-                            const products = response.data.map((obj) => {
-                                console.log("includes", obj, res.data.productId, res.data.productId.includes(obj.productId))
-                                if (res.data && res.data.productId && res.data.productId.includes(obj.productId)) {
-                                    return obj.productName;
-                                } else {
-                                    return null;
-                                }
-                            });
-                            console.log('products', products)
-                            var res = products.filter(elements => {
-                                return (elements != null && elements !== undefined && elements !== "");
-                            });
-                            console.log('<>LL', res)
-                            setProductName(res);
-                        }
+                        setProductName(res.data.supplierProductData)
+                        console.log(res.data.supplierProductData)
                     })
                     .catch((error) => {
                         alert("jay")
-                        console.log(error)
-                        // setLoading(false);
-                        // alert(error.response.data);
                     })
             })
             .catch((error) => {
@@ -175,13 +159,10 @@ function EditSuppiler() {
             .then((res) => {
                 setLoading(false);
                 setSuccess(true);
-                alert("success");
-                reset();
             })
             .catch((error) => {
                 setLoading(false);
                 setError(error.response.data);
-                // alert(error.response.data);
             })
     }
     const submit = () => {
@@ -208,7 +189,7 @@ function EditSuppiler() {
         })
         console.log('????', isValidate);
         if (isValidate.length > 0) {
-            alert(
+            setError(
                 "Please Fill All Field"
             )
         } else {
@@ -217,52 +198,50 @@ function EditSuppiler() {
         }
     }
 
-    // if (loading) {
-    //     console.log('>>>>??')
-    //     toast.loading("Please wait...", {
-    //         toastId: 'loading'
-    //     })
-    //     // window.alert()
-    // }
-    // if (success) {
-    //     toast.dismiss('loading');
-    //     toast.dismiss('error');
-    //     toast('success',
-    //         {
-    //             type: 'success',
-    //             toastId: 'success',
-    //             position: "bottom-right",
-    //             toastId: 'error',
-    //             autoClose: 3000,
-    //             hideProgressBar: false,
-    //             closeOnClick: true,
-    //             pauseOnHover: true,
-    //             draggable: true,
-    //             progress: undefined,
-    //             theme: "colored",
-    //         });
-
-    //     setSuccess(false)
-    //     setTimeout(() => {
-    //         reset()
-    //     }, 50)
-    // }
-    // if (error) {
-    //     toast.dismiss('loading');
-    //     toast(error, {
-    //         type: 'error',
-    //         position: "bottom-right",
-    //         toastId: 'error',
-    //         autoClose: 3000,
-    //         hideProgressBar: false,
-    //         closeOnClick: true,
-    //         pauseOnHover: true,
-    //         draggable: true,
-    //         progress: undefined,
-    //         theme: "colored",
-    //     });
-    //     setError(false);
-    // }
+    if (loading) {
+        console.log('>>>>??')
+        toast.loading("Please wait...", {
+            toastId: 'loading'
+        })
+        // window.alert()
+    }
+    if (success) {
+        toast.dismiss('loading');
+        toast('success',
+            {
+                type: 'success',
+                toastId: 'success',
+                position: "bottom-right",
+                toastId: 'error',
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+            });
+        setTimeout(() => {
+            setSuccess(false)
+            reset()
+        }, 50)
+    }
+    if (error) {
+        toast.dismiss('loading');
+        toast(error, {
+            type: 'error',
+            position: "bottom-right",
+            toastId: 'error',
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+        });
+        setError(false);
+    }
     if (!formData) {
         return null
     }
@@ -489,85 +468,35 @@ function EditSuppiler() {
                                 </div>
                                 <div className='grid grid-cols-12 gap-6'>
                                     <div className="col-span-12">
-                                        {/* <FormControl style={{ minWidth: '100%' }}>
-                                            <InputLabel id="demo-simple-select-label" required error={formDataError.userRights}>User Role</InputLabel>
-                                            <Select
-                                                onBlur={(e) => {
-                                                    if (e.target.value.length < 2) {
-                                                        setFormDataError((perv) => ({
-                                                            ...perv,
-                                                            userRights: true
-                                                        }))
-                                                    }
-                                                    else {
-                                                        setFormDataError((perv) => ({
-                                                            ...perv,
-                                                            userRights: false
-                                                        }))
-                                                    }
-                                                }}
-                                                labelId="demo-simple-select-label"
-                                                id="demo-simple-select"
-                                                value={formData.userRights}
-                                                error={formDataError.userRights}
-                                                name="userRights"
-                                                label="User Role"
-                                                onChange={onChange}
-                                            >
-                                                {
-                                                    rights ? rights.map((right) => (
-                                                        <MenuItem key={right.rightsId} value={right.rightsId}>{right.rightsName}</MenuItem>
-                                                    )) : null
-                                                }
-
-                                            </Select>
-                                        </FormControl> */}
-                                        {/* labelId="demo-multiple-chip-label"
-                                        id="demo-multiple-chip"
-                                        multiple
-                                        value={productName}
-                                        onChange={handleChange}
-                                        input={<OutlinedInput id="select-multiple-chip" label="Chip" />}
-                                        renderValue={(selected) => (
-                                            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                                {selected.map((value) => (
-                                                    <Chip key={value} label={value} />
-                                                ))}
-                                            </Box>
-                                        )}
-                                        MenuProps={MenuProps} */}
-                                        <FormControl style={{ minWidth: '100%' }}>
-                                            <InputLabel id="demo-multiple-chip-label">Products</InputLabel>
-                                            <Select
-                                                multiple
-                                                labelId="demo-simple-select-label"
-                                                id="demo-simple-select"
-                                                value={productName}
-                                                error={formDataError.productId}
-                                                name="productId"
-                                                label="Products"
-                                                onChange={handleChange}
-                                                input={<OutlinedInput id="demo-simple-select" label="Products" />}
-                                                renderValue={(selected) => (
-                                                    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                                                        {selected.map((value) => (
-                                                            <Chip key={value} label={value} />
-                                                        ))}
-                                                    </Box>
-                                                )}
-                                                MenuProps={MenuProps}
-                                            >
-                                                {productList ? productList.map((product) => (
-                                                    <MenuItem
-                                                        key={product.productId}
-                                                        value={product.productName}
-                                                        style={getStyles(product.productName, productName, theme)}
-                                                    >
-                                                        {product.productName}
-                                                    </MenuItem>
-                                                )) : null}
-                                            </Select>
-                                        </FormControl>
+                                        <Autocomplete
+                                            multiple
+                                            style={{ minWidth: '100%' }}
+                                            limitTags={8}
+                                            name='productName'
+                                            value={productName}
+                                            fullWidth
+                                            id="checkboxes-tags-demo"
+                                            options={productList ? productList : []}
+                                            disableCloseOnSelect
+                                            onChange={handleChange}
+                                            error={formDataError.productId}
+                                            isOptionEqualToValue={(option, value) => option.productName === value.productName}
+                                            getOptionLabel={(option) => option.productName}
+                                            renderOption={(props, option, { selected }) => (
+                                                <li {...props}>
+                                                    <Checkbox
+                                                        icon={icon}
+                                                        checkedIcon={checkedIcon}
+                                                        style={{ marginRight: 8 }}
+                                                        checked={selected}
+                                                    />
+                                                    {option.productName}
+                                                </li>
+                                            )}
+                                            renderInput={(params) => (
+                                                <TextField {...params} error={formDataError.productId} label="products" placeholder="Products" />
+                                            )}
+                                        />
                                     </div>
                                 </div>
                             </div>
@@ -585,6 +514,7 @@ function EditSuppiler() {
                     </div>
                 </div>
             </div>
+            <ToastContainer />
         </div>
     )
 }

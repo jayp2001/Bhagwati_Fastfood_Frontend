@@ -41,6 +41,7 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import CloseIcon from '@mui/icons-material/Close';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import MenuStockInOut from './menu';
+import { ToastContainer, toast } from 'react-toastify';
 
 const qtyUnit = [
     'Kg',
@@ -72,7 +73,9 @@ function StockInOut() {
     const [totalRowsOut, setTotalRowsOut] = React.useState(0);
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [tab, setTab] = React.useState(1);
-
+    const [error, setError] = React.useState(false);
+    const [success, setSuccess] = React.useState(false);
+    const [loading, setLoading] = React.useState(false);
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
@@ -143,7 +146,7 @@ function StockInOut() {
             })
             .catch((error) => {
                 // setError(error.response.data);
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
 
@@ -165,7 +168,7 @@ function StockInOut() {
             })
             .catch((error) => {
                 // setError(error.response.data);
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
 
@@ -279,7 +282,7 @@ function StockInOut() {
     const stockIn = async () => {
         await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addStockInDetails`, stockInFormData, config)
             .then((res) => {
-                alert("success");
+                setSuccess(true);
                 // getData();
                 setState([
                     {
@@ -293,14 +296,14 @@ function StockInOut() {
                 handleResetStockIn();
             })
             .catch((error) => {
-                alert(error.response.data);
+                setError(error.response.data);
             })
     }
 
     const stockInEdit = async () => {
         await axios.post(`${BACKEND_BASE_URL}inventoryrouter/updateStockInTransaction`, stockInFormData, config)
             .then((res) => {
-                alert("success");
+                setSuccess(true);
                 // getData();
                 setState([
                     {
@@ -315,7 +318,7 @@ function StockInOut() {
                 handleResetStockIn();
             })
             .catch((error) => {
-                alert(error.response.data);
+                setError(error.response.data);
             })
     }
 
@@ -395,7 +398,7 @@ function StockInOut() {
             }
         })
         if (isValidate.length > 0) {
-            alert(
+            setError(
                 "Please Fill All Field"
             )
         } else {
@@ -421,7 +424,7 @@ function StockInOut() {
             }
         })
         if (isValidate.length > 0) {
-            alert(
+            setError(
                 "Please Fill All Field"
             )
         } else {
@@ -518,7 +521,7 @@ function StockInOut() {
     const stockOut = async () => {
         await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addStockOutDetails`, stockOutFormData, config)
             .then((res) => {
-                alert("success");
+                setSuccess(true);
                 // getData();
                 // setTab(null)
                 setState([
@@ -533,14 +536,14 @@ function StockInOut() {
                 handleResetStockOut();
             })
             .catch((error) => {
-                alert(error.response.data);
+                setError(error.response.data);
             })
     }
 
     const stockOutEdit = async () => {
         await axios.post(`${BACKEND_BASE_URL}inventoryrouter/updateStockOutTransaction`, stockOutFormData, config)
             .then((res) => {
-                alert("success");
+                setSuccess(true);
                 // getData();
                 // setTab(null)
                 setState([
@@ -556,7 +559,7 @@ function StockInOut() {
                 handleResetStockOut();
             })
             .catch((error) => {
-                alert(error.response.data);
+                setError(error.response.data);
             })
     }
 
@@ -578,7 +581,7 @@ function StockInOut() {
             }
         })
         if (isValidate.length > 0) {
-            alert(
+            setError(
                 "Please Fill All Field"
             )
         } else {
@@ -605,7 +608,7 @@ function StockInOut() {
             }
         })
         if (isValidate.length > 0) {
-            alert(
+            setError(
                 "Please Fill All Field"
             )
         } else {
@@ -621,7 +624,7 @@ function StockInOut() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getStockInDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
@@ -631,7 +634,7 @@ function StockInOut() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getStockInData = async () => {
@@ -641,7 +644,7 @@ function StockInOut() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getStockInDataByFilter = async () => {
@@ -651,7 +654,7 @@ function StockInOut() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getStockOutDataOnPageChange = async (pageNum, rowPerPageNum) => {
@@ -661,7 +664,7 @@ function StockInOut() {
                 setTotalRowsOut(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getStockOutDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
@@ -671,7 +674,7 @@ function StockInOut() {
                 setTotalRowsOut(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getStockOutData = async () => {
@@ -681,7 +684,7 @@ function StockInOut() {
                 setTotalRowsOut(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getStockOutDataByFilter = async () => {
@@ -691,7 +694,7 @@ function StockInOut() {
                 setTotalRowsOut(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const handleChangePage = (event, newPage) => {
@@ -791,10 +794,10 @@ function StockInOut() {
     const deleteStockIn = async (id) => {
         await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeStockInTransaction?stockInId=${id}`, config)
             .then((res) => {
-                alert("data deleted")
+                setSuccess(true);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const handleDeleteStockIn = (id) => {
@@ -808,10 +811,10 @@ function StockInOut() {
     const deleteStockOut = async (id) => {
         await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeStockOutTransaction?stockOutId=${id}`, config)
             .then((res) => {
-                alert("data deleted")
+                setSuccess(true);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const handleDeleteStockOut = (id) => {
@@ -829,7 +832,48 @@ function StockInOut() {
         getStockInData();
         // getCountData();
     }, [])
-
+    if (loading) {
+        console.log('>>>>??')
+        toast.loading("Please wait...", {
+            toastId: 'loading'
+        })
+    }
+    if (success) {
+        toast.dismiss('loading');
+        toast('success',
+            {
+                type: 'success',
+                toastId: 'success',
+                position: "top-right",
+                toastId: 'error',
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+            });
+        setTimeout(() => {
+            setSuccess(false)
+        }, 50)
+    }
+    if (error) {
+        toast.dismiss('loading');
+        toast(error, {
+            type: 'error',
+            position: "top-right",
+            toastId: 'error',
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+        });
+        setError(false);
+    }
     return (
         <div className='productListContainer'>
             <div className='grid grid-cols-12'>
@@ -1426,6 +1470,7 @@ function StockInOut() {
                     </div>
                 </div>
             </div>
+            <ToastContainer />
         </div >
     )
 }

@@ -17,6 +17,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
+import { ToastContainer, toast } from 'react-toastify';
 
 const style = {
     position: 'absolute',
@@ -65,6 +66,7 @@ function CategoriesTable() {
     };
     const [loading, setLoading] = React.useState(false);
     const [error, setError] = React.useState(false);
+    const [success, setSuccess] = React.useState(false);
     const [data, setData] = React.useState();
     const getData = async () => {
         console.log("page get", page, rowsPerPage)
@@ -74,7 +76,7 @@ function CategoriesTable() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getDataOnPageChange = async (pageNum, rowPerPageNum) => {
@@ -85,16 +87,16 @@ function CategoriesTable() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const deleteData = async (id) => {
         await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeStockOutCategory?stockOutCategoryId=${id}`, config)
             .then((res) => {
-                alert("data deleted")
+                setSuccess(true)
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     useEffect(() => {
@@ -131,7 +133,7 @@ function CategoriesTable() {
     const editCategory = async () => {
         setLoading(true);
         if (editCateory.stockOutCategoryName.length < 2) {
-            alert(
+            setError(
                 "Please Fill category"
             )
             setCategoryError(true);
@@ -139,12 +141,13 @@ function CategoriesTable() {
         else {
             await axios.post(`${BACKEND_BASE_URL}inventoryrouter/updateStockOutCategory`, editCateory, config)
                 .then((res) => {
-                    alert("success");
+                    setLoading(false);
+                    setSuccess(true)
                     getData();
                     handleClose()
                 })
                 .catch((error) => {
-                    alert(error.response.data);
+                    setError(error.response.data);
                 })
         }
     }
@@ -152,23 +155,66 @@ function CategoriesTable() {
         setLoading(true);
         await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addstockOutCategory`, { stockOutCategoryName: category }, config)
             .then((res) => {
-                alert("success");
+                setSuccess(true)
                 getData();
+                setLoading(false);
                 handleClose();
             })
             .catch((error) => {
-                alert(error.response.data);
+                setError(error.response.data);
             })
     }
     const submit = () => {
         if (category.length < 2) {
-            alert(
+            setError(
                 "Please Fill category"
             )
             setCategoryError(true);
         } else {
             addCategory()
         }
+    }
+    if (loading) {
+        console.log('>>>>??')
+        toast.loading("Please wait...", {
+            toastId: 'loading'
+        })
+    }
+    if (success) {
+        toast.dismiss('loading');
+        toast('success',
+            {
+                type: 'success',
+                toastId: 'success',
+                position: "top-right",
+                toastId: 'error',
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+            });
+        setTimeout(() => {
+            setSuccess(false)
+        }, 50)
+    }
+    if (error) {
+        toast.dismiss('loading');
+        toast(error, {
+            type: 'error',
+            position: "top-right",
+            toastId: 'error',
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+        });
+        setError(false);
     }
 
     return (
@@ -296,6 +342,7 @@ function CategoriesTable() {
                     </div>
                 </Box>
             </Modal>
+            <ToastContainer />
         </div>
     )
 }

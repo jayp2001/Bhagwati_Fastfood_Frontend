@@ -18,6 +18,8 @@ import StockInOut from './pages/inventory/stockManagement/stockInOut';
 import TransactionTable from './pages/inventory/transactionTable/transactionTable';
 import SuppilerDetail from './pages/inventory/suppilerDetails/suppilerDetail';
 import ProductDetails from './pages/inventory/productDetails/productDetails';
+import ProductListTable from './pages/inventory/productListTable/productListTable';
+import 'react-toastify/dist/ReactToastify.css';
 function App() {
   return (
     <div className="">
@@ -34,6 +36,7 @@ function App() {
                 <Route path="/addSuppiler" element={<AddSuppiler />}/>
                 <Route path="/userTable" element={<UserTable />}/>
                 <Route path="/productList" element={<ProductList />}/>
+                <Route path="/productTable" element={<ProductListTable />}/>
                 <Route path="/stockInOut" element={<StockInOut />}/>
                 <Route path="/transactionTable" element={<TransactionTable />}/>
                 <Route path="/suppilerTable" element={<SuppilerTable />}/>

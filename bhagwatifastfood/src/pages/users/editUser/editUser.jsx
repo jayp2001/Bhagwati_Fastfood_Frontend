@@ -84,13 +84,11 @@ function EditUser() {
             .then((res) => {
                 setLoading(false);
                 setSuccess(true);
-                alert("success");
                 navigate(`/userTable`)
             })
             .catch((error) => {
                 setLoading(false);
                 setError(error.response.data);
-                alert(error.response.data);
             })
     }
     const submit = () => {
@@ -109,7 +107,7 @@ function EditUser() {
         })
         console.log('????', isValidate);
         if (isValidate.length > 0) {
-            alert(
+            setError(
                 "Please Fill All Field"
             )
         } else {
@@ -117,52 +115,48 @@ function EditUser() {
         }
     }
 
-    // if (loading) {
-    //     console.log('>>>>??')
-    //     toast.loading("Please wait...", {
-    //         toastId: 'loading'
-    //     })
-    //     // window.alert()
-    // }
-    // if (success) {
-    //     toast.dismiss('loading');
-    //     toast.dismiss('error');
-    //     toast('success',
-    //         {
-    //             type: 'success',
-    //             toastId: 'success',
-    //             position: "bottom-right",
-    //             toastId: 'error',
-    //             autoClose: 3000,
-    //             hideProgressBar: false,
-    //             closeOnClick: true,
-    //             pauseOnHover: true,
-    //             draggable: true,
-    //             progress: undefined,
-    //             theme: "colored",
-    //         });
-
-    //     setSuccess(false)
-    //     setTimeout(() => {
-    //         reset()
-    //     }, 50)
-    // }
-    // if (error) {
-    //     toast.dismiss('loading');
-    //     toast(error, {
-    //         type: 'error',
-    //         position: "bottom-right",
-    //         toastId: 'error',
-    //         autoClose: 3000,
-    //         hideProgressBar: false,
-    //         closeOnClick: true,
-    //         pauseOnHover: true,
-    //         draggable: true,
-    //         progress: undefined,
-    //         theme: "colored",
-    //     });
-    //     setError(false);
-    // }
+    if (loading) {
+        console.log('>>>>??')
+        toast.loading("Please wait...", {
+            toastId: 'loading'
+        })
+    }
+    if (success) {
+        toast.dismiss('loading');
+        toast('success',
+            {
+                type: 'success',
+                toastId: 'success',
+                position: "bottom-right",
+                toastId: 'error',
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+            });
+        setTimeout(() => {
+            setSuccess(false)
+        }, 50)
+    }
+    if (error) {
+        toast.dismiss('loading');
+        toast(error, {
+            type: 'error',
+            position: "bottom-right",
+            toastId: 'error',
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+        });
+        setError(false);
+    }
 
     if (!formData) {
         return null
@@ -417,6 +411,7 @@ function EditUser() {
                     </div>
                 </div>
             </div>
+            <ToastContainer />
         </div>
     )
 }

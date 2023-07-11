@@ -90,13 +90,11 @@ function AddUser() {
             .then((res) => {
                 setLoading(false);
                 setSuccess(true);
-                alert("success");
                 reset();
             })
             .catch((error) => {
                 setLoading(false);
                 setError(error.response.data);
-                alert(error.response.data);
             })
     }
     const submit = () => {
@@ -115,62 +113,55 @@ function AddUser() {
         })
         console.log('????', isValidate);
         if (isValidate.length > 0) {
-            alert(
+            setError(
                 "Please Fill All Field"
             )
         } else {
             addUser()
         }
     }
-
-    // if (loading) {
-    //     console.log('>>>>??')
-    //     toast.loading("Please wait...", {
-    //         toastId: 'loading'
-    //     })
-    //     // window.alert()
-    // }
-    // if (success) {
-    //     toast.dismiss('loading');
-    //     toast.dismiss('error');
-    //     toast('success',
-    //         {
-    //             type: 'success',
-    //             toastId: 'success',
-    //             position: "bottom-right",
-    //             toastId: 'error',
-    //             autoClose: 3000,
-    //             hideProgressBar: false,
-    //             closeOnClick: true,
-    //             pauseOnHover: true,
-    //             draggable: true,
-    //             progress: undefined,
-    //             theme: "colored",
-    //         });
-
-    //     setSuccess(false)
-    //     setTimeout(() => {
-    //         reset()
-    //     }, 50)
-    // }
-    // if (error) {
-    //     toast.dismiss('loading');
-    //     toast(error, {
-    //         type: 'error',
-    //         position: "bottom-right",
-    //         toastId: 'error',
-    //         autoClose: 3000,
-    //         hideProgressBar: false,
-    //         closeOnClick: true,
-    //         pauseOnHover: true,
-    //         draggable: true,
-    //         progress: undefined,
-    //         theme: "colored",
-    //     });
-    //     setError(false);
-    // }
-
-
+    if (loading) {
+        console.log('>>>>??')
+        toast.loading("Please wait...", {
+            toastId: 'loading'
+        })
+    }
+    if (success) {
+        toast.dismiss('loading');
+        toast('success',
+            {
+                type: 'success',
+                toastId: 'success',
+                position: "bottom-right",
+                toastId: 'error',
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+            });
+        setTimeout(() => {
+            setSuccess(false)
+        }, 50)
+    }
+    if (error) {
+        toast.dismiss('loading');
+        toast(error, {
+            type: 'error',
+            position: "bottom-right",
+            toastId: 'error',
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+        });
+        setError(false);
+    }
     return (
         <div className='mainBody grid content-center'>
             <div className="grid grid-cols-12">
@@ -418,6 +409,7 @@ function AddUser() {
                     </div>
                 </div>
             </div>
+            <ToastContainer />
         </div>
     )
 }
