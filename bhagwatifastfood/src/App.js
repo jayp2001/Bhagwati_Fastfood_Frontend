@@ -20,6 +20,7 @@ import SuppilerDetail from './pages/inventory/suppilerDetails/suppilerDetail';
 import ProductDetails from './pages/inventory/productDetails/productDetails';
 import ProductListTable from './pages/inventory/productListTable/productListTable';
 import 'react-toastify/dist/ReactToastify.css';
+import EditHistory from './pages/inventory/editHistory/editHistory';
 function App() {
   return (
     <div className="">
@@ -42,6 +43,7 @@ function App() {
                 <Route path="/suppilerTable" element={<SuppilerTable />}/>
                 <Route path="/categories" element={<CategoriesTable />}/>
                 <Route path="/editUser/:id" element={<EditUser/>}/>
+                <Route path="/editHistory/:id" element={<EditHistory/>}/>
                 <Route path="/editSuppiler/:id" element={<EditSuppiler/>}/>
                 <Route path="/suppilerDetails/:id" element={<SuppilerDetail/>}/>
                 <Route path="/productDetails/:id/:name/:unit/:remainingQty" element={<ProductDetails/>}/>

@@ -42,6 +42,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import MenuStockInOut from './menu';
 import { ToastContainer, toast } from 'react-toastify';
+import { useNavigate } from "react-router-dom";
 
 const qtyUnit = [
     'Kg',
@@ -57,6 +58,7 @@ const qtyUnit = [
 ]
 
 function StockInOut() {
+    const navigate = useNavigate();
     var customParseFormat = require('dayjs/plugin/customParseFormat')
     dayjs.extend(customParseFormat)
     const [expanded, setExpanded] = React.useState(false);
@@ -131,7 +133,7 @@ function StockInOut() {
                     ...perv,
                     stockInId: id,
                     productId: res.data.productId,
-                    productName: res.data,
+                    productName: res.data.productName,
                     productQty: parseFloat(res.data.productQty),
                     productUnit: res.data.productUnit,
                     productPrice: res.data.productPrice,
@@ -156,7 +158,7 @@ function StockInOut() {
                 setStockOutFormData((perv) => ({
                     ...perv,
                     stockOutId: id,
-                    productName: res.data,
+                    productName: res.data.productName,
                     productId: res.data.productId,
                     remainingStock: res.data.remainingStock,
                     productQty: res.data.productQty,
@@ -173,6 +175,7 @@ function StockInOut() {
     }
 
     const handleAccordionOpenOnEdit = (data) => {
+        console.log('edit', data)
         if (tab === 1 || tab === '1') {
             fillStockInEdit(data);
         }
@@ -229,12 +232,14 @@ function StockInOut() {
         productUnit: "",
         stockOutCategory: 0,
         stockOutComment: "",
+        reason: "",
         stockOutDate: dayjs()
     })
     const [stockOutFormDataError, setStockOutFormDataError] = React.useState({
         productQty: false,
         productUnit: false,
         stockOutCategory: false,
+        reason: false,
         stockOutDate: false
     })
     const [stockOutErrorFields, setStockOutErrorFields] = React.useState([
@@ -242,6 +247,7 @@ function StockInOut() {
         'productUnit',
         'stockOutCategory',
         'stockOutDate',
+        'reason'
     ])
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const config = {
@@ -484,6 +490,7 @@ function StockInOut() {
             productUnit: "",
             stockOutCategory: null,
             stockOutComment: "",
+            reason: '',
             stockOutDate: dayjs()
         })
         setStockOutFormDataError({
@@ -592,7 +599,16 @@ function StockInOut() {
 
     const editSubmitStockOut = () => {
         const isValidate = stockOutErrorFields.filter(element => {
-            if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
+            if (element === 'reason') {
+                if (isEdit && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormDataError['reason'] === true) {
+                    setStockOutFormDataError((perv) => ({
+                        ...perv,
+                        reason: true
+                    }))
+                    return element;
+                }
+            }
+            else if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
                 setStockOutFormDataError((perv) => ({
                     ...perv,
                     [element]: true
@@ -667,6 +683,16 @@ function StockInOut() {
                 setError(error.response.data)
             })
     }
+    const getStockOutEditDataOnPageChange = async (pageNum, rowPerPageNum) => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getUpdateStockOutList?page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
+            .then((res) => {
+                setStockOutData(res.data.rows);
+                setTotalRowsOut(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response.data)
+            })
+    }
     const getStockOutDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
         await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockOutList?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
             .then((res) => {
@@ -679,6 +705,16 @@ function StockInOut() {
     }
     const getStockOutData = async () => {
         await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockOutList?page=${page + 1}&numPerPage=${rowsPerPage}`, config)
+            .then((res) => {
+                setStockOutData(res.data.rows);
+                setTotalRowsOut(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response.data)
+            })
+    }
+    const getStockOutEditdData = async () => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getUpdateStockOutList?page=${page + 1}&numPerPage=${rowsPerPage}`, config)
             .then((res) => {
                 setStockOutData(res.data.rows);
                 setTotalRowsOut(res.data.numRows);
@@ -707,6 +743,8 @@ function StockInOut() {
             else {
                 getStockOutDataOnPageChange(newPage + 1, rowsPerPage)
             }
+        } else if (tab === 3 || tab === '3') {
+            getStockOutEditDataOnPageChange(newPage + 1, rowsPerPage)
         } else {
             if (filter) {
                 getStockInDataOnPageChangeByFilter(newPage + 1, rowsPerPage)
@@ -726,6 +764,8 @@ function StockInOut() {
             else {
                 getStockInDataOnPageChange(1, parseInt(event.target.value, 10))
             }
+        } else if (tab === 3 || tab === '3') {
+            getStockOutEditDataOnPageChange(1, parseInt(event.target.value, 10))
         } else {
             if (filter) {
                 getStockOutDataOnPageChangeByFilter(1, parseInt(event.target.value, 10))
@@ -825,7 +865,23 @@ function StockInOut() {
             }, 1000)
         }
     }
-
+    const deleteData = async () => {
+        if (window.confirm('Are you sure you want to delete all edit history ....!')) {
+            await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/emptyModifiedHistoryOfStockOut`, config)
+                .then((res) => {
+                    setPage(0);
+                    setSuccess(true)
+                    setRowsPerPage(5);
+                    getStockOutEditdData();
+                })
+                .catch((error) => {
+                    setError(error.response.data)
+                })
+        }
+    }
+    const gotohistory = (id) => {
+        navigate(`/editHistory/${id}`)
+    }
     useEffect(() => {
         getCategoryList();
         getProductList();
@@ -893,10 +949,11 @@ function StockInOut() {
                                             }
                                         ])
                                     }}>
-                                        <div className='statusTabtext'>In-Stock</div>
+                                        <div className='statusTabtext'>Stock-In</div>
                                     </div>
                                     <div className={`flex col-span-3 justify-center ${tab === 2 || tab === '2' ? 'productTabOut' : 'productTab'}`} onClick={() => {
                                         setTab(2); setPage(0); setRowsPerPage(5); getStockOutData(); setFilter(false);
+                                        resetStockOutEdit();
                                         resetStockInEdit();
                                         setState([
                                             {
@@ -906,7 +963,21 @@ function StockInOut() {
                                             }
                                         ])
                                     }}>
-                                        <div className='statusTabtext'>Out-Stock</div>
+                                        <div className='statusTabtext'>Stock-Out</div>
+                                    </div>
+                                    <div className={`flex col-span-3 justify-center ${tab === 3 || tab === '3' ? 'productTabAll' : 'productTab'}`} onClick={() => {
+                                        setTab(3); setStockOutData(); setPage(0); setRowsPerPage(5); setFilter(false);
+                                        setExpanded(false);
+                                        getStockOutEditdData();
+                                        setState([
+                                            {
+                                                startDate: new Date(),
+                                                endDate: new Date(),
+                                                key: 'selection'
+                                            }
+                                        ])
+                                    }}>
+                                        <div className='statusTabtext'>Edited Stock-Out</div>
                                     </div>
                                 </div>
                             </div>
@@ -914,428 +985,488 @@ function StockInOut() {
                     </div>
                 </div>
             </div>
-            <div className='mt-6 grid grid-col-12'>
-                <Accordion expanded={expanded} square='false' sx={{ width: "100%", borderRadius: '12px', boxShadow: 'rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem' }}>
-                    <AccordionSummary
-                        sx={{ height: '60px', borderRadius: '0.75rem' }}
-                        expandIcon={<ExpandMoreIcon />}
-                        aria-controls="panel1a-content"
-                        id="panel1a-header"
-                        onClick={() => { setExpanded(!expanded); resetStockInEdit(); resetStockOutEdit(); }}
-                    >
-                        <div className='stockAccordinHeader'>{tab && tab === '1' || tab === 1 ? "Stock In" : "Stock Out"}</div>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <div className='stockInOutContainer'>
-                            {tab === '1' || tab === 1 ?
-                                <div className='mt-6 grid grid-cols-12 gap-6'>
-                                    <div className='col-span-3'>
-                                        <FormControl fullWidth>
-                                            <Autocomplete
-                                                disablePortal
-                                                sx={{ width: '100%' }}
-                                                disabled={isEdit}
-                                                value={stockInFormData.productName}
-                                                onChange={handleProductNameAutoComplete}
-                                                options={productList ? productList : []}
-                                                getOptionLabel={(options) => options.productName}
-                                                renderInput={(params) => <TextField {...params} label="Product Name" />}
+            {tab === 3 ?
+                null : <div className='mt-6 grid grid-col-12'>
+                    <Accordion expanded={expanded} square='false' sx={{ width: "100%", borderRadius: '12px', boxShadow: 'rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem' }}>
+                        <AccordionSummary
+                            sx={{ height: '60px', borderRadius: '0.75rem' }}
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1a-content"
+                            id="panel1a-header"
+                            onClick={() => { setExpanded(!expanded); resetStockInEdit(); resetStockOutEdit(); }}
+                        >
+                            <div className='stockAccordinHeader'>{tab && tab === '1' || tab === 1 ? "Stock In" : "Stock Out"}</div>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <div className='stockInOutContainer'>
+                                {tab === '1' || tab === 1 ?
+                                    <div className='mt-6 grid grid-cols-12 gap-6'>
+                                        <div className='col-span-3'>
+                                            {!isEdit ?
+                                                <FormControl fullWidth>
+                                                    <Autocomplete
+                                                        id='stockIn'
+                                                        disablePortal
+                                                        sx={{ width: '100%' }}
+                                                        disabled={isEdit}
+                                                        value={stockInFormData.productName}
+                                                        onChange={handleProductNameAutoComplete}
+                                                        options={productList ? productList : []}
+                                                        getOptionLabel={(options) => options.productName}
+                                                        renderInput={(params) => <TextField {...params} label="Product Name" />}
+                                                    />
+                                                </FormControl>
+                                                :
+                                                <TextField
+                                                    label="Product Name"
+                                                    fullWidth
+                                                    disabled
+                                                    value={stockInFormData.productName ? stockInFormData.productName : ''}
+                                                    name="productName"
+                                                />}
+                                        </div>
+                                        <div className='col-span-2'>
+                                            <TextField
+                                                onBlur={(e) => {
+                                                    if (e.target.value < 1) {
+                                                        setStockInFormDataError((perv) => ({
+                                                            ...perv,
+                                                            productQty: true
+                                                        }))
+                                                    }
+                                                    else {
+                                                        setStockInFormDataError((perv) => ({
+                                                            ...perv,
+                                                            productQty: false
+                                                        }))
+                                                    }
+                                                }}
+                                                type="number"
+                                                label="Qty"
+                                                fullWidth
+                                                onChange={onChangeStockIn}
+                                                value={stockInFormData.productQty}
+                                                error={stockInFormDataError.productQty}
+                                                helperText={stockInFormDataError.productQty ? "Enter Qty" : ''}
+                                                name="productQty"
+                                                InputProps={{
+                                                    endAdornment: <InputAdornment position="end">{stockInFormData.productUnit}</InputAdornment>,
+                                                }}
                                             />
-                                        </FormControl>
-                                    </div>
-                                    <div className='col-span-2'>
-                                        <TextField
-                                            onBlur={(e) => {
-                                                if (e.target.value < 1) {
-                                                    setStockInFormDataError((perv) => ({
-                                                        ...perv,
-                                                        productQty: true
-                                                    }))
-                                                }
-                                                else {
-                                                    setStockInFormDataError((perv) => ({
-                                                        ...perv,
-                                                        productQty: false
-                                                    }))
-                                                }
-                                            }}
-                                            type="number"
-                                            label="Qty"
-                                            fullWidth
-                                            onChange={onChangeStockIn}
-                                            value={stockInFormData.productQty}
-                                            error={stockInFormDataError.productQty}
-                                            helperText={stockInFormDataError.productQty ? "Enter Qty" : ''}
-                                            name="productQty"
-                                            InputProps={{
-                                                endAdornment: <InputAdornment position="end">{stockInFormData.productUnit}</InputAdornment>,
-                                            }}
-                                        />
-                                    </div>
-                                    <div className='col-span-2'>
-                                        <TextField
-                                            onBlur={(e) => {
-                                                if (e.target.value < 1) {
-                                                    setStockInFormDataError((perv) => ({
-                                                        ...perv,
-                                                        productPrice: true
-                                                    }))
-                                                }
-                                                else {
-                                                    setStockInFormDataError((perv) => ({
-                                                        ...perv,
-                                                        productPrice: false
-                                                    }))
-                                                }
-                                            }}
-                                            onChange={onChangeStockIn}
-                                            value={stockInFormData.productPrice === 'NaN' ? 0 : stockInFormData.productPrice}
-                                            error={stockInFormDataError.productPrice}
-                                            helperText={stockInFormDataError.productPrice ? "Enter Price" : ''}
-                                            name="productPrice"
-                                            id="outlined-required"
-                                            label="Product Price"
-                                            InputProps={{ style: { fontSize: 14 } }}
-                                            InputLabelProps={{ style: { fontSize: 14 } }}
-                                            fullWidth
-                                        />
-                                    </div>
-                                    <div className='col-span-2'>
-                                        <TextField
-                                            onBlur={(e) => {
-                                                if (e.target.value < 1) {
-                                                    setStockInFormDataError((perv) => ({
-                                                        ...perv,
-                                                        totalPrice: true
-                                                    }))
-                                                }
-                                                else {
-                                                    setStockInFormDataError((perv) => ({
-                                                        ...perv,
-                                                        totalPrice: false
-                                                    }))
-                                                }
-                                            }}
-                                            onChange={onChangeStockIn}
-                                            value={stockInFormData.totalPrice === 'NaN' ? 0 : stockInFormData.totalPrice}
-                                            error={stockInFormDataError.totalPrice}
-                                            helperText={stockInFormDataError.totalPrice ? "Total Price" : ''}
-                                            name="totalPrice"
-                                            id="outlined-required"
-                                            label="Total Price"
-                                            InputProps={{ style: { fontSize: 14 } }}
-                                            InputLabelProps={{ style: { fontSize: 14 } }}
-                                            fullWidth
-                                        />
-                                    </div>
-                                    <div className='col-span-3'>
-                                        <TextField
-                                            onChange={onChangeStockIn}
-                                            value={stockInFormData.billNumber}
-                                            name="billNumber"
-                                            id="outlined-required"
-                                            label="Bill Number"
-                                            InputProps={{ style: { fontSize: 14 } }}
-                                            InputLabelProps={{ style: { fontSize: 14 } }}
-                                            fullWidth
-                                        />
-                                    </div>
-                                    <div className='col-span-3'>
-                                        <FormControl style={{ minWidth: '100%', maxWidth: '100%' }}>
-                                            <InputLabel id="demo-simple-select-label" required error={stockInFormDataError.supplierId}>Suppiler</InputLabel>
-                                            <Select
-                                                labelId="demo-simple-select-label"
-                                                id="demo-simple-select"
-                                                value={stockInFormData.supplierId}
-                                                error={stockInFormDataError.supplierId}
-                                                disabled={stockInFormData.productId ? false : true}
-                                                name="supplierId"
-                                                label="Suppiler"
+                                        </div>
+                                        <div className='col-span-2'>
+                                            <TextField
                                                 onBlur={(e) => {
-                                                    if (e.target.value.length < 2) {
+                                                    if (e.target.value < 1) {
                                                         setStockInFormDataError((perv) => ({
                                                             ...perv,
-                                                            supplierId: true
+                                                            productPrice: true
                                                         }))
                                                     }
                                                     else {
                                                         setStockInFormDataError((perv) => ({
                                                             ...perv,
-                                                            supplierId: false
+                                                            productPrice: false
                                                         }))
                                                     }
                                                 }}
                                                 onChange={onChangeStockIn}
-                                            >
-                                                {
-                                                    suppiler ? suppiler.map((suppilerData) => (
-                                                        <MenuItem key={suppilerData.supplierId} value={suppilerData.supplierId}>{suppilerData.supplierNickName}</MenuItem>
-                                                    )) : null
-                                                }
-
-                                            </Select>
-                                        </FormControl>
-                                    </div>
-                                    <div className='col-span-2'>
-                                        <FormControl style={{ minWidth: '100%', maxWidth: '100%' }}>
-                                            <InputLabel id="demo-simple-select-label" error={stockInFormDataError.stockInPaymentMethod}>Payment</InputLabel>
-                                            <Select
-                                                labelId="demo-simple-select-label"
-                                                id="demo-simple-select"
-                                                value={stockInFormData.stockInPaymentMethod}
-                                                error={stockInFormDataError.stockInPaymentMethod}
-                                                name="stockInPaymentMethod"
-                                                label="Payment"
-                                                onBlur={(e) => {
-                                                    if (e.target.value.length < 2) {
-                                                        setStockInFormDataError((perv) => ({
-                                                            ...perv,
-                                                            stockInPaymentMethod: true
-                                                        }))
-                                                    }
-                                                    else {
-                                                        setStockInFormDataError((perv) => ({
-                                                            ...perv,
-                                                            stockInPaymentMethod: false
-                                                        }))
-                                                    }
-                                                }}
-                                                onChange={onChangeStockIn}
-                                            >
-                                                <MenuItem key={'cash'} value={'cash'}>{'Cash'}</MenuItem>
-                                                <MenuItem key={'debit'} value={'debit'}>{'Debit'}</MenuItem>
-                                            </Select>
-                                        </FormControl>
-                                    </div>
-                                    <div className='col-span-2'>
-                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                            <DesktopDatePicker
-                                                textFieldStyle={{ width: '100%' }}
-                                                InputProps={{ style: { fontSize: 14, width: '100%' } }}
+                                                value={stockInFormData.productPrice === 'NaN' ? 0 : stockInFormData.productPrice}
+                                                error={stockInFormDataError.productPrice}
+                                                helperText={stockInFormDataError.productPrice ? "Enter Price" : ''}
+                                                name="productPrice"
+                                                id="outlined-required"
+                                                label="Product Price"
+                                                InputProps={{ style: { fontSize: 14 } }}
                                                 InputLabelProps={{ style: { fontSize: 14 } }}
-                                                label="Stock In Date"
-                                                format="DD/MM/YYYY"
-                                                required
-                                                error={stockInFormDataError.stockInDate}
-                                                value={stockInFormData.stockInDate}
-                                                onChange={handleStockInDate}
-                                                name="stockInDate"
-                                                renderInput={(params) => <TextField {...params} sx={{ width: '100%' }} />}
+                                                fullWidth
                                             />
-                                        </LocalizationProvider>
-                                    </div>
-                                    <div className='col-span-5'>
-                                        <TextField
-                                            onChange={onChangeStockIn}
-                                            value={stockInFormData.stockInComment}
-                                            name="stockInComment"
-                                            id="outlined-required"
-                                            label="Comment"
-                                            InputProps={{ style: { fontSize: 14 } }}
-                                            InputLabelProps={{ style: { fontSize: 14 } }}
-                                            fullWidth
-                                        />
-                                    </div>
-                                    <div className='col-span-2 col-start-9'>
-                                        <button className='addCategorySaveBtn' onClick={() => {
-                                            isEdit ? editStockIn() : submitStockIn()
-                                        }}>{isEdit ? "Save" : "Stock In"}</button>
-                                    </div>
-                                    <div className='col-span-2'>
-                                        <button className='addCategoryCancleBtn' onClick={() => {
-                                            handleResetStockIn();
-                                            setIsEdit(false);
-                                            setExpanded(false);
-                                        }}>{isEdit ? 'Cancle' : 'Reset'}</button>
-                                    </div>
-                                </div>
-                                :
-                                <div className='mt-6 grid grid-cols-12 gap-6'>
-                                    <div className='col-span-3'>
-                                        <FormControl fullWidth>
-                                            <Autocomplete
-                                                disablePortal
-                                                disabled={isEdit}
-                                                sx={{ width: '100%' }}
-                                                value={stockOutFormData.productName}
-                                                onChange={handleProductNameAutoCompleteOut}
-                                                options={productList ? productList : []}
-                                                getOptionLabel={(options) => options.productName}
-                                                renderInput={(params) => <TextField {...params} label="Product Name" />}
-                                            />
-                                        </FormControl>
-                                    </div>
-                                    <div className='col-span-3'>
-                                        <TextField
-                                            onBlur={(e) => {
-                                                if (e.target.value < 1 || e.target.value > stockOutFormData?.remainingStock) {
-                                                    setStockOutFormDataError((perv) => ({
-                                                        ...perv,
-                                                        productQty: true
-                                                    }))
-                                                }
-                                                else {
-                                                    setStockOutFormDataError((perv) => ({
-                                                        ...perv,
-                                                        productQty: false
-                                                    }))
-                                                }
-                                            }}
-                                            type="number"
-                                            label="Qty"
-                                            fullWidth
-                                            disabled={!stockOutFormData.productName}
-                                            onChange={onChangeStockOut}
-                                            value={stockOutFormData.productQty}
-                                            error={stockOutFormDataError.productQty}
-                                            helperText={stockOutFormData.productName && !stockOutFormDataError.productQty ? `Remaining Stock:-  ${stockOutFormData?.remainingStock}  ${stockOutFormData.productUnit}` : stockOutFormDataError.productQty ? stockOutFormDataError.productQty && stockOutFormData.productQty > stockOutFormData?.remainingStock ? `StockOut qty can't be more than ${stockOutFormData?.remainingStock}  ${stockOutFormData.productUnit}` : "Please Enter Qty" : ''}
-                                            name="productQty"
-                                            InputProps={{
-                                                endAdornment: <InputAdornment position="end">{stockOutFormData.productUnit}</InputAdornment>,
-                                            }}
-                                        />
-                                    </div>
-                                    <div className='col-span-3'>
-                                        <FormControl style={{ minWidth: '100%', maxWidth: '100%' }}>
-                                            <InputLabel id="demo-simple-select-label" required error={stockOutFormDataError.stockOutCategory}>Category</InputLabel>
-                                            <Select
-                                                labelId="demo-simple-select-label"
-                                                id="demo-simple-select"
-                                                value={stockOutFormData.stockOutCategory}
-                                                error={stockOutFormDataError.stockOutCategory}
-                                                name="stockOutCategory"
-                                                label="Category"
+                                        </div>
+                                        <div className='col-span-2'>
+                                            <TextField
                                                 onBlur={(e) => {
-                                                    if (e.target.value.length < 2) {
+                                                    if (e.target.value < 1) {
+                                                        setStockInFormDataError((perv) => ({
+                                                            ...perv,
+                                                            totalPrice: true
+                                                        }))
+                                                    }
+                                                    else {
+                                                        setStockInFormDataError((perv) => ({
+                                                            ...perv,
+                                                            totalPrice: false
+                                                        }))
+                                                    }
+                                                }}
+                                                onChange={onChangeStockIn}
+                                                value={stockInFormData.totalPrice === 'NaN' ? 0 : stockInFormData.totalPrice}
+                                                error={stockInFormDataError.totalPrice}
+                                                helperText={stockInFormDataError.totalPrice ? "Total Price" : ''}
+                                                name="totalPrice"
+                                                id="outlined-required"
+                                                label="Total Price"
+                                                InputProps={{ style: { fontSize: 14 } }}
+                                                InputLabelProps={{ style: { fontSize: 14 } }}
+                                                fullWidth
+                                            />
+                                        </div>
+                                        <div className='col-span-3'>
+                                            <TextField
+                                                onChange={onChangeStockIn}
+                                                value={stockInFormData.billNumber}
+                                                name="billNumber"
+                                                id="outlined-required"
+                                                label="Bill Number"
+                                                InputProps={{ style: { fontSize: 14 } }}
+                                                InputLabelProps={{ style: { fontSize: 14 } }}
+                                                fullWidth
+                                            />
+                                        </div>
+                                        <div className='col-span-3'>
+                                            <FormControl style={{ minWidth: '100%', maxWidth: '100%' }}>
+                                                <InputLabel id="demo-simple-select-label" required error={stockInFormDataError.supplierId}>Suppiler</InputLabel>
+                                                <Select
+                                                    labelId="demo-simple-select-label"
+                                                    id="demo-simple-select"
+                                                    value={stockInFormData.supplierId}
+                                                    error={stockInFormDataError.supplierId}
+                                                    disabled={stockInFormData.productId ? false : true}
+                                                    name="supplierId"
+                                                    label="Suppiler"
+                                                    onBlur={(e) => {
+                                                        if (e.target.value.length < 2) {
+                                                            setStockInFormDataError((perv) => ({
+                                                                ...perv,
+                                                                supplierId: true
+                                                            }))
+                                                        }
+                                                        else {
+                                                            setStockInFormDataError((perv) => ({
+                                                                ...perv,
+                                                                supplierId: false
+                                                            }))
+                                                        }
+                                                    }}
+                                                    onChange={onChangeStockIn}
+                                                >
+                                                    {
+                                                        suppiler ? suppiler.map((suppilerData) => (
+                                                            <MenuItem key={suppilerData.supplierId} value={suppilerData.supplierId}>{suppilerData.supplierNickName}</MenuItem>
+                                                        )) : null
+                                                    }
+
+                                                </Select>
+                                            </FormControl>
+                                        </div>
+                                        <div className='col-span-2'>
+                                            <FormControl style={{ minWidth: '100%', maxWidth: '100%' }}>
+                                                <InputLabel id="demo-simple-select-label" error={stockInFormDataError.stockInPaymentMethod}>Payment</InputLabel>
+                                                <Select
+                                                    labelId="demo-simple-select-label"
+                                                    id="demo-simple-select"
+                                                    value={stockInFormData.stockInPaymentMethod}
+                                                    error={stockInFormDataError.stockInPaymentMethod}
+                                                    name="stockInPaymentMethod"
+                                                    label="Payment"
+                                                    onBlur={(e) => {
+                                                        if (e.target.value.length < 2) {
+                                                            setStockInFormDataError((perv) => ({
+                                                                ...perv,
+                                                                stockInPaymentMethod: true
+                                                            }))
+                                                        }
+                                                        else {
+                                                            setStockInFormDataError((perv) => ({
+                                                                ...perv,
+                                                                stockInPaymentMethod: false
+                                                            }))
+                                                        }
+                                                    }}
+                                                    onChange={onChangeStockIn}
+                                                >
+                                                    <MenuItem key={'cash'} value={'cash'}>{'Cash'}</MenuItem>
+                                                    <MenuItem key={'debit'} value={'debit'}>{'Debit'}</MenuItem>
+                                                </Select>
+                                            </FormControl>
+                                        </div>
+                                        <div className='col-span-2'>
+                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                <DesktopDatePicker
+                                                    textFieldStyle={{ width: '100%' }}
+                                                    InputProps={{ style: { fontSize: 14, width: '100%' } }}
+                                                    InputLabelProps={{ style: { fontSize: 14 } }}
+                                                    label="Stock In Date"
+                                                    format="DD/MM/YYYY"
+                                                    required
+                                                    error={stockInFormDataError.stockInDate}
+                                                    value={stockInFormData.stockInDate}
+                                                    onChange={handleStockInDate}
+                                                    name="stockInDate"
+                                                    renderInput={(params) => <TextField {...params} sx={{ width: '100%' }} />}
+                                                />
+                                            </LocalizationProvider>
+                                        </div>
+                                        <div className='col-span-5'>
+                                            <TextField
+                                                onChange={onChangeStockIn}
+                                                value={stockInFormData.stockInComment}
+                                                name="stockInComment"
+                                                id="outlined-required"
+                                                label="Comment"
+                                                InputProps={{ style: { fontSize: 14 } }}
+                                                InputLabelProps={{ style: { fontSize: 14 } }}
+                                                fullWidth
+                                            />
+                                        </div>
+                                        <div className='col-span-2 col-start-9'>
+                                            <button className='addCategorySaveBtn' onClick={() => {
+                                                isEdit ? editStockIn() : submitStockIn()
+                                            }}>{isEdit ? "Save" : "Stock In"}</button>
+                                        </div>
+                                        <div className='col-span-2'>
+                                            <button className='addCategoryCancleBtn' onClick={() => {
+                                                handleResetStockIn();
+                                                setIsEdit(false);
+                                                setExpanded(false);
+                                            }}>{isEdit ? 'Cancle' : 'Reset'}</button>
+                                        </div>
+                                    </div>
+                                    :
+                                    <div className='mt-6 grid grid-cols-12 gap-6'>
+                                        <div className='col-span-3'>
+                                            {!isEdit ?
+                                                <FormControl fullWidth>
+                                                    <Autocomplete
+                                                        disablePortal
+                                                        id='stockOut'
+                                                        disabled={isEdit}
+                                                        sx={{ width: '100%' }}
+                                                        value={stockOutFormData.productName}
+                                                        onChange={handleProductNameAutoCompleteOut}
+                                                        options={productList ? productList : []}
+                                                        getOptionLabel={(options) => options.productName}
+                                                        renderInput={(params) => <TextField {...params} label="Product Name" />}
+                                                    />
+                                                </FormControl>
+                                                :
+                                                <TextField
+                                                    label="Product Name"
+                                                    fullWidth
+                                                    disabled
+                                                    value={stockOutFormData.productName ? stockOutFormData.productName : ''}
+                                                    name="productName"
+                                                />
+                                            }
+                                        </div>
+                                        <div className='col-span-3'>
+                                            <TextField
+                                                onBlur={(e) => {
+                                                    if (e.target.value < 1 || e.target.value > stockOutFormData?.remainingStock) {
                                                         setStockOutFormDataError((perv) => ({
                                                             ...perv,
-                                                            stockOutCategory: true
+                                                            productQty: true
                                                         }))
                                                     }
                                                     else {
                                                         setStockOutFormDataError((perv) => ({
                                                             ...perv,
-                                                            stockOutCategory: false
+                                                            productQty: false
                                                         }))
                                                     }
                                                 }}
+                                                type="number"
+                                                label="Qty"
+                                                fullWidth
+                                                disabled={!stockOutFormData.productName}
                                                 onChange={onChangeStockOut}
-                                            >
-                                                {
-                                                    categories ? categories.map((category) => (
-                                                        <MenuItem key={category.stockOutCategoryId} value={category.stockOutCategoryId}>{category.stockOutCategoryName}</MenuItem>
-                                                    )) : null
-                                                }
-
-                                            </Select>
-                                        </FormControl>
-                                    </div>
-                                    <div className='col-span-3'>
-                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                            <DesktopDatePicker
-                                                textFieldStyle={{ width: '100%' }}
-                                                InputProps={{ style: { fontSize: 14, width: '100%' } }}
-                                                InputLabelProps={{ style: { fontSize: 14 } }}
-                                                label="Stock In Date"
-                                                format="DD/MM/YYYY"
-                                                required
-                                                error={stockOutFormDataError.stockOutDate}
-                                                value={stockOutFormData.stockOutDate}
-                                                onChange={handleStockOutDate}
-                                                name="stockOutDate"
-                                                renderInput={(params) => <TextField {...params} sx={{ width: '100%' }} />}
+                                                value={stockOutFormData.productQty}
+                                                error={stockOutFormDataError.productQty}
+                                                helperText={stockOutFormData.productName && !stockOutFormDataError.productQty ? `Remaining Stock:-  ${stockOutFormData?.remainingStock}  ${stockOutFormData.productUnit}` : stockOutFormDataError.productQty ? stockOutFormDataError.productQty && stockOutFormData.productQty > stockOutFormData?.remainingStock ? `StockOut qty can't be more than ${stockOutFormData?.remainingStock}  ${stockOutFormData.productUnit}` : "Please Enter Qty" : ''}
+                                                name="productQty"
+                                                InputProps={{
+                                                    endAdornment: <InputAdornment position="end">{stockOutFormData.productUnit}</InputAdornment>,
+                                                }}
                                             />
-                                        </LocalizationProvider>
+                                        </div>
+                                        <div className='col-span-3'>
+                                            <FormControl style={{ minWidth: '100%', maxWidth: '100%' }}>
+                                                <InputLabel id="demo-simple-select-label" required error={stockOutFormDataError.stockOutCategory}>Category</InputLabel>
+                                                <Select
+                                                    labelId="demo-simple-select-label"
+                                                    id="demo-simple-select"
+                                                    value={stockOutFormData.stockOutCategory}
+                                                    error={stockOutFormDataError.stockOutCategory}
+                                                    name="stockOutCategory"
+                                                    label="Category"
+                                                    onBlur={(e) => {
+                                                        if (e.target.value.length < 2) {
+                                                            setStockOutFormDataError((perv) => ({
+                                                                ...perv,
+                                                                stockOutCategory: true
+                                                            }))
+                                                        }
+                                                        else {
+                                                            setStockOutFormDataError((perv) => ({
+                                                                ...perv,
+                                                                stockOutCategory: false
+                                                            }))
+                                                        }
+                                                    }}
+                                                    onChange={onChangeStockOut}
+                                                >
+                                                    {
+                                                        categories ? categories.map((category) => (
+                                                            <MenuItem key={category.stockOutCategoryId} value={category.stockOutCategoryId}>{category.stockOutCategoryName}</MenuItem>
+                                                        )) : null
+                                                    }
+
+                                                </Select>
+                                            </FormControl>
+                                        </div>
+                                        <div className='col-span-3'>
+                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                <DesktopDatePicker
+                                                    textFieldStyle={{ width: '100%' }}
+                                                    InputProps={{ style: { fontSize: 14, width: '100%' } }}
+                                                    InputLabelProps={{ style: { fontSize: 14 } }}
+                                                    label="Stock In Date"
+                                                    format="DD/MM/YYYY"
+                                                    required
+                                                    error={stockOutFormDataError.stockOutDate}
+                                                    value={stockOutFormData.stockOutDate}
+                                                    onChange={handleStockOutDate}
+                                                    name="stockOutDate"
+                                                    renderInput={(params) => <TextField {...params} sx={{ width: '100%' }} />}
+                                                />
+                                            </LocalizationProvider>
+                                        </div>
+                                        <div className='col-span-6'>
+                                            <TextField
+                                                onChange={onChangeStockOut}
+                                                value={stockOutFormData.stockOutComment}
+                                                name="stockOutComment"
+                                                id="outlined-required"
+                                                label="Comment"
+                                                InputProps={{ style: { fontSize: 14 } }}
+                                                InputLabelProps={{ style: { fontSize: 14 } }}
+                                                fullWidth
+                                            />
+                                        </div>
+                                        {isEdit &&
+                                            <div className='col-span-6'>
+                                                <TextField
+                                                    onBlur={(e) => {
+                                                        if (e.target.value.length < 4) {
+                                                            setStockOutFormDataError((perv) => ({
+                                                                ...perv,
+                                                                reason: true
+                                                            }))
+                                                        }
+                                                        else {
+                                                            setStockOutFormDataError((perv) => ({
+                                                                ...perv,
+                                                                reason: false
+                                                            }))
+                                                        }
+                                                    }}
+                                                    onChange={onChangeStockOut}
+                                                    error={stockOutFormDataError.reason}
+                                                    value={stockOutFormData.reason}
+                                                    name="reason"
+                                                    helperText={stockOutFormDataError.reason ? 'Edit Reason is must ...' : ''}
+                                                    id="outlined-required"
+                                                    label="Edit Reason"
+                                                    InputProps={{ style: { fontSize: 14 } }}
+                                                    InputLabelProps={{ style: { fontSize: 14 } }}
+                                                    fullWidth
+                                                />
+                                            </div>}
+
+                                        <div className='col-span-2 col-start-9'>
+                                            <button className='addCategorySaveBtn' onClick={() => {
+                                                isEdit ? editSubmitStockOut() : submitStockOut()
+                                            }}>{isEdit ? "Save" : "Stock Out"}</button>
+                                        </div>
+                                        <div className='col-span-2'>
+                                            <button className='addCategoryCancleBtn' onClick={() => {
+                                                handleResetStockOut();
+                                                setIsEdit(false);
+                                                setExpanded(false);
+                                            }}>{isEdit ? "cancle" : "reset"}</button>
+                                        </div>
                                     </div>
-                                    <div className='col-span-6'>
-                                        <TextField
-                                            onChange={onChangeStockOut}
-                                            value={stockOutFormData.stockOutComment}
-                                            name="stockOutComment"
-                                            id="outlined-required"
-                                            label="Comment"
-                                            InputProps={{ style: { fontSize: 14 } }}
-                                            InputLabelProps={{ style: { fontSize: 14 } }}
-                                            fullWidth
-                                        />
-                                    </div>
-                                    <div className='col-span-2 col-start-9'>
-                                        <button className='addCategorySaveBtn' onClick={() => {
-                                            isEdit ? editSubmitStockOut() : submitStockOut()
-                                        }}>{isEdit ? "Save" : "Stock Out"}</button>
-                                    </div>
-                                    <div className='col-span-2'>
-                                        <button className='addCategoryCancleBtn' onClick={() => {
-                                            handleResetStockOut();
-                                            setIsEdit(false);
-                                            setExpanded(false);
-                                        }}>{isEdit ? "cancle" : "reset"}</button>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    </AccordionDetails>
-                </Accordion>
-            </div>
+                                }
+                            </div>
+                        </AccordionDetails>
+                    </Accordion>
+                </div>
+            }
+
             <div className='grid grid-cols-12 mt-6'>
                 <div className='col-span-12'>
                     <div className='userTableSubContainer'>
                         <div className='grid grid-cols-12 pt-6'>
                             <div className='ml-6 col-span-6' >
-                                <div className='flex'>
-                                    <div className='dateRange text-center' aria-describedby={id} onClick={handleClick}>
-                                        <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
-                                    </div>
-                                    <div className='resetBtnWrap col-span-3'>
-                                        <button className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`} onClick={() => {
-                                            setFilter(false);
-                                            tab === 1 || tab === '1' ?
-                                                getStockInData() : getStockOutData();
-                                            setState([
-                                                {
-                                                    startDate: new Date(),
-                                                    endDate: new Date(),
-                                                    key: 'selection'
-                                                }
-                                            ])
-                                        }}><CloseIcon /></button>
-                                    </div>
-                                </div>
-
-                                <Popover
-                                    id={id}
-                                    open={open}
-                                    style={{ zIndex: 10000, borderRadius: '10px', boxShadow: 'rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem' }}
-                                    anchorEl={anchorEl}
-                                    onClose={handleClose}
-                                    anchorOrigin={{
-                                        vertical: 'bottom',
-                                        horizontal: 'left',
-                                    }}
-                                >
-                                    <Box sx={{ bgcolor: 'background.paper', padding: '20px', width: 'auto', height: 'auto', borderRadius: '10px' }}>
-                                        <DateRangePicker
-                                            ranges={state}
-                                            onChange={item => { setState([item.selection]); console.log([item.selection]) }}
-                                            direction="horizontal"
-                                            months={2}
-                                            showSelectionPreview={true}
-                                            moveRangeOnFirstSelection={false}
-                                        />
-                                        <div className='mt-8 grid gap-4 grid-cols-12'>
-                                            <div className='col-span-3 col-start-7'>
-                                                <button className='stockInBtn' onClick={() => { tab === 1 || tab === '1' ? getStockInDataByFilter() : getStockOutDataByFilter(); setFilter(true); setPage(0); handleClose() }}>Apply</button>
+                                {tab != 3 &&
+                                    <>
+                                        <div className='flex'>
+                                            <div className='dateRange text-center' aria-describedby={id} onClick={handleClick}>
+                                                <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
                                             </div>
-                                            <div className='col-span-3'>
-                                                <button className='stockOutBtn' onClick={handleClose}>cancle</button>
+                                            <div className='resetBtnWrap col-span-3'>
+                                                <button className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`} onClick={() => {
+                                                    setFilter(false);
+                                                    tab === 1 || tab === '1' ?
+                                                        getStockInData() : getStockOutData();
+                                                    setState([
+                                                        {
+                                                            startDate: new Date(),
+                                                            endDate: new Date(),
+                                                            key: 'selection'
+                                                        }
+                                                    ])
+                                                }}><CloseIcon /></button>
                                             </div>
                                         </div>
-                                    </Box>
-                                </Popover>
+                                        <Popover
+                                            id={id}
+                                            open={open}
+                                            style={{ zIndex: 10000, borderRadius: '10px', boxShadow: 'rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem' }}
+                                            anchorEl={anchorEl}
+                                            onClose={handleClose}
+                                            anchorOrigin={{
+                                                vertical: 'bottom',
+                                                horizontal: 'left',
+                                            }}
+                                        >
+                                            <Box sx={{ bgcolor: 'background.paper', padding: '20px', width: 'auto', height: 'auto', borderRadius: '10px' }}>
+                                                <DateRangePicker
+                                                    ranges={state}
+                                                    onChange={item => { setState([item.selection]); console.log([item.selection]) }}
+                                                    direction="horizontal"
+                                                    months={2}
+                                                    showSelectionPreview={true}
+                                                    moveRangeOnFirstSelection={false}
+                                                />
+                                                <div className='mt-8 grid gap-4 grid-cols-12'>
+                                                    <div className='col-span-3 col-start-7'>
+                                                        <button className='stockInBtn' onClick={() => { tab === 1 || tab === '1' ? getStockInDataByFilter() : getStockOutDataByFilter(); setFilter(true); setPage(0); handleClose() }}>Apply</button>
+                                                    </div>
+                                                    <div className='col-span-3'>
+                                                        <button className='stockOutBtn' onClick={handleClose}>cancle</button>
+                                                    </div>
+                                                </div>
+                                            </Box>
+                                        </Popover>
+                                    </>
+                                }
                             </div>
                             <div className='col-span-6 col-start-7 pr-5 flex justify-end'>
-                                <button className='exportExcelBtn' onClick={() => { tab === 1 || tab === '1' ? stockInExportExcel() : stockOutExportExcel() }}><FileDownloadIcon />&nbsp;&nbsp;Export Excle</button>
-                            </div>
+                                {tab != 3 ?
+                                    <button className='exportExcelBtn' onClick={() => { tab === 1 || tab === '1' ? stockInExportExcel() : stockOutExportExcel() }}><FileDownloadIcon />&nbsp;&nbsp;Export Excle</button>
+                                    :
+                                    <button className='exportExcelBtn' onClick={deleteData}><CloseIcon />&nbsp;&nbsp;Delete All Updated</button>
+                                }</div>
                         </div>
                         {tab === 1 || tab === '1' ?
                             <div className='tableContainerWrapper'>
@@ -1406,66 +1537,129 @@ function StockInOut() {
                                     />
                                 </TableContainer>
                             </div> :
-                            <div className='tableContainerWrapper'>
-                                <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
-                                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell>No.</TableCell>
-                                                <TableCell>outBy</TableCell>
-                                                <TableCell align="left">productName</TableCell>
-                                                <TableCell align="left">Quantity</TableCell>
-                                                <TableCell align="left">stockOutCategoryName</TableCell>
-                                                <TableCell align="left">stockOutComment</TableCell>
-                                                <TableCell align="left">stockOutDate</TableCell>
-                                                <TableCell align="left"></TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {stockOutData?.map((row, index) => (
-                                                totalRowsOut !== 0 ?
-                                                    <TableRow
-                                                        key={row.stockOutId}
-                                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                                        style={{ cursor: "pointer" }}
-                                                        className='tableRow'
-                                                    >
-                                                        <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
-                                                        <Tooltip title={row.userName} placement="top-start" arrow>
-                                                            <TableCell component="th" scope="row">
-                                                                {row.outBy}
-                                                            </TableCell>
-                                                        </Tooltip>
-                                                        <TableCell align="left" >{row.productName}</TableCell>
-                                                        <TableCell align="left" >{row.Quantity}</TableCell>
-                                                        <TableCell align="left" >{row.stockOutCategoryName}</TableCell>
-                                                        <Tooltip title={row.stockOutComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.stockOutComment}</div></TableCell></Tooltip>
-                                                        <TableCell align="left" >{row.stockOutDate}</TableCell>
-                                                        <TableCell align="right">
-                                                            <MenuStockInOut handleAccordionOpenOnEdit={handleAccordionOpenOnEdit} stockInOutId={row.stockOutId} data={row} deleteStockInOut={handleDeleteStockOut} />
-                                                        </TableCell>
-                                                    </TableRow> :
-                                                    <TableRow
-                                                        key={row.userId}
-                                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                                    >
-                                                        <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
-                                                    </TableRow>
+                            tab === 2 || tab === '2' ?
+                                <div className='tableContainerWrapper'>
+                                    <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
+                                        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell>No.</TableCell>
+                                                    <TableCell>outBy</TableCell>
+                                                    <TableCell align="left">productName</TableCell>
+                                                    <TableCell align="left">Quantity</TableCell>
+                                                    <TableCell align="left">stockOutCategoryName</TableCell>
+                                                    <TableCell align="left">stockOutComment</TableCell>
+                                                    <TableCell align="left">stockOutDate</TableCell>
+                                                    <TableCell align="left"></TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {
+                                                    stockOutData?.map((row, index) => (
+                                                        totalRowsOut !== 0 ?
+                                                            <TableRow
+                                                                key={row.stockOutId}
+                                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                                style={{ cursor: "pointer" }}
+                                                                className='tableRow'
+                                                            >
+                                                                <TableCell align="left"  >{(index + 1) + (page * rowsPerPage)}</TableCell>
+                                                                <Tooltip title={row.userName} placement="top-start" arrow>
+                                                                    <TableCell component="th" scope="row"  >
+                                                                        {row.outBy}
+                                                                    </TableCell>
+                                                                </Tooltip>
+                                                                <TableCell align="left"  >{row.productName}</TableCell>
+                                                                <TableCell align="left"  >{row.Quantity}</TableCell>
+                                                                <TableCell align="left"  >{row.stockOutCategoryName}</TableCell>
+                                                                <Tooltip title={row.stockOutComment} placement="top-start" arrow><TableCell align="left"  ><div className='Comment'>{row.stockOutComment}</div></TableCell></Tooltip>
+                                                                <TableCell align="left"   >{row.stockOutDate}</TableCell>
+                                                                {tab != 3 &&
+                                                                    <TableCell align="right">
+                                                                        <MenuStockInOut handleAccordionOpenOnEdit={handleAccordionOpenOnEdit} stockInOutId={row.stockOutId} data={row} deleteStockInOut={handleDeleteStockOut} />
+                                                                    </TableCell>}
+                                                            </TableRow> :
+                                                            <TableRow
+                                                                key={row.userId}
+                                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                            >
+                                                                <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
+                                                            </TableRow>
 
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                    <TablePagination
-                                        rowsPerPageOptions={[5, 10, 25]}
-                                        component="div"
-                                        count={totalRowsOut}
-                                        rowsPerPage={rowsPerPage}
-                                        page={page}
-                                        onPageChange={handleChangePage}
-                                        onRowsPerPageChange={handleChangeRowsPerPage}
-                                    />
-                                </TableContainer>
-                            </div>
+                                                    ))
+                                                }
+                                            </TableBody>
+                                        </Table>
+                                        <TablePagination
+                                            rowsPerPageOptions={[5, 10, 25]}
+                                            component="div"
+                                            count={totalRowsOut}
+                                            rowsPerPage={rowsPerPage}
+                                            page={page}
+                                            onPageChange={handleChangePage}
+                                            onRowsPerPageChange={handleChangeRowsPerPage}
+                                        />
+                                    </TableContainer>
+                                </div> :
+                                <div className='tableContainerWrapper'>
+                                    <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
+                                        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell>No.</TableCell>
+                                                    <TableCell>outBy</TableCell>
+                                                    <TableCell align="left">productName</TableCell>
+                                                    <TableCell align="left">Quantity</TableCell>
+                                                    <TableCell align="left">stockOutCategoryName</TableCell>
+                                                    <TableCell align="left">stockOutComment</TableCell>
+                                                    <TableCell align="left">stockOutDate</TableCell>
+                                                    <TableCell align="left"></TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {
+                                                    stockOutData?.map((row, index) => (
+                                                        totalRowsOut !== 0 ?
+                                                            <TableRow
+                                                                key={row.stockOutId}
+                                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                                style={{ cursor: "pointer" }}
+                                                                className='tableRow'
+                                                            >
+                                                                <TableCell align="left" onClick={() => { gotohistory(row.stockOutId) }}>{(index + 1) + (page * rowsPerPage)}</TableCell>
+                                                                <Tooltip title={row.userName} placement="top-start" arrow>
+                                                                    <TableCell component="th" scope="row" onClick={() => { gotohistory(row.stockOutId) }}>
+                                                                        {row.outBy}
+                                                                    </TableCell>
+                                                                </Tooltip>
+                                                                <TableCell align="left" onClick={() => { gotohistory(row.stockOutId) }}>{row.productName}</TableCell>
+                                                                <TableCell align="left" onClick={() => { gotohistory(row.stockOutId) }}>{row.Quantity}</TableCell>
+                                                                <TableCell align="left" onClick={() => { gotohistory(row.stockOutId) }}>{row.stockOutCategoryName}</TableCell>
+                                                                <Tooltip title={row.stockOutComment} placement="top-start" arrow><TableCell align="left" onClick={() => { gotohistory(row.stockOutId) }}><div className='Comment'>{row.stockOutComment}</div></TableCell></Tooltip>
+                                                                <TableCell align="left" onClick={() => { gotohistory(row.stockOutId) }} >{row.stockOutDate}</TableCell>
+                                                            </TableRow> :
+                                                            <TableRow
+                                                                key={row.userId}
+                                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                            >
+                                                                <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
+                                                            </TableRow>
+
+                                                    ))
+                                                }
+                                            </TableBody>
+                                        </Table>
+                                        <TablePagination
+                                            rowsPerPageOptions={[5, 10, 25]}
+                                            component="div"
+                                            count={totalRowsOut}
+                                            rowsPerPage={rowsPerPage}
+                                            page={page}
+                                            onPageChange={handleChangePage}
+                                            onRowsPerPageChange={handleChangeRowsPerPage}
+                                        />
+                                    </TableContainer>
+                                </div>
                         }
                     </div>
                 </div>

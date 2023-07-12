@@ -150,6 +150,7 @@ function SuppilerTable() {
         await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeSupplierDetails?supplierId=${id}`, config)
             .then((res) => {
                 setPage(0);
+                setSuccess(true)
                 setRowsPerPage(5);
                 getData();
             })

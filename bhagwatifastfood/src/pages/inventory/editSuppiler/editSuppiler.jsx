@@ -213,7 +213,7 @@ function EditSuppiler() {
                 toastId: 'success',
                 position: "bottom-right",
                 toastId: 'error',
-                autoClose: 3000,
+                autoClose: 800,
                 hideProgressBar: false,
                 closeOnClick: true,
                 pauseOnHover: true,
@@ -224,7 +224,7 @@ function EditSuppiler() {
         setTimeout(() => {
             setSuccess(false)
             reset()
-        }, 50)
+        }, 2000)
     }
     if (error) {
         toast.dismiss('loading');
@@ -245,7 +245,6 @@ function EditSuppiler() {
     if (!formData) {
         return null
     }
-    console.log('productName', productName)
     return (
         <div className='mainBodyAddSuppiler grid content-center'>
             <div className="grid grid-cols-12">
