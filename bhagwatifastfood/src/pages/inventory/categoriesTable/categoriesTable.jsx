@@ -54,6 +54,15 @@ function CategoriesTable() {
         });
         setIsEdit(false);
     }
+    const handleReset = () => {
+        setCategory('');
+        setCategoryError(false);
+        setEditCategory({
+            stockOutCategoryName: '',
+            stockOutCategoryId: ''
+        });
+        setIsEdit(false);
+    }
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [totalRows, setTotalRows] = React.useState(0);
@@ -158,7 +167,7 @@ function CategoriesTable() {
                 setSuccess(true)
                 getData();
                 setLoading(false);
-                handleClose();
+                handleReset();
             })
             .catch((error) => {
                 setError(error.response.data);

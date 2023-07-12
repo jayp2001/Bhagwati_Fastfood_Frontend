@@ -40,6 +40,7 @@ import Tooltip from '@mui/material/Tooltip';
 import Menutemp from './menu';
 import { ToastContainer, toast } from 'react-toastify';
 import SearchIcon from '@mui/icons-material/Search';
+
 const style = {
     position: 'absolute',
     top: '50%',
@@ -296,6 +297,13 @@ function ProductListTable() {
     const handleCloseDate = () => {
         setAnchorEl(null);
     };
+    const handleReset = () => {
+        setFormData({
+            stockOutCategoryName: '',
+            stockOutCategoryId: ''
+        });
+        setIsEdit(false);
+    }
     const handleClose = () => {
         setOpenM(false);
         // setCategory('');
@@ -474,7 +482,7 @@ function ProductListTable() {
                 getAllData();
                 setTab(null)
                 getCountData();
-                handleClose();
+                handleReset();
             })
             .catch((error) => {
                 setError(error.response.data);
@@ -978,9 +986,9 @@ function ProductListTable() {
                             <div className='tableContainerWrapper'>
                                 <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
                                     <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
-                                        <TableHead>
+                                        <TableHead >
                                             <TableRow>
-                                                <TableCell>No.</TableCell>
+                                                <TableCell >No.</TableCell>
                                                 <TableCell>Product Name</TableCell>
                                                 <TableCell align="left">Remaining Stock</TableCell>
                                                 <TableCell align="left">Last StockedIn</TableCell>
@@ -1125,7 +1133,7 @@ function ProductListTable() {
                         <div className='col-span-6'>
                             <TextField
                                 onBlur={(e) => {
-                                    if (e.target.value.length < 2) {
+                                    if (!e.target.value.length || e.target.value.length < 2) {
                                         setFormDataError((perv) => ({
                                             ...perv,
                                             productName: true
@@ -1139,7 +1147,7 @@ function ProductListTable() {
                                     }
                                 }}
                                 onChange={onChange}
-                                value={formData.productName}
+                                value={formData.productName ? formData.productName : ''}
                                 error={formDataError.productName}
                                 helperText={formDataError.productName ? "Please Enter Product Name" : ''}
                                 name="productName"
@@ -1153,7 +1161,7 @@ function ProductListTable() {
                         <div className='col-span-3'>
                             <TextField
                                 onBlur={(e) => {
-                                    if (e.target.value < 1) {
+                                    if (!e.target.value.length || e.target.value < 1) {
                                         setFormDataError((perv) => ({
                                             ...perv,
                                             minProductQty: true
@@ -1168,7 +1176,7 @@ function ProductListTable() {
                                 }}
                                 type='number'
                                 onChange={onChange}
-                                value={formData.minProductQty}
+                                value={formData.minProductQty ? formData.minProductQty : ''}
                                 error={formDataError.minProductQty}
                                 helperText={formDataError.minProductQty ? "Enter Quantity" : ''}
                                 name="minProductQty"
@@ -1185,12 +1193,12 @@ function ProductListTable() {
                                 <Select
                                     labelId="demo-simple-select-label"
                                     id="demo-simple-select"
-                                    value={formData.minProductUnit}
+                                    value={formData.minProductUnit ? formData.minProductUnit : ''}
                                     error={formDataError.minProductUnit}
                                     name="minProductUnit"
                                     label="Units"
                                     onBlur={(e) => {
-                                        if (e.target.value.length < 2) {
+                                        if (!e.target.value.length || e.target.value.length < 2) {
                                             setFormDataError((perv) => ({
                                                 ...perv,
                                                 minProductUnit: true

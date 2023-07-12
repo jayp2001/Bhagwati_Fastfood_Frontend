@@ -276,6 +276,13 @@ function ProductList() {
         });
         setIsEdit(false);
     }
+    const handleReset = () => {
+        setFormData({
+            stockOutCategoryName: '',
+            stockOutCategoryId: ''
+        });
+        setIsEdit(false);
+    }
     const handleCloseStockIn = () => {
         setStockInFormData({
             productId: "",
@@ -395,7 +402,7 @@ function ProductList() {
                 getData();
                 setTab(null)
                 getCountData();
-                handleClose();
+                handleReset();
             })
             .catch((error) => {
                 setError(error.response.data);
@@ -672,8 +679,9 @@ function ProductList() {
                     <div className='mt-6 grid grid-cols-12 gap-6'>
                         <div className='col-span-6'>
                             <TextField
+                                inputProps={{ autoFocus: true }}
                                 onBlur={(e) => {
-                                    if (e.target.value.length < 2) {
+                                    if (!e.target.value.length || e.target.value.length < 2) {
                                         setFormDataError((perv) => ({
                                             ...perv,
                                             productName: true
@@ -687,7 +695,7 @@ function ProductList() {
                                     }
                                 }}
                                 onChange={onChange}
-                                value={formData.productName}
+                                value={formData.productName ? formData.productName : ''}
                                 error={formDataError.productName}
                                 helperText={formDataError.productName ? "Please Enter Product Name" : ''}
                                 name="productName"
@@ -701,7 +709,7 @@ function ProductList() {
                         <div className='col-span-3'>
                             <TextField
                                 onBlur={(e) => {
-                                    if (e.target.value < 1) {
+                                    if (!e.target.value.length || e.target.value < 1) {
                                         setFormDataError((perv) => ({
                                             ...perv,
                                             minProductQty: true
@@ -716,7 +724,7 @@ function ProductList() {
                                 }}
                                 type='number'
                                 onChange={onChange}
-                                value={formData.minProductQty}
+                                value={formData.minProductQty ? formData.minProductQty : 0}
                                 error={formDataError.minProductQty}
                                 helperText={formDataError.minProductQty ? "Enter Quantity" : ''}
                                 name="minProductQty"
@@ -738,7 +746,7 @@ function ProductList() {
                                     name="minProductUnit"
                                     label="Units"
                                     onBlur={(e) => {
-                                        if (e.target.value.length < 2) {
+                                        if (!e.target.value.length || e.target.value.length < 2) {
                                             setFormDataError((perv) => ({
                                                 ...perv,
                                                 minProductUnit: true
