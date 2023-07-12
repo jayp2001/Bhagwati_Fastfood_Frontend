@@ -22,7 +22,7 @@ import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
-
+import SearchIcon from '@mui/icons-material/Search';
 const style = {
     position: 'absolute',
     top: '50%',
@@ -149,6 +149,8 @@ function ProductList() {
     const [error, setError] = React.useState(false);
     const [success, setSuccess] = React.useState(false);
     const [data, setData] = React.useState();
+    const [dataSearch, setDataSearch] = React.useState();
+    const [searchWord, setSearchWord] = React.useState();
     const [suppiler, setSuppilerList] = React.useState();
     const [categories, setCategories] = React.useState();
     const [countData, setCountData] = React.useState();
@@ -175,6 +177,14 @@ function ProductList() {
             ...prevState,
             [e.target.name]: e.target.value,
         }))
+    }
+    const onSearchChange = (e) => {
+        setSearchWord(e.target.value);
+        const filteredData = data.filter((item) => {
+            return item.productName.toLowerCase().includes(e.target.value.toLowerCase())
+        })
+        setDataSearch(filteredData);
+        console.log("search", filteredData);
     }
     const onChangeStockIn = (e) => {
         if (e.target.name === 'productPrice' && stockInFormData.productQty > 0) {
@@ -583,16 +593,16 @@ function ProductList() {
                         <div className='h-full grid grid-cols-12'>
                             <div className='h-full mobile:col-span-10  tablet1:col-span-10  tablet:col-span-7  laptop:col-span-7  desktop1:col-span-7  desktop2:col-span-7  desktop2:col-span-7 '>
                                 <div className='grid grid-cols-12 pl-6 gap-3 h-full'>
-                                    <div className={`flex col-span-3 justify-center ${tab === null || tab === '' || !tab ? 'productTabAll' : 'productTab'}`} onClick={() => setTab(null)}>
+                                    <div className={`flex col-span-3 justify-center ${tab === null || tab === '' || !tab ? 'productTabAll' : 'productTab'}`} onClick={() => { setTab(null); setSearchWord(''); setDataSearch([]) }}>
                                         <div className='statusTabtext'>All</div> &nbsp;&nbsp; <div className={`ProductCount ${tab === null || tab === '' || !tab ? 'blueCount' : ''}`}>{countData && countData.allProduct ? countData.allProduct : 0}</div>
                                     </div>
-                                    <div className={`flex col-span-3 justify-center ${tab === 1 || tab === '1' ? 'productTabIn' : 'productTab'}`} onClick={() => setTab(1)}>
+                                    <div className={`flex col-span-3 justify-center ${tab === 1 || tab === '1' ? 'productTabIn' : 'productTab'}`} onClick={() => { setTab(1); setSearchWord(''); setDataSearch([]) }}>
                                         <div className='statusTabtext'>In-Stock</div> &nbsp;&nbsp; <div className={`ProductCount ${tab === 1 || tab === '1' ? 'greenCount' : ''}`}>{countData && countData.instockProduct ? countData.instockProduct : 0}</div>
                                     </div>
-                                    <div className={`flex col-span-3 justify-center ${tab === 2 || tab === '2' ? 'productTabUnder' : 'productTab'}`} onClick={() => setTab(2)}>
+                                    <div className={`flex col-span-3 justify-center ${tab === 2 || tab === '2' ? 'productTabUnder' : 'productTab'}`} onClick={() => { setTab(2); setSearchWord(''); setDataSearch([]) }}>
                                         <div className='statusTabtext'>Low-Stock</div> &nbsp;&nbsp; <div className={`ProductCount ${tab === 2 || tab === '2' ? 'orangeCount' : ''}`}>{countData && countData.underStockedProduct ? countData.underStockedProduct : 0}</div>
                                     </div>
-                                    <div className={`flex col-span-3 justify-center ${tab === 3 || tab === '3' ? 'productTabOut' : 'productTab'}`} onClick={() => setTab(3)}>
+                                    <div className={`flex col-span-3 justify-center ${tab === 3 || tab === '3' ? 'productTabOut' : 'productTab'}`} onClick={() => { setTab(3); setSearchWord(''); setDataSearch([]) }}>
                                         <div className='statusTabtext'>Out-Stock</div> &nbsp;&nbsp; <div className={`ProductCount ${tab === 3 || tab === '3' ? 'redCount' : ''}`}>{countData && countData.outOfStock ? countData.outOfStock : 0}</div>
                                     </div>
                                 </div>
@@ -607,17 +617,46 @@ function ProductList() {
                     </div>
                 </div>
             </div>
+            <div className='grid grid-cols-12 mt-8'>
+                <div className='col-span-2'>
+                    <TextField
+                        onChange={onSearchChange}
+                        value={searchWord}
+                        name="searchWord"
+                        id="standard-basic"
+                        variant="standard"
+                        label="Search"
+                        InputProps={{
+                            endAdornment: <InputAdornment position="end"><SearchIcon /></InputAdornment>,
+                            style: { fontSize: 14 }
+                        }}
+                        InputLabelProps={{ style: { fontSize: 14 } }}
+                        fullWidth
+                    />
+                </div>
+            </div>
             <div className='productCardContainer mt-8 gap-6 grid mobile:grid-cols-2 tablet1:grid-cols-3 tablet:grid-cols-4 laptop:grid-cols-5 desktop1:grid-cols-6 desktop2:grid-cols-7 desktop2:grid-cols-8'>
                 {
-                    data ? data.map((product) => (
-                        <ProductCard productData={product} handleViewDetail={handleViewDetail} handleOpenStockOut={handleOpenStockOut} handleOpenStockIn={handleOpenStockIn} handleDeleteProduct={handleDeleteProduct} handleEditClick={handleEditClick} />
-                    ))
-                        :
-                        <div className='grid col-span-5 content-center'>
-                            <div className='text-center noDataFoundText'>
-                                {error ? error : 'No Data Found'}
+                    searchWord && searchWord.length > 0 ?
+                        dataSearch && dataSearch[0] ? dataSearch.map((product) => (
+                            <ProductCard productData={product} handleViewDetail={handleViewDetail} handleOpenStockOut={handleOpenStockOut} handleOpenStockIn={handleOpenStockIn} handleDeleteProduct={handleDeleteProduct} handleEditClick={handleEditClick} />
+                        ))
+                            :
+                            <div className='grid col-span-5 content-center'>
+                                <div className='text-center noDataFoundText'>
+                                    {error ? error : 'No Data Found'}
+                                </div>
                             </div>
-                        </div>
+                        :
+                        data ? data.map((product) => (
+                            <ProductCard productData={product} handleViewDetail={handleViewDetail} handleOpenStockOut={handleOpenStockOut} handleOpenStockIn={handleOpenStockIn} handleDeleteProduct={handleDeleteProduct} handleEditClick={handleEditClick} />
+                        ))
+                            :
+                            <div className='grid col-span-5 content-center'>
+                                <div className='text-center noDataFoundText'>
+                                    {error ? error : 'No Data Found'}
+                                </div>
+                            </div>
                 }
             </div>
             <Modal

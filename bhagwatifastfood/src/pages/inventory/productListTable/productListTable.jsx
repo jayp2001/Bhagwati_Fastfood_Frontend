@@ -39,7 +39,7 @@ import Popover from '@mui/material/Popover';
 import Tooltip from '@mui/material/Tooltip';
 import Menutemp from './menu';
 import { ToastContainer, toast } from 'react-toastify';
-
+import SearchIcon from '@mui/icons-material/Search';
 const style = {
     position: 'absolute',
     top: '50%',
@@ -91,7 +91,7 @@ function ProductListTable() {
             key: 'selection'
         }
     ]);
-
+    const [searchWord, setSearchWord] = React.useState('');
     const [filter, setFilter] = React.useState(false);
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);
@@ -383,7 +383,7 @@ function ProductListTable() {
             })
     }
     const getAllDataByFilter = async () => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getProductDetailsTable?startDate=${state[0].startDate}&endDate=${state[0].endDate}&productStatus=${tab}&page=${1}&numPerPage=${10}`, config)
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getProductDetailsTable?startDate=${state[0].startDate}&endDate=${state[0].endDate}&productStatus=${tab}&page=${1}&numPerPage=${10}&searchProduct=${searchWord}`, config)
             .then((res) => {
                 setAllData(res.data.rows);
                 setTotalRows(res.data.numRows)
@@ -571,7 +571,9 @@ function ProductListTable() {
             addProduct()
         }
     }
-
+    const onSearchChange = (e) => {
+        setSearchWord(e.target.value);
+    }
 
     const submitStockIn = () => {
         const isValidate = stockInErrorFields.filter(element => {
@@ -650,7 +652,7 @@ function ProductListTable() {
             })
     }
     const getAllDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getProductDetailsTable?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${pageNum}&numPerPage=${rowPerPageNum}&productStatus=${tab}`, config)
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getProductDetailsTable?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${pageNum}&numPerPage=${rowPerPageNum}&productStatus=${tab}&searchProduct=${searchWord}`, config)
             .then((res) => {
                 setAllData(res.data.rows);
                 setTotalRows(res.data.numRows);
@@ -756,6 +758,38 @@ function ProductListTable() {
         });
         setError(false);
     }
+    const search = async (searchWord) => {
+        await axios.get(filter ? `${BACKEND_BASE_URL}inventoryrouter/getProductDetailsTable?startDate=${state[0].startDate}&endDate=${state[0].endDate}&productStatus=${tab}&page=${1}&numPerPage=${10}&searchProduct=${searchWord}` : `${BACKEND_BASE_URL}inventoryrouter/getProductDetailsTable?productStatus=${tab}&page=${1}&numPerPage=${10}&searchProduct=${searchWord}`, config)
+            .then((res) => {
+                setAllData(res.data.rows);
+                setTotalRows(res.data.numRows)
+            })
+            .catch((error) => {
+                setError(error.response.data);
+                setAllData(null)
+            })
+    }
+
+    const debounce = (func) => {
+        let timer;
+        return function (...args) {
+            const context = this;
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(() => {
+                timer = null;
+                func.apply(context, args)
+            }, 700)
+        }
+
+    }
+
+    const handleSearch = () => {
+        console.log(':::???:::', document.getElementById('searchWord').value)
+        search(document.getElementById('searchWord').value)
+    }
+
+    const debounceFunction = React.useCallback(debounce(handleSearch), [])
+
     return (
         <div className='productListContainer'>
             <div className='grid grid-cols-12'>
@@ -768,6 +802,7 @@ function ProductListTable() {
                                         setTab('');
                                         setPage(0);
                                         setRowsPerPage(10);
+                                        setSearchWord('')
                                         setFilter(false);
                                         getAllDataByTab('');
                                         setState([
@@ -778,13 +813,14 @@ function ProductListTable() {
                                             }
                                         ])
                                     }}>
-                                        <div className='statusTabtext'>All</div> &nbsp;&nbsp; <div className={`ProductCount ${tab === null || tab === '' || !tab ? 'blueCount' : ''}`}>{countData && countData.allProduct ? countData.allProduct : 0}</div>
+                                        <div className='statusTabtext'>All</div> &nbsp;&nbsp; <div className={`ProductCount ${tab === null || tab === '' || !tab ? 'blueCount' : ''} `}>{countData && countData.allProduct ? countData.allProduct : 0}</div>
                                     </div>
-                                    <div className={`flex col-span-3 justify-center ${tab === 1 || tab === '1' ? 'productTabIn' : 'productTab'}`} onClick={() => {
+                                    <div className={`flex col-span-3 justify-center ${tab === 1 || tab === '1' ? 'productTabIn' : 'productTab'} `} onClick={() => {
                                         setTab(1);
                                         setFilter(false);
                                         setPage(0);
                                         setRowsPerPage(10);
+                                        setSearchWord('')
                                         getAllDataByTab(1);
                                         setState([
                                             {
@@ -794,13 +830,14 @@ function ProductListTable() {
                                             }
                                         ])
                                     }}>
-                                        <div className='statusTabtext'>In-Stock</div> &nbsp;&nbsp; <div className={`ProductCount ${tab === 1 || tab === '1' ? 'greenCount' : ''}`}>{countData && countData.instockProduct ? countData.instockProduct : 0}</div>
+                                        <div className='statusTabtext'>In-Stock</div> &nbsp;&nbsp; <div className={`ProductCount ${tab === 1 || tab === '1' ? 'greenCount' : ''} `}>{countData && countData.instockProduct ? countData.instockProduct : 0}</div>
                                     </div>
-                                    <div className={`flex col-span-3 justify-center ${tab === 2 || tab === '2' ? 'productTabUnder' : 'productTab'}`} onClick={() => {
+                                    <div className={`flex col-span-3 justify-center ${tab === 2 || tab === '2' ? 'productTabUnder' : 'productTab'} `} onClick={() => {
                                         setTab(2);
                                         setFilter(false);
                                         setPage(0);
                                         setRowsPerPage(10);
+                                        setSearchWord('')
                                         getAllDataByTab(2);
                                         setState([
                                             {
@@ -810,13 +847,14 @@ function ProductListTable() {
                                             }
                                         ])
                                     }}>
-                                        <div className='statusTabtext'>Low-Stock</div> &nbsp;&nbsp; <div className={`ProductCount ${tab === 2 || tab === '2' ? 'orangeCount' : ''}`}>{countData && countData.underStockedProduct ? countData.underStockedProduct : 0}</div>
+                                        <div className='statusTabtext'>Low-Stock</div> &nbsp;&nbsp; <div className={`ProductCount ${tab === 2 || tab === '2' ? 'orangeCount' : ''} `}>{countData && countData.underStockedProduct ? countData.underStockedProduct : 0}</div>
                                     </div>
-                                    <div className={`flex col-span-3 justify-center ${tab === 3 || tab === '3' ? 'productTabOut' : 'productTab'}`} onClick={() => {
+                                    <div className={`flex col-span-3 justify-center ${tab === 3 || tab === '3' ? 'productTabOut' : 'productTab'} `} onClick={() => {
                                         setTab(3);
                                         setFilter(false);
                                         setPage(0);
                                         setRowsPerPage(10);
+                                        setSearchWord('')
                                         getAllDataByTab(3);
                                         setState([
                                             {
@@ -826,7 +864,7 @@ function ProductListTable() {
                                             }
                                         ])
                                     }}>
-                                        <div className='statusTabtext'>Out-Stock</div> &nbsp;&nbsp; <div className={`ProductCount ${tab === 3 || tab === '3' ? 'redCount' : ''}`}>{countData && countData.outOfStock ? countData.outOfStock : 0}</div>
+                                        <div className='statusTabtext'>Out-Stock</div> &nbsp;&nbsp; <div className={`ProductCount ${tab === 3 || tab === '3' ? 'redCount' : ''} `}>{countData && countData.outOfStock ? countData.outOfStock : 0}</div>
                                     </div>
                                 </div>
                             </div>
@@ -857,7 +895,7 @@ function ProductListTable() {
                 <div className='col-span-12'>
                     <div className='userTableSubContainer'>
                         <div className='grid grid-cols-12 pt-6'>
-                            <div className='ml-6 col-span-6' >
+                            <div className='ml-6 col-span-5' >
                                 {tab === 1 || tab === '1' || tab === 2 || tab === '2' || tab === 3 || tab === '3' ? null
                                     :
                                     <div className='flex'>
@@ -865,9 +903,10 @@ function ProductListTable() {
                                             <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0] && state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0] && state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
                                         </div>
                                         <div className='resetBtnWrap col-span-3'>
-                                            <button className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`} onClick={() => {
+                                            <button className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'} `} onClick={() => {
                                                 setFilter(false);
                                                 setPage(0);
+                                                setSearchWord('')
                                                 setRowsPerPage(10);
                                                 getAllDataByTab('');
                                                 setState([
@@ -913,7 +952,25 @@ function ProductListTable() {
                                     </Box>
                                 </Popover>
                             </div>
-                            <div className='col-span-6 col-start-7 pr-5 flex justify-end'>
+                            {tab === 1 || tab === '1' || tab === 2 || tab === '2' || tab === 3 || tab === '3' ? null :
+                                <div className='col-span-3'>
+                                    <TextField
+                                        className='sarchText'
+                                        onChange={(e) => { onSearchChange(e); debounceFunction() }}
+                                        value={searchWord}
+                                        name="searchWord"
+                                        id="searchWord"
+                                        variant="standard"
+                                        label="Search"
+                                        InputProps={{
+                                            endAdornment: <InputAdornment position="end"><SearchIcon /></InputAdornment>,
+                                            style: { fontSize: 14 }
+                                        }}
+                                        InputLabelProps={{ style: { fontSize: 14 } }}
+                                        fullWidth
+                                    />
+                                </div>}
+                            <div className='col-span-4 col-start-9 pr-5 flex justify-end'>
                                 {tab === 1 || tab === '1' || tab === 2 || tab === '2' || tab === 3 || tab === '3' ? null : <button className='exportExcelBtn' onClick={productExportExcel}><FileDownloadIcon />&nbsp;&nbsp;Export Excle</button>}
                             </div>
                         </div>
@@ -1458,13 +1515,14 @@ function ProductListTable() {
                                 onChange={onChangeStockOut}
                                 value={stockOutFormData.productQty}
                                 error={stockOutFormDataError.productQty}
-                                helperText={stockOutFormData.productName && !stockOutFormDataError.productQty ? `Remain Stock  ${stockOutFormData.remainingStock}  ${stockOutFormData.productUnit}` : stockOutFormDataError.productQty ? stockOutFormDataError.productQty && stockOutFormData.productQty > stockOutFormData.remainingStock ? `StockOut qty can't be more than ${stockOutFormData.remainingStock}  ${stockOutFormData.productUnit}` : "Please Enter Qty" : ''}
+                                helperText={stockOutFormData.productName && !stockOutFormDataError.productQty ? `Remain Stock  ${stockOutFormData.remainingStock}  ${stockOutFormData.productUnit} ` : stockOutFormDataError.productQty ? stockOutFormDataError.productQty && stockOutFormData.productQty > stockOutFormData.remainingStock ? `StockOut qty can't be more than ${stockOutFormData.remainingStock}  ${stockOutFormData.productUnit}` : "Please Enter Qty" : ''}
                                 name="productQty"
                                 InputProps={{
                                     endAdornment: <InputAdornment position="end">{stockOutFormData.productUnit}</InputAdornment>,
-                                }}
+                                }
+                                }
                             />
-                        </div>
+                        </div >
                         <div className='col-span-3'>
                             <FormControl style={{ minWidth: '100%', maxWidth: '100%' }}>
                                 <InputLabel id="demo-simple-select-label" required error={stockOutFormDataError.stockOutCategory}>Category</InputLabel>
@@ -1517,7 +1575,7 @@ function ProductListTable() {
                                 />
                             </LocalizationProvider>
                         </div>
-                    </div>
+                    </div >
                     <div className='mt-4 grid grid-cols-12 gap-6'>
                         <div className='col-span-12'>
                             <TextField
@@ -1544,8 +1602,8 @@ function ProductListTable() {
                             }}>Cancle</button>
                         </div>
                     </div>
-                </Box>
-            </Modal>
+                </Box >
+            </Modal >
             <ToastContainer />
         </div >
     )

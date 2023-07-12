@@ -20,6 +20,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
+import SearchIcon from '@mui/icons-material/Search';
 
 const styleStockIn = {
     position: 'absolute',
@@ -37,6 +38,7 @@ const styleStockIn = {
 };
 
 function SuppilerTable() {
+    const [searchWord, setSearchWord] = React.useState('');
     const navigate = useNavigate();
     const [page, setPage] = React.useState(0);
     const [open, setOpen] = React.useState(false);
@@ -135,7 +137,7 @@ function SuppilerTable() {
     }
     const getDataOnPageChange = async (pageNum, rowPerPageNum) => {
         console.log("page get", page, rowsPerPage)
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getSupplierdata?page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getSupplierdata?page=${pageNum}&numPerPage=${rowPerPageNum}&searchWord=${searchWord}`, config)
             .then((res) => {
                 setData(res.data.rows);
                 setTotalRows(res.data.numRows);
@@ -252,7 +254,38 @@ function SuppilerTable() {
         });
         setError(false);
     }
+    const search = async (searchWord) => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getSupplierdata?page=${1}&numPerPage=${5}&searchWord=${searchWord}`, config)
+            .then((res) => {
+                setData(res.data.rows);
+                setTotalRows(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response.data)
+            })
+    }
+    const onSearchChange = (e) => {
+        setSearchWord(e.target.value);
+    }
+    const debounce = (func) => {
+        let timer;
+        return function (...args) {
+            const context = this;
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(() => {
+                timer = null;
+                func.apply(context, args)
+            }, 700)
+        }
 
+    }
+
+    const handleSearch = () => {
+        console.log(':::???:::', document.getElementById('searchWord').value)
+        search(document.getElementById('searchWord').value)
+    }
+
+    const debounceFunction = React.useCallback(debounce(handleSearch), [])
     return (
         <div className='suppilerListContainer'>
             <div className='grid grid-cols-12 userTableContainer'>
@@ -263,6 +296,28 @@ function SuppilerTable() {
                                 <div>
                                     Suppiler List
                                 </div>
+                            </div>
+                        </div>
+                        <div className='grid grid-cols-12'>
+                            <div className='col-span-3 col-start-1 pl-8'>
+                                <TextField
+                                    className='sarchText'
+                                    onChange={(e) => { onSearchChange(e); debounceFunction() }}
+                                    value={searchWord}
+                                    name="searchWord"
+                                    id="searchWord"
+                                    variant="standard"
+                                    label="Search"
+                                    InputProps={{
+                                        endAdornment: <InputAdornment position="end"><SearchIcon /></InputAdornment>,
+                                        style: { fontSize: 14 }
+                                    }}
+                                    InputLabelProps={{ style: { fontSize: 14 } }}
+                                    fullWidth
+                                />
+                            </div>
+                            <div className='col-span-4 col-start-9 pr-8 flex justify-end'>
+                                <button className='exportExcelBtn' onClick={() => { navigate(`/addSuppiler`) }}>Add Suppiler</button>
                             </div>
                         </div>
                         <div className='tableContainerWrapper'>
@@ -291,7 +346,7 @@ function SuppilerTable() {
                                                 >
                                                     <TableCell align="left" onClick={() => handleSuppilerOnClick(row.supplierId)} >{(index + 1) + (page * rowsPerPage)}</TableCell>
                                                     <TableCell onClick={() => handleSuppilerOnClick(row.supplierId)} component="th" scope="row">
-                                                        {row.supplierName}
+                                                        {row.supplierNickName}
                                                     </TableCell>
                                                     <TableCell onClick={() => handleSuppilerOnClick(row.supplierId)} align="left" >{row.supplierFirmName}</TableCell>
                                                     <TableCell onClick={() => handleSuppilerOnClick(row.supplierId)} align="left" >{row.productList}</TableCell>

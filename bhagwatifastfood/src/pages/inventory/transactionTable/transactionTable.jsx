@@ -43,8 +43,10 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import CountCard from '../countCard/countCard';
 import Menutemp from './menu';
 import { ToastContainer, toast } from 'react-toastify';
+import SearchIcon from '@mui/icons-material/Search';
 function TransactionTable() {
     const [tab, setTab] = React.useState(2);
+    const [searchWord, setSearchWord] = React.useState('');
     const [loading, setLoading] = React.useState(false);
     const [error, setError] = React.useState(false);
     const [success, setSuccess] = React.useState(false);
@@ -95,7 +97,7 @@ function TransactionTable() {
     }
 
     const getDebitDataOnPageChange = async (pageNum, rowPerPageNum) => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getDebitTransactionList?page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getDebitTransactionList?page=${pageNum}&numPerPage=${rowPerPageNum}&searchInvoiceNumber=${searchWord}`, config)
             .then((res) => {
                 setDebitTransaction(res.data.rows);
                 setTotalRows(res.data.numRows);
@@ -382,6 +384,45 @@ function TransactionTable() {
         setError(false);
     }
 
+    const search = async (searchWord) => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getDebitTransactionList?&page=${page + 1}&numPerPage=${rowsPerPage}&searchInvoiceNumber=${searchWord}`, config)
+            .then((res) => {
+                setDebitTransaction(res.data.rows);
+                setTotalRows(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response.data)
+            })
+    }
+    const onSearchChange = (e) => {
+        setFilter(false)
+        setState([
+            {
+                startDate: new Date(),
+                endDate: new Date(),
+                key: 'selection'
+            }
+        ])
+        setSearchWord(e.target.value);
+    }
+    const debounce = (func) => {
+        let timer;
+        return function (...args) {
+            const context = this;
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(() => {
+                timer = null;
+                func.apply(context, args)
+            }, 700)
+        }
+
+    }
+
+    const handleSearch = () => {
+        console.log(':::???:::', document.getElementById('searchWord').value)
+        search(document.getElementById('searchWord').value)
+    }
+    const debounceFunction = React.useCallback(debounce(handleSearch), [])
     useEffect(() => {
         // getCategoryList();
         // getProductList();
@@ -412,7 +453,7 @@ function TransactionTable() {
                                     </div> */}
                                     <div className={`flex col-span-3 justify-center ${tab === 2 || tab === '2' ? 'productTabAll' : 'productTab'}`}
                                         onClick={() => {
-                                            setTab(2); setPage(0); setRowsPerPage(5); getDebitData(); getDebitCounts(); setFilter(false);
+                                            setTab(2); setSearchWord(''); setPage(0); setRowsPerPage(5); getDebitData(); getDebitCounts(); setFilter(false);
                                             setState([
                                                 {
                                                     startDate: new Date(),
@@ -424,7 +465,7 @@ function TransactionTable() {
                                         <div className='statusTabtext'>Debit</div>
                                     </div>
                                     <div className={`flex col-span-3 justify-center ${tab === 3 || tab === '3' ? 'productTabIn' : 'productTab'}`} onClick={() => {
-                                        setTab(3); setPage(0); setRowsPerPage(5); getCashData(); setFilter(false); getCashCounts();
+                                        setTab(3); setSearchWord(''); setPage(0); setRowsPerPage(5); getCashData(); setFilter(false); getCashCounts();
                                         setState([
                                             {
                                                 startDate: new Date(),
@@ -483,6 +524,7 @@ function TransactionTable() {
                                                 <button className='stockInBtn' onClick={() => {
                                                     tab === 2 || tab === '2' ? getDebitDataByFilter() : getCashDataByFilter();
                                                     tab === 2 || tab === '2' ? getDebitCountsByFilter() : getCashCountsByFilter();
+                                                    setSearchWord('');
                                                     setFilter(true); setPage(0); handleClose()
                                                 }}>Apply</button>
                                             </div>
@@ -516,6 +558,26 @@ function TransactionTable() {
                 <div className='col-span-12'>
                     <div className='userTableSubContainer'>
                         <div className='grid grid-cols-12 pt-6'>
+                            {tab === 2 || tab === '2' ?
+                                <div className='col-span-3 pl-8'>
+                                    <TextField
+                                        className='sarchText'
+                                        onChange={(e) => { onSearchChange(e); debounceFunction() }}
+                                        value={searchWord}
+                                        name="searchWord"
+                                        id="searchWord"
+                                        variant="standard"
+                                        label="Search"
+                                        InputProps={{
+                                            endAdornment: <InputAdornment position="end"><SearchIcon /></InputAdornment>,
+                                            style: { fontSize: 14 }
+                                        }}
+                                        InputLabelProps={{ style: { fontSize: 14 } }}
+                                        fullWidth
+                                    />
+                                </div>
+                                :
+                                null}
                             <div className='col-span-6 col-start-7 pr-5 flex justify-end'>
                                 <button className='exportExcelBtn' onClick={() => { tab === 1 || tab === '1' ? debitExportExcel() : CashExportExcel() }}><FileDownloadIcon />&nbsp;&nbsp;Export Excle</button>
                             </div>
@@ -527,6 +589,7 @@ function TransactionTable() {
                                         <TableHead>
                                             <TableRow>
                                                 <TableCell>No.</TableCell>
+                                                <TableCell>Invoice No.</TableCell>
                                                 <TableCell>Paid By</TableCell>
                                                 <TableCell align="left">Suppiler Name</TableCell>
                                                 <TableCell align="left">Received By</TableCell>
@@ -549,6 +612,7 @@ function TransactionTable() {
                                                         className='tableRow'
                                                     >
                                                         <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
+                                                        <TableCell align="left" >{row.invoiceNumber}</TableCell>
                                                         <TableCell component="th" scope="row">
                                                             {row.paidBy}
                                                         </TableCell>
