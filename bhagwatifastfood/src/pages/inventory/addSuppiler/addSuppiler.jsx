@@ -254,6 +254,7 @@ function AddSuppiler() {
                                 <div className='grid grid-cols-12 gap-6'>
                                     <div className="col-span-4">
                                         <TextField
+                                            inputProps={{ autoFocus: true }}
                                             onChange={onChange}
                                             value={formData.supplierFirstName}
                                             error={formDataError.supplierFirstName}

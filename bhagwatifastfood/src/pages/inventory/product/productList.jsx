@@ -679,7 +679,6 @@ function ProductList() {
                     <div className='mt-6 grid grid-cols-12 gap-6'>
                         <div className='col-span-6'>
                             <TextField
-                                inputProps={{ autoFocus: true }}
                                 onBlur={(e) => {
                                     if (!e.target.value.length || e.target.value.length < 2) {
                                         setFormDataError((perv) => ({
