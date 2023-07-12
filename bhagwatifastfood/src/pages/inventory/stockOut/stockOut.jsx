@@ -438,8 +438,8 @@ function StockOut() {
                     </AccordionSummary>
                     <AccordionDetails>
                         <div className='stockInOutContainer'>
-                            <div className='mt-6 grid grid-cols-12 gap-6'>
-                                <div className='col-span-3'>
+                            <div className='mt-6 grid grid-cols-1 gap-6'>
+                                <div className=''>
                                     {!isEdit ?
                                         <FormControl fullWidth>
                                             <Autocomplete
@@ -464,7 +464,7 @@ function StockOut() {
                                         />
                                     }
                                 </div>
-                                <div className='col-span-3'>
+                                <div className=''>
                                     <TextField
                                         onBlur={(e) => {
                                             if (e.target.value < 1 || e.target.value > stockOutFormData?.remainingStock) {
@@ -494,7 +494,7 @@ function StockOut() {
                                         }}
                                     />
                                 </div>
-                                <div className='col-span-3'>
+                                <div className=''>
                                     <FormControl style={{ minWidth: '100%', maxWidth: '100%' }}>
                                         <InputLabel id="demo-simple-select-label" required error={stockOutFormDataError.stockOutCategory}>Category</InputLabel>
                                         <Select
@@ -529,24 +529,25 @@ function StockOut() {
                                         </Select>
                                     </FormControl>
                                 </div>
-                                <div className='col-span-3'>
+                                <div className=''>
                                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                                         <DesktopDatePicker
-                                            textFieldStyle={{ width: '100%' }}
+                                            sx={{ width: '100%' }}
                                             InputProps={{ style: { fontSize: 14, width: '100%' } }}
                                             InputLabelProps={{ style: { fontSize: 14 } }}
                                             label="Stock In Date"
                                             format="DD/MM/YYYY"
                                             required
+                                            fullWidth
                                             error={stockOutFormDataError.stockOutDate}
                                             value={stockOutFormData.stockOutDate}
                                             onChange={handleStockOutDate}
                                             name="stockOutDate"
-                                            renderInput={(params) => <TextField {...params} sx={{ width: '100%' }} />}
+                                            renderInput={(params) => <TextField {...params} fullWidth sx={{ width: '100%' }} />}
                                         />
                                     </LocalizationProvider>
                                 </div>
-                                <div className='col-span-6'>
+                                <div className=''>
                                     <TextField
                                         onChange={onChangeStockOut}
                                         value={stockOutFormData.stockOutComment}
@@ -559,7 +560,7 @@ function StockOut() {
                                     />
                                 </div>
                                 {isEdit &&
-                                    <div className='col-span-6'>
+                                    <div className=''>
                                         <TextField
                                             onBlur={(e) => {
                                                 if (e.target.value.length < 4) {
@@ -588,12 +589,12 @@ function StockOut() {
                                         />
                                     </div>}
 
-                                <div className='col-span-2 col-start-9'>
+                                <div className=''>
                                     <button className='addCategorySaveBtn' onClick={() => {
                                         isEdit ? editSubmitStockOut() : submitStockOut()
                                     }}>{isEdit ? "Save" : "Stock Out"}</button>
                                 </div>
-                                <div className='col-span-2'>
+                                <div className=''>
                                     <button className='addCategoryCancleBtn' onClick={() => {
                                         handleResetStockOut();
                                         setIsEdit(false);
