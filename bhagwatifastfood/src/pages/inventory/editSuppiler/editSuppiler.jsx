@@ -472,7 +472,8 @@ function EditSuppiler() {
                                             style={{ minWidth: '100%' }}
                                             limitTags={8}
                                             name='productName'
-                                            value={productName}
+                                            defaultValue={null}
+                                            value={productName ? productName : null}
                                             fullWidth
                                             id="checkboxes-tags-demo"
                                             options={productList ? productList : []}

@@ -420,10 +420,11 @@ function AddSuppiler() {
                                     <div className="col-span-12">
                                         <Autocomplete
                                             multiple
+                                            defaultValue={null}
                                             style={{ minWidth: '100%' }}
                                             limitTags={8}
                                             name='productName'
-                                            value={productName}
+                                            value={productName ? productName : null}
                                             fullWidth
                                             id="checkboxes-tags-demo"
                                             options={productList ? productList : []}

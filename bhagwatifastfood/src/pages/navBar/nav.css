@@ -1,4 +1,7 @@
 .navBar{
+    /* position: relative;
+    top: 0px !important;
+    left: 0px !important; */
     padding-top: 5px;
     padding-bottom: 5px;
     background: #fff;

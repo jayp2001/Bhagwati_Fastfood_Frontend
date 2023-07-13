@@ -447,9 +447,10 @@ function StockOut() {
                                             <Autocomplete
                                                 disablePortal
                                                 id='stockOut'
+                                                defaultValue={null}
                                                 disabled={isEdit}
                                                 sx={{ width: '100%' }}
-                                                value={stockOutFormData.productName}
+                                                value={stockOutFormData.productName ? stockOutFormData.productName : null}
                                                 onChange={handleProductNameAutoCompleteOut}
                                                 options={productList ? productList : []}
                                                 getOptionLabel={(options) => options.productName}

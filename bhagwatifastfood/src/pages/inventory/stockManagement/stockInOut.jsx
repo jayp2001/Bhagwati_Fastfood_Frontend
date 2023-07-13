@@ -1007,11 +1007,12 @@ function StockInOut() {
                                             {!isEdit ?
                                                 <FormControl fullWidth>
                                                     <Autocomplete
+                                                        defaultValue={null}
                                                         id='stockIn'
                                                         disablePortal
                                                         sx={{ width: '100%' }}
                                                         disabled={isEdit}
-                                                        value={stockInFormData.productName}
+                                                        value={stockInFormData.productName ? stockInFormData.productName : null}
                                                         onChange={handleProductNameAutoComplete}
                                                         options={productList ? productList : []}
                                                         getOptionLabel={(options) => options.productName}
@@ -1240,10 +1241,11 @@ function StockInOut() {
                                                 <FormControl fullWidth>
                                                     <Autocomplete
                                                         disablePortal
+                                                        defaultValue={null}
                                                         id='stockOut'
                                                         disabled={isEdit}
                                                         sx={{ width: '100%' }}
-                                                        value={stockOutFormData.productName}
+                                                        value={stockOutFormData.productName ? stockOutFormData.productName : null}
                                                         onChange={handleProductNameAutoCompleteOut}
                                                         options={productList ? productList : []}
                                                         getOptionLabel={(options) => options.productName}
