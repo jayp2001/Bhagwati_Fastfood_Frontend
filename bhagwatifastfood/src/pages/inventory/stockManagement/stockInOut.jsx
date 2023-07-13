@@ -486,6 +486,7 @@ function StockInOut() {
     const handleResetStockOut = () => {
         setStockOutFormData({
             productId: "",
+            productName: null,
             productQty: 0,
             productUnit: "",
             stockOutCategory: null,
@@ -495,6 +496,7 @@ function StockInOut() {
         })
         setStockOutFormDataError({
             productQty: false,
+            productName: false,
             productUnit: false,
             stockOutCategory: false,
             stockInDate: false
@@ -1299,7 +1301,7 @@ function StockInOut() {
                                                     name="stockOutCategory"
                                                     label="Category"
                                                     onBlur={(e) => {
-                                                        if (e.target.value.length < 2) {
+                                                        if (!e.target.value.length || e.target.value.length < 2) {
                                                             setStockOutFormDataError((perv) => ({
                                                                 ...perv,
                                                                 stockOutCategory: true
@@ -1391,7 +1393,9 @@ function StockInOut() {
                                             <button className='addCategoryCancleBtn' onClick={() => {
                                                 handleResetStockOut();
                                                 setIsEdit(false);
-                                                setExpanded(false);
+                                                {
+                                                    isEdit && setExpanded(false);
+                                                }
                                             }}>{isEdit ? "cancle" : "reset"}</button>
                                         </div>
                                     </div>
