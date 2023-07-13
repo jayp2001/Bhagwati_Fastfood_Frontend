@@ -1,7 +1,7 @@
 import './productList.css'
 import dayjs from 'dayjs';
 import { useState, useEffect } from "react";
-import React from "react";
+import React, { useRef } from 'react';
 import { BACKEND_BASE_URL } from '../../../url';
 import axios from 'axios';
 import ProductCard from './component/productCard/productCard';
@@ -64,6 +64,13 @@ const qtyUnit = [
     'Num'
 ]
 function ProductList() {
+    const textFieldRef = useRef(null);
+
+    const focus = () => {
+        if (textFieldRef.current) {
+            textFieldRef.current.focus();
+        }
+    };
     const navigate = useNavigate();
     const [formData, setFormData] = React.useState({
         productName: '',
@@ -403,6 +410,7 @@ function ProductList() {
                 setTab(null)
                 getCountData();
                 handleReset();
+                focus();
             })
             .catch((error) => {
                 setError(error.response.data);
@@ -696,6 +704,7 @@ function ProductList() {
                                 onChange={onChange}
                                 value={formData.productName ? formData.productName : ''}
                                 error={formDataError.productName}
+                                inputRef={textFieldRef}
                                 helperText={formDataError.productName ? "Please Enter Product Name" : ''}
                                 name="productName"
                                 id="outlined-required"

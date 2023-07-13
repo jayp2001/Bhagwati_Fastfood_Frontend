@@ -2,6 +2,7 @@ import './productListTable.css';
 import dayjs from 'dayjs';
 import { useState, useEffect } from "react";
 import React from "react";
+import { useRef } from 'react';
 import { BACKEND_BASE_URL } from '../../../url';
 import axios from 'axios';
 // import ProductCard from './component/productCard/productCard';
@@ -85,6 +86,13 @@ const qtyUnit = [
 
 
 function ProductListTable() {
+    const textFieldRef = useRef(null);
+
+    const focus = () => {
+        if (textFieldRef.current) {
+            textFieldRef.current.focus();
+        }
+    };
     const [state, setState] = useState([
         {
             startDate: new Date(),
@@ -483,6 +491,7 @@ function ProductListTable() {
                 setTab(null)
                 getCountData();
                 handleReset();
+                focus();
             })
             .catch((error) => {
                 setError(error.response.data);
@@ -493,6 +502,7 @@ function ProductListTable() {
         await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addStockInDetails`, stockInFormData, config)
             .then((res) => {
                 setSuccess(true);
+                setLoading(false);
                 setTab('')
                 setPage(0);
                 setRowsPerPage(10);
@@ -1149,6 +1159,7 @@ function ProductListTable() {
                                 onChange={onChange}
                                 value={formData.productName ? formData.productName : ''}
                                 error={formDataError.productName}
+                                inputRef={textFieldRef}
                                 helperText={formDataError.productName ? "Please Enter Product Name" : ''}
                                 name="productName"
                                 id="outlined-required"

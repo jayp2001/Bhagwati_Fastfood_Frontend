@@ -90,20 +90,20 @@ function LoginPage() {
         // }
     }, []);
     return (
-        <div className="grid grid-rows-1 h-screen">
+        <div className="grid grid-rows-1 tablet:h-screen tablet:pb-0 tablet:pt-0 tablet1:h-screen tablet1:pb-0  tablet1:pt-0 mobile:h-screen mobile:pb-20">
             <div className="grid grid-cols-12 h-full grid content-center">
-                <div className="col-span-6">
+                <div className="tablet:col-span-6 tablet1:col-span-6 mobile:col-span-12">
                     <div className='grid grid-cols-12'>
-                        <div className='col-span-8 col-start-3'>
-                            <div className="logo">
+                        <div className='tablet1:col-span-8 mobile:col-start-4 mobile:col-span-6 tablet1:col-start-3'>
+                            <div className="logoMobile">
                                 <img src={bhagwatiLogo} alt="bhagwati logo" />
                             </div>
                         </div>
                     </div>
                 </div>
-                <div className="col-span-6 h-full grid content-center">
+                <div className="tablet1:col-span-6 mobile:col-span-12 h-fit tablet1:pb-6  tablet1:pt-6 overflow-scroll grid content-center">
                     <div className="grid grid-cols-12">
-                        <div className="col-span-8 col-start-3">
+                        <div className="tablet1:col-span-8 mobile:col-span-10 mobile:col-start-2 tablet1:col-start-3">
                             <div className="loginCard">
                                 <div className='loginHeader'>
                                     Login
