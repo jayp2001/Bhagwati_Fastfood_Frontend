@@ -455,14 +455,14 @@ function StockInOut() {
             ['productName']: value,
             productId: value && value.productId ? value.productId : '',
             productUnit: value && value.productUnit ? value.productUnit : '',
-            remainingStock: value && value.remainingStock ? value.remainingStock : ''
+            remainingStock: value && value.remainingStock ? value.remainingStock : 0
         }))
         console.log('formddds', stockInFormData)
     }
     const handleResetStockIn = () => {
         setStockInFormData({
-            productId: "",
             productName: null,
+            productId: "",
             productQty: 0,
             productUnit: "",
             productPrice: 0,
@@ -476,6 +476,7 @@ function StockInOut() {
         setStockInFormDataError({
             productQty: false,
             productUnit: false,
+            productName: false,
             productPrice: false,
             totalPrice: false,
             supplierId: false,
@@ -955,7 +956,6 @@ function StockInOut() {
                                     </div>
                                     <div className={`flex col-span-3 justify-center ${tab === 2 || tab === '2' ? 'productTabOut' : 'productTab'}`} onClick={() => {
                                         setTab(2); setPage(0); setRowsPerPage(5); getStockOutData(); setFilter(false);
-                                        resetStockOutEdit();
                                         resetStockInEdit();
                                         setState([
                                             {
@@ -1301,7 +1301,7 @@ function StockInOut() {
                                                     name="stockOutCategory"
                                                     label="Category"
                                                     onBlur={(e) => {
-                                                        if (!e.target.value.length || e.target.value.length < 2) {
+                                                        if (!e.target.value.length) {
                                                             setStockOutFormDataError((perv) => ({
                                                                 ...perv,
                                                                 stockOutCategory: true
