@@ -772,7 +772,7 @@ function ProductList() {
                                     name="minProductUnit"
                                     label="Units"
                                     onBlur={(e) => {
-                                        if (!e.target.value.length) {
+                                        if (!e.target.value) {
                                             setFormDataError((perv) => ({
                                                 ...perv,
                                                 minProductUnit: true
@@ -960,7 +960,7 @@ function ProductList() {
                                     name="supplierId"
                                     label="Suppiler"
                                     onBlur={(e) => {
-                                        if (!e.target.value.length) {
+                                        if (!e.target.value) {
                                             setStockInFormDataError((perv) => ({
                                                 ...perv,
                                                 supplierId: true
@@ -995,7 +995,7 @@ function ProductList() {
                                     name="stockInPaymentMethod"
                                     label="Payment"
                                     onBlur={(e) => {
-                                        if (!e.target.value.length) {
+                                        if (!e.target.value) {
                                             setStockInFormDataError((perv) => ({
                                                 ...perv,
                                                 stockInPaymentMethod: true
@@ -1123,7 +1123,7 @@ function ProductList() {
                                     name="stockOutCategory"
                                     label="Category"
                                     onBlur={(e) => {
-                                        if (!e.target.value.length) {
+                                        if (!e.target.value) {
                                             setStockOutFormDataError((perv) => ({
                                                 ...perv,
                                                 stockOutCategory: true

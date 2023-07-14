@@ -68,6 +68,7 @@ function ProductDetails() {
     const [debitTransaction, setDebitTransaction] = React.useState();
     const [totalRowsOut, setTotalRowsOut] = React.useState(0);
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const regex = /^\d*(?:\.\d*)?$/;
     const config = {
         headers: {
             "Content-Type": "application/json",
@@ -1185,7 +1186,11 @@ function ProductDetails() {
                                                     }))
                                                 }
                                             }}
-                                            onChange={onChangeStockIn}
+                                            onChange={(e) => {
+                                                if ((regex.test(e.target.value) || e.target.value === '') && e.target.value.length < 11) {
+                                                    onChangeStockIn(e)
+                                                }
+                                            }}
                                             value={stockInFormData.productPrice === 'NaN' ? 0 : stockInFormData.productPrice}
                                             error={stockInFormDataError.productPrice}
                                             helperText={stockInFormDataError.productPrice ? "Enter Price" : ''}
@@ -1214,7 +1219,11 @@ function ProductDetails() {
                                                     }))
                                                 }
                                             }}
-                                            onChange={onChangeStockIn}
+                                            onChange={(e) => {
+                                                if ((regex.test(e.target.value) || e.target.value === '') && e.target.value.length < 11) {
+                                                    onChangeStockIn(e)
+                                                }
+                                            }}
                                             value={stockInFormData.totalPrice === 'NaN' ? 0 : stockInFormData.totalPrice}
                                             error={stockInFormDataError.totalPrice}
                                             helperText={stockInFormDataError.totalPrice ? "Total Price" : ''}
@@ -1249,7 +1258,7 @@ function ProductDetails() {
                                                 name="supplierId"
                                                 label="Suppiler"
                                                 onBlur={(e) => {
-                                                    if (!e.target.value.length) {
+                                                    if (!e.target.value) {
                                                         setStockInFormDataError((perv) => ({
                                                             ...perv,
                                                             supplierId: true
@@ -1284,7 +1293,7 @@ function ProductDetails() {
                                                 name="stockInPaymentMethod"
                                                 label="Payment"
                                                 onBlur={(e) => {
-                                                    if (!e.target.value.length) {
+                                                    if (!e.target.value) {
                                                         setStockInFormDataError((perv) => ({
                                                             ...perv,
                                                             stockInPaymentMethod: true
@@ -1390,7 +1399,7 @@ function ProductDetails() {
                                             }}
                                         />
                                     </div>
-                                    <div className='col-span-3'>
+                                    <div className='col-span-4'>
                                         <FormControl style={{ minWidth: '100%', maxWidth: '100%' }}>
                                             <InputLabel id="demo-simple-select-label" required error={stockOutFormDataError.stockOutCategory}>Category</InputLabel>
                                             <Select
@@ -1401,7 +1410,7 @@ function ProductDetails() {
                                                 name="stockOutCategory"
                                                 label="Category"
                                                 onBlur={(e) => {
-                                                    if (!e.target.value.length) {
+                                                    if (!e.target.value) {
                                                         setStockOutFormDataError((perv) => ({
                                                             ...perv,
                                                             stockOutCategory: true
@@ -1425,13 +1434,13 @@ function ProductDetails() {
                                             </Select>
                                         </FormControl>
                                     </div>
-                                    <div className='col-span-3'>
+                                    <div className='col-span-2'>
                                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                                             <DesktopDatePicker
                                                 textFieldStyle={{ width: '100%' }}
                                                 InputProps={{ style: { fontSize: 14, width: '100%' } }}
                                                 InputLabelProps={{ style: { fontSize: 14 } }}
-                                                label="Stock In Date"
+                                                label="Stock Out Date"
                                                 format="DD/MM/YYYY"
                                                 required
                                                 error={stockOutFormDataError.stockOutDate}

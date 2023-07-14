@@ -92,6 +92,20 @@ function ProductListTable() {
             textFieldRef.current.focus();
         }
     };
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'F10') {
+                handleOpen()
+                console.log('Enter key pressed');
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, []);
     const [state, setState] = useState([
         {
             startDate: new Date(),
@@ -1210,7 +1224,7 @@ function ProductListTable() {
                                     name="minProductUnit"
                                     label="Units"
                                     onBlur={(e) => {
-                                        if (!e.target.value.length) {
+                                        if (!e.target.value) {
                                             setFormDataError((perv) => ({
                                                 ...perv,
                                                 minProductUnit: true
@@ -1398,7 +1412,7 @@ function ProductListTable() {
                                     name="supplierId"
                                     label="Suppiler"
                                     onBlur={(e) => {
-                                        if (!e.target.value.length) {
+                                        if (!e.target.value) {
                                             setStockInFormDataError((perv) => ({
                                                 ...perv,
                                                 supplierId: true
@@ -1433,7 +1447,7 @@ function ProductListTable() {
                                     name="stockInPaymentMethod"
                                     label="Payment"
                                     onBlur={(e) => {
-                                        if (!e.target.value.length) {
+                                        if (!e.target.value) {
                                             setStockInFormDataError((perv) => ({
                                                 ...perv,
                                                 stockInPaymentMethod: true
@@ -1562,7 +1576,7 @@ function ProductListTable() {
                                     name="stockOutCategory"
                                     label="Category"
                                     onBlur={(e) => {
-                                        if (!e.target.value.length) {
+                                        if (!e.target.value) {
                                             setStockOutFormDataError((perv) => ({
                                                 ...perv,
                                                 stockOutCategory: true

@@ -1161,7 +1161,7 @@ function StockInOut() {
                                                     name="supplierId"
                                                     label="Suppiler"
                                                     onBlur={(e) => {
-                                                        if (!e.target.value.length) {
+                                                        if (!e.target.value) {
                                                             setStockInFormDataError((perv) => ({
                                                                 ...perv,
                                                                 supplierId: true
@@ -1196,7 +1196,7 @@ function StockInOut() {
                                                     name="stockInPaymentMethod"
                                                     label="Payment"
                                                     onBlur={(e) => {
-                                                        if (!e.target.value.length) {
+                                                        if (!e.target.value) {
                                                             setStockInFormDataError((perv) => ({
                                                                 ...perv,
                                                                 stockInPaymentMethod: true
@@ -1327,7 +1327,7 @@ function StockInOut() {
                                                     name="stockOutCategory"
                                                     label="Category"
                                                     onBlur={(e) => {
-                                                        if (!e.target.value.length) {
+                                                        if (!e.target.value) {
                                                             setStockOutFormDataError((perv) => ({
                                                                 ...perv,
                                                                 stockOutCategory: true

@@ -365,7 +365,7 @@ function EditUser() {
                                             <InputLabel id="demo-simple-select-label" required error={formDataError.userRights}>User Role</InputLabel>
                                             <Select
                                                 onBlur={(e) => {
-                                                    if (!e.target.value.length) {
+                                                    if (!e.target.value) {
                                                         setFormDataError((perv) => ({
                                                             ...perv,
                                                             userRights: true

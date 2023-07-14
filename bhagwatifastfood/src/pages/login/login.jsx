@@ -119,6 +119,7 @@ function LoginPage() {
                                         onChange={(e) => setUserName(e.target.value)}
                                         // onChange={onChange}
                                         value={userName}
+                                        autoComplete='off'
                                         name="agentFirstName"
                                         id="outlined-required"
                                         label="User Name"
@@ -132,6 +133,7 @@ function LoginPage() {
                                         </InputLabel>
                                         <OutlinedInput
                                             name="agentFirstName"
+                                            autoComplete='off'
                                             label="Password"
                                             onChange={(e) => setPassword(e.target.value)}
                                             InputProps={{ style: { fontSize: 18 } }}

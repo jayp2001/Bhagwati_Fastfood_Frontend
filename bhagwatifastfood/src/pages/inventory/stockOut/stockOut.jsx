@@ -622,7 +622,7 @@ function StockOut() {
                                                 name="stockOutCategory"
                                                 label="Category"
                                                 onBlur={(e) => {
-                                                    if (!e.target.value.length) {
+                                                    if (!e.target.value) {
                                                         setStockOutFormDataError((perv) => ({
                                                             ...perv,
                                                             stockOutCategory: true
