@@ -140,7 +140,6 @@ function CategoriesTable() {
         setOpen(true)
     }
     const editCategory = async () => {
-        setLoading(true);
         if (editCateory.stockOutCategoryName.length < 2) {
             setError(
                 "Please Fill category"
@@ -148,6 +147,7 @@ function CategoriesTable() {
             setCategoryError(true);
         }
         else {
+            setLoading(true);
             await axios.post(`${BACKEND_BASE_URL}inventoryrouter/updateStockOutCategory`, editCateory, config)
                 .then((res) => {
                     setLoading(false);
@@ -207,9 +207,11 @@ function CategoriesTable() {
             });
         setTimeout(() => {
             setSuccess(false)
+            setLoading(false);
         }, 50)
     }
     if (error) {
+        setLoading(false)
         toast.dismiss('loading');
         toast(error, {
             type: 'error',

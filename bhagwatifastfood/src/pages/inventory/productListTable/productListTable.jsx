@@ -758,9 +758,11 @@ function ProductListTable() {
             });
         setTimeout(() => {
             setSuccess(false)
+            setLoading(false);
         }, 50)
     }
     if (error) {
+        setLoading(false);
         toast.dismiss('loading');
         toast(error, {
             type: 'error',
@@ -1209,7 +1211,7 @@ function ProductListTable() {
                                     name="minProductUnit"
                                     label="Units"
                                     onBlur={(e) => {
-                                        if (!e.target.value.length || e.target.value.length < 2) {
+                                        if (!e.target.value.length) {
                                             setFormDataError((perv) => ({
                                                 ...perv,
                                                 minProductUnit: true
@@ -1389,7 +1391,7 @@ function ProductListTable() {
                                     name="supplierId"
                                     label="Suppiler"
                                     onBlur={(e) => {
-                                        if (e.target.value.length < 2) {
+                                        if (!e.target.value.length) {
                                             setStockInFormDataError((perv) => ({
                                                 ...perv,
                                                 supplierId: true
@@ -1424,7 +1426,7 @@ function ProductListTable() {
                                     name="stockInPaymentMethod"
                                     label="Payment"
                                     onBlur={(e) => {
-                                        if (e.target.value.length < 2) {
+                                        if (!e.target.value.length) {
                                             setStockInFormDataError((perv) => ({
                                                 ...perv,
                                                 stockInPaymentMethod: true
@@ -1553,7 +1555,7 @@ function ProductListTable() {
                                     name="stockOutCategory"
                                     label="Category"
                                     onBlur={(e) => {
-                                        if (e.target.value.length < 2) {
+                                        if (!e.target.value.length) {
                                             setStockOutFormDataError((perv) => ({
                                                 ...perv,
                                                 stockOutCategory: true
