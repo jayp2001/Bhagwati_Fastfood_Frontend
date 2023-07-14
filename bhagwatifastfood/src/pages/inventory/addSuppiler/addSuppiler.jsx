@@ -104,6 +104,7 @@ function AddSuppiler() {
     const [fields, setFields] = useState([
         'supplierNickName',
         'supplierFirmName',
+        'supplierEmailId',
         'supplierFirmAddress',
         'supplierPhoneNumber',
         'productId',
@@ -329,8 +330,8 @@ function AddSuppiler() {
                                             }}
                                             onChange={onChange}
                                             value={formData.supplierNickName}
-                                            // error={formDataError.supplierNickName}
-                                            // helperText={formDataError.supplierNickName ? "Please Enter Last Name" : ''}
+                                            error={formDataError.supplierNickName}
+                                            helperText={formDataError.supplierNickName ? "Please Enter Last Name" : ''}
                                             name="supplierNickName"
                                             id="outlined-required"
                                             label="Supplier Nick Name"
@@ -341,6 +342,20 @@ function AddSuppiler() {
                                     </div>
                                     <div className="col-span-4">
                                         <TextField
+                                            onBlur={(e) => {
+                                                if (!emailRegx.test(e.target.value) && e.target.value) {
+                                                    setFormDataError((perv) => ({
+                                                        ...perv,
+                                                        supplierEmailId: true
+                                                    }))
+                                                }
+                                                else {
+                                                    setFormDataError((perv) => ({
+                                                        ...perv,
+                                                        supplierEmailId: false
+                                                    }))
+                                                }
+                                            }}
                                             error={formDataError.supplierEmailId}
                                             helperText={formDataError.supplierEmailId ? "Please Enter valid Email" : ''}
                                             onChange={onChange}

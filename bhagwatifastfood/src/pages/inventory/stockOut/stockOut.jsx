@@ -33,6 +33,7 @@ import 'react-date-range/dist/theme/default.css';
 import MenuStockInOut from './menu';
 import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
+import SearchIcon from '@mui/icons-material/Search';
 
 function StockOut() {
     const navigate = useNavigate();
@@ -49,16 +50,19 @@ function StockOut() {
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [totalRows, setTotalRows] = React.useState(0);
+    const [totalRowsProduct, setTotalRowsProduct] = React.useState(0);
     const [totalRowsOut, setTotalRowsOut] = React.useState(0);
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [tab, setTab] = React.useState(1);
     const [error, setError] = React.useState(false);
     const [success, setSuccess] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
+    const [allData, setAllData] = React.useState();
+    const [status, setStatus] = React.useState('');
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
-
+    const [searchWord, setSearchWord] = React.useState('');
     const resetStockOutEdit = () => {
         setStockOutFormData({
             productId: "",
@@ -317,6 +321,16 @@ function StockOut() {
             stockOutEdit()
         }
     }
+    const getAllDataOnPageChange = async (pageNum, rowPerPageNum) => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getProductDetailsTable?page=${pageNum}&numPerPage=${rowPerPageNum}&productStatus=${status}`, config)
+            .then((res) => {
+                setAllData(res.data.rows);
+                setTotalRowsProduct(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response.data)
+            })
+    }
     const getStockOutDataOnPageChange = async (pageNum, rowPerPageNum) => {
         await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockOutList?page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
             .then((res) => {
@@ -339,13 +353,30 @@ function StockOut() {
     }
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
-        getStockOutDataOnPageChange(newPage + 1, rowsPerPage)
+        if (tab === 1 || tab === '1') {
+            getStockOutDataOnPageChange(newPage + 1, rowsPerPage)
+        }
+        else {
+            getAllDataOnPageChange(newPage + 1, rowsPerPage)
+        }
     };
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
-        getStockOutDataOnPageChange(1, parseInt(event.target.value, 10))
+        if (tab === 1 || tab === '1') {
+            getStockOutDataOnPageChange(1, parseInt(event.target.value, 10))
+        }
+        else {
+            getAllDataOnPageChange(1, parseInt(event.target.value, 10))
+        }
     };
+    const onChangeStatus = (e) => {
+        setSearchWord('')
+        setStatus(e.target.value);
+        setPage(0);
+        setRowsPerPage(5)
+        getAllDataByStatus(e.target.value)
+    }
     const deleteStockOut = async (id) => {
         await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeStockOutTransaction?stockOutId=${id}`, config)
             .then((res) => {
@@ -362,6 +393,28 @@ function StockOut() {
                 getStockOutData();
             }, 1000)
         }
+    };
+    const getAllData = async () => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getProductDetailsTable?&page=${1}&numPerPage=${10}&productStatus=${status}`, config)
+            .then((res) => {
+                setAllData(res.data.rows);
+                setTotalRowsProduct(res.data.numRows)
+            })
+            .catch((error) => {
+                setError(error.response.data);
+                setAllData(null)
+            })
+    }
+    const getAllDataByStatus = async (status) => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getProductDetailsTable?&page=${1}&numPerPage=${10}&productStatus=${status}`, config)
+            .then((res) => {
+                setAllData(res.data.rows);
+                setTotalRowsProduct(res.data.numRows)
+            })
+            .catch((error) => {
+                setError(error.response.data);
+                setAllData(null)
+            })
     }
     useEffect(() => {
         getCategoryList();
@@ -410,16 +463,67 @@ function StockOut() {
         });
         setError(false);
     }
+    const search = async (searchWord) => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getProductDetailsTable?page=${1}&numPerPage=${10}&searchProduct=${searchWord}`, config)
+            .then((res) => {
+                setAllData(res.data.rows);
+                setTotalRowsProduct(res.data.numRows)
+            })
+            .catch((error) => {
+                setError(error.response.data);
+                setAllData(null)
+            })
+    }
+    const onSearchChange = (e) => {
+        setStatus('')
+        setSearchWord(e.target.value);
+    }
+    const debounce = (func) => {
+        let timer;
+        return function (...args) {
+            const context = this;
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(() => {
+                timer = null;
+                func.apply(context, args)
+            }, 700)
+        }
+
+    }
+
+    const handleSearch = () => {
+        console.log(':::???:::', document.getElementById('searchWord').value)
+        search(document.getElementById('searchWord').value)
+    }
+
+    const debounceFunction = React.useCallback(debounce(handleSearch), [])
     return (
         <div className='productListContainer'>
             <div className='grid grid-cols-12'>
                 <div className='col-span-12'>
                     <div className='productTableSubContainer'>
                         <div className='h-full grid grid-cols-12'>
-                            <div className='h-full mobile:col-span-6  tablet1:col-span-4  tablet:col-span-3  laptop:col-span-3  desktop1:col-span-5  desktop2:col-span-5  desktop2:col-span-5. '>
-                                <div className='grid grid-cols-12 pl-6 gap-3 h-full'>
-                                    <div className={`flex col-span-12 justify-center productTabAll`}>
-                                        <div className='statusTabtext'>Stock-Out</div>
+                            <div className='h-full mobile:col-span-12  tablet1:col-span-4  tablet:col-span-3  laptop:col-span-3  desktop1:col-span-5  desktop2:col-span-5  desktop2:col-span-5. '>
+                                <div className='grid grid-cols-12 pl-6 pr-6 gap-3 h-full'>
+                                    <div className={`flex col-span-6 justify-center ${tab === 1 || tab === '1' ? 'productTabAll' : 'productTab'} `} onClick={() => {
+                                        setTab(1);
+                                        setPage(0);
+                                        getStockOutData();
+                                        setRowsPerPage(10);
+                                        setSearchWord('');
+                                        setStatus('')
+                                    }}>
+                                        Stock-Out
+                                    </div>
+                                    <div className={`flex col-span-6 justify-center ${tab === 2 || tab === '2' ? 'productTabIn' : 'productTab'} `} onClick={() => {
+                                        setTab(2);
+                                        getAllData();
+                                        setPage(0);
+                                        setStatus('')
+                                        setRowsPerPage(10);
+                                        setSearchWord('')
+                                    }}>
+                                        Product List
                                     </div>
                                 </div>
                             </div>
@@ -427,238 +531,334 @@ function StockOut() {
                     </div>
                 </div>
             </div>
-            <div className='mt-6 grid grid-col-12'>
-                <Accordion expanded={expanded} square='false' sx={{ width: "100%", borderRadius: '12px', boxShadow: 'rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem' }}>
-                    <AccordionSummary
-                        sx={{ height: '60px', borderRadius: '0.75rem' }}
-                        expandIcon={<ExpandMoreIcon />}
-                        aria-controls="panel1a-content"
-                        id="panel1a-header"
-                        onClick={() => { setExpanded(!expanded); resetStockOutEdit(); }}
-                    >
-                        <div className='stockAccordinHeader'>Stock Out</div>
-                    </AccordionSummary>
-                    <AccordionDetails>
-                        <div className='stockInOutContainer'>
-                            <div className='mt-6 grid grid-cols-1 gap-6'>
-                                <div className=''>
-                                    {!isEdit ?
-                                        <FormControl fullWidth>
-                                            <Autocomplete
-                                                disablePortal
-                                                id='stockOut'
-                                                defaultValue={null}
-                                                disabled={isEdit}
-                                                sx={{ width: '100%' }}
-                                                value={stockOutFormData.productName ? stockOutFormData.productName : null}
-                                                onChange={handleProductNameAutoCompleteOut}
-                                                options={productList ? productList : []}
-                                                getOptionLabel={(options) => options.productName}
-                                                renderInput={(params) => <TextField {...params} label="Product Name" />}
+            {tab === 1 || tab === '1' ?
+                <div className='mt-6 grid grid-col-12'>
+                    <Accordion expanded={expanded} square='false' sx={{ width: "100%", borderRadius: '12px', boxShadow: 'rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem' }}>
+                        <AccordionSummary
+                            sx={{ height: '60px', borderRadius: '0.75rem' }}
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1a-content"
+                            id="panel1a-header"
+                            onClick={() => { setExpanded(!expanded); resetStockOutEdit(); }}
+                        >
+                            <div className='stockAccordinHeader'>Stock Out</div>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <div className='stockInOutContainer'>
+                                <div className='mt-6 grid grid-cols-1 gap-6'>
+                                    <div className=''>
+                                        {!isEdit ?
+                                            <FormControl fullWidth>
+                                                <Autocomplete
+                                                    disablePortal
+                                                    id='stockOut'
+                                                    defaultValue={null}
+                                                    disabled={isEdit}
+                                                    sx={{ width: '100%' }}
+                                                    value={stockOutFormData.productName ? stockOutFormData.productName : null}
+                                                    onChange={handleProductNameAutoCompleteOut}
+                                                    options={productList ? productList : []}
+                                                    getOptionLabel={(options) => options.productName}
+                                                    renderInput={(params) => <TextField {...params} label="Product Name" />}
+                                                />
+                                            </FormControl>
+                                            :
+                                            <TextField
+                                                label="Product Name"
+                                                fullWidth
+                                                disabled
+                                                value={stockOutFormData.productName ? stockOutFormData.productName : ''}
+                                                name="productName"
                                             />
-                                        </FormControl>
-                                        :
-                                        <TextField
-                                            label="Product Name"
-                                            fullWidth
-                                            disabled
-                                            value={stockOutFormData.productName ? stockOutFormData.productName : ''}
-                                            name="productName"
-                                        />
-                                    }
-                                </div>
-                                <div className=''>
-                                    <TextField
-                                        onBlur={(e) => {
-                                            if (e.target.value < 1 || e.target.value > stockOutFormData?.remainingStock) {
-                                                setStockOutFormDataError((perv) => ({
-                                                    ...perv,
-                                                    productQty: true
-                                                }))
-                                            }
-                                            else {
-                                                setStockOutFormDataError((perv) => ({
-                                                    ...perv,
-                                                    productQty: false
-                                                }))
-                                            }
-                                        }}
-                                        type="number"
-                                        label="Qty"
-                                        fullWidth
-                                        disabled={!stockOutFormData.productName}
-                                        onChange={onChangeStockOut}
-                                        value={stockOutFormData.productQty}
-                                        error={stockOutFormDataError.productQty}
-                                        helperText={stockOutFormData.productName && !stockOutFormDataError.productQty ? `Remaining Stock:-  ${stockOutFormData?.remainingStock}  ${stockOutFormData.productUnit}` : stockOutFormDataError.productQty ? stockOutFormDataError.productQty && stockOutFormData.productQty > stockOutFormData?.remainingStock ? `StockOut qty can't be more than ${stockOutFormData?.remainingStock}  ${stockOutFormData.productUnit}` : "Please Enter Qty" : ''}
-                                        name="productQty"
-                                        InputProps={{
-                                            endAdornment: <InputAdornment position="end">{stockOutFormData.productUnit}</InputAdornment>,
-                                        }}
-                                    />
-                                </div>
-                                <div className=''>
-                                    <FormControl style={{ minWidth: '100%', maxWidth: '100%' }}>
-                                        <InputLabel id="demo-simple-select-label" required error={stockOutFormDataError.stockOutCategory}>Category</InputLabel>
-                                        <Select
-                                            labelId="demo-simple-select-label"
-                                            id="demo-simple-select"
-                                            value={stockOutFormData.stockOutCategory}
-                                            error={stockOutFormDataError.stockOutCategory}
-                                            name="stockOutCategory"
-                                            label="Category"
-                                            onBlur={(e) => {
-                                                if (!e.target.value.length) {
-                                                    setStockOutFormDataError((perv) => ({
-                                                        ...perv,
-                                                        stockOutCategory: true
-                                                    }))
-                                                }
-                                                else {
-                                                    setStockOutFormDataError((perv) => ({
-                                                        ...perv,
-                                                        stockOutCategory: false
-                                                    }))
-                                                }
-                                            }}
-                                            onChange={onChangeStockOut}
-                                        >
-                                            {
-                                                categories ? categories.map((category) => (
-                                                    <MenuItem key={category.stockOutCategoryId} value={category.stockOutCategoryId}>{category.stockOutCategoryName}</MenuItem>
-                                                )) : null
-                                            }
-
-                                        </Select>
-                                    </FormControl>
-                                </div>
-                                <div className=''>
-                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                        <DesktopDatePicker
-                                            sx={{ width: '100%' }}
-                                            InputProps={{ style: { fontSize: 14, width: '100%' } }}
-                                            InputLabelProps={{ style: { fontSize: 14 } }}
-                                            label="Stock In Date"
-                                            format="DD/MM/YYYY"
-                                            required
-                                            fullWidth
-                                            error={stockOutFormDataError.stockOutDate}
-                                            value={stockOutFormData.stockOutDate}
-                                            onChange={handleStockOutDate}
-                                            name="stockOutDate"
-                                            renderInput={(params) => <TextField {...params} fullWidth sx={{ width: '100%' }} />}
-                                        />
-                                    </LocalizationProvider>
-                                </div>
-                                <div className=''>
-                                    <TextField
-                                        onChange={onChangeStockOut}
-                                        value={stockOutFormData.stockOutComment}
-                                        name="stockOutComment"
-                                        id="outlined-required"
-                                        label="Comment"
-                                        InputProps={{ style: { fontSize: 14 } }}
-                                        InputLabelProps={{ style: { fontSize: 14 } }}
-                                        fullWidth
-                                    />
-                                </div>
-                                {isEdit &&
+                                        }
+                                    </div>
                                     <div className=''>
                                         <TextField
                                             onBlur={(e) => {
-                                                if (e.target.value.length < 4) {
+                                                if (e.target.value < 1 || e.target.value > stockOutFormData?.remainingStock) {
                                                     setStockOutFormDataError((perv) => ({
                                                         ...perv,
-                                                        reason: true
+                                                        productQty: true
                                                     }))
                                                 }
                                                 else {
                                                     setStockOutFormDataError((perv) => ({
                                                         ...perv,
-                                                        reason: false
+                                                        productQty: false
                                                     }))
                                                 }
                                             }}
+                                            type="number"
+                                            label="Qty"
+                                            fullWidth
+                                            disabled={!stockOutFormData.productName}
                                             onChange={onChangeStockOut}
-                                            error={stockOutFormDataError.reason}
-                                            value={stockOutFormData.reason}
-                                            name="reason"
-                                            helperText={stockOutFormDataError.reason ? 'Edit Reason is must ...' : ''}
+                                            value={stockOutFormData.productQty}
+                                            error={stockOutFormDataError.productQty}
+                                            helperText={stockOutFormData.productName && !stockOutFormDataError.productQty ? `Remaining Stock:-  ${stockOutFormData?.remainingStock}  ${stockOutFormData.productUnit}` : stockOutFormDataError.productQty ? stockOutFormDataError.productQty && stockOutFormData.productQty > stockOutFormData?.remainingStock ? `StockOut qty can't be more than ${stockOutFormData?.remainingStock}  ${stockOutFormData.productUnit}` : "Please Enter Qty" : ''}
+                                            name="productQty"
+                                            InputProps={{
+                                                endAdornment: <InputAdornment position="end">{stockOutFormData.productUnit}</InputAdornment>,
+                                            }}
+                                        />
+                                    </div>
+                                    <div className=''>
+                                        <FormControl style={{ minWidth: '100%', maxWidth: '100%' }}>
+                                            <InputLabel id="demo-simple-select-label" required error={stockOutFormDataError.stockOutCategory}>Category</InputLabel>
+                                            <Select
+                                                labelId="demo-simple-select-label"
+                                                id="demo-simple-select"
+                                                value={stockOutFormData.stockOutCategory}
+                                                error={stockOutFormDataError.stockOutCategory}
+                                                name="stockOutCategory"
+                                                label="Category"
+                                                onBlur={(e) => {
+                                                    if (!e.target.value.length) {
+                                                        setStockOutFormDataError((perv) => ({
+                                                            ...perv,
+                                                            stockOutCategory: true
+                                                        }))
+                                                    }
+                                                    else {
+                                                        setStockOutFormDataError((perv) => ({
+                                                            ...perv,
+                                                            stockOutCategory: false
+                                                        }))
+                                                    }
+                                                }}
+                                                onChange={onChangeStockOut}
+                                            >
+                                                {
+                                                    categories ? categories.map((category) => (
+                                                        <MenuItem key={category.stockOutCategoryId} value={category.stockOutCategoryId}>{category.stockOutCategoryName}</MenuItem>
+                                                    )) : null
+                                                }
+
+                                            </Select>
+                                        </FormControl>
+                                    </div>
+                                    <div className=''>
+                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                            <DesktopDatePicker
+                                                sx={{ width: '100%' }}
+                                                InputProps={{ style: { fontSize: 14, width: '100%' } }}
+                                                InputLabelProps={{ style: { fontSize: 14 } }}
+                                                label="Stock In Date"
+                                                format="DD/MM/YYYY"
+                                                required
+                                                fullWidth
+                                                error={stockOutFormDataError.stockOutDate}
+                                                value={stockOutFormData.stockOutDate}
+                                                onChange={handleStockOutDate}
+                                                name="stockOutDate"
+                                                renderInput={(params) => <TextField {...params} fullWidth sx={{ width: '100%' }} />}
+                                            />
+                                        </LocalizationProvider>
+                                    </div>
+                                    <div className=''>
+                                        <TextField
+                                            onChange={onChangeStockOut}
+                                            value={stockOutFormData.stockOutComment}
+                                            name="stockOutComment"
                                             id="outlined-required"
-                                            label="Edit Reason"
+                                            label="Comment"
                                             InputProps={{ style: { fontSize: 14 } }}
                                             InputLabelProps={{ style: { fontSize: 14 } }}
                                             fullWidth
                                         />
-                                    </div>}
+                                    </div>
+                                    {isEdit &&
+                                        <div className=''>
+                                            <TextField
+                                                onBlur={(e) => {
+                                                    if (e.target.value.length < 4) {
+                                                        setStockOutFormDataError((perv) => ({
+                                                            ...perv,
+                                                            reason: true
+                                                        }))
+                                                    }
+                                                    else {
+                                                        setStockOutFormDataError((perv) => ({
+                                                            ...perv,
+                                                            reason: false
+                                                        }))
+                                                    }
+                                                }}
+                                                onChange={onChangeStockOut}
+                                                error={stockOutFormDataError.reason}
+                                                value={stockOutFormData.reason}
+                                                name="reason"
+                                                helperText={stockOutFormDataError.reason ? 'Edit Reason is must ...' : ''}
+                                                id="outlined-required"
+                                                label="Edit Reason"
+                                                InputProps={{ style: { fontSize: 14 } }}
+                                                InputLabelProps={{ style: { fontSize: 14 } }}
+                                                fullWidth
+                                            />
+                                        </div>}
 
-                                <div className=''>
-                                    <button className='addCategorySaveBtn' onClick={() => {
-                                        isEdit ? editSubmitStockOut() : submitStockOut()
-                                    }}>{isEdit ? "Save" : "Stock Out"}</button>
-                                </div>
-                                <div className=''>
-                                    <button className='addCategoryCancleBtn' onClick={() => {
-                                        handleResetStockOut();
-                                        setIsEdit(false);
-                                        { isEdit && setExpanded(false); }
-                                    }}>{isEdit ? "cancle" : "reset"}</button>
+                                    <div className=''>
+                                        <button className='addCategorySaveBtn' onClick={() => {
+                                            isEdit ? editSubmitStockOut() : submitStockOut()
+                                        }}>{isEdit ? "Save" : "Stock Out"}</button>
+                                    </div>
+                                    <div className=''>
+                                        <button className='addCategoryCancleBtn' onClick={() => {
+                                            handleResetStockOut();
+                                            setIsEdit(false);
+                                            { isEdit && setExpanded(false); }
+                                        }}>{isEdit ? "cancle" : "reset"}</button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </AccordionDetails>
-                </Accordion>
-            </div>
-
+                        </AccordionDetails>
+                    </Accordion>
+                </div> : null
+            }
             <div className='grid grid-cols-12 mt-6'>
                 <div className='col-span-12'>
-                    <div className='userTableSubContainer'>
-                        <div className='grid grid-cols-12 pt-6'>
-                            <div className='ml-6 col-span-6' >
+                    {tab === 1 || tab === '1' ?
+                        <div className='userTableSubContainer'>
+                            <div className='grid grid-cols-12 pt-6'>
+                                <div className='ml-6 col-span-6' >
+                                </div>
+                                <div className='col-span-6 col-start-7 pr-5 flex justify-end'>
+                                </div>
                             </div>
-                            <div className='col-span-6 col-start-7 pr-5 flex justify-end'>
+                            <div className='tableContainerWrapper'>
+                                <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
+                                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>No.</TableCell>
+                                                <TableCell>outBy</TableCell>
+                                                <TableCell align="left">productName</TableCell>
+                                                <TableCell align="left">Quantity</TableCell>
+                                                <TableCell align="left">stockOutCategoryName</TableCell>
+                                                <TableCell align="left">stockOutComment</TableCell>
+                                                <TableCell align="left">stockOutDate</TableCell>
+                                                <TableCell align="left"></TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {
+                                                stockOutData?.map((row, index) => (
+                                                    totalRowsOut !== 0 ?
+                                                        <TableRow
+                                                            key={row.stockOutId}
+                                                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                            style={{ cursor: "pointer" }}
+                                                            className='tableRow'
+                                                        >
+                                                            <TableCell align="left"  >{(index + 1) + (page * rowsPerPage)}</TableCell>
+                                                            <Tooltip title={row.userName} placement="top-start" arrow>
+                                                                <TableCell component="th" scope="row"  >
+                                                                    {row.outBy}
+                                                                </TableCell>
+                                                            </Tooltip>
+                                                            <TableCell align="left"  >{row.productName}</TableCell>
+                                                            <TableCell align="left"  >{row.Quantity}</TableCell>
+                                                            <TableCell align="left"  >{row.stockOutCategoryName}</TableCell>
+                                                            <Tooltip title={row.stockOutComment} placement="top-start" arrow><TableCell align="left"  ><div className='Comment'>{row.stockOutComment}</div></TableCell></Tooltip>
+                                                            <TableCell align="left"   >{row.stockOutDate}</TableCell>
+                                                            {tab != 3 &&
+                                                                <TableCell align="right">
+                                                                    <MenuStockInOut handleAccordionOpenOnEdit={handleAccordionOpenOnEdit} stockInOutId={row.stockOutId} data={row} deleteStockInOut={handleDeleteStockOut} />
+                                                                </TableCell>}
+                                                        </TableRow> :
+                                                        <TableRow
+                                                            key={row.userId}
+                                                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                        >
+                                                            <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
+                                                        </TableRow>
+
+                                                ))
+                                            }
+                                        </TableBody>
+                                    </Table>
+                                    <TablePagination
+                                        rowsPerPageOptions={[5, 10, 25]}
+                                        component="div"
+                                        count={totalRowsOut}
+                                        rowsPerPage={rowsPerPage}
+                                        page={page}
+                                        onPageChange={handleChangePage}
+                                        onRowsPerPageChange={handleChangeRowsPerPage}
+                                    />
+                                </TableContainer>
                             </div>
                         </div>
-                        <div className='tableContainerWrapper'>
-                            <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
-                                <Table sx={{ minWidth: 650 }} aria-label="simple table">
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell>No.</TableCell>
-                                            <TableCell>outBy</TableCell>
-                                            <TableCell align="left">productName</TableCell>
-                                            <TableCell align="left">Quantity</TableCell>
-                                            <TableCell align="left">stockOutCategoryName</TableCell>
-                                            <TableCell align="left">stockOutComment</TableCell>
-                                            <TableCell align="left">stockOutDate</TableCell>
-                                            <TableCell align="left"></TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {
-                                            stockOutData?.map((row, index) => (
-                                                totalRowsOut !== 0 ?
+                        :
+                        <div className='userTableSubContainer'>
+                            <div className='grid grid-cols-12 gap-6 pt-6'>
+                                <div className='ml-6 col-span-6 ' >
+                                    {status != 1 && status != 2 && status != 3 ?
+                                        <TextField
+                                            className='sarchText'
+                                            onChange={(e) => { onSearchChange(e); debounceFunction() }}
+                                            value={searchWord}
+                                            name="searchWord"
+                                            id="searchWord"
+                                            variant="standard"
+                                            label="Search"
+                                            InputProps={{
+                                                endAdornment: <InputAdornment position="end"><SearchIcon /></InputAdornment>,
+                                                style: { fontSize: 14 }
+                                            }}
+                                            InputLabelProps={{ style: { fontSize: 14 } }}
+                                            fullWidth
+                                        /> : null
+                                    }
+
+                                </div>
+                                <div className='col-span-6 pr-4'>
+                                    <FormControl fullWidth>
+                                        <InputLabel id="demo-simple-select-label">Stock Status</InputLabel>
+                                        <Select
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
+                                            value={status}
+                                            label="Service Authority"
+                                            name="serviceAuthority"
+                                            onChange={onChangeStatus}
+                                        >
+                                            <MenuItem value={''}>Clear</MenuItem>
+                                            <MenuItem value={1}>In-Stock</MenuItem>
+                                            <MenuItem value={2}>Low-Stock</MenuItem>
+                                            <MenuItem value={3}>Out-Stock</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </div>
+                            </div>
+                            <div className='tableContainerWrapper'>
+                                <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
+                                    <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>No.</TableCell>
+                                                <TableCell>Product Name</TableCell>
+                                                <TableCell align="left">Remaining Stock</TableCell>
+                                                <TableCell align="left">Min ProductQty</TableCell>
+                                                <TableCell align="left">Status</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {allData?.map((row, index) => (
+                                                totalRowsProduct !== 0 ?
                                                     <TableRow
-                                                        key={row.stockOutId}
+                                                        key={row.productId}
                                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                                         style={{ cursor: "pointer" }}
                                                         className='tableRow'
                                                     >
                                                         <TableCell align="left"  >{(index + 1) + (page * rowsPerPage)}</TableCell>
-                                                        <Tooltip title={row.userName} placement="top-start" arrow>
-                                                            <TableCell component="th" scope="row"  >
-                                                                {row.outBy}
-                                                            </TableCell>
-                                                        </Tooltip>
-                                                        <TableCell align="left"  >{row.productName}</TableCell>
-                                                        <TableCell align="left"  >{row.Quantity}</TableCell>
-                                                        <TableCell align="left"  >{row.stockOutCategoryName}</TableCell>
-                                                        <Tooltip title={row.stockOutComment} placement="top-start" arrow><TableCell align="left"  ><div className='Comment'>{row.stockOutComment}</div></TableCell></Tooltip>
-                                                        <TableCell align="left"   >{row.stockOutDate}</TableCell>
-                                                        {tab != 3 &&
-                                                            <TableCell align="right">
-                                                                <MenuStockInOut handleAccordionOpenOnEdit={handleAccordionOpenOnEdit} stockInOutId={row.stockOutId} data={row} deleteStockInOut={handleDeleteStockOut} />
-                                                            </TableCell>}
+                                                        <TableCell component="th" scope="row"  >
+                                                            {row.productName}
+                                                        </TableCell>
+                                                        <TableCell align="left"  >{row.remainingStock} {row.minProductUnit}</TableCell>
+                                                        <TableCell align="left"  >{row.minProductQty} {row.minProductUnit}</TableCell>
+                                                        <TableCell align="center"  ><div className={row.remainingStock >= row.minProductQty ? 'greenStatus' : row.remainingStock < row.minProductQty && row.remainingStock !== 0 ? 'orangeStatus' : 'redStatus'}>{row.stockStatus}</div></TableCell>
                                                     </TableRow> :
                                                     <TableRow
                                                         key={row.userId}
@@ -667,22 +867,22 @@ function StockOut() {
                                                         <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
                                                     </TableRow>
 
-                                            ))
-                                        }
-                                    </TableBody>
-                                </Table>
-                                <TablePagination
-                                    rowsPerPageOptions={[5, 10, 25]}
-                                    component="div"
-                                    count={totalRowsOut}
-                                    rowsPerPage={rowsPerPage}
-                                    page={page}
-                                    onPageChange={handleChangePage}
-                                    onRowsPerPageChange={handleChangeRowsPerPage}
-                                />
-                            </TableContainer>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                    <TablePagination
+                                        rowsPerPageOptions={[10, 25, 50]}
+                                        component="div"
+                                        count={totalRowsProduct}
+                                        rowsPerPage={rowsPerPage}
+                                        page={page}
+                                        onPageChange={handleChangePage}
+                                        onRowsPerPageChange={handleChangeRowsPerPage}
+                                    />
+                                </TableContainer>
+                            </div>
                         </div>
-                    </div>
+                    }
                 </div>
             </div>
             <ToastContainer />
