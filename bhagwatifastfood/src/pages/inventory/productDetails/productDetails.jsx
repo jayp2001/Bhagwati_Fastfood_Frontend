@@ -39,10 +39,14 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import MenuItem from '@mui/material/MenuItem';
+import { ToastContainer, toast } from 'react-toastify';
 
 function ProductDetails() {
     var customParseFormat = require('dayjs/plugin/customParseFormat')
     dayjs.extend(customParseFormat)
+    const [loading, setLoading] = React.useState(false);
+    const [error, setError] = React.useState(false);
+    const [success, setSuccess] = React.useState(false);
     const [expanded, setExpanded] = React.useState(false);
     let { id, name, unit } = useParams();
     const [isEdit, setIsEdit] = React.useState(false);
@@ -282,7 +286,7 @@ function ProductDetails() {
         })
         if (isValidate.length > 0) {
             console.log('velidate', isValidate)
-            alert(
+            setError(
                 "Please Fill All Field"
             )
         } else {
@@ -301,7 +305,7 @@ function ProductDetails() {
         }
         await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addStockOutDetails`, formdata, config)
             .then((res) => {
-                alert("success");
+                setSuccess(true)
                 // getData();
                 // setTab(null)
                 setState([
@@ -319,7 +323,7 @@ function ProductDetails() {
                 handleResetStockOut();
             })
             .catch((error) => {
-                alert(error.response.data);
+                setError(error.response.data);
             })
     }
     const submitStockOut = () => {
@@ -342,7 +346,7 @@ function ProductDetails() {
         })
         if (isValidate.length > 0) {
             console.log('velidate', isValidate)
-            alert(
+            setError(
                 "Please Fill All Field"
             )
         } else {
@@ -357,7 +361,7 @@ function ProductDetails() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getStockInDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
@@ -367,7 +371,7 @@ function ProductDetails() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getStockInData = async () => {
@@ -377,7 +381,7 @@ function ProductDetails() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getStockInDataByFilter = async () => {
@@ -387,7 +391,7 @@ function ProductDetails() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getStockOutDataOnPageChange = async (pageNum, rowPerPageNum) => {
@@ -397,7 +401,7 @@ function ProductDetails() {
                 setTotalRowsOut(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getStockOutDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
@@ -407,7 +411,7 @@ function ProductDetails() {
                 setTotalRowsOut(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getStockOutData = async () => {
@@ -417,7 +421,7 @@ function ProductDetails() {
                 setTotalRowsOut(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getStockOutDataByFilter = async () => {
@@ -427,7 +431,7 @@ function ProductDetails() {
                 setTotalRowsOut(res.data.numRows);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const handleChangePage = (event, newPage) => {
@@ -464,7 +468,7 @@ function ProductDetails() {
         }
         await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addStockInDetails`, formdata, config)
             .then((res) => {
-                alert("success");
+                setSuccess(true)
                 // getData();
                 setState([
                     {
@@ -481,7 +485,7 @@ function ProductDetails() {
                 handleResetStockIn();
             })
             .catch((error) => {
-                alert(error.response.data);
+                setError(error.response.data);
             })
     }
     const handleChangeRowsPerPage = (event) => {
@@ -506,14 +510,14 @@ function ProductDetails() {
     const deleteStockIn = async (id) => {
         await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeStockInTransaction?stockInId=${id}`, config)
             .then((res) => {
-                alert("data deleted")
+                setSuccess(true)
                 getStatistics();
                 getStockInData();
                 getSuppilerNameAndCount();
                 getCategoryNameAndCount();
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const handleDeleteStockIn = (id) => {
@@ -527,14 +531,14 @@ function ProductDetails() {
     const deleteStockOut = async (id) => {
         await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeStockOutTransaction?stockOutId=${id}`, config)
             .then((res) => {
-                alert("data deleted")
+                setSuccess(true)
                 getStatistics();
                 getStockOutData();
                 getCategoryNameAndCount();
                 getSuppilerNameAndCount();
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const handleDeleteStockOut = (id) => {
@@ -608,7 +612,7 @@ function ProductDetails() {
                 setStatisticsCounts(res.data);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getStatisticsByFilter = async () => {
@@ -617,7 +621,7 @@ function ProductDetails() {
                 setStatisticsCounts(res.data);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getSuppilerNameAndCount = async () => {
@@ -626,7 +630,7 @@ function ProductDetails() {
                 setSuppilerNameAndCount(res.data);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getSuppilerNameAndCountByFilter = async () => {
@@ -635,7 +639,7 @@ function ProductDetails() {
                 setSuppilerNameAndCount(res.data);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getCategoryNameAndCount = async () => {
@@ -644,7 +648,7 @@ function ProductDetails() {
                 setCategoryNameAndCount(res.data);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
     const getCategoryNameAndCountByFilter = async () => {
@@ -653,7 +657,7 @@ function ProductDetails() {
                 setCategoryNameAndCount(res.data);
             })
             .catch((error) => {
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
 
@@ -719,7 +723,7 @@ function ProductDetails() {
             })
             .catch((error) => {
                 // setError(error.response.data);
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
 
@@ -740,7 +744,7 @@ function ProductDetails() {
             })
             .catch((error) => {
                 // setError(error.response.data);
-                alert(error.response.data)
+                setError(error.response.data)
             })
     }
 
@@ -757,7 +761,7 @@ function ProductDetails() {
     const stockInEdit = async () => {
         await axios.post(`${BACKEND_BASE_URL}inventoryrouter/updateStockInTransaction`, stockInFormData, config)
             .then((res) => {
-                alert("success");
+                setSuccess(true)
                 // getData();
                 setState([
                     {
@@ -775,13 +779,13 @@ function ProductDetails() {
                 handleResetStockIn();
             })
             .catch((error) => {
-                alert(error.response.data);
+                setError(error.response.data);
             })
     }
     const stockOutEdit = async () => {
         await axios.post(`${BACKEND_BASE_URL}inventoryrouter/updateStockOutTransaction`, stockOutFormData, config)
             .then((res) => {
-                alert("success");
+                setSuccess(true)
                 // getData();
                 // setTab(null)
                 setState([
@@ -800,7 +804,7 @@ function ProductDetails() {
                 handleResetStockOut();
             })
             .catch((error) => {
-                alert(error.response.data);
+                setError(error.response.data);
             })
     }
     const editSubmitStockOut = () => {
@@ -822,7 +826,7 @@ function ProductDetails() {
             }
         })
         if (isValidate.length > 0) {
-            alert(
+            setError(
                 "Please Fill All Field"
             )
         } else {
@@ -849,7 +853,7 @@ function ProductDetails() {
             }
         })
         if (isValidate.length > 0) {
-            alert(
+            setError(
                 "Please Fill All Field"
             )
         } else {
@@ -866,6 +870,53 @@ function ProductDetails() {
         getSuppilerNameAndCount();
         // getCountData();
     }, [])
+
+    if (loading) {
+        console.log('>>>>??')
+        toast.loading("Please wait...", {
+            toastId: 'loading'
+        })
+    }
+    if (success) {
+        // setLoading(false);
+        toast.dismiss('loading');
+        toast('success',
+            {
+                type: 'success',
+                toastId: 'success',
+                position: "top-right",
+                toastId: 'error',
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+            });
+        setTimeout(() => {
+            setSuccess(false);
+            setLoading(false);
+        }, 50)
+    }
+    if (error) {
+        setLoading(false);
+        toast.dismiss('loading');
+        toast(error, {
+            type: 'error',
+            position: "top-right",
+            toastId: 'error',
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+        });
+        setError(false);
+    }
+
     return (
         <div className='suppilerListContainer'>
             <div className='grid grid-cols-12 gap-8'>
@@ -1198,7 +1249,7 @@ function ProductDetails() {
                                                 name="supplierId"
                                                 label="Suppiler"
                                                 onBlur={(e) => {
-                                                    if (e.target.value.length < 2) {
+                                                    if (!e.target.value.length) {
                                                         setStockInFormDataError((perv) => ({
                                                             ...perv,
                                                             supplierId: true
@@ -1233,7 +1284,7 @@ function ProductDetails() {
                                                 name="stockInPaymentMethod"
                                                 label="Payment"
                                                 onBlur={(e) => {
-                                                    if (e.target.value.length < 2) {
+                                                    if (!e.target.value.length) {
                                                         setStockInFormDataError((perv) => ({
                                                             ...perv,
                                                             stockInPaymentMethod: true
@@ -1350,7 +1401,7 @@ function ProductDetails() {
                                                 name="stockOutCategory"
                                                 label="Category"
                                                 onBlur={(e) => {
-                                                    if (e.target.value.length < 2) {
+                                                    if (!e.target.value.length) {
                                                         setStockOutFormDataError((perv) => ({
                                                             ...perv,
                                                             stockOutCategory: true
@@ -1562,6 +1613,7 @@ function ProductDetails() {
                     </div>
                 </div>
             </div>
+            <ToastContainer />
         </div >
     )
 }

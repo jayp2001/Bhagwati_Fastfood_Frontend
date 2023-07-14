@@ -1161,7 +1161,7 @@ function StockInOut() {
                                                     name="supplierId"
                                                     label="Suppiler"
                                                     onBlur={(e) => {
-                                                        if (e.target.value.length < 2) {
+                                                        if (!e.target.value.length) {
                                                             setStockInFormDataError((perv) => ({
                                                                 ...perv,
                                                                 supplierId: true
@@ -1196,7 +1196,7 @@ function StockInOut() {
                                                     name="stockInPaymentMethod"
                                                     label="Payment"
                                                     onBlur={(e) => {
-                                                        if (e.target.value.length < 2) {
+                                                        if (!e.target.value.length) {
                                                             setStockInFormDataError((perv) => ({
                                                                 ...perv,
                                                                 stockInPaymentMethod: true

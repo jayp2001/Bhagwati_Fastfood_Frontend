@@ -22,11 +22,28 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import CategoryIcon from '@mui/icons-material/Category';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
-
+import StyleOutlinedIcon from '@mui/icons-material/StyleOutlined';
+import ListAltOutlinedIcon from '@mui/icons-material/ListAltOutlined';
 function NavBar() {
     const [state, setState] = React.useState({
         left: false,
     });
+    const user = JSON.parse(localStorage.getItem('userInfo'))
+    var greetMsg = 'Hello';
+    var data = [
+        [22, 'Working late'],
+        [18, 'Good evening'],
+        [12, 'Good afternoon'],
+        [5, 'Good morning'],
+        [0, 'Whoa, early bird']
+    ],
+        hr = new Date().getHours();
+    for (var i = 0; i < data.length; i++) {
+        if (hr >= data[i][0]) {
+            greetMsg = data[i][1];
+            break;
+        }
+    }
 
     const toggleDrawer = (anchor, open) => (event) => {
         if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -62,9 +79,17 @@ function NavBar() {
                 <ListItem key={2}>
                     <ListItemButton to="/productList">
                         <ListItemIcon>
-                            <ListAltIcon />
+                            <StyleOutlinedIcon />
                         </ListItemIcon>
                         <ListItemText primary={'Products'} />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem key={9}>
+                    <ListItemButton to="/productTable">
+                        <ListItemIcon>
+                            <ListAltOutlinedIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={'Product Table'} />
                     </ListItemButton>
                 </ListItem>
                 <ListItem key={3}>
@@ -139,7 +164,10 @@ function NavBar() {
                         <img className='headerImg' src={bhagwatiHeaderLogo} alt='No Image Found' />
                     </div>
                 </div>
-                <div className='logoutWrp'>
+                <div className='logoutWrp flex w-fit'>
+                    <div className='greeting h-full grid content-center mr-24'>
+                        {greetMsg}, {user?.userName}
+                    </div>
                     <button className='h-full grid content-center' onClick={logout}>
                         <LogoutIcon fontSize='medium' />
                     </button>
