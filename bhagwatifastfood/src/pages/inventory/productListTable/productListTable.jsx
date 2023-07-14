@@ -476,7 +476,7 @@ function ProductListTable() {
                 setLoading(false)
                 setTab('')
                 setPage(0);
-                setRowsPerPage(0);
+                setRowsPerPage(10);
                 setFilter(false);
                 setState([
                     {

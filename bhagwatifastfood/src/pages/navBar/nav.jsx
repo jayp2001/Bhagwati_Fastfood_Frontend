@@ -24,7 +24,16 @@ import CategoryIcon from '@mui/icons-material/Category';
 import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import StyleOutlinedIcon from '@mui/icons-material/StyleOutlined';
 import ListAltOutlinedIcon from '@mui/icons-material/ListAltOutlined';
+import { Navigate, Outlet } from "react-router-dom";
+import jwt_decode from 'jwt-decode'
+import CryptoJS from 'crypto-js'
 function NavBar() {
+    const decryptData = (text) => {
+        const key = process.env.REACT_APP_AES_KEY;
+        const bytes = CryptoJS.AES.decrypt(text, key);
+        const data = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+        return (data);
+    };
     const [state, setState] = React.useState({
         left: false,
     });
@@ -139,34 +148,41 @@ function NavBar() {
     if (location.pathname.toLowerCase() === "/login") {
         return null;
     }
+    if (!user) {
+        return (<Navigate to="/login" state={{ from: location }} replace />)
+    }
+    const role = user.userRights ? decryptData(user.userRights) : '';
 
     return (
         <div className="navBar grid content-center">
             <div className='flex justify-between h-full'>
                 <div className='logoWrp flex h-full'>
-                    <div className='h-full grid content-center'>
-                        <div>
-                            {['left'].map((anchor) => (
-                                <React.Fragment key={anchor}>
-                                    <Button onClick={toggleDrawer(anchor, true)}><MenuIcon fontSize='large' style={{ color: 'black' }} /></Button>
-                                    <Drawer
-                                        anchor={anchor}
-                                        open={state[anchor]}
-                                        onClose={toggleDrawer(anchor, false)}
-                                    >
-                                        {list(anchor)}
-                                    </Drawer>
-                                </React.Fragment>
-                            ))}
-                        </div>
-                    </div>
+                    {
+                        role != 6 ?
+                            <div className='h-full grid content-center'>
+                                <div>
+                                    {['left'].map((anchor) => (
+                                        <React.Fragment key={anchor}>
+                                            <Button onClick={toggleDrawer(anchor, true)}><MenuIcon fontSize='large' style={{ color: 'black' }} /></Button>
+                                            <Drawer
+                                                anchor={anchor}
+                                                open={state[anchor]}
+                                                onClose={toggleDrawer(anchor, false)}
+                                            >
+                                                {list(anchor)}
+                                            </Drawer>
+                                        </React.Fragment>
+                                    ))}
+                                </div>
+                            </div> : null
+                    }
                     <div>
                         <img className='headerImg' src={bhagwatiHeaderLogo} alt='No Image Found' />
                     </div>
                 </div>
-                <div className='logoutWrp flex w-fit'>
+                <div className='logoutWrp flex justify-end'>
                     <div className='greeting h-full grid content-center mr-24'>
-                        {greetMsg}, {user?.userName}
+                        {role != 6 ? greetMsg + ', ' + user?.userName : ''}
                     </div>
                     <button className='h-full grid content-center' onClick={logout}>
                         <LogoutIcon fontSize='medium' />

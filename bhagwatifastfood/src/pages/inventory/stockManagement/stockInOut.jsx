@@ -502,7 +502,6 @@ function StockInOut() {
             productUnit: "",
             stockOutCategory: null,
             stockOutComment: "",
-            reason: '',
             stockOutDate: dayjs()
         })
         setStockOutFormDataError({
@@ -1254,7 +1253,7 @@ function StockInOut() {
                                             <button className='addCategoryCancleBtn' onClick={() => {
                                                 handleResetStockIn();
                                                 setIsEdit(false);
-                                                setExpanded(false);
+                                                { isEdit && setExpanded(false); }
                                             }}>{isEdit ? 'Cancle' : 'Reset'}</button>
                                         </div>
                                     </div>
@@ -1316,13 +1315,13 @@ function StockInOut() {
                                                 }}
                                             />
                                         </div>
-                                        <div className='col-span-3'>
+                                        <div className='col-span-4'>
                                             <FormControl style={{ minWidth: '100%', maxWidth: '100%' }}>
                                                 <InputLabel id="demo-simple-select-label" required error={stockOutFormDataError.stockOutCategory}>Category</InputLabel>
                                                 <Select
                                                     labelId="demo-simple-select-label"
                                                     id="demo-simple-select"
-                                                    value={stockOutFormData.stockOutCategory}
+                                                    value={stockOutFormData.stockOutCategory ? stockOutFormData.stockOutCategory : null}
                                                     error={stockOutFormDataError.stockOutCategory}
                                                     name="stockOutCategory"
                                                     label="Category"
@@ -1351,7 +1350,7 @@ function StockInOut() {
                                                 </Select>
                                             </FormControl>
                                         </div>
-                                        <div className='col-span-3'>
+                                        <div className='col-span-2'>
                                             <LocalizationProvider dateAdapter={AdapterDayjs}>
                                                 <DesktopDatePicker
                                                     textFieldStyle={{ width: '100%' }}

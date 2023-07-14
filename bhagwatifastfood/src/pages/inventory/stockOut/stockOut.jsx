@@ -207,7 +207,6 @@ function StockOut() {
             productUnit: "",
             stockOutCategory: null,
             stockOutComment: "",
-            reason: '',
             stockOutDate: dayjs()
         })
         setStockOutFormDataError({
