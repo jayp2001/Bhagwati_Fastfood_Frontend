@@ -44,7 +44,7 @@ function SuppilerDetail() {
         paidAmount: '',
         transactionNote: '',
         remainingAmount: '',
-        supplierName: ''
+        supplierName: '',
     });
     const [formDataError, setFormDataError] = React.useState({
         receivedBy: false,
@@ -647,7 +647,7 @@ function SuppilerDetail() {
                     </div>
                     <div className='grid grid-cols-12 gap-3 hrLine'>
                         <div className='col-span-5 suppilerDetailFeildHeader'>
-                            Firm Nam :
+                            Firm Name :
                         </div>
                         <div className='col-span-7 suppilerDetailFeild'>
                             {suppilerDetails.firmName}
@@ -659,14 +659,6 @@ function SuppilerDetail() {
                         </div>
                         <div className='col-span-7 suppilerDetailFeild'>
                             {suppilerDetails.firmAddress}
-                        </div>
-                    </div>
-                    <div className='grid grid-cols-12 gap-3 hrLine'>
-                        <div className='col-span-5 suppilerDetailFeildHeader'>
-                            Products :
-                        </div>
-                        <div className='col-span-7 suppilerDetailFeild'>
-                            {suppilerDetails.products}
                         </div>
                     </div>
                     <div className='grid grid-cols-12 gap-3 hrLine'>
@@ -948,7 +940,7 @@ function SuppilerDetail() {
                                     <div className={`flex col-span-2 justify-center ${tabStockIn === 'products' ? 'products' : 'productTab'}`} onClick={() => {
                                         setTabStockIn('products'); setPage(0); filter ? getProductDataByFilter() : getProductDataByTab(); setRowsPerPage(5);
                                     }}>
-                                        <div className='statusTabtext'>products</div>
+                                        <div className='statusTabtext'>Products</div>
                                     </div>
                                 </div>
                             </div>

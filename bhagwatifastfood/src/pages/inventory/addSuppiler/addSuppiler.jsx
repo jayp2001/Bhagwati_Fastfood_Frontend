@@ -2,6 +2,7 @@ import './addSuppiler.css'
 import { useState, useEffect } from "react";
 import React from "react";
 import TextField from '@mui/material/TextField';
+import { useRef } from 'react';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -53,6 +54,13 @@ function AddSuppiler() {
             "Content-Type": "application/json",
             Authorization: `Bearer ${userInfo.token}`,
         },
+    };
+    const textFieldRef = useRef(null);
+
+    const focus = () => {
+        if (textFieldRef.current) {
+            textFieldRef.current.focus();
+        }
     };
     const [productName, setProductName] = React.useState([]);
     const [loading, setLoading] = React.useState(false);
@@ -152,6 +160,7 @@ function AddSuppiler() {
             .then((res) => {
                 setLoading(false);
                 setSuccess(true);
+                focus();
             })
             .catch((error) => {
                 setLoading(false);
@@ -215,11 +224,13 @@ function AddSuppiler() {
                 theme: "colored",
             });
         setTimeout(() => {
+            setLoading(false)
             setSuccess(false)
             reset()
         }, 50)
     }
     if (error) {
+        setLoading(false)
         toast.dismiss('loading');
         toast(error, {
             type: 'error',
@@ -257,8 +268,7 @@ function AddSuppiler() {
                                             inputProps={{ autoFocus: true }}
                                             onChange={onChange}
                                             value={formData.supplierFirstName}
-                                            error={formDataError.supplierFirstName}
-                                            helperText={formDataError.supplierFirstName ? "Please Enter First Name" : ''}
+                                            inputRef={textFieldRef}
                                             name="supplierFirstName"
                                             id="outlined-required"
                                             label="Suppiler First Name"

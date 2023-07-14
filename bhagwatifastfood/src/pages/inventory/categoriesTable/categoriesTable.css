@@ -33,7 +33,7 @@
     margin-top: 100px;
 }
 
-.addCategoryBtn{
+.addCategoryBtn {
     height: 40px;
     padding: 5px 15px;
     text-align: center;
@@ -42,15 +42,26 @@
     color: #fff;
 }
 
-.addCategorySaveBtn{
+.addCategoryBtn:hover {
+    transform: scale(1.011);
+    box-shadow: 0 3px 9px 0 rgba(0, 0, 0, 0.15);
+}
+
+.addCategorySaveBtn {
     height: 50px;
     width: 100%;
-        padding: 5px 15px;
-        text-align: center;
-        border-radius: 5px;
-        background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(0, 122, 255, 1) 0%, rgba(0, 156, 255, 1) 78%);
-        color: #fff;
+    padding: 5px 15px;
+    text-align: center;
+    border-radius: 5px;
+    background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(0, 122, 255, 1) 0%, rgba(0, 156, 255, 1) 78%);
+    color: #fff;
 }
+
+.addCategorySaveBtn:hover {
+    transform: scale(1.011);
+    box-shadow: 0 3px 9px 0 rgba(0, 0, 0, 0.15);
+}
+
 .addCategoryCancleBtn {
     height: 50px;
     width: 100%;
@@ -60,9 +71,15 @@
     color: #fff;
     background: linear-gradient(195deg, #42424a, #191919);
 }
-.editCategoryBtn{
-height: 40px;
-width: 100px;
+
+.addCategoryCancleBtn:hover {
+    transform: scale(1.011);
+    box-shadow: 0 3px 9px 0 rgba(0, 0, 0, 0.15);
+}
+
+.editCategoryBtn {
+    height: 40px;
+    width: 100px;
     padding: 5px 15px;
     font-weight: 600;
     font-size: 14px;
@@ -73,15 +90,25 @@ width: 100px;
     color: #fff;
 }
 
-.deleteCategoryBtn{
-height: 40px;
-width: 100px;
+.editCategoryBtn:hover {
+    transform: scale(1.011);
+    box-shadow: 0 3px 9px 0 rgba(0, 0, 0, 0.15);
+}
+
+.deleteCategoryBtn {
+    height: 40px;
+    width: 100px;
     font-weight: 600;
-        font-size: 14px;
-        letter-spacing: 2px;
+    font-size: 14px;
+    letter-spacing: 2px;
     padding: 5px 15px;
     text-align: center;
     border-radius: 5px;
     background: #ff1903;
     color: #fff;
+}
+
+.deleteCategoryBtn:hover {
+    transform: scale(1.011);
+    box-shadow: 0 3px 9px 0 rgba(0, 0, 0, 0.15);
 }

@@ -1,5 +1,6 @@
 import './stockInOut.css';
 import * as React from "react";
+import { useRef } from 'react';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
@@ -58,6 +59,7 @@ const qtyUnit = [
 ]
 
 function StockInOut() {
+    const regex = /^\d*(?:\.\d*)?$/;
     const navigate = useNavigate();
     var customParseFormat = require('dayjs/plugin/customParseFormat')
     dayjs.extend(customParseFormat)
@@ -78,6 +80,13 @@ function StockInOut() {
     const [error, setError] = React.useState(false);
     const [success, setSuccess] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
+    const textFieldRef = useRef(null);
+
+    const focus = () => {
+        if (textFieldRef.current) {
+            textFieldRef.current.focus();
+        }
+    };
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
@@ -300,6 +309,7 @@ function StockInOut() {
                 setFilter(false)
                 getStockInData()
                 handleResetStockIn();
+                focus();
             })
             .catch((error) => {
                 setError(error.response.data);
@@ -447,7 +457,7 @@ function StockInOut() {
             productUnit: value && value.productUnit ? value.productUnit : ''
         }))
         getSuppilerList(value && value.productId ? value.productId : '')
-        console.log('formddds', stockInFormData)
+        // console.log('formddds', stockInFormData)
     }
     const handleProductNameAutoCompleteOut = (event, value) => {
         setStockOutFormData((prevState) => ({
@@ -544,6 +554,7 @@ function StockInOut() {
                 setFilter(false);
                 getStockOutData();
                 handleResetStockOut();
+                focus();
             })
             .catch((error) => {
                 setError(error.response.data);
@@ -1016,7 +1027,7 @@ function StockInOut() {
                                                         onChange={handleProductNameAutoComplete}
                                                         options={productList ? productList : []}
                                                         getOptionLabel={(options) => options.productName}
-                                                        renderInput={(params) => <TextField {...params} label="Product Name" />}
+                                                        renderInput={(params) => <TextField inputRef={textFieldRef} {...params} label="Product Name" />}
                                                     />
                                                 </FormControl>
                                                 :
@@ -1047,7 +1058,11 @@ function StockInOut() {
                                                 type="number"
                                                 label="Qty"
                                                 fullWidth
-                                                onChange={onChangeStockIn}
+                                                onChange={(e) => {
+                                                    if ((regex.test(e.target.value) || e.target.value === '') && e.target.value.length < 11) {
+                                                        onChangeStockIn(e)
+                                                    }
+                                                }}
                                                 value={stockInFormData.productQty}
                                                 error={stockInFormDataError.productQty}
                                                 helperText={stockInFormDataError.productQty ? "Enter Qty" : ''}
@@ -1073,7 +1088,11 @@ function StockInOut() {
                                                         }))
                                                     }
                                                 }}
-                                                onChange={onChangeStockIn}
+                                                onChange={(e) => {
+                                                    if ((regex.test(e.target.value) || e.target.value === '') && e.target.value.length < 11) {
+                                                        onChangeStockIn(e)
+                                                    }
+                                                }}
                                                 value={stockInFormData.productPrice === 'NaN' ? 0 : stockInFormData.productPrice}
                                                 error={stockInFormDataError.productPrice}
                                                 helperText={stockInFormDataError.productPrice ? "Enter Price" : ''}
@@ -1101,7 +1120,12 @@ function StockInOut() {
                                                         }))
                                                     }
                                                 }}
-                                                onChange={onChangeStockIn}
+                                                onChange={(e) => {
+                                                    // console.log('regex', regex, e.target.value, regex.test(e.target.value))
+                                                    if ((regex.test(e.target.value) || e.target.value === '') && e.target.value.length < 11) {
+                                                        onChangeStockIn(e)
+                                                    }
+                                                }}
                                                 value={stockInFormData.totalPrice === 'NaN' ? 0 : stockInFormData.totalPrice}
                                                 error={stockInFormDataError.totalPrice}
                                                 helperText={stockInFormDataError.totalPrice ? "Total Price" : ''}
@@ -1249,7 +1273,7 @@ function StockInOut() {
                                                         onChange={handleProductNameAutoCompleteOut}
                                                         options={productList ? productList : []}
                                                         getOptionLabel={(options) => options.productName}
-                                                        renderInput={(params) => <TextField {...params} label="Product Name" />}
+                                                        renderInput={(params) => <TextField {...params} inputRef={textFieldRef} label="Product Name" />}
                                                     />
                                                 </FormControl>
                                                 :

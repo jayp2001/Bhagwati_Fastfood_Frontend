@@ -1,6 +1,7 @@
 import './categoriesTable.css'
 import { useState, useEffect } from "react";
 import React from "react";
+import { useRef } from 'react';
 import { BACKEND_BASE_URL } from '../../../url';
 import axios from 'axios';
 import Table from '@mui/material/Table';
@@ -39,6 +40,30 @@ function CategoriesTable() {
         stockOutCategoryName: '',
         stockOutCategoryId: ''
     })
+
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'F10') {
+                handleOpen()
+                console.log('Enter key pressed');
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, []);
+
+    const textFieldRef = useRef(null);
+
+    const focus = () => {
+        if (textFieldRef.current) {
+            textFieldRef.current.focus();
+        }
+    };
+
     const [isEdit, setIsEdit] = React.useState(false);
     const [category, setCategory] = React.useState('');
     const [categoryError, setCategoryError] = React.useState('');
@@ -90,7 +115,7 @@ function CategoriesTable() {
     }
     const getDataOnPageChange = async (pageNum, rowPerPageNum) => {
         console.log("page get", page, rowsPerPage)
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getSupplierdata?page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getCategoryList?page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
             .then((res) => {
                 setData(res.data.rows);
                 setTotalRows(res.data.numRows);
@@ -168,6 +193,7 @@ function CategoriesTable() {
                 getData();
                 setLoading(false);
                 handleReset();
+                focus();
             })
             .catch((error) => {
                 setError(error.response.data);
@@ -197,7 +223,7 @@ function CategoriesTable() {
                 toastId: 'success',
                 position: "top-right",
                 toastId: 'error',
-                autoClose: 3000,
+                autoClose: 1500,
                 hideProgressBar: false,
                 closeOnClick: true,
                 pauseOnHover: true,
@@ -324,6 +350,7 @@ function CategoriesTable() {
                                 }}
                                 value={isEdit ? editCateory.stockOutCategoryName ? editCateory.stockOutCategoryName : '' : category}
                                 error={categoryError ? true : false}
+                                inputRef={textFieldRef}
                                 helperText={categoryError ? "Please Enter Category" : ''}
                                 name="category"
                                 id="outlined-required"

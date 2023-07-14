@@ -83,9 +83,8 @@ const qtyUnit = [
     'Num'
 ]
 
-
-
 function ProductListTable() {
+    const regex = /^\d*(?:\.\d*)?$/;
     const textFieldRef = useRef(null);
 
     const focus = () => {
@@ -1324,7 +1323,11 @@ function ProductListTable() {
                                         }))
                                     }
                                 }}
-                                onChange={onChangeStockIn}
+                                onChange={(e) => {
+                                    if ((regex.test(e.target.value) || e.target.value === '') && e.target.value.length < 11) {
+                                        onChangeStockIn(e)
+                                    }
+                                }}
                                 value={stockInFormData.productPrice === 'NaN' ? 0 : stockInFormData.productPrice}
                                 error={stockInFormDataError.productPrice}
                                 helperText={stockInFormDataError.productPrice ? "Enter Product Price" : ''}
@@ -1352,7 +1355,11 @@ function ProductListTable() {
                                         }))
                                     }
                                 }}
-                                onChange={onChangeStockIn}
+                                onChange={(e) => {
+                                    if ((regex.test(e.target.value) || e.target.value === '') && e.target.value.length < 11) {
+                                        onChangeStockIn(e)
+                                    }
+                                }}
                                 value={stockInFormData.totalPrice === 'NaN' ? 0 : stockInFormData.totalPrice}
                                 error={stockInFormDataError.totalPrice}
                                 helperText={stockInFormDataError.totalPrice ? "Enter Toatal Price" : ''}

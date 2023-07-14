@@ -101,7 +101,7 @@ function LoginPage() {
                         </div>
                     </div>
                 </div>
-                <div className="tablet1:col-span-6 mobile:col-span-12 tablet:h-full tablet1:h-fit tablet1:pb-6  tablet1:pt-6 overflow-scroll grid content-center">
+                <div className="tablet1:col-span-6 mobile:col-span-12 tablet:h-full tablet1:h-fit tablet1:pb-6 tablet1:pt-6 grid content-center">
                     <div className="grid grid-cols-12">
                         <div className="tablet1:col-span-8 mobile:col-span-10 mobile:col-start-2 tablet1:col-start-3">
                             <div className="loginCard">

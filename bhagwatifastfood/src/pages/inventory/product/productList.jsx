@@ -64,7 +64,23 @@ const qtyUnit = [
     'Num'
 ]
 function ProductList() {
+    const regex = /^\d*(?:\.\d*)?$/;
     const textFieldRef = useRef(null);
+
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'F10') {
+                handleOpen()
+                console.log('Enter key pressed');
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, []);
 
     const focus = () => {
         if (textFieldRef.current) {
@@ -869,7 +885,11 @@ function ProductList() {
                                         }))
                                     }
                                 }}
-                                onChange={onChangeStockIn}
+                                onChange={(e) => {
+                                    if ((regex.test(e.target.value) || e.target.value === '') && e.target.value.length < 11) {
+                                        onChangeStockIn(e)
+                                    }
+                                }}
                                 value={stockInFormData.productPrice === 'NaN' ? 0 : stockInFormData.productPrice}
                                 error={stockInFormDataError.productPrice}
                                 helperText={stockInFormDataError.productPrice ? "Enter Product Price" : ''}
@@ -897,7 +917,11 @@ function ProductList() {
                                         }))
                                     }
                                 }}
-                                onChange={onChangeStockIn}
+                                onChange={(e) => {
+                                    if ((regex.test(e.target.value) || e.target.value === '') && e.target.value.length < 11) {
+                                        onChangeStockIn(e)
+                                    }
+                                }}
                                 value={stockInFormData.totalPrice === 'NaN' ? 0 : stockInFormData.totalPrice}
                                 error={stockInFormDataError.totalPrice}
                                 helperText={stockInFormDataError.totalPrice ? "Enter Toatal Price" : ''}

@@ -2,6 +2,7 @@ import './stockOut.css';
 import * as React from "react";
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
+import { useRef } from 'react';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -55,8 +56,12 @@ function StockOut() {
     const [error, setError] = React.useState(false);
     const [success, setSuccess] = React.useState(false);
     const [loading, setLoading] = React.useState(false);
-    const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
+    const textFieldRef = useRef(null);
+
+    const focus = () => {
+        if (textFieldRef.current) {
+            textFieldRef.current.focus();
+        }
     };
 
     const resetStockOutEdit = () => {
@@ -237,6 +242,7 @@ function StockOut() {
                 setFilter(false);
                 getStockOutData();
                 handleResetStockOut();
+                focus();
             })
             .catch((error) => {
                 setError(error.response.data);
@@ -454,7 +460,7 @@ function StockOut() {
                                                 onChange={handleProductNameAutoCompleteOut}
                                                 options={productList ? productList : []}
                                                 getOptionLabel={(options) => options.productName}
-                                                renderInput={(params) => <TextField {...params} label="Product Name" />}
+                                                renderInput={(params) => <TextField inputRef={textFieldRef} {...params} label="Product Name" />}
                                             />
                                         </FormControl>
                                         :
