@@ -27,41 +27,43 @@ function App() {
     <div className="">
       <BrowserRouter>
        <NavBar/>
-            <Routes>
-              {/* <Route path="/" element={<ProtectedAdminRoute/>}>
-                <Route path='add' exact element={<AddAdminPage />}/>
-                <Route path='list' exact element={<AgentList />}/>
-              </Route> */}
-              <Route path="/" element={<ProtectedUserRoutes/>}>
-                <Route path="/dashboard" element={<Dashboard/>}/>
-                <Route path="/addUser" element={<AddUser />}/>
-                <Route path="/addSuppiler" element={<AddSuppiler />}/>
-                <Route path="/userTable" element={<UserTable />}/>
-                <Route path="/productList" element={<ProductList />}/>
-                <Route path="/productTable" element={<ProductListTable />}/>
-                <Route path="/stockInOut" element={<StockInOut />}/>
-                <Route path="/stockOut" element={<StockOut />}/>
-                <Route path="/transactionTable" element={<TransactionTable />}/>
-                <Route path="/suppilerTable" element={<SuppilerTable />}/>
-                <Route path="/categories" element={<CategoriesTable />}/>
-                <Route path="/editUser/:id" element={<EditUser/>}/>
-                <Route path="/editHistory/:id" element={<EditHistory/>}/>
-                <Route path="/editSuppiler/:id" element={<EditSuppiler/>}/>
-                <Route path="/suppilerDetails/:id" element={<SuppilerDetail/>}/>
-                <Route path="/productDetails/:id/:name/:unit/:remainingQty" element={<ProductDetails/>}/>
-                {/* <Route path="/dashboard" element={<Dashboard/>}/>
-                <Route path="/dealer/:id" element={<DealerDetail/>}/>
-                <Route path="/editDealer/:id" element={<EditDealer/>}/>
-                <Route path="/vehicleDetail/:id" element={<VehicleDetail/>}/>
-                <Route path="/editVehicleDetail/:id" element={<EditBook/>}/>
-                <Route path="/TTO" element={<TtoBookList/>}/>
-                <Route path="/RRF" element={<RrfBookList/>}/>
-                <Route path="/OTHER" element={<OtherBookList/>}/>
-                <Route path="/bookList" element={<AllBookList/>}/> */}
-              </Route>
-              <Route path='/login' exact element={<LoginPage />}/>
-              <Route path='*' element={<PageNotFoundRedirect/>}/>
-            </Routes>
+            <div className='mainBody'>
+              <Routes>
+                {/* <Route path="/" element={<ProtectedAdminRoute/>}>
+                  <Route path='add' exact element={<AddAdminPage />}/>
+                  <Route path='list' exact element={<AgentList />}/>
+                </Route> */}
+                <Route path="/" element={<ProtectedUserRoutes/>}>
+                  <Route path="/dashboard" element={<Dashboard/>}/>
+                  <Route path="/addUser" element={<AddUser />}/>
+                  <Route path="/addSuppiler" element={<AddSuppiler />}/>
+                  <Route path="/userTable" element={<UserTable />}/>
+                  <Route path="/productList" element={<ProductList />}/>
+                  <Route path="/productTable" element={<ProductListTable />}/>
+                  <Route path="/stockInOut" element={<StockInOut />}/>
+                  <Route path="/stockOut" element={<StockOut />}/>
+                  <Route path="/transactionTable" element={<TransactionTable />}/>
+                  <Route path="/suppilerTable" element={<SuppilerTable />}/>
+                  <Route path="/categories" element={<CategoriesTable />}/>
+                  <Route path="/editUser/:id" element={<EditUser/>}/>
+                  <Route path="/editHistory/:id" element={<EditHistory/>}/>
+                  <Route path="/editSuppiler/:id" element={<EditSuppiler/>}/>
+                  <Route path="/suppilerDetails/:id" element={<SuppilerDetail/>}/>
+                  <Route path="/productDetails/:id/:name/:unit/:remainingQty" element={<ProductDetails/>}/>
+                  {/* <Route path="/dashboard" element={<Dashboard/>}/>
+                  <Route path="/dealer/:id" element={<DealerDetail/>}/>
+                  <Route path="/editDealer/:id" element={<EditDealer/>}/>
+                  <Route path="/vehicleDetail/:id" element={<VehicleDetail/>}/>
+                  <Route path="/editVehicleDetail/:id" element={<EditBook/>}/>
+                  <Route path="/TTO" element={<TtoBookList/>}/>
+                  <Route path="/RRF" element={<RrfBookList/>}/>
+                  <Route path="/OTHER" element={<OtherBookList/>}/>
+                  <Route path="/bookList" element={<AllBookList/>}/> */}
+                </Route>
+                <Route path='/login' exact element={<LoginPage />}/>
+                <Route path='*' element={<PageNotFoundRedirect/>}/>
+              </Routes>
+            </div>
     </BrowserRouter>
     </div>
   );
