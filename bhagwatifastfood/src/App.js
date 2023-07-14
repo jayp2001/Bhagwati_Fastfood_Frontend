@@ -22,6 +22,7 @@ import ProductListTable from './pages/inventory/productListTable/productListTabl
 import 'react-toastify/dist/ReactToastify.css';
 import EditHistory from './pages/inventory/editHistory/editHistory';
 import StockOut from './pages/inventory/stockOut/stockOut';
+import ProtectedStockManagerRoutes from './protectedStockManageRoutes';
 function App() {
   return (
     <div className="">
@@ -29,10 +30,10 @@ function App() {
        <NavBar/>
             <div className='mainBody'>
               <Routes>
-                {/* <Route path="/" element={<ProtectedAdminRoute/>}>
-                  <Route path='add' exact element={<AddAdminPage />}/>
-                  <Route path='list' exact element={<AgentList />}/>
-                </Route> */}
+                <Route path="/" element={<ProtectedStockManagerRoutes/>}>
+                  <Route path="/stockOut" element={<StockOut />}/>
+                  {/* <Route path='list' exact element={<AgentList />}/> */}
+                </Route>
                 <Route path="/" element={<ProtectedUserRoutes/>}>
                   <Route path="/dashboard" element={<Dashboard/>}/>
                   <Route path="/addUser" element={<AddUser />}/>
@@ -41,7 +42,6 @@ function App() {
                   <Route path="/productList" element={<ProductList />}/>
                   <Route path="/productTable" element={<ProductListTable />}/>
                   <Route path="/stockInOut" element={<StockInOut />}/>
-                  <Route path="/stockOut" element={<StockOut />}/>
                   <Route path="/transactionTable" element={<TransactionTable />}/>
                   <Route path="/suppilerTable" element={<SuppilerTable />}/>
                   <Route path="/categories" element={<CategoriesTable />}/>

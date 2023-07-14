@@ -114,15 +114,18 @@ function ProductDetails() {
         productUnit: unit,
         stockOutCategory: 0,
         stockOutComment: "",
+        reason: "",
         stockOutDate: dayjs()
     })
     const [stockOutFormDataError, setStockOutFormDataError] = React.useState({
         productQty: false,
+        reason: false,
         stockOutCategory: false,
         stockOutDate: false
     })
     const [stockOutErrorFields, setStockOutErrorFields] = React.useState([
         'productQty',
+        'reason',
         'stockOutCategory',
         'stockOutDate',
     ])
@@ -1390,7 +1393,7 @@ function ProductDetails() {
                                             }}
                                         />
                                     </div>
-                                    <div className='col-span-3'>
+                                    <div className='col-span-4'>
                                         <FormControl style={{ minWidth: '100%', maxWidth: '100%' }}>
                                             <InputLabel id="demo-simple-select-label" required error={stockOutFormDataError.stockOutCategory}>Category</InputLabel>
                                             <Select
@@ -1425,7 +1428,7 @@ function ProductDetails() {
                                             </Select>
                                         </FormControl>
                                     </div>
-                                    <div className='col-span-3'>
+                                    <div className='col-span-2'>
                                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                                             <DesktopDatePicker
                                                 textFieldStyle={{ width: '100%' }}
@@ -1454,6 +1457,35 @@ function ProductDetails() {
                                             fullWidth
                                         />
                                     </div>
+                                    {isEdit &&
+                                        <div className='col-span-6'>
+                                            <TextField
+                                                onBlur={(e) => {
+                                                    if (e.target.value.length < 4) {
+                                                        setStockOutFormDataError((perv) => ({
+                                                            ...perv,
+                                                            reason: true
+                                                        }))
+                                                    }
+                                                    else {
+                                                        setStockOutFormDataError((perv) => ({
+                                                            ...perv,
+                                                            reason: false
+                                                        }))
+                                                    }
+                                                }}
+                                                onChange={onChangeStockOut}
+                                                error={stockOutFormDataError.reason}
+                                                value={stockOutFormData.reason}
+                                                name="reason"
+                                                helperText={stockOutFormDataError.reason ? 'Edit Reason is must ...' : ''}
+                                                id="outlined-required"
+                                                label="Edit Reason"
+                                                InputProps={{ style: { fontSize: 14 } }}
+                                                InputLabelProps={{ style: { fontSize: 14 } }}
+                                                fullWidth
+                                            />
+                                        </div>}
                                     <div className='col-span-2 col-start-9'>
                                         <button className='addCategorySaveBtn' onClick={() => {
                                             isEdit ? editSubmitStockOut() : submitStockOut()

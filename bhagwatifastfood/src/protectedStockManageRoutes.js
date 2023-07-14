@@ -3,7 +3,7 @@ import { useLocation, Navigate, Outlet } from "react-router-dom";
 import jwt_decode from 'jwt-decode'
 import CryptoJS from 'crypto-js'
 
-const ProtectedUserRoutes = () => {
+const ProtectedStockManagerRoutes = () => {
 
     const decryptData = (text) => {
         const key = process.env.REACT_APP_AES_KEY;
@@ -22,7 +22,7 @@ const ProtectedUserRoutes = () => {
     try{
         const decoded = jwt_decode(user.token);
         const expirationTime = (decoded.exp * 1000) - 60000
-        const auth = new Date(expirationTime) > new Date() && role !=6 ? true : false
+        const auth = new Date(expirationTime) > new Date() && role == 6 ? true : false
         // console.log('<<>>',new Date(expirationTime),decoded,new Date(expirationTime) > new Date() ? true : false)
         return(
             auth?
@@ -44,4 +44,4 @@ const ProtectedUserRoutes = () => {
 
 };
 
-export default ProtectedUserRoutes;
+export default ProtectedStockManagerRoutes;

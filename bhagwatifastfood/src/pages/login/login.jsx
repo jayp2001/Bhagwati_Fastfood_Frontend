@@ -67,9 +67,14 @@ function LoginPage() {
                 if (res && res.data ? true : false) {
                     console.log("::::")
                     setSuccess(true);
+                    const rights = res.data.userRights;
                     res.data.userRights = res.data.userRights ? encryptData(res.data.userRights) : res.data.userRights;
                     localStorage.setItem("userInfo", JSON.stringify(res.data));
-                    navigate('/dashboard');
+                    console.log("rightsLogin", rights);
+                    if (rights == 6)
+                        navigate('/stockOut');
+                    else
+                        navigate('/dashboard');
                 }
             })
             .catch((error) => {

@@ -31,7 +31,7 @@ import TableRow from '@mui/material/TableRow';
 import TablePagination from '@mui/material/TablePagination';
 import Paper from '@mui/material/Paper';
 import Menutemp from '../transactionTable/menu';
-import MenuStockInOut from '../stockManagement/menu';
+import MenuStockInOut from './menu';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 

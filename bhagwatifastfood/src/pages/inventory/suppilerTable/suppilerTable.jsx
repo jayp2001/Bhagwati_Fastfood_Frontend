@@ -130,8 +130,9 @@ function SuppilerTable() {
         setFormData((perv) => ({
             ...perv,
             supplierId: row.supplierId,
-            supplierName: row.supplierName,
-            remainingAmount: row.remainingAmount,
+            receivedBy: row.supplierNickName,
+            supplierFirmName: row.supplierFirmName,
+            remainingAmount: row.remainingAmount ? row.remainingAmount : 0,
         }))
         setOpen(true);
     }
@@ -237,6 +238,7 @@ function SuppilerTable() {
             });
         setTimeout(() => {
             setSuccess(false)
+            setLoading(false)
         }, 50)
     }
     if (error) {
@@ -254,6 +256,7 @@ function SuppilerTable() {
             theme: "colored",
         });
         setError(false);
+        setLoading(false)
     }
     const search = async (searchWord) => {
         await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getSupplierdata?page=${1}&numPerPage=${5}&searchWord=${searchWord}`, config)
@@ -329,7 +332,7 @@ function SuppilerTable() {
                                             <TableCell>No.</TableCell>
                                             <TableCell>Name</TableCell>
                                             <TableCell align="left">Firm</TableCell>
-                                            <TableCell align="left">Products</TableCell>
+                                            <TableCell align="left">Suppiler Name</TableCell>
                                             <TableCell align="left">Phone Number</TableCell>
                                             {/* <TableCell align="left">Role</TableCell> */}
                                             <TableCell align="left">Remaining Payment</TableCell>
@@ -350,7 +353,7 @@ function SuppilerTable() {
                                                         {row.supplierNickName}
                                                     </TableCell>
                                                     <TableCell onClick={() => handleSuppilerOnClick(row.supplierId)} align="left" >{row.supplierFirmName}</TableCell>
-                                                    <TableCell onClick={() => handleSuppilerOnClick(row.supplierId)} align="left" >{row.productList}</TableCell>
+                                                    <TableCell onClick={() => handleSuppilerOnClick(row.supplierId)} align="left" >{row.supplierName}</TableCell>
                                                     <TableCell onClick={() => handleSuppilerOnClick(row.supplierId)} align="left" >{row.supplierPhoneNumber}</TableCell>
                                                     {/* <TableCell align="left" >{row.rightsName}</TableCell> */}
                                                     <TableCell onClick={() => handleSuppilerOnClick(row.supplierId)} align="left" >{row.remainingAmount}</TableCell>
@@ -391,7 +394,7 @@ function SuppilerTable() {
             >
                 <Box sx={styleStockIn}>
                     <Typography id="modal-modal" variant="h6" component="h2">
-                        <span className='makePaymentHeader'>Make Payment to : </span><span className='makePaymentName'>{formData.supplierName}</span>
+                        <span className='makePaymentHeader'>Make Payment to : </span><span className='makePaymentName'>{formData.supplierFirmName}</span>
                     </Typography>
                     <div className='mt-6 grid grid-cols-12 gap-6'>
                         <div className='col-span-6'>
@@ -410,6 +413,7 @@ function SuppilerTable() {
                                         }))
                                     }
                                 }}
+                                disabled={formData.remainingAmount == 0}
                                 value={formData.receivedBy}
                                 error={formDataError.receivedBy}
                                 helperText={formDataError.receivedBy ? 'Enter Reciver Name' : ''}
@@ -438,6 +442,7 @@ function SuppilerTable() {
                                         }))
                                     }
                                 }}
+                                disabled={formData.remainingAmount == 0}
                                 type="number"
                                 label="Paid Amount"
                                 fullWidth
@@ -456,6 +461,7 @@ function SuppilerTable() {
                     <div className='mt-4 grid grid-cols-12 gap-6'>
                         <div className='col-span-12'>
                             <TextField
+                                disabled={formData.remainingAmount == 0}
                                 onChange={onChange}
                                 value={formData.transactionNote}
                                 name="transactionNote"
