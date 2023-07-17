@@ -210,6 +210,7 @@ function ProductDetails() {
     const handleResetStockOut = () => {
         setStockOutFormData({
             productId: id,
+            reason: '',
             productQty: 0,
             productUnit: "",
             stockOutCategory: null,
@@ -220,7 +221,8 @@ function ProductDetails() {
             productQty: false,
             productUnit: false,
             stockOutCategory: false,
-            stockInDate: false
+            stockInDate: false,
+            reason: false
         })
     }
     const getSuppilerList = async (id) => {
@@ -1043,10 +1045,15 @@ function ProductDetails() {
                                     <CountCard color={'blue'} count={statisticsCount && statisticsCount.totalUsed ? statisticsCount.totalUsed : 0} desc={'Total Used'} productDetail={true} unitDesc={unit} />
                                 </div>
                                 <div className='col-span-3'>
-                                    <CountCard color={'orange'} count={statisticsCount && statisticsCount.remainingStock ? statisticsCount.remainingStock : 0} desc={'Remaining Stock'} productDetail={true} unitDesc={unit} />
+                                    <CountCard color={'blue'} count={statisticsCount && statisticsCount.totalUsedPrice ? statisticsCount.totalUsedPrice : 0} desc={'Used Value'} productDetail={true} unitDesc={0} />
                                 </div>
                             </div>
                             <div className='grid grid-cols-12 gap-6'>
+                                <div className='col-span-3'>
+                                    <CountCard color={'orange'} count={statisticsCount && statisticsCount.remainingStock ? statisticsCount.remainingStock : 0} desc={'Remaining Stock'} productDetail={true} unitDesc={unit} />
+                                </div> <div className='col-span-3'>
+                                    <CountCard color={'orange'} count={statisticsCount && statisticsCount.remainUsedPrice ? statisticsCount.remainUsedPrice : 0} desc={'Remaining Value'} productDetail={true} unitDesc={0} />
+                                </div>
                                 <div className='col-span-3'>
                                     <CountCard color={'green'} count={statisticsCount && statisticsCount.lastPrice ? statisticsCount.lastPrice : 0} desc={'Last Purchase Price'} productDetail={true} unitDesc={0} />
                                 </div>
@@ -1073,10 +1080,10 @@ function ProductDetails() {
                             </div>
                             :
                             <div className='grid gap-4 mt-12' style={{ minHeight: '216px', maxHeight: '332px', overflowY: 'scroll' }}>
-                                <div className='grid grid-cols-4 gap-6 pb-3'>
+                                <div className='grid grid-cols-3 gap-6 pb-3'>
                                     {
                                         categoryNameAndCount && categoryNameAndCount?.map((row, index) => (
-                                            <ProductQtyCountCard productQtyUnit={unit} productQty={row.usedQty} productName={row.stockOutCategoryName} index={index} />
+                                            <ProductQtyCountCard productQtyUnit={unit} productQty={row.usedQty} productPrice={row.usedPrice} productName={row.stockOutCategoryName} index={index} />
                                         ))
                                     }
                                 </div>
@@ -1566,7 +1573,7 @@ function ProductDetails() {
                                                         <Tooltip title={row.stockInComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.stockInComment}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.stockInDate}</TableCell>
                                                         <TableCell align="right">
-                                                            <MenuStockInOut handleAccordionOpenOnEdit={handleAccordionOpenOnEdit} stockInOutId={row.stockInId} data={row} deleteStockInOut={handleDeleteStockIn} />
+                                                            <MenuStockInOut handleAccordionOpenOnEdit={handleAccordionOpenOnEdit} stockInOutId={row.stockInId} data={row} deleteStockInOut={handleDeleteStockIn} setError={setError} />
                                                         </TableCell>
                                                     </TableRow> :
                                                     <TableRow

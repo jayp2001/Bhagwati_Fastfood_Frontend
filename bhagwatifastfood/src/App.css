@@ -53,3 +53,15 @@ body{
   height: 100;
   overflow: scroll;
 }
+
+.mainBody::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.mainBody {
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
+}

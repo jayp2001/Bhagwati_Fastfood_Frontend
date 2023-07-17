@@ -307,6 +307,7 @@ function StockInOut() {
                     }
                 ])
                 setFilter(false)
+                getProductList();
                 getStockInData()
                 handleResetStockIn();
                 focus();
@@ -502,14 +503,16 @@ function StockInOut() {
             productUnit: "",
             stockOutCategory: null,
             stockOutComment: "",
-            stockOutDate: dayjs()
+            stockOutDate: dayjs(),
+            reason: ''
         })
         setStockOutFormDataError({
             productQty: false,
             productName: false,
             productUnit: false,
             stockOutCategory: false,
-            stockInDate: false
+            stockInDate: false,
+            reason: false
         })
     }
     const onChangeStockOut = (e) => {
@@ -551,6 +554,7 @@ function StockInOut() {
                     }
                 ])
                 setFilter(false);
+                getProductList();
                 getStockOutData();
                 handleResetStockOut();
                 focus();
@@ -585,7 +589,16 @@ function StockInOut() {
 
     const submitStockOut = () => {
         const isValidate = stockOutErrorFields.filter(element => {
-            if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
+            if (element === 'reason') {
+                if (isEdit && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormDataError['reason'] === true) {
+                    setStockOutFormDataError((perv) => ({
+                        ...perv,
+                        reason: true
+                    }))
+                    return element;
+                }
+            }
+            else if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
                 setStockOutFormDataError((perv) => ({
                     ...perv,
                     [element]: true
@@ -612,16 +625,7 @@ function StockInOut() {
 
     const editSubmitStockOut = () => {
         const isValidate = stockOutErrorFields.filter(element => {
-            if (element === 'reason') {
-                if (isEdit && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormDataError['reason'] === true) {
-                    setStockOutFormDataError((perv) => ({
-                        ...perv,
-                        reason: true
-                    }))
-                    return element;
-                }
-            }
-            else if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
+            if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
                 setStockOutFormDataError((perv) => ({
                     ...perv,
                     [element]: true
@@ -1321,7 +1325,8 @@ function StockInOut() {
                                                 <Select
                                                     labelId="demo-simple-select-label"
                                                     id="demo-simple-select"
-                                                    value={stockOutFormData.stockOutCategory ? stockOutFormData.stockOutCategory : null}
+                                                    defaultValue={null}
+                                                    value={stockOutFormData.stockOutCategory ? stockOutFormData.stockOutCategory : ''}
                                                     error={stockOutFormDataError.stockOutCategory}
                                                     name="stockOutCategory"
                                                     label="Category"
@@ -1370,7 +1375,7 @@ function StockInOut() {
                                         <div className='col-span-6'>
                                             <TextField
                                                 onChange={onChangeStockOut}
-                                                value={stockOutFormData.stockOutComment}
+                                                value={stockOutFormData.stockOutComment ? stockOutFormData.stockOutComment : ''}
                                                 name="stockOutComment"
                                                 id="outlined-required"
                                                 label="Comment"
@@ -1542,7 +1547,7 @@ function StockInOut() {
                                                         <Tooltip title={row.stockInComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.stockInComment}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.stockInDate}</TableCell>
                                                         <TableCell align="right">
-                                                            <MenuStockInOut handleAccordionOpenOnEdit={handleAccordionOpenOnEdit} stockInOutId={row.stockInId} data={row} deleteStockInOut={handleDeleteStockIn} />
+                                                            <MenuStockInOut handleAccordionOpenOnEdit={handleAccordionOpenOnEdit} stockInOutId={row.stockInId} data={row} deleteStockInOut={handleDeleteStockIn} setError={setError} />
                                                         </TableCell>
                                                     </TableRow> :
                                                     <TableRow

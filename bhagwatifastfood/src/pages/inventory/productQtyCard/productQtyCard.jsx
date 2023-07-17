@@ -11,8 +11,8 @@ function ProductQtyCountCard(props) {
             </Tooltip>
             <div className='self-center countWwrp'>
                 <Tooltip title={props.productQty + props.productQtyUnit} placement="top-start" arrow>
-                    <div className='countTextProduct'>
-                        {props.productQty} <span className='unitDisplay'>{props.productQtyUnit}</span>
+                    <div className='countTextProduct flex justify-between'>
+                        <div>{props.productQty}<span className='unitDisplay'>{props.productQtyUnit}</span></div>{props.productPrice}
                     </div>
                 </Tooltip>
             </div>

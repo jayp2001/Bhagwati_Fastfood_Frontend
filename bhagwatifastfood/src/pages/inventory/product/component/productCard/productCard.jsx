@@ -15,7 +15,7 @@ function ProductCard(props) {
         props.handleViewDetail(props.productData.productId, props.productData.productName, props.productData.minProductUnit, props.productData.remainingStock)
     }
     return (
-        <div className="productCard" key={props.productData.productId}>
+        <div className="productCard iconPedding" key={props.productData.productId}>
             <div className='grid grid-cols-12'>
                 <div className='col-span-11 productName'>
                     <Tooltip title={props.productData.productName} placement="top-start" arrow>

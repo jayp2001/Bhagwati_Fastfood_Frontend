@@ -37,8 +37,8 @@
 /* .css-78trlr-MuiButtonBase-root-MuiIconButton-root {
     padding: 0px !important;
 } */
-.MuiIconButton-root {
-    padding: 0px !important;
+.iconPedding .MuiIconButton-root{
+        padding: 0px !important;
 }
 
 .stockFieldHeader {

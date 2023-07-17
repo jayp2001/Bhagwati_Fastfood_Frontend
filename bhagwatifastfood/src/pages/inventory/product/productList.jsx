@@ -534,7 +534,15 @@ function ProductList() {
     }
     const submitStockOut = () => {
         const isValidate = stockOutErrorFields.filter(element => {
-            if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
+            if (element === 'reason') {
+                if (isEdit && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormDataError['reason'] === true) {
+                    setStockOutFormDataError((perv) => ({
+                        ...perv,
+                        reason: true
+                    }))
+                    return element;
+                }
+            } else if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
                 setStockOutFormDataError((perv) => ({
                     ...perv,
                     [element]: true

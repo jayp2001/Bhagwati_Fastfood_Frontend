@@ -51,14 +51,14 @@ function MenuStockInOut(props) {
                 <MenuItem key={'delete'}
                     onClick={() => {
                         handleClose();
-                        props.deleteStockInOut(props.stockInOutId)
+                        props.data.remainingQty == props.data.productQty ? props.deleteStockInOut(props.stockInOutId) : props.setError("You can not delete this data...!!")
                     }}>
                     Delete
                 </MenuItem>
                 <MenuItem key={'InVoice'}
                     onClick={() => {
                         handleClose();
-                        props.handleAccordionOpenOnEdit(props.stockInOutId)
+                        props.data.remainingQty == props.data.productQty ? props.handleAccordionOpenOnEdit(props.stockInOutId) : props.setError("You can not edit this data...!!")
                     }}>
                     Edit
                 </MenuItem>

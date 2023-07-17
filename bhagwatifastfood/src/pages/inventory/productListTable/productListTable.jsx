@@ -1078,11 +1078,11 @@ function ProductListTable() {
                                                 <TableCell>No.</TableCell>
                                                 <TableCell>Product Name</TableCell>
                                                 <TableCell align="left">Total StockIn</TableCell>
-                                                <TableCell align="left">Total Used</TableCell>
-                                                <TableCell align="left">Remaining Stock</TableCell>
                                                 <TableCell align="left">Total Expense</TableCell>
-                                                <TableCell align="left">Last StockedIn</TableCell>
-                                                <TableCell align="left">Last Price</TableCell>
+                                                <TableCell align="left">Total Used</TableCell>
+                                                <TableCell align="left">Value of used</TableCell>
+                                                <TableCell align="left">Remaining Stock</TableCell>
+                                                <TableCell align="left">Value of Remaining</TableCell>
                                                 <TableCell align="left">Min ProductQty</TableCell>
                                                 <TableCell align="center">Status</TableCell>
                                                 <TableCell align="left">LastIn Date</TableCell>
@@ -1105,13 +1105,13 @@ function ProductListTable() {
                                                         </TableCell>
                                                         {/* </Tooltip> */}
                                                         <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>{row.purchese} {row.minProductUnit}</TableCell>
+                                                        <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>{row.totalExpense}</TableCell>
                                                         {/* <Tooltip title={row.stockOutComment} placement="top-start" arrow> */}
                                                         <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}><div className='Comment'>{row.totalUsed} {row.minProductUnit}</div></TableCell>
+                                                        <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>{row.totalStockOutPrice}</TableCell>
                                                         {/* </Tooltip> */}
                                                         <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>{row.remainingStock} {row.minProductUnit}</TableCell>
-                                                        <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>{row.totalExpense}</TableCell>
-                                                        <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>{row.lastUpdatedQty} {row.minProductUnit}</TableCell>
-                                                        <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>{row.lastPrice}</TableCell>
+                                                        <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>{row.remainPrice}</TableCell>
                                                         <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>{row.minProductQty} {row.minProductUnit}</TableCell>
                                                         <TableCell align="center" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}><div className={row.remainingStock >= row.minProductQty ? 'greenStatus' : row.remainingStock < row.minProductQty && row.remainingStock !== 0 ? 'orangeStatus' : 'redStatus'}>{row.stockStatus}</div></TableCell>
                                                         <TableCell align="left" onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}>{row.lastUpdatedStockInDate}</TableCell>

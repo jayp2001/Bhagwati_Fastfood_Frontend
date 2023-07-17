@@ -202,6 +202,7 @@ function StockOut() {
     const handleResetStockOut = () => {
         setStockOutFormData({
             productName: null,
+            reason: "",
             productId: "",
             productQty: 0,
             productUnit: "",
@@ -213,7 +214,8 @@ function StockOut() {
             productQty: false,
             productUnit: false,
             stockOutCategory: false,
-            stockInDate: false
+            stockInDate: false,
+            reason: false
         })
     }
     const onChangeStockOut = (e) => {
@@ -271,7 +273,16 @@ function StockOut() {
 
     const submitStockOut = () => {
         const isValidate = stockOutErrorFields.filter(element => {
-            if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
+            if (element === 'reason') {
+                if (isEdit && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormDataError['reason'] === true) {
+                    setStockOutFormDataError((perv) => ({
+                        ...perv,
+                        reason: true
+                    }))
+                    return element;
+                }
+            }
+            else if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
                 setStockOutFormDataError((perv) => ({
                     ...perv,
                     [element]: true
