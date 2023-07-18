@@ -750,12 +750,13 @@ function StockOut() {
                                         <TableHead>
                                             <TableRow>
                                                 <TableCell>No.</TableCell>
-                                                <TableCell>outBy</TableCell>
-                                                <TableCell align="left">productName</TableCell>
+                                                <TableCell>Out By</TableCell>
+                                                <TableCell align="left">Product Name</TableCell>
                                                 <TableCell align="left">Quantity</TableCell>
-                                                <TableCell align="left">stockOutCategoryName</TableCell>
-                                                <TableCell align="left">stockOutComment</TableCell>
-                                                <TableCell align="left">stockOutDate</TableCell>
+                                                <TableCell align="left">stockOutPrice</TableCell>
+                                                <TableCell align="left">Category</TableCell>
+                                                <TableCell align="left">Comment</TableCell>
+                                                <TableCell align="left">Date</TableCell>
                                                 <TableCell align="left"></TableCell>
                                             </TableRow>
                                         </TableHead>
@@ -778,6 +779,7 @@ function StockOut() {
                                                             </Tooltip>
                                                             <TableCell align="left"  >{row.productName}</TableCell>
                                                             <TableCell align="left"  >{row.Quantity}</TableCell>
+                                                            <TableCell align="left" >{row.stockOutPrice}</TableCell>
                                                             <TableCell align="left"  >{row.stockOutCategoryName}</TableCell>
                                                             <Tooltip title={row.stockOutComment} placement="top-start" arrow><TableCell align="left"  ><div className='Comment'>{row.stockOutComment}</div></TableCell></Tooltip>
                                                             <TableCell align="left"   >{row.stockOutDate}</TableCell>

@@ -88,10 +88,12 @@ function SuppilerDetail() {
     const getSuppilerDetails = async () => {
         await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getSupplierDetailsById?supplierId=${id}`, config)
             .then((res) => {
+                console.log(">>>", res.data);
                 setSuppilerDetails(res.data);
                 setFormData((perv) => ({
                     ...perv,
-                    supplierName: res.data.supplierName,
+                    supplierName: res.data.firmName,
+                    receivedBy: res.data.nickName,
                     supplierId: id
                 }))
             })
@@ -805,6 +807,18 @@ function SuppilerDetail() {
                         expandIcon={<ExpandMoreIcon />}
                         aria-controls="panel1a-content"
                         id="panel1a-header"
+                        onClick={() => {
+                            setFormData((perv) => ({
+                                ...perv,
+                                paidAmount: null,
+                                transactionNote: '',
+                            }))
+                            setFormDataError((perv) => ({
+                                ...perv,
+                                receivedBy: false,
+                                paidAmount: false,
+                            }))
+                        }}
                     >
                         <div className='stockAccordinHeader'>Make Payment to {formData.supplierName}</div>
                     </AccordionSummary>
@@ -861,7 +875,7 @@ function SuppilerDetail() {
                                         label="Paid Amount"
                                         fullWidth
                                         onChange={onChange}
-                                        value={formData.paidAmount}
+                                        value={formData.paidAmount ? formData.paidAmount : 0}
                                         error={formDataError.paidAmount}
                                         // helperText={formData.supplierName && !formDataError.productQty ? `Remain Payment  ${formData.remainingAmount}` : formDataError.paidAmount ? formData.paidAmount > formData.remainingAmount ? `Payment Amount can't be more than ${formData.remainingAmount}` : "Please Enter Amount" : ''}
                                         helperText={formData.paidAmount ? formData.paidAmount > formData.remainingAmount ? `Payment Amount can't be more than ${formData.remainingAmount}` : `Remaining Payment ${formData.remainingAmount}` : formDataError.paidAmount ? "Please Enter Amount" : `Remaining Payment ${formData.remainingAmount}`}
@@ -895,7 +909,6 @@ function SuppilerDetail() {
                                     <button className='addCategoryCancleBtn' onClick={() => {
                                         setFormData((perv) => ({
                                             ...perv,
-                                            receivedBy: '',
                                             paidAmount: '',
                                             transactionNote: '',
                                         }))
