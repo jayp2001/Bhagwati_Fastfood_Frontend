@@ -366,7 +366,7 @@ function ProductList() {
                 setData(res.data);
             })
             .catch((error) => {
-                setError(error.response.data);
+                setError(error.response.data ? error.response.data : "Network Error ...!!!");
                 setData(null)
             })
     }
@@ -376,7 +376,7 @@ function ProductList() {
                 setCountData(res.data);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const deleteData = async (id) => {
@@ -385,7 +385,7 @@ function ProductList() {
                 setSuccess(true)
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     useEffect(() => {
@@ -412,7 +412,7 @@ function ProductList() {
                 handleClose()
             })
             .catch((error) => {
-                setError(error.response.data);
+                setError(error.response.data ? error.response.data : "Network Error ...!!!");
             })
 
     }
@@ -429,7 +429,7 @@ function ProductList() {
                 focus();
             })
             .catch((error) => {
-                setError(error.response.data);
+                setError(error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
     const stockIn = async () => {
@@ -444,7 +444,7 @@ function ProductList() {
                 handleCloseStockIn();
             })
             .catch((error) => {
-                setError(error.response.data);
+                setError(error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
 
@@ -460,7 +460,7 @@ function ProductList() {
                 handleCloseStockOut();
             })
             .catch((error) => {
-                setError(error.response.data);
+                setError(error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
 

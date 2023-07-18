@@ -33,6 +33,7 @@ function App() {
                 <Route path="/" element={<ProtectedStockManagerRoutes/>}>
                   <Route path="/stockOut" element={<StockOut />}/>
                   {/* <Route path='list' exact element={<AgentList />}/> */}
+                  <Route path='*' element={<PageNotFoundRedirect/>}/>
                 </Route>
                 <Route path="/" element={<ProtectedUserRoutes/>}>
                   <Route path="/dashboard" element={<Dashboard/>}/>

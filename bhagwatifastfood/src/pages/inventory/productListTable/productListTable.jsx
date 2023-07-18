@@ -396,7 +396,7 @@ function ProductListTable() {
                 setTotalRows(res.data.numRows)
             })
             .catch((error) => {
-                setError(error.response.data);
+                setError(error.response.data ? error.response.data : "Network Error ...!!!");
                 setAllData(null)
             })
     }
@@ -407,7 +407,7 @@ function ProductListTable() {
                 setTotalRows(res.data.numRows)
             })
             .catch((error) => {
-                setError(error.response.data);
+                setError(error.response.data ? error.response.data : "Network Error ...!!!");
                 setAllData(null)
             })
     }
@@ -418,7 +418,7 @@ function ProductListTable() {
                 setTotalRows(res.data.numRows)
             })
             .catch((error) => {
-                setError(error.response.data);
+                setError(error.response.data ? error.response.data : "Network Error ...!!!");
                 setAllData(null)
             })
     }
@@ -428,7 +428,7 @@ function ProductListTable() {
                 setCountData(res.data);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const deleteData = async (id) => {
@@ -451,7 +451,7 @@ function ProductListTable() {
 
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     useEffect(() => {
@@ -490,7 +490,7 @@ function ProductListTable() {
                 handleClose()
             })
             .catch((error) => {
-                setError(error.response.data);
+                setError(error.response.data ? error.response.data : "Network Error ...!!!");
             })
 
     }
@@ -507,7 +507,7 @@ function ProductListTable() {
                 focus();
             })
             .catch((error) => {
-                setError(error.response.data);
+                setError(error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
     const stockIn = async () => {
@@ -532,7 +532,7 @@ function ProductListTable() {
                 handleCloseStockIn();
             })
             .catch((error) => {
-                setError(error.response.data);
+                setError(error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
 
@@ -558,7 +558,7 @@ function ProductListTable() {
                 handleCloseStockOut();
             })
             .catch((error) => {
-                setError(error.response.data);
+                setError(error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
 
@@ -679,7 +679,7 @@ function ProductListTable() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const getAllDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
@@ -689,7 +689,7 @@ function ProductListTable() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const handleChangePage = (event, newPage) => {
@@ -798,7 +798,7 @@ function ProductListTable() {
                 setTotalRows(res.data.numRows)
             })
             .catch((error) => {
-                setError(error.response.data);
+                setError(error.response.data ? error.response.data : "Network Error ...!!!");
                 setAllData(null)
             })
     }
@@ -1028,6 +1028,7 @@ function ProductListTable() {
                                             {allData?.map((row, index) => (
                                                 totalRows !== 0 ?
                                                     <TableRow
+                                                        hover
                                                         key={row.productId}
                                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                                         style={{ cursor: "pointer" }}
@@ -1093,6 +1094,7 @@ function ProductListTable() {
                                             {allData?.map((row, index) => (
                                                 totalRows !== 0 ?
                                                     <TableRow
+                                                        hover
                                                         key={row.productId}
                                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                                         style={{ cursor: "pointer" }}

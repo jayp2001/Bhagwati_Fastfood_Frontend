@@ -329,7 +329,7 @@ function ProductDetails() {
                 handleResetStockOut();
             })
             .catch((error) => {
-                setError(error.response.data);
+                setError(error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
     const submitStockOut = () => {
@@ -367,7 +367,7 @@ function ProductDetails() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockInDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
@@ -377,7 +377,7 @@ function ProductDetails() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockInData = async () => {
@@ -387,7 +387,7 @@ function ProductDetails() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockInDataByFilter = async () => {
@@ -397,7 +397,7 @@ function ProductDetails() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockOutDataOnPageChange = async (pageNum, rowPerPageNum) => {
@@ -407,7 +407,7 @@ function ProductDetails() {
                 setTotalRowsOut(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockOutDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
@@ -417,7 +417,7 @@ function ProductDetails() {
                 setTotalRowsOut(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockOutData = async () => {
@@ -427,7 +427,7 @@ function ProductDetails() {
                 setTotalRowsOut(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockOutDataByFilter = async () => {
@@ -437,7 +437,7 @@ function ProductDetails() {
                 setTotalRowsOut(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const handleChangePage = (event, newPage) => {
@@ -491,7 +491,7 @@ function ProductDetails() {
                 handleResetStockIn();
             })
             .catch((error) => {
-                setError(error.response.data);
+                setError(error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
     const handleChangeRowsPerPage = (event) => {
@@ -523,7 +523,7 @@ function ProductDetails() {
                 getCategoryNameAndCount();
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const handleDeleteStockIn = (id) => {
@@ -544,7 +544,7 @@ function ProductDetails() {
                 getSuppilerNameAndCount();
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const handleDeleteStockOut = (id) => {
@@ -618,7 +618,7 @@ function ProductDetails() {
                 setStatisticsCounts(res.data);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStatisticsByFilter = async () => {
@@ -627,7 +627,7 @@ function ProductDetails() {
                 setStatisticsCounts(res.data);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const getSuppilerNameAndCount = async () => {
@@ -636,7 +636,7 @@ function ProductDetails() {
                 setSuppilerNameAndCount(res.data);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const getSuppilerNameAndCountByFilter = async () => {
@@ -645,7 +645,7 @@ function ProductDetails() {
                 setSuppilerNameAndCount(res.data);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const getCategoryNameAndCount = async () => {
@@ -654,7 +654,7 @@ function ProductDetails() {
                 setCategoryNameAndCount(res.data);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const getCategoryNameAndCountByFilter = async () => {
@@ -663,7 +663,7 @@ function ProductDetails() {
                 setCategoryNameAndCount(res.data);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
 
@@ -728,8 +728,8 @@ function ProductDetails() {
                 getSuppilerList(res.data.productId)
             })
             .catch((error) => {
-                // setError(error.response.data);
-                setError(error.response.data)
+                //  setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
 
@@ -749,8 +749,8 @@ function ProductDetails() {
                 }))
             })
             .catch((error) => {
-                // setError(error.response.data);
-                setError(error.response.data)
+                //  setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
 
@@ -785,7 +785,7 @@ function ProductDetails() {
                 handleResetStockIn();
             })
             .catch((error) => {
-                setError(error.response.data);
+                setError(error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
     const stockOutEdit = async () => {
@@ -810,7 +810,7 @@ function ProductDetails() {
                 handleResetStockOut();
             })
             .catch((error) => {
-                setError(error.response.data);
+                setError(error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
     const editSubmitStockOut = () => {
@@ -1070,10 +1070,10 @@ function ProductDetails() {
                         </div> :
                         tab === 2 || tab === '2' ?
                             <div className='grid gap-4 mt-12' style={{ minHeight: '216px', maxHeight: '216px', overflowY: 'scroll' }}>
-                                <div className='grid grid-cols-4 gap-6 pb-3'>
+                                <div className='grid grid-cols-3 gap-6 pb-3'>
                                     {
                                         suppilerNameAndCount && suppilerNameAndCount?.map((row, index) => (
-                                            <ProductQtyCountCard productQtyUnit={unit} productQty={row.Quantity} productName={row.supplierNickName} index={index} />
+                                            <ProductQtyCountCard productQtyUnit={unit} productQty={row.Quantity} productPrice={row.expense} productName={row.supplierNickName} index={index} />
                                         ))
                                     }
                                 </div>
@@ -1552,6 +1552,7 @@ function ProductDetails() {
                                             {stockInData?.map((row, index) => (
                                                 totalRows !== 0 ?
                                                     <TableRow
+                                                        hover
                                                         key={row.stockInId}
                                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                                         style={{ cursor: "pointer" }}
@@ -1616,6 +1617,7 @@ function ProductDetails() {
                                             {stockOutData?.map((row, index) => (
                                                 totalRowsOut !== 0 ?
                                                     <TableRow
+                                                        hover
                                                         key={row.stockOutId}
                                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                                         style={{ cursor: "pointer" }}

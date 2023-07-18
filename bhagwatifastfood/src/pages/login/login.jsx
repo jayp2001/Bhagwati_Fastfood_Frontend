@@ -79,7 +79,7 @@ function LoginPage() {
             })
             .catch((error) => {
                 setLoading(false);
-                setError(error.response.data);
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
     React.useEffect(() => {
@@ -116,7 +116,7 @@ function LoginPage() {
                                 <div className='textFieldWrp grid gap-6'>
                                     {errorData &&
                                         <div>
-                                            <Alert severity="error">{"Invalid Username or Password"}</Alert>
+                                            <Alert severity="error">{errorData}</Alert>
                                         </div>
                                     }
                                     <TextField

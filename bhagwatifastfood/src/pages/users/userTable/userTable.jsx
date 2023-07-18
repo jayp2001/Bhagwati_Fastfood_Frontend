@@ -110,6 +110,7 @@ function UserTable() {
                                     {data?.map((row, index) => (
                                         totalRows !== 0 ?
                                             <TableRow
+                                                hover
                                                 key={row.userId}
                                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                                 style={{ cursor: "pointer" }}

@@ -94,7 +94,7 @@ function AddUser() {
             })
             .catch((error) => {
                 setLoading(false);
-                setError(error.response.data);
+                setError(error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
     const submit = () => {

@@ -72,7 +72,7 @@ function EditHistory() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     useEffect(() => {
@@ -86,7 +86,7 @@ function EditHistory() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const deleteData = async () => {
@@ -99,7 +99,7 @@ function EditHistory() {
                     getData();
                 })
                 .catch((error) => {
-                    setError(error.response.data)
+                    setError(error.response.data ? error.response.data : "Network Error ...!!!")
                 })
         }
     }
@@ -198,6 +198,7 @@ function EditHistory() {
                                 {data?.map((row, index) => (
                                     totalRows !== 0 ?
                                         <TableRow
+                                            hover
                                             key={row.stockOutId}
                                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                             style={{ cursor: "pointer" }}

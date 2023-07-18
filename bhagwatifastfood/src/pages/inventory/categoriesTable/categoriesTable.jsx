@@ -110,7 +110,7 @@ function CategoriesTable() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const getDataOnPageChange = async (pageNum, rowPerPageNum) => {
@@ -121,7 +121,7 @@ function CategoriesTable() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const deleteData = async (id) => {
@@ -130,7 +130,7 @@ function CategoriesTable() {
                 setSuccess(true)
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     useEffect(() => {
@@ -181,7 +181,7 @@ function CategoriesTable() {
                     handleClose()
                 })
                 .catch((error) => {
-                    setError(error.response.data);
+                    setError(error.response.data ? error.response.data : "Network Error ...!!!");
                 })
         }
     }
@@ -196,7 +196,7 @@ function CategoriesTable() {
                 focus();
             })
             .catch((error) => {
-                setError(error.response.data);
+                setError(error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
     const submit = () => {
@@ -286,6 +286,7 @@ function CategoriesTable() {
                                     {data?.map((row, index) => (
                                         totalRows !== 0 ?
                                             <TableRow
+                                                hover
                                                 key={row.stockOutCategoryId}
                                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                                 style={{ cursor: "pointer" }}

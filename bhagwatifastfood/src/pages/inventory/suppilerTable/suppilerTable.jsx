@@ -79,7 +79,7 @@ function SuppilerTable() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const handleClose = () => {
@@ -144,7 +144,7 @@ function SuppilerTable() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const deleteData = async (id) => {
@@ -156,7 +156,7 @@ function SuppilerTable() {
                 getData();
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     useEffect(() => {
@@ -190,7 +190,7 @@ function SuppilerTable() {
                 handleClose();
             })
             .catch((error) => {
-                setError(error.response.data);
+                setError(error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
 
@@ -265,7 +265,7 @@ function SuppilerTable() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data)
+                setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
     const onSearchChange = (e) => {
@@ -343,6 +343,7 @@ function SuppilerTable() {
                                         {data?.map((row, index) => (
                                             totalRows !== 0 ?
                                                 <TableRow
+                                                    hover
                                                     key={row.supplierId}
                                                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                                     style={{ cursor: "pointer" }}

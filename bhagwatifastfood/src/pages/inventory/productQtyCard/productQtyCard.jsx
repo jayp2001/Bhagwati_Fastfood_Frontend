@@ -10,9 +10,9 @@ function ProductQtyCountCard(props) {
                 </div>
             </Tooltip>
             <div className='self-center countWwrp'>
-                <Tooltip title={props.productQty + props.productQtyUnit} placement="top-start" arrow>
+                <Tooltip title={props.productQty + props.productQtyUnit + ' / ' + props.productPrice} placement="top-start" arrow>
                     <div className='countTextProduct flex justify-between'>
-                        <div>{props.productQty}<span className='unitDisplay'>{props.productQtyUnit}</span></div>{props.productPrice}
+                        <div className='w-6/12 text-ellipsis overflow-hidden'>{props.productQty}<span className='unitDisplay'>{props.productQtyUnit}</span></div><div className='w-6/12 text-ellipsis overflow-hidden'>{props.productPrice}</div>
                     </div>
                 </Tooltip>
             </div>

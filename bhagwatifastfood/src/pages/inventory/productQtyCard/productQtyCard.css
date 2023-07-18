@@ -11,7 +11,7 @@
 }
 
 .productQtyName {
-    width: 60%;
+    width: 50%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -50,6 +50,7 @@
 }
 
 .countTextProduct {
+    max-width: 100%;
     text-align: end;
     font-size: 24px;
     color: rgba(0, 0, 0, 0.6);
@@ -60,7 +61,7 @@
 }
 
 .countWwrp {
-    width: 40%;
+    width: 50%;
 }
 
 .countDescription {
