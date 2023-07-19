@@ -1582,7 +1582,7 @@ function StockInOut() {
                                                     <TableCell>Out By</TableCell>
                                                     <TableCell align="left">Product Name</TableCell>
                                                     <TableCell align="left">Quantity</TableCell>
-                                                    <TableCell align="left">stockOutPrice</TableCell>
+                                                    <TableCell align="left">Stock OutPrice</TableCell>
                                                     <TableCell align="left">Category</TableCell>
                                                     <TableCell align="left">Comment</TableCell>
                                                     <TableCell align="left">Date</TableCell>
