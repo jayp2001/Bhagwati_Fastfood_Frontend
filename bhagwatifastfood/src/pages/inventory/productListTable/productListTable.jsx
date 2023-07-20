@@ -396,7 +396,7 @@ function ProductListTable() {
                 setTotalRows(res.data.numRows)
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
                 setAllData(null)
             })
     }
@@ -407,7 +407,7 @@ function ProductListTable() {
                 setTotalRows(res.data.numRows)
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
                 setAllData(null)
             })
     }
@@ -418,7 +418,7 @@ function ProductListTable() {
                 setTotalRows(res.data.numRows)
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
                 setAllData(null)
             })
     }
@@ -490,7 +490,7 @@ function ProductListTable() {
                 handleClose()
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
 
     }
@@ -507,7 +507,7 @@ function ProductListTable() {
                 focus();
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
     const stockIn = async () => {
@@ -532,7 +532,7 @@ function ProductListTable() {
                 handleCloseStockIn();
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
 
@@ -558,7 +558,7 @@ function ProductListTable() {
                 handleCloseStockOut();
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
 
@@ -798,7 +798,7 @@ function ProductListTable() {
                 setTotalRows(res.data.numRows)
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
                 setAllData(null)
             })
     }

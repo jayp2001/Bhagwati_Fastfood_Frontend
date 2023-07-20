@@ -181,7 +181,7 @@ function CategoriesTable() {
                     handleClose()
                 })
                 .catch((error) => {
-                    setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                    setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
                 })
         }
     }
@@ -196,7 +196,7 @@ function CategoriesTable() {
                 focus();
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
     const submit = () => {

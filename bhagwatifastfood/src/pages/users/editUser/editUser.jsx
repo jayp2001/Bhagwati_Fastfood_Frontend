@@ -88,7 +88,7 @@ function EditUser() {
             })
             .catch((error) => {
                 setLoading(false);
-                setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
     const submit = () => {

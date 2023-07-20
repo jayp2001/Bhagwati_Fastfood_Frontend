@@ -156,7 +156,7 @@ function StockInOut() {
                 getSuppilerList(res.data.productId)
             })
             .catch((error) => {
-                //  setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                //  setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
                 setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
@@ -178,7 +178,7 @@ function StockInOut() {
                 }))
             })
             .catch((error) => {
-                //  setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                //  setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
                 setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
@@ -280,7 +280,7 @@ function StockInOut() {
                 setProductList(res.data);
             })
             .catch((error) => {
-                //  setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                //  setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
                 setProductList(null)
             })
     }
@@ -313,7 +313,7 @@ function StockInOut() {
                 focus();
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
 
@@ -335,7 +335,7 @@ function StockInOut() {
                 handleResetStockIn();
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
 
@@ -560,7 +560,7 @@ function StockInOut() {
                 focus();
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
 
@@ -583,7 +583,7 @@ function StockInOut() {
                 handleResetStockOut();
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
 

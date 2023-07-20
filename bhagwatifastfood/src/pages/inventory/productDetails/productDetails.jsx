@@ -329,7 +329,7 @@ function ProductDetails() {
                 handleResetStockOut();
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
     const submitStockOut = () => {
@@ -491,7 +491,7 @@ function ProductDetails() {
                 handleResetStockIn();
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
     const handleChangeRowsPerPage = (event) => {
@@ -728,7 +728,7 @@ function ProductDetails() {
                 getSuppilerList(res.data.productId)
             })
             .catch((error) => {
-                //  setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                //  setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
                 setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
@@ -749,7 +749,7 @@ function ProductDetails() {
                 }))
             })
             .catch((error) => {
-                //  setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                //  setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
                 setError(error.response.data ? error.response.data : "Network Error ...!!!")
             })
     }
@@ -785,7 +785,7 @@ function ProductDetails() {
                 handleResetStockIn();
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
     const stockOutEdit = async () => {
@@ -810,7 +810,7 @@ function ProductDetails() {
                 handleResetStockOut();
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
     const editSubmitStockOut = () => {

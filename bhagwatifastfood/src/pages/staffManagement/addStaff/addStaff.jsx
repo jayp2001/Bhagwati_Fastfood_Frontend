@@ -120,6 +120,7 @@ function AddEditStaff() {
                 employeeLastName: '',
                 employeeGender: '',
                 employeeMobileNumber: '',
+                employeeNickName: '',
                 employeeOtherMobileNumber: '',
                 employeeStatus: true,
                 presentAddress: '',
@@ -150,6 +151,7 @@ function AddEditStaff() {
             salary: false,
             maxLeave: false,
             files: false,
+            employeeNickName: false
         })
         setFileName('')
         setFilePreview();
@@ -253,7 +255,7 @@ function AddEditStaff() {
             })
             .catch((error) => {
                 setLoading(false);
-                setError(error.response.data ? error.response.data : "Network Error ...!!!");
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
     const editEmployee = async () => {
@@ -266,7 +268,7 @@ function AddEditStaff() {
         //     })
         //     .catch((error) => {
         //         setLoading(false);
-        //         setError(error.response.data ? error.response.data : "Network Error ...!!!");
+        //         setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
         //     })
     }
     const submit = () => {
@@ -641,7 +643,7 @@ function AddEditStaff() {
                                     <div className="col-span-2">
                                         <TextField
                                             onBlur={(e) => {
-                                                if (e.target.value.length < 2) {
+                                                if (e.target.value < 1) {
                                                     setFormDataError((perv) => ({
                                                         ...perv,
                                                         maxLeave: true
