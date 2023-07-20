@@ -240,14 +240,14 @@ function ProductListTable() {
             setStockInFormData((prevState) => ({
                 ...prevState,
                 productPrice: e.target.value,
-                totalPrice: (parseFloat(e.target.value) * parseFloat(stockInFormData.productQty)).toString()
+                totalPrice: (parseFloat(e.target.value) * parseFloat(stockInFormData.productQty)).toFixed(2).toString()
 
             }))
         } else if (e.target.name === 'totalPrice' && stockInFormData.productQty > 0) {
             setStockInFormData((prevState) => ({
                 ...prevState,
                 totalPrice: e.target.value,
-                productPrice: (parseFloat(e.target.value) / parseFloat(stockInFormData.productQty)).toString()
+                productPrice: (parseFloat(e.target.value) / parseFloat(stockInFormData.productQty)).toFixed(2).toString()
 
             }))
         }

@@ -344,7 +344,7 @@ function StockInOut() {
             setStockInFormData((prevState) => ({
                 ...prevState,
                 productPrice: e.target.value,
-                totalPrice: (parseFloat(e.target.value) * parseFloat(stockInFormData.productQty)).toString()
+                totalPrice: (parseFloat(e.target.value) * parseFloat(stockInFormData.productQty)).toFixed(2).toString()
 
             }))
             if (parseFloat(e.target.value) > 0) {
@@ -358,7 +358,7 @@ function StockInOut() {
             setStockInFormData((prevState) => ({
                 ...prevState,
                 totalPrice: e.target.value,
-                productPrice: (parseFloat(e.target.value) / parseFloat(stockInFormData.productQty)).toString()
+                productPrice: (parseFloat(e.target.value) / parseFloat(stockInFormData.productQty)).toFixed(2).toString()
             }))
             if (parseFloat(e.target.value) > 0) {
                 setStockInFormDataError((perv) => ({

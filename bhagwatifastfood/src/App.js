@@ -23,6 +23,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import EditHistory from './pages/inventory/editHistory/editHistory';
 import StockOut from './pages/inventory/stockOut/stockOut';
 import ProtectedStockManagerRoutes from './protectedStockManageRoutes';
+import AddEditStaff from './pages/staffManagement/addStaff/addStaff';
+import StaffList from './pages/staffManagement/staffList/staffList';
 function App() {
   return (
     <div className="">
@@ -34,6 +36,11 @@ function App() {
                   <Route path="/stockOut" element={<StockOut />}/>
                   {/* <Route path='list' exact element={<AgentList />}/> */}
                   <Route path='*' element={<PageNotFoundRedirect/>}/>
+                </Route>
+                 <Route path="/" >
+                  <Route path="/addStaff" element={<AddEditStaff/>}/>
+                  <Route path="/staffList" element={<StaffList/>}/>
+                  <Route path="/editStaff/:id" element={<AddEditStaff/>}/>
                 </Route>
                 <Route path="/" element={<ProtectedUserRoutes/>}>
                   <Route path="/dashboard" element={<Dashboard/>}/>
