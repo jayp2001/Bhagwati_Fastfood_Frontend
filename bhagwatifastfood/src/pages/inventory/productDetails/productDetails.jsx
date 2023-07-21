@@ -367,7 +367,7 @@ function ProductDetails() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockInDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
@@ -377,7 +377,7 @@ function ProductDetails() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockInData = async () => {
@@ -387,7 +387,7 @@ function ProductDetails() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockInDataByFilter = async () => {
@@ -397,7 +397,7 @@ function ProductDetails() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockOutDataOnPageChange = async (pageNum, rowPerPageNum) => {
@@ -407,7 +407,7 @@ function ProductDetails() {
                 setTotalRowsOut(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockOutDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
@@ -417,7 +417,7 @@ function ProductDetails() {
                 setTotalRowsOut(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockOutData = async () => {
@@ -427,7 +427,7 @@ function ProductDetails() {
                 setTotalRowsOut(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockOutDataByFilter = async () => {
@@ -437,7 +437,7 @@ function ProductDetails() {
                 setTotalRowsOut(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const handleChangePage = (event, newPage) => {
@@ -523,7 +523,7 @@ function ProductDetails() {
                 getCategoryNameAndCount();
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const handleDeleteStockIn = (id) => {
@@ -544,7 +544,7 @@ function ProductDetails() {
                 getSuppilerNameAndCount();
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const handleDeleteStockOut = (id) => {
@@ -618,7 +618,7 @@ function ProductDetails() {
                 setStatisticsCounts(res.data);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStatisticsByFilter = async () => {
@@ -627,7 +627,7 @@ function ProductDetails() {
                 setStatisticsCounts(res.data);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getSuppilerNameAndCount = async () => {
@@ -636,7 +636,7 @@ function ProductDetails() {
                 setSuppilerNameAndCount(res.data);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getSuppilerNameAndCountByFilter = async () => {
@@ -645,7 +645,7 @@ function ProductDetails() {
                 setSuppilerNameAndCount(res.data);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getCategoryNameAndCount = async () => {
@@ -654,7 +654,7 @@ function ProductDetails() {
                 setCategoryNameAndCount(res.data);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getCategoryNameAndCountByFilter = async () => {
@@ -663,7 +663,7 @@ function ProductDetails() {
                 setCategoryNameAndCount(res.data);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
 
@@ -729,7 +729,7 @@ function ProductDetails() {
             })
             .catch((error) => {
                 //  setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
 
@@ -750,7 +750,7 @@ function ProductDetails() {
             })
             .catch((error) => {
                 //  setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
 

@@ -157,7 +157,7 @@ function StockInOut() {
             })
             .catch((error) => {
                 //  setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
 
@@ -179,7 +179,7 @@ function StockInOut() {
             })
             .catch((error) => {
                 //  setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
 
@@ -657,7 +657,7 @@ function StockInOut() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockInDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
@@ -667,7 +667,7 @@ function StockInOut() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockInData = async () => {
@@ -677,7 +677,7 @@ function StockInOut() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockInDataByFilter = async () => {
@@ -687,7 +687,7 @@ function StockInOut() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockOutDataOnPageChange = async (pageNum, rowPerPageNum) => {
@@ -697,7 +697,7 @@ function StockInOut() {
                 setTotalRowsOut(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockOutEditDataOnPageChange = async (pageNum, rowPerPageNum) => {
@@ -707,7 +707,7 @@ function StockInOut() {
                 setTotalRowsOut(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockOutDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
@@ -717,7 +717,7 @@ function StockInOut() {
                 setTotalRowsOut(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockOutData = async () => {
@@ -727,7 +727,7 @@ function StockInOut() {
                 setTotalRowsOut(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockOutEditdData = async () => {
@@ -737,7 +737,7 @@ function StockInOut() {
                 setTotalRowsOut(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockOutDataByFilter = async () => {
@@ -747,7 +747,7 @@ function StockInOut() {
                 setTotalRowsOut(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const handleChangePage = (event, newPage) => {
@@ -854,7 +854,7 @@ function StockInOut() {
                 setSuccess(true);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const handleDeleteStockIn = (id) => {
@@ -871,7 +871,7 @@ function StockInOut() {
                 setSuccess(true);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const handleDeleteStockOut = (id) => {
@@ -892,7 +892,7 @@ function StockInOut() {
                     getStockOutEditdData();
                 })
                 .catch((error) => {
-                    setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                    setError(error.response ? error.response.data : "Network Error ...!!!")
                 })
         }
     }

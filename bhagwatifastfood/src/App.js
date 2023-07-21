@@ -25,6 +25,7 @@ import StockOut from './pages/inventory/stockOut/stockOut';
 import ProtectedStockManagerRoutes from './protectedStockManageRoutes';
 import AddEditStaff from './pages/staffManagement/addStaff/addStaff';
 import StaffList from './pages/staffManagement/staffList/staffList';
+import StaffCategoryTable from './pages/staffManagement/staffCategoriesTable/staffCategoriesTable';
 function App() {
   return (
     <div className="">
@@ -40,6 +41,7 @@ function App() {
                  <Route path="/" >
                   <Route path="/addStaff" element={<AddEditStaff/>}/>
                   <Route path="/staffList" element={<StaffList/>}/>
+                  <Route path="/staffCategory" element={<StaffCategoryTable/>}/>
                   <Route path="/editStaff/:id" element={<AddEditStaff/>}/>
                 </Route>
                 <Route path="/" element={<ProtectedUserRoutes/>}>

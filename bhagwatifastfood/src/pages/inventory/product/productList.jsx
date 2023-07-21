@@ -376,7 +376,7 @@ function ProductList() {
                 setCountData(res.data);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const deleteData = async (id) => {
@@ -385,7 +385,7 @@ function ProductList() {
                 setSuccess(true)
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     useEffect(() => {

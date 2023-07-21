@@ -428,7 +428,7 @@ function ProductListTable() {
                 setCountData(res.data);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const deleteData = async (id) => {
@@ -451,7 +451,7 @@ function ProductListTable() {
 
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     useEffect(() => {
@@ -679,7 +679,7 @@ function ProductListTable() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getAllDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
@@ -689,7 +689,7 @@ function ProductListTable() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const handleChangePage = (event, newPage) => {

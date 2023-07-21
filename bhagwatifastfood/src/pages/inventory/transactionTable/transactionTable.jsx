@@ -80,7 +80,7 @@ function TransactionTable() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
 
@@ -91,7 +91,7 @@ function TransactionTable() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
 
@@ -102,7 +102,7 @@ function TransactionTable() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
 
@@ -113,7 +113,7 @@ function TransactionTable() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getCashDataByFilter = async () => {
@@ -123,7 +123,7 @@ function TransactionTable() {
                 setTotalRowsCash(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
 
@@ -134,7 +134,7 @@ function TransactionTable() {
                 setTotalRowsCash(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getCashCounts = async () => {
@@ -143,7 +143,7 @@ function TransactionTable() {
                 setCashCount(res.data);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getCashCountsByFilter = async () => {
@@ -152,7 +152,7 @@ function TransactionTable() {
                 setCashCount(res.data);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getDebitCounts = async () => {
@@ -161,7 +161,7 @@ function TransactionTable() {
                 setDebitCount(res.data);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getDebitCountsByFilter = async () => {
@@ -170,7 +170,7 @@ function TransactionTable() {
                 setDebitCount(res.data);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
 
@@ -182,7 +182,7 @@ function TransactionTable() {
                 setTotalRowsCash(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
 
@@ -193,7 +193,7 @@ function TransactionTable() {
                 setTotalRowsCash(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
 
@@ -294,7 +294,7 @@ function TransactionTable() {
                 setSuccess(true)
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const handleDeleteTransaction = (id) => {
@@ -379,7 +379,7 @@ function TransactionTable() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const onSearchChange = (e) => {

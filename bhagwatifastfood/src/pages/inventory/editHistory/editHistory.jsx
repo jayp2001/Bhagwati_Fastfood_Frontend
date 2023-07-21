@@ -72,7 +72,7 @@ function EditHistory() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     useEffect(() => {
@@ -86,7 +86,7 @@ function EditHistory() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const deleteData = async () => {
@@ -99,7 +99,7 @@ function EditHistory() {
                     getData();
                 })
                 .catch((error) => {
-                    setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                    setError(error.response ? error.response.data : "Network Error ...!!!")
                 })
         }
     }

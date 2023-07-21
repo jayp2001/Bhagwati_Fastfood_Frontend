@@ -98,7 +98,7 @@ function SuppilerDetail() {
                 }))
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStatistics = async () => {
@@ -111,7 +111,7 @@ function SuppilerDetail() {
                 }))
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockInData = async () => {
@@ -121,7 +121,7 @@ function SuppilerDetail() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockInDataByTab = async (tab) => {
@@ -131,7 +131,7 @@ function SuppilerDetail() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockInDataByTabByFilter = async (tab) => {
@@ -141,7 +141,7 @@ function SuppilerDetail() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     // const getStockInDataonRemoveFilter = async (tab) => {
@@ -151,7 +151,7 @@ function SuppilerDetail() {
     //             setTotalRows(res.data.numRows);
     //         })
     //         .catch((error) => {
-    //              setError(error.response.data ? error.response.data : "Network Error ...!!!")
+    //              setError(error.response ? error.response.data : "Network Error ...!!!")
     //         })
     // }
     const getStockInDataOnPageChange = async (pageNum, rowPerPageNum) => {
@@ -161,7 +161,7 @@ function SuppilerDetail() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockInDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
@@ -171,7 +171,7 @@ function SuppilerDetail() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStockInDataByFilter = async () => {
@@ -181,7 +181,7 @@ function SuppilerDetail() {
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getStatisticsByFilter = async () => {
@@ -190,7 +190,7 @@ function SuppilerDetail() {
                 setStatisticsCounts(res.data);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getProductCount = async () => {
@@ -199,7 +199,7 @@ function SuppilerDetail() {
                 setProductQty(res.data);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getProductCountByFilter = async () => {
@@ -208,7 +208,7 @@ function SuppilerDetail() {
                 setProductQty(res.data);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const handleClick = (event) => {
@@ -281,7 +281,7 @@ function SuppilerDetail() {
                 setTotalRowsDebit(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getDebitDataByTab = async () => {
@@ -291,7 +291,7 @@ function SuppilerDetail() {
                 setTotalRowsDebit(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getProductDataByTab = async () => {
@@ -301,7 +301,7 @@ function SuppilerDetail() {
                 setTotalRowsProduct(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
 
@@ -312,7 +312,7 @@ function SuppilerDetail() {
                 setTotalRowsDebit(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
 
@@ -323,7 +323,7 @@ function SuppilerDetail() {
                 setTotalRowsProduct(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
 
@@ -334,7 +334,7 @@ function SuppilerDetail() {
                 setTotalRowsDebit(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
 
@@ -345,7 +345,7 @@ function SuppilerDetail() {
                 setTotalRowsProduct(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
 
@@ -356,7 +356,7 @@ function SuppilerDetail() {
                 setTotalRowsDebit(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const getProductDataByFilter = async () => {
@@ -366,7 +366,7 @@ function SuppilerDetail() {
                 setTotalRowsProduct(res.data.numRows);
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     useEffect(() => {
@@ -449,7 +449,7 @@ function SuppilerDetail() {
                 setSuccess(true)
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const handleDeleteStockIn = (id) => {
@@ -467,7 +467,7 @@ function SuppilerDetail() {
                 setSuccess(true)
             })
             .catch((error) => {
-                setError(error.response.data ? error.response.data : "Network Error ...!!!")
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
     const handleDeleteTransaction = (id) => {

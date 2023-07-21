@@ -36,12 +36,7 @@ function AddEditStaff() {
     const [loading, setLoading] = React.useState(false);
     const [error, setError] = React.useState(false);
     const [success, setSuccess] = React.useState(false);
-    const [category, setCategory] = React.useState([
-        {
-            id: 1,
-            value: "Panjabi"
-        }
-    ]);
+    const [category, setCategory] = React.useState([]);
     const [designation, setDesignation] = React.useState([
         {
             id: 1,
@@ -178,10 +173,10 @@ function AddEditStaff() {
         }))
     }
     const getCategory = async () => {
-        // await axios.get(`${BACKEND_BASE_URL}userrouter/ddlRights`, config)
-        //     .then((res) => {
-        //         setCategory(res.data);
-        //     })
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/ddlStaffCategory`, config)
+            .then((res) => {
+                setCategory(res.data);
+            })
     }
     const getDesignation = async () => {
         // await axios.get(`${BACKEND_BASE_URL}userrouter/ddlRights`, config)
@@ -233,11 +228,26 @@ function AddEditStaff() {
         setLoading(false)
         setError(false);
     }
-    const getEmployeeDetail = async () => {
-        // await axios.get(`${BACKEND_BASE_URL}userrouter/ddlRights`, config)
-        //     .then((res) => {
-        //         setCategory(res.data);
-        //     })
+    const getEmployeeDetail = async (id) => {
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/fillEmployeeDetails?employeeId=${id}`, config)
+            .then((res) => {
+                setFormData(res.data);
+                setFilePreview(BACKEND_BASE_URL + res.data.imageLink);
+                setFileName(res.data.imageFilePath)
+                axios.get(`${BACKEND_BASE_URL + res.data.imageLink}`, config)
+                    .then((resp) => {
+                        setFile(new File([resp.data], res.data.imageFilePath, { type: `image/${res.data.imageFilePath.split('.')[1]}` }))
+                        console.log('img', res.data.imageFilePath.split('.')[1])
+                    })
+                    .catch((error) => {
+                        setLoading(false);
+                        setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+                    })
+            })
+            .catch((error) => {
+                setLoading(false);
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+            })
     }
     const addEmployee = async () => {
         setLoading(true);
@@ -259,17 +269,24 @@ function AddEditStaff() {
             })
     }
     const editEmployee = async () => {
-        // setLoading(true);
-        // await axios.post(`${BACKEND_BASE_URL}userrouter/addUser`, formData, config)
-        //     .then((res) => {
-        //         setLoading(false);
-        //         setSuccess(true);
-        //         // reset();
-        //     })
-        //     .catch((error) => {
-        //         setLoading(false);
-        //         setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
-        //     })
+        console.log("edit")
+        setLoading(true);
+        console.log(file[0]);
+        var data = {
+            ...formData,
+            files: file
+        }
+        console.log('data', data)
+        await axios.post(`${BACKEND_BASE_URL}staffrouter/updateEmployeeDetails`, data, config)
+            .then((res) => {
+                setLoading(false);
+                setSuccess(true);
+                reset();
+            })
+            .catch((error) => {
+                setLoading(false);
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+            })
     }
     const submit = () => {
         console.log('>>>>>>>>>>', formData)
@@ -302,10 +319,10 @@ function AddEditStaff() {
         }
     }
     useEffect(() => {
-        // getCategory();
+        getCategory();
         // getDesignation();
         if (location.pathname.split('/').at(-2) === 'editStaff' ? true : false) {
-            console.log('jay')
+            getEmployeeDetail(location.pathname.split('/').at(-1))
         }
     }, [])
     return (
@@ -696,7 +713,7 @@ function AddEditStaff() {
                                             >
                                                 {
                                                     category ? category.map((right) => (
-                                                        <MenuItem key={right.id} value={right.id}>{right.value}</MenuItem>
+                                                        <MenuItem key={right.staffCategoryId} value={right.staffCategoryId}>{right.staffCategoryName}</MenuItem>
                                                     )) : null
                                                 }
 

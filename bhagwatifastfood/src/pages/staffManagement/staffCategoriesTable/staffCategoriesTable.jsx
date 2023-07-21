@@ -1,4 +1,4 @@
-import './categoriesTable.css'
+import './staffCategoriesTable.css'
 import { useState, useEffect } from "react";
 import React from "react";
 import { useRef } from 'react';
@@ -25,7 +25,7 @@ const style = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 600,
+    width: 700,
     bgcolor: 'background.paper',
     boxShadow: 24,
     paddingLeft: '20px',
@@ -35,10 +35,11 @@ const style = {
     borderRadius: '10px'
 };
 
-function CategoriesTable() {
-    const [editCateory, setEditCategory] = React.useState({
-        stockOutCategoryName: '',
-        stockOutCategoryId: ''
+function StaffCategoryTable() {
+    const [formData, setFormData] = React.useState({
+        staffCategoryName: '',
+        staffCategoryId: '',
+        staffCategoryPosition: '',
     })
 
     useEffect(() => {
@@ -65,26 +66,28 @@ function CategoriesTable() {
     };
 
     const [isEdit, setIsEdit] = React.useState(false);
-    const [category, setCategory] = React.useState('');
-    const [categoryError, setCategoryError] = React.useState('');
+    const [staffCategoryNameError, setStaffCategoryNameError] = React.useState('');
+    const [staffCategoryPositionError, setStaffCategoryPositionError] = React.useState('');
     const [open, setOpen] = React.useState(false);
     const handleOpen = () => setOpen(true);
     const handleClose = () => {
         setOpen(false);
-        setCategory('');
-        setCategoryError(false);
-        setEditCategory({
-            stockOutCategoryName: '',
-            stockOutCategoryId: ''
+        setStaffCategoryNameError(false);
+        setStaffCategoryPositionError(false);
+        setFormData({
+            staffCategoryName: '',
+            staffCategoryId: '',
+            staffCategoryPosition: '',
         });
         setIsEdit(false);
     }
     const handleReset = () => {
-        setCategory('');
-        setCategoryError(false);
-        setEditCategory({
-            stockOutCategoryName: '',
-            stockOutCategoryId: ''
+        setStaffCategoryNameError(false);
+        setStaffCategoryPositionError(false);
+        setFormData({
+            staffCategoryName: '',
+            staffCategoryId: '',
+            staffCategoryPosition: '',
         });
         setIsEdit(false);
     }
@@ -104,7 +107,7 @@ function CategoriesTable() {
     const [data, setData] = React.useState();
     const getData = async () => {
         console.log("page get", page, rowsPerPage)
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getCategoryList?page=${page + 1}&numPerPage=${rowsPerPage}`, config)
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getStaffCategoryList?page=${page + 1}&numPerPage=${rowsPerPage}`, config)
             .then((res) => {
                 setData(res.data.rows);
                 setTotalRows(res.data.numRows);
@@ -115,7 +118,7 @@ function CategoriesTable() {
     }
     const getDataOnPageChange = async (pageNum, rowPerPageNum) => {
         console.log("page get", page, rowsPerPage)
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getCategoryList?page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getStaffCategoryList?page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
             .then((res) => {
                 setData(res.data.rows);
                 setTotalRows(res.data.numRows);
@@ -125,7 +128,7 @@ function CategoriesTable() {
             })
     }
     const deleteData = async (id) => {
-        await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeStockOutCategory?stockOutCategoryId=${id}`, config)
+        await axios.delete(`${BACKEND_BASE_URL}staffrouter/removeStaffCategory?staffCategoryId=${id}`, config)
             .then((res) => {
                 setSuccess(true)
             })
@@ -154,26 +157,34 @@ function CategoriesTable() {
             }, 1000)
         }
     }
-    const handleEdit = (id, name) => {
-        setCategoryError(false);
+    const handleEdit = (id, name, position) => {
+        setStaffCategoryNameError(false);
+        setStaffCategoryPositionError(false);
         setIsEdit(true);
-        setEditCategory((perv) => ({
+        setFormData((perv) => ({
             ...perv,
-            stockOutCategoryId: id,
-            stockOutCategoryName: name
+            staffCategoryId: id,
+            staffCategoryName: name,
+            staffCategoryPosition: position
         }))
         setOpen(true)
     }
     const editCategory = async () => {
-        if (editCateory.stockOutCategoryName.length < 2) {
+        if (!formData.staffCategoryName || formData.staffCategoryName < 2) {
             setError(
                 "Please Fill category"
             )
-            setCategoryError(true);
+            setStaffCategoryNameError(true);
+            if (!formData.staffCategoryPosition || formData.staffCategoryPosition < 1) {
+                setStaffCategoryPositionError(true);
+            }
+        }
+        else if (!formData.staffCategoryPosition || formData.staffCategoryPosition < 1) {
+            setStaffCategoryPositionError(true);
         }
         else {
             setLoading(true);
-            await axios.post(`${BACKEND_BASE_URL}inventoryrouter/updateStockOutCategory`, editCateory, config)
+            await axios.post(`${BACKEND_BASE_URL}staffrouter/updateStaffCategory`, formData, config)
                 .then((res) => {
                     setLoading(false);
                     setSuccess(true)
@@ -187,7 +198,7 @@ function CategoriesTable() {
     }
     const addCategory = async () => {
         setLoading(true);
-        await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addstockOutCategory`, { stockOutCategoryName: category }, config)
+        await axios.post(`${BACKEND_BASE_URL}staffrouter/addStaffCategory`, formData, config)
             .then((res) => {
                 setSuccess(true)
                 getData();
@@ -200,12 +211,19 @@ function CategoriesTable() {
             })
     }
     const submit = () => {
-        if (category.length < 2) {
+        if (!formData.staffCategoryName || formData.staffCategoryName < 2) {
             setError(
                 "Please Fill category"
             )
-            setCategoryError(true);
-        } else {
+            setStaffCategoryNameError(true);
+            if (!formData.staffCategoryPosition || formData.staffCategoryPosition < 1) {
+                setStaffCategoryPositionError(true);
+            }
+        }
+        else if (!formData.staffCategoryPosition || formData.staffCategoryPosition < 1) {
+            setStaffCategoryPositionError(true);
+        }
+        else {
             addCategory()
         }
     }
@@ -277,7 +295,7 @@ function CategoriesTable() {
                                     <TableRow>
                                         <TableCell>No.</TableCell>
                                         <TableCell>Category Name</TableCell>
-                                        <TableCell align="right"></TableCell>
+                                        <TableCell align="left">Position</TableCell>
                                         <TableCell align="right"></TableCell>
                                         <TableCell align="right"></TableCell>
                                     </TableRow>
@@ -287,17 +305,17 @@ function CategoriesTable() {
                                         totalRows !== 0 ?
                                             <TableRow
                                                 hover
-                                                key={row.stockOutCategoryId}
+                                                key={row.staffCategoryId}
                                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                                 style={{ cursor: "pointer" }}
                                                 className='tableRow'
                                             >
                                                 <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
                                                 <TableCell component="th" scope="row">
-                                                    {row.stockOutCategoryName}
+                                                    {row.staffCategoryName}
                                                 </TableCell>
-                                                <TableCell align="right" ></TableCell>
-                                                <TableCell align="right" ><div className=''><button className='editCategoryBtn mr-6' onClick={() => handleEdit(row.stockOutCategoryId, row.stockOutCategoryName)}>Edit</button><button className='deleteCategoryBtn' onClick={() => handleDelete(row.stockOutCategoryId)}>Delete</button></div></TableCell>
+                                                <TableCell align="left" >{row.staffCategoryPosition}</TableCell>
+                                                <TableCell align="right" ><div className=''><button className='editCategoryBtn mr-6' onClick={() => handleEdit(row.staffCategoryId, row.staffCategoryName, row.staffCategoryPosition)}>Edit</button><button className='deleteCategoryBtn' onClick={() => handleDelete(row.staffCategoryId)}>Delete</button></div></TableCell>
                                                 <TableCell align="right">
                                                 </TableCell>
                                             </TableRow> :
@@ -335,27 +353,27 @@ function CategoriesTable() {
                         {isEdit ? 'Edit Category' : 'Add Category'}
                     </Typography>
                     <div className='mt-6 grid grid-cols-12 gap-6'>
-                        <div className='col-span-6'>
+                        <div className='col-span-5'>
                             <TextField
                                 onBlur={(e) => {
                                     if (e.target.value.length < 2) {
-                                        setCategoryError(true);
+                                        setStaffCategoryNameError(true);
                                     }
                                     else {
-                                        setCategoryError(false)
+                                        setStaffCategoryNameError(false)
                                     }
                                 }}
                                 onChange={(e) => {
-                                    isEdit ? setEditCategory((perv) => ({
+                                    setFormData((perv) => ({
                                         ...perv,
-                                        stockOutCategoryName: e.target.value
-                                    })) : setCategory(e.target.value)
+                                        staffCategoryName: e.target.value
+                                    }))
                                 }}
-                                value={isEdit ? editCateory.stockOutCategoryName ? editCateory.stockOutCategoryName : '' : category}
-                                error={categoryError ? true : false}
+                                value={formData.staffCategoryName}
+                                error={staffCategoryNameError ? true : false}
                                 inputRef={textFieldRef}
-                                helperText={categoryError ? "Please Enter Category" : ''}
-                                name="category"
+                                helperText={staffCategoryNameError ? "Please Enter Category" : ''}
+                                name="staffCategoryName"
                                 id="outlined-required"
                                 label="Category"
                                 InputProps={{ style: { fontSize: 14 } }}
@@ -364,16 +382,43 @@ function CategoriesTable() {
                             />
                         </div>
                         <div className='col-span-3'>
+                            <TextField
+                                onBlur={(e) => {
+                                    if (!e.target.value || e.target.value < 1) {
+                                        setStaffCategoryPositionError(true);
+                                    }
+                                    else {
+                                        setStaffCategoryPositionError(false)
+                                    }
+                                }}
+                                onChange={(e) => {
+                                    setFormData((perv) => ({
+                                        ...perv,
+                                        staffCategoryPosition: e.target.value
+                                    }))
+                                }}
+                                value={formData.staffCategoryPosition}
+                                error={staffCategoryPositionError ? true : false}
+                                helperText={staffCategoryPositionError ? "Please Position" : ''}
+                                name="staffCategoryPosition"
+                                id="outlined-required"
+                                label="Category Position"
+                                InputProps={{ style: { fontSize: 14 } }}
+                                InputLabelProps={{ style: { fontSize: 14 } }}
+                                fullWidth
+                            />
+                        </div>
+                        <div className='col-span-2'>
                             <button className='addCategorySaveBtn' onClick={() => {
                                 isEdit ? editCategory() : submit()
                             }}>{isEdit ? 'Save' : 'Add'}</button>
                         </div>
-                        <div className='col-span-3'>
+                        <div className='col-span-2'>
                             <button className='addCategoryCancleBtn' onClick={() => {
-                                handleClose(); setEditCategory((perv) => ({
+                                handleClose(); setFormData((perv) => ({
                                     ...perv,
-                                    stockOutCategoryId: '',
-                                    stockOutCategoryName: ''
+                                    staffCategoryId: '',
+                                    staffCategoryName: ''
                                 }));
                                 setIsEdit(false)
                             }}>Cancle</button>
@@ -386,4 +431,4 @@ function CategoriesTable() {
     )
 }
 
-export default CategoriesTable;
+export default StaffCategoryTable;
