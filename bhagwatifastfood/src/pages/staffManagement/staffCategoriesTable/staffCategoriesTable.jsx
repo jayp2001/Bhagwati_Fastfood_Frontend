@@ -128,13 +128,15 @@ function StaffCategoryTable() {
             })
     }
     const deleteData = async (id) => {
-        await axios.delete(`${BACKEND_BASE_URL}staffrouter/removeStaffCategory?staffCategoryId=${id}`, config)
-            .then((res) => {
-                setSuccess(true)
-            })
-            .catch((error) => {
-                setError(error.response ? error.response.data : "Network Error ...!!!")
-            })
+        if (window.confirm('Are you sure you want to delete this category ..!!')) {
+            await axios.delete(`${BACKEND_BASE_URL}staffrouter/removeStaffCategory?staffCategoryId=${id}`, config)
+                .then((res) => {
+                    setSuccess(true)
+                })
+                .catch((error) => {
+                    setError(error.response ? error.response.data : "Network Error ...!!!")
+                })
+        }
     }
     useEffect(() => {
         getData();

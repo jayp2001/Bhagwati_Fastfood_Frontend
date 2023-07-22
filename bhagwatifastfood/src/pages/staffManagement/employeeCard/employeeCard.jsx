@@ -1,35 +1,41 @@
 import { Tooltip } from '@mui/material';
 import './employeeCard.css';
 import Menutemp from './menu';
+import { BACKEND_BASE_URL } from '../../../url';
+import Switch from '@mui/material/Switch';
 function EmployeeCard(props) {
     const handleEdit = () => {
-        props.handleEditClick(props.productData)
+        // props.handleEditClick(props.productData)
     }
     const handleDelete = () => {
-        props.handleDeleteProduct(props.productData.productId);
+        // props.handleDeleteProduct(props.productData.productId);
     }
+    const label = { inputProps: { 'aria-label': 'Size switch demo' } };
     return (
         <div className='employeeCard'>
             <div className='flex h-full'>
                 <div className='imgNameWrp'>
                     <div className='imgWrpCard'>
-                        <img src='https://media.istockphoto.com/id/1309328823/photo/headshot-portrait-of-smiling-male-employee-in-office.jpg?b=1&s=612x612&w=0&k=20&c=eU56mZTN4ZXYDJ2SR2DFcQahxEnIl3CiqpP3SOQVbbI=' />
+                        <img src={BACKEND_BASE_URL + props.data.imageLink} />
                     </div>
                     <div className='nameAndCategoryWrp'>
                         <Tooltip title={'Vikalp Dipakbhai Chavda'} placement="top-start" arrow>
                             <div className='nameWrp'>
-                                Vikalp Dipakbhai Chavda
+                                {props.data.employeeName}
                             </div>
                         </Tooltip>
                         <Tooltip title={'Panjabi(main)'} placement="top-start" arrow>
                             <div className='categoryWrp'>
-                                Panjabi(main)
+                                {props.data.category}
                             </div>
                         </Tooltip>
                     </div>
                 </div>
                 <div className='salaryDetailContainer w-full'>
-                    <div className='flex editBtnWrp justify-end'>
+                    <div className='flex editBtnWrp justify-between'>
+                        <div>
+                            <Switch {...label} defaultChecked />
+                        </div>
                         <Menutemp handleDelete={handleDelete} handleEdit={handleEdit} />
                     </div>
                     <div className='salaryDetailWrp grid grid-cols-3 gap-4'>
@@ -38,7 +44,7 @@ function EmployeeCard(props) {
                                 Salary
                             </div>
                             <div className='salaryNum mt-1'>
-                                3000000
+                                {props.data.salary}
                             </div>
                         </div>
                         <div>
@@ -46,7 +52,7 @@ function EmployeeCard(props) {
                                 Advanced
                             </div>
                             <div className='salaryNum mt-1'>
-                                3000000
+                                {props.data.advance}
                             </div>
                         </div>
                         <div>
@@ -54,7 +60,7 @@ function EmployeeCard(props) {
                                 Fine/Penalty
                             </div>
                             <div className='salaryNum mt-1'>
-                                3000000
+                                {props.data.fine}
                             </div>
                         </div>
                     </div>
@@ -64,7 +70,7 @@ function EmployeeCard(props) {
                                 Max-Leave
                             </div>
                             <div className='salaryNum mt-1'>
-                                3
+                                {props.data.maxLeave}
                             </div>
                         </div>
                         <div className='col-span-2'>
@@ -72,7 +78,7 @@ function EmployeeCard(props) {
                                 This Month Leave
                             </div>
                             <div className='salaryNum mt-1'>
-                                2
+                                {props.data.monthLeave}
                             </div>
                         </div>
                     </div>
@@ -82,7 +88,7 @@ function EmployeeCard(props) {
                         </div>
                     </div>
                     <div className='dueSalaryWrp mt-3 ml-6 mr-6'>
-                        3000000
+                        {props.data.category}
                     </div>
                     <div className='mt-3 ml-6 mr-6 grid grid-cols-2 gap-6'>
                         <button className='addSalary'>Give Salary</button>

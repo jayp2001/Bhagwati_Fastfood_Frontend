@@ -73,7 +73,7 @@ function EditSuppiler() {
         productId: []
     });
     const [formDataError, setFormDataError] = useState({
-        supplierFirstName: false,
+        supplierNickName: false,
         supplierFirmName: false,
         supplierFirmAddress: false,
         supplierPhoneNumber: false,
@@ -104,8 +104,9 @@ function EditSuppiler() {
         }))
     };
     const [fields, setFields] = useState([
-        'supplierFirstName',
+        'supplierNickName',
         'supplierFirmName',
+        'supplierEmailId',
         'supplierFirmAddress',
         'supplierPhoneNumber',
         'productId',
@@ -262,20 +263,6 @@ function EditSuppiler() {
                                 <div className='grid grid-cols-12 gap-6'>
                                     <div className="col-span-4">
                                         <TextField
-                                            onBlur={(e) => {
-                                                if (e.target.value.length < 2) {
-                                                    setFormDataError((perv) => ({
-                                                        ...perv,
-                                                        supplierFirstName: true
-                                                    }))
-                                                }
-                                                else {
-                                                    setFormDataError((perv) => ({
-                                                        ...perv,
-                                                        supplierFirstName: false
-                                                    }))
-                                                }
-                                            }}
                                             onChange={onChange}
                                             value={formData.supplierFirstName}
                                             error={formDataError.supplierFirstName}
@@ -290,20 +277,6 @@ function EditSuppiler() {
                                     </div>
                                     <div className="col-span-4">
                                         <TextField
-                                            onBlur={(e) => {
-                                                if (e.target.value.length < 2) {
-                                                    setFormDataError((perv) => ({
-                                                        ...perv,
-                                                        supplierLastName: true
-                                                    }))
-                                                }
-                                                else {
-                                                    setFormDataError((perv) => ({
-                                                        ...perv,
-                                                        supplierLastName: false
-                                                    }))
-                                                }
-                                            }}
                                             onChange={onChange}
                                             value={formData.supplierLastName}
                                             error={formDataError.supplierLastName}
