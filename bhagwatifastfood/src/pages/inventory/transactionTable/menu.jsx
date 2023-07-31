@@ -58,7 +58,7 @@ function Menutemp(props) {
                 <MenuItem key={'InVoice'}
                     onClick={() => {
                         handleClose();
-                        props.getInvoice(props.transactionId)
+                        props.getInvoice(props.transactionId, props.data.supplierNickName)
                     }}>
                     Download Invoice
                 </MenuItem>

@@ -748,7 +748,7 @@ function ProductListTable() {
                 const href = URL.createObjectURL(response.data);
                 // create "a" HTML element with href to file & click
                 const link = document.createElement('a');
-                const name = 'bookList' + new Date().toLocaleDateString() + '.xlsx'
+                const name = 'Products_' + new Date().toLocaleDateString() + '.xlsx'
                 link.href = href;
                 link.setAttribute('download', name); //or any other extension
                 document.body.appendChild(link);

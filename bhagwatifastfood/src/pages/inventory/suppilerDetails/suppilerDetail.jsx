@@ -482,7 +482,7 @@ function SuppilerDetail() {
             }, 1000)
         }
     }
-    const getInvoice = async (tId) => {
+    const getInvoice = async (tId, suppilerName) => {
         if (window.confirm('Are you sure you want to Download Invoice ... ?')) {
             await axios({
                 url: `${BACKEND_BASE_URL}inventoryrouter/exportTransactionInvoice?transactionId=${tId}`,
@@ -494,7 +494,7 @@ function SuppilerDetail() {
                 const href = URL.createObjectURL(response.data);
                 // create "a" HTML element with href to file & click
                 const link = document.createElement('a');
-                const name = 'bookList' + new Date().toLocaleDateString() + '.pdf'
+                const name = suppilerName + '_' + new Date().toLocaleDateString() + '.pdf'
                 link.href = href;
                 link.setAttribute('download', name); //or any other extension
                 document.body.appendChild(link);
@@ -519,7 +519,7 @@ function SuppilerDetail() {
                 const href = URL.createObjectURL(response.data);
                 // create "a" HTML element with href to file & click
                 const link = document.createElement('a');
-                const name = 'bookList' + new Date().toLocaleDateString() + '.xlsx'
+                const name = 'StockIn_' + new Date().toLocaleDateString() + '.xlsx'
                 link.href = href;
                 link.setAttribute('download', name); //or any other extension
                 document.body.appendChild(link);
@@ -544,7 +544,7 @@ function SuppilerDetail() {
                 const href = URL.createObjectURL(response.data);
                 // create "a" HTML element with href to file & click
                 const link = document.createElement('a');
-                const name = 'bookList' + new Date().toLocaleDateString() + '.xlsx'
+                const name = 'AllProducts_' + new Date().toLocaleDateString() + '.xlsx'
                 link.href = href;
                 link.setAttribute('download', name); //or any other extension
                 document.body.appendChild(link);
@@ -569,7 +569,7 @@ function SuppilerDetail() {
                 const href = URL.createObjectURL(response.data);
                 // create "a" HTML element with href to file & click
                 const link = document.createElement('a');
-                const name = 'bookList' + new Date().toLocaleDateString() + '.xlsx'
+                const name = filter ? 'Transactions_' + new Date(state[0].startDate).toLocaleDateString() + ' - ' + new Date(state[0].endDate).toLocaleDateString() + '.xlsx' : 'Transactions_' + new Date().toLocaleDateString();
                 link.href = href;
                 link.setAttribute('download', name); //or any other extension
                 document.body.appendChild(link);
