@@ -52,7 +52,7 @@ function EmployeeCard(props) {
                                 Advanced
                             </div>
                             <div className='salaryNum mt-1'>
-                                {props.data.advance}
+                                {props.data.advanceAmount}
                             </div>
                         </div>
                         <div>
@@ -60,7 +60,7 @@ function EmployeeCard(props) {
                                 Fine/Penalty
                             </div>
                             <div className='salaryNum mt-1'>
-                                {props.data.fine}
+                                {props.data.fineAmount}
                             </div>
                         </div>
                     </div>
@@ -70,15 +70,23 @@ function EmployeeCard(props) {
                                 Max-Leave
                             </div>
                             <div className='salaryNum mt-1'>
-                                {props.data.maxLeave}
+                                {props.data.totalMaxLeave}
                             </div>
                         </div>
-                        <div className='col-span-2'>
+                        <div className=''>
                             <div className='salaryHeader'>
-                                This Month Leave
+                                Leaves
                             </div>
                             <div className='salaryNum mt-1'>
-                                {props.data.monthLeave}
+                                {props.data.totalLeave}
+                            </div>
+                        </div>
+                        <div className=''>
+                            <div className='salaryHeader'>
+                                bonus
+                            </div>
+                            <div className='salaryNum mt-1'>
+                                {props.data.sumOfLeaveSalary}
                             </div>
                         </div>
                     </div>
@@ -88,11 +96,11 @@ function EmployeeCard(props) {
                         </div>
                     </div>
                     <div className='dueSalaryWrp mt-3 ml-6 mr-6'>
-                        {props.data.category}
+                        {props.data.paymentDue}
                     </div>
                     <div className='mt-3 ml-6 mr-6 grid grid-cols-2 gap-6'>
-                        <button className='addSalary'>Give Salary</button>
-                        <button className='addLeave'>Add Leave</button>
+                        <button className='addSalary' onClick={() => props.handleOpen(props.data)}>Give Salary</button>
+                        <button className='addLeave' onClick={() => props.handleOpenAddLeave(props.data)}>Add Leave</button>
                     </div>
                 </div>
             </div>

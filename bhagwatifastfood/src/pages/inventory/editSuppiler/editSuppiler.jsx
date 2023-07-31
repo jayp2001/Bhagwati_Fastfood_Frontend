@@ -168,34 +168,37 @@ function EditSuppiler() {
     }
     const submit = () => {
         console.log('>>>>>>>>>>', formData)
+        if (loading || success) {
 
-        const isValidate = fields.filter(element => {
-            if (element === 'supplierEmailId') {
-                return null
-            } else if (element === 'productId') {
-                if (formDataError[element] === true || formData[element] === []) {
+        } else {
+            const isValidate = fields.filter(element => {
+                if (element === 'supplierEmailId') {
+                    return null
+                } else if (element === 'productId') {
+                    if (formDataError[element] === true || formData[element] === []) {
+                        setFormDataError((perv) => ({
+                            ...perv,
+                            [element]: true
+                        }))
+                        return element;
+                    }
+                } else if (formDataError[element] === true || formData[element] === '') {
                     setFormDataError((perv) => ({
                         ...perv,
                         [element]: true
                     }))
                     return element;
                 }
-            } else if (formDataError[element] === true || formData[element] === '') {
-                setFormDataError((perv) => ({
-                    ...perv,
-                    [element]: true
-                }))
-                return element;
+            })
+            console.log('????', isValidate);
+            if (isValidate.length > 0) {
+                setError(
+                    "Please Fill All Field"
+                )
+            } else {
+                editSuppiler()
+                // console.log('submit', formData);
             }
-        })
-        console.log('????', isValidate);
-        if (isValidate.length > 0) {
-            setError(
-                "Please Fill All Field"
-            )
-        } else {
-            editSuppiler()
-            // console.log('submit', formData);
         }
     }
 

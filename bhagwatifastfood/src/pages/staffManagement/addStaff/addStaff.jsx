@@ -10,6 +10,7 @@ import FormLabel from '@mui/material/FormLabel';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+
 import { ToastContainer, toast } from 'react-toastify';
 import { BACKEND_BASE_URL } from '../../../url';
 import axios from 'axios';
@@ -18,8 +19,13 @@ import Button from '@mui/material/Button';
 import CloseIcon from '@mui/icons-material/Close';
 import { useLocation } from 'react-router-dom';
 import { useNavigate, useParams } from "react-router-dom";
-
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import dayjs from 'dayjs';
 function AddEditStaff() {
+    var customParseFormat = require('dayjs/plugin/customParseFormat')
+    dayjs.extend(customParseFormat)
     const location = useLocation();
     const navigate = useNavigate();
     let { id } = useParams();
@@ -67,6 +73,7 @@ function AddEditStaff() {
         branchName: '',
         employeeNickName: '',
         files: null,
+        joiningDate: dayjs()
     });
     const [formDataError, setFormDataError] = useState({
         employeeFirstName: false,
@@ -82,6 +89,7 @@ function AddEditStaff() {
         salary: false,
         maxLeave: false,
         files: false,
+        joiningDate: false
     })
     const handleFileUpload = (event) => {
         console.log("FILE", event.target.files)
@@ -131,6 +139,7 @@ function AddEditStaff() {
                 bankName: '',
                 branchName: '',
                 files: null,
+                joiningDate: dayjs()
             }
         )
         setFormDataError({
@@ -146,7 +155,8 @@ function AddEditStaff() {
             salary: false,
             maxLeave: false,
             files: false,
-            employeeNickName: false
+            employeeNickName: false,
+            joiningDate: false
         })
         setFileName('')
         setFilePreview();
@@ -165,6 +175,7 @@ function AddEditStaff() {
         'maxLeave',
         'files',
         'employeeNickName',
+        'joiningDate'
     ])
     const onChange = (e) => {
         setFormData((prevState) => ({
@@ -172,6 +183,12 @@ function AddEditStaff() {
             [e.target.name]: e.target.value,
         }))
     }
+    const handleJoiningDate = (date) => {
+        setFormData((prevState) => ({
+            ...prevState,
+            ["joiningDate"]: date && date['$d'] ? date['$d'] : null,
+        }))
+    };
     const getCategory = async () => {
         await axios.get(`${BACKEND_BASE_URL}staffrouter/ddlStaffCategory`, config)
             .then((res) => {
@@ -231,18 +248,10 @@ function AddEditStaff() {
     const getEmployeeDetail = async (id) => {
         await axios.get(`${BACKEND_BASE_URL}staffrouter/fillEmployeeDetails?employeeId=${id}`, config)
             .then((res) => {
-                setFormData(res.data);
+                setFormData({ ...res.data, previousSalary: res.data.salary, previousMaxLeave: res.data.maxLeave });
+                console.log('KLKO', { ...res.data, previousSalary: res.data.salary })
                 setFilePreview(BACKEND_BASE_URL + res.data.imageLink);
                 setFileName(res.data.imageFilePath)
-                axios.get(`${BACKEND_BASE_URL + res.data.imageLink}`, config)
-                    .then((resp) => {
-                        setFile(new File([resp.data], res.data.imageFilePath, { type: `image/${res.data.imageFilePath.split('.')[1]}` }))
-                        console.log('img', res.data.imageFilePath.split('.')[1])
-                    })
-                    .catch((error) => {
-                        setLoading(false);
-                        setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
-                    })
             })
             .catch((error) => {
                 setLoading(false);
@@ -285,37 +294,42 @@ function AddEditStaff() {
             })
             .catch((error) => {
                 setLoading(false);
+                console.log('>>', error)
                 setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
     const submit = () => {
-        console.log('>>>>>>>>>>', formData)
+        if (loading || success) {
 
-        const isValidate = fields.filter(element => {
-            if (element === 'files') {
-                if (fileName === '' || fileName === null || !fileName) {
+        } else {
+            console.log('>>>>>>>>>>', formData)
+
+            const isValidate = fields.filter(element => {
+                if (element === 'files') {
+                    if (fileName === '' || fileName === null || !fileName) {
+                        setFormDataError((perv) => ({
+                            ...perv,
+                            [element]: true
+                        }))
+                        return element;
+                    }
+                }
+                else if (formDataError[element] === true || formData[element] === '') {
                     setFormDataError((perv) => ({
                         ...perv,
                         [element]: true
                     }))
                     return element;
                 }
+            })
+            console.log('????', isValidate);
+            if (isValidate.length > 0) {
+                setError(
+                    "Please Fill All Field"
+                )
+            } else {
+                isEdit ? editEmployee() : addEmployee()
             }
-            else if (formDataError[element] === true || formData[element] === '') {
-                setFormDataError((perv) => ({
-                    ...perv,
-                    [element]: true
-                }))
-                return element;
-            }
-        })
-        console.log('????', isValidate);
-        if (isValidate.length > 0) {
-            setError(
-                "Please Fill All Field"
-            )
-        } else {
-            isEdit ? editEmployee() : addEmployee()
         }
     }
     useEffect(() => {
@@ -493,7 +507,7 @@ function AddEditStaff() {
                                                 }}
                                                 labelId="demo-simple-select-label"
                                                 id="demo-simple-select"
-                                                value={formData.employeeStatus}
+                                                value={formData.employeeStatus ? true : false}
                                                 error={formDataError.employeeStatus}
                                                 name="employeeStatus"
                                                 label="employee Status"
@@ -506,7 +520,7 @@ function AddEditStaff() {
                                     </div>
                                 </div>
                                 <div className='grid grid-cols-12 gap-6'>
-                                    <div className="col-span-6">
+                                    <div className="col-span-4">
                                         <TextField
                                             onBlur={(e) => {
                                                 if (e.target.value.length < 2) {
@@ -534,7 +548,7 @@ function AddEditStaff() {
                                             fullWidth
                                         />
                                     </div>
-                                    <div className="col-span-6">
+                                    <div className="col-span-4">
                                         <TextField
                                             onBlur={(e) => {
                                                 if (e.target.value.length < 2) {
@@ -561,6 +575,23 @@ function AddEditStaff() {
                                             InputLabelProps={{ style: { fontSize: 14 } }}
                                             fullWidth
                                         />
+                                    </div>
+                                    <div className='col-span-4'>
+                                        <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                            <DesktopDatePicker
+                                                textFieldStyle={{ width: '100%' }}
+                                                InputProps={{ style: { fontSize: 14, width: '100%' } }}
+                                                InputLabelProps={{ style: { fontSize: 14 } }}
+                                                label="Joining Date"
+                                                format="DD/MM/YYYY"
+                                                required
+                                                error={formDataError.joiningDate}
+                                                value={dayjs(formData.joiningDate)}
+                                                onChange={handleJoiningDate}
+                                                name="joiningDate"
+                                                renderInput={(params) => <TextField {...params} sx={{ width: '100%' }} />}
+                                            />
+                                        </LocalizationProvider>
                                     </div>
                                 </div>
                                 <div className='grid grid-cols-12 gap-6'>

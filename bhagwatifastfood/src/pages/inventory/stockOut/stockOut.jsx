@@ -272,72 +272,80 @@ function StockOut() {
     }
 
     const submitStockOut = () => {
-        const isValidate = stockOutErrorFields.filter(element => {
-            if (element === 'reason') {
-                if (isEdit && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormDataError['reason'] === true) {
+        if (loading || success) {
+
+        } else {
+            const isValidate = stockOutErrorFields.filter(element => {
+                if (element === 'reason') {
+                    if (isEdit && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormDataError['reason'] === true) {
+                        setStockOutFormDataError((perv) => ({
+                            ...perv,
+                            reason: true
+                        }))
+                        return element;
+                    }
+                }
+                else if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
                     setStockOutFormDataError((perv) => ({
                         ...perv,
-                        reason: true
+                        [element]: true
                     }))
                     return element;
                 }
+                else if (stockOutFormData[element] === true || stockOutFormData[element] === '' || stockOutFormData[element] === 0) {
+                    setStockOutFormDataError((perv) => ({
+                        ...perv,
+                        [element]: true
+                    }))
+                    return element;
+                }
+            })
+            if (isValidate.length > 0) {
+                setError(
+                    "Please Fill All Field"
+                )
+            } else {
+                stockOut()
             }
-            else if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
-                setStockOutFormDataError((perv) => ({
-                    ...perv,
-                    [element]: true
-                }))
-                return element;
-            }
-            else if (stockOutFormData[element] === true || stockOutFormData[element] === '' || stockOutFormData[element] === 0) {
-                setStockOutFormDataError((perv) => ({
-                    ...perv,
-                    [element]: true
-                }))
-                return element;
-            }
-        })
-        if (isValidate.length > 0) {
-            setError(
-                "Please Fill All Field"
-            )
-        } else {
-            stockOut()
         }
     }
 
     const editSubmitStockOut = () => {
-        const isValidate = stockOutErrorFields.filter(element => {
-            if (element === 'reason') {
-                if (isEdit && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormDataError['reason'] === true) {
+        if (loading || success) {
+
+        } else {
+            const isValidate = stockOutErrorFields.filter(element => {
+                if (element === 'reason') {
+                    if (isEdit && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormDataError['reason'] === true) {
+                        setStockOutFormDataError((perv) => ({
+                            ...perv,
+                            reason: true
+                        }))
+                        return element;
+                    }
+                }
+                else if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
                     setStockOutFormDataError((perv) => ({
                         ...perv,
-                        reason: true
+                        [element]: true
                     }))
                     return element;
                 }
+                else if (stockOutFormData[element] === true || stockOutFormData[element] === '' || stockOutFormData[element] === 0) {
+                    setStockOutFormDataError((perv) => ({
+                        ...perv,
+                        [element]: true
+                    }))
+                    return element;
+                }
+            })
+            if (isValidate.length > 0) {
+                setError(
+                    "Please Fill All Field"
+                )
+            } else {
+                stockOutEdit()
             }
-            else if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
-                setStockOutFormDataError((perv) => ({
-                    ...perv,
-                    [element]: true
-                }))
-                return element;
-            }
-            else if (stockOutFormData[element] === true || stockOutFormData[element] === '' || stockOutFormData[element] === 0) {
-                setStockOutFormDataError((perv) => ({
-                    ...perv,
-                    [element]: true
-                }))
-                return element;
-            }
-        })
-        if (isValidate.length > 0) {
-            setError(
-                "Please Fill All Field"
-            )
-        } else {
-            stockOutEdit()
         }
     }
     const getAllDataOnPageChange = async (pageNum, rowPerPageNum) => {

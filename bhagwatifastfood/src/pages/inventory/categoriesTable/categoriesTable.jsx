@@ -165,24 +165,28 @@ function CategoriesTable() {
         setOpen(true)
     }
     const editCategory = async () => {
-        if (editCateory.stockOutCategoryName.length < 2) {
-            setError(
-                "Please Fill category"
-            )
-            setCategoryError(true);
-        }
-        else {
-            setLoading(true);
-            await axios.post(`${BACKEND_BASE_URL}inventoryrouter/updateStockOutCategory`, editCateory, config)
-                .then((res) => {
-                    setLoading(false);
-                    setSuccess(true)
-                    getData();
-                    handleClose()
-                })
-                .catch((error) => {
-                    setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
-                })
+        if (loading || success) {
+
+        } else {
+            if (editCateory.stockOutCategoryName.length < 2) {
+                setError(
+                    "Please Fill category"
+                )
+                setCategoryError(true);
+            }
+            else {
+                setLoading(true);
+                await axios.post(`${BACKEND_BASE_URL}inventoryrouter/updateStockOutCategory`, editCateory, config)
+                    .then((res) => {
+                        setLoading(false);
+                        setSuccess(true)
+                        getData();
+                        handleClose()
+                    })
+                    .catch((error) => {
+                        setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+                    })
+            }
         }
     }
     const addCategory = async () => {
@@ -200,13 +204,17 @@ function CategoriesTable() {
             })
     }
     const submit = () => {
-        if (category.length < 2) {
-            setError(
-                "Please Fill category"
-            )
-            setCategoryError(true);
+        if (loading || success) {
+
         } else {
-            addCategory()
+            if (category.length < 2) {
+                setError(
+                    "Please Fill category"
+                )
+                setCategoryError(true);
+            } else {
+                addCategory()
+            }
         }
     }
     if (loading) {

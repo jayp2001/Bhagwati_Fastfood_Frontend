@@ -213,20 +213,24 @@ function StaffCategoryTable() {
             })
     }
     const submit = () => {
-        if (!formData.staffCategoryName || formData.staffCategoryName < 2) {
-            setError(
-                "Please Fill category"
-            )
-            setStaffCategoryNameError(true);
-            if (!formData.staffCategoryPosition || formData.staffCategoryPosition < 1) {
+        if (loading || success) {
+
+        } else {
+            if (!formData.staffCategoryName || formData.staffCategoryName < 2) {
+                setError(
+                    "Please Fill category"
+                )
+                setStaffCategoryNameError(true);
+                if (!formData.staffCategoryPosition || formData.staffCategoryPosition < 1) {
+                    setStaffCategoryPositionError(true);
+                }
+            }
+            else if (!formData.staffCategoryPosition || formData.staffCategoryPosition < 1) {
                 setStaffCategoryPositionError(true);
             }
-        }
-        else if (!formData.staffCategoryPosition || formData.staffCategoryPosition < 1) {
-            setStaffCategoryPositionError(true);
-        }
-        else {
-            addCategory()
+            else {
+                addCategory()
+            }
         }
     }
     if (loading) {

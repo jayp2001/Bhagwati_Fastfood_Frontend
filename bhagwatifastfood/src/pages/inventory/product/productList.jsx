@@ -465,105 +465,121 @@ function ProductList() {
     }
 
     const submitEdit = () => {
-        const isValidate = fields.filter(element => {
-            if (element === 'emailId') {
-                return null
-            } else if (formDataError[element] === true || formData[element] === '') {
-                setFormDataError((perv) => ({
-                    ...perv,
-                    [element]: true
-                }))
-                return element;
-            }
-        })
-        if (isValidate.length > 0) {
-            setError(
-                "Please Fill All Field"
-            )
+        if (loading || success) {
+
         } else {
-            editCategory()
+            const isValidate = fields.filter(element => {
+                if (element === 'emailId') {
+                    return null
+                } else if (formDataError[element] === true || formData[element] === '') {
+                    setFormDataError((perv) => ({
+                        ...perv,
+                        [element]: true
+                    }))
+                    return element;
+                }
+            })
+            if (isValidate.length > 0) {
+                setError(
+                    "Please Fill All Field"
+                )
+            } else {
+                editCategory()
+            }
         }
     }
     const submitAdd = () => {
-        const isValidate = fields.filter(element => {
-            if (element === 'emailId') {
-                return null
-            } else if (formDataError[element] === true || formData[element] === '' || formData[element] === 0) {
-                setFormDataError((perv) => ({
-                    ...perv,
-                    [element]: true
-                }))
-                return element;
-            }
-        })
-        if (isValidate.length > 0) {
-            setError(
-                "Please Fill All Field"
-            )
+        if (loading || success) {
+
         } else {
-            addProduct()
+            const isValidate = fields.filter(element => {
+                if (element === 'emailId') {
+                    return null
+                } else if (formDataError[element] === true || formData[element] === '' || formData[element] === 0) {
+                    setFormDataError((perv) => ({
+                        ...perv,
+                        [element]: true
+                    }))
+                    return element;
+                }
+            })
+            if (isValidate.length > 0) {
+                setError(
+                    "Please Fill All Field"
+                )
+            } else {
+                addProduct()
+            }
         }
     }
 
 
     const submitStockIn = () => {
-        const isValidate = stockInErrorFields.filter(element => {
-            if (element === 'stockInDate' && stockInFormData[element] === '' || stockInFormData[element] === null || stockInFormData.stockInDate == 'Invalid Date') {
-                setStockInFormDataError((perv) => ({
-                    ...perv,
-                    [element]: true
-                }))
-                return element;
-            }
-            else if (stockInFormData[element] === true || stockInFormData[element] === '' || stockInFormData[element] === 0) {
-                setStockInFormDataError((perv) => ({
-                    ...perv,
-                    [element]: true
-                }))
-                return element;
-            }
-        })
-        if (isValidate.length > 0) {
-            setError(
-                "Please Fill All Field"
-            )
+        if (loading || success) {
+
         } else {
-            // console.log(">>", stockInFormData, stockInFormData.stockInDate, stockInFormData.stockInDate != 'Invalid Date' ? 'ue' : 'false')
-            stockIn()
-        }
-    }
-    const submitStockOut = () => {
-        const isValidate = stockOutErrorFields.filter(element => {
-            if (element === 'reason') {
-                if (isEdit && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormDataError['reason'] === true) {
-                    setStockOutFormDataError((perv) => ({
+            const isValidate = stockInErrorFields.filter(element => {
+                if (element === 'stockInDate' && stockInFormData[element] === '' || stockInFormData[element] === null || stockInFormData.stockInDate == 'Invalid Date') {
+                    setStockInFormDataError((perv) => ({
                         ...perv,
-                        reason: true
+                        [element]: true
                     }))
                     return element;
                 }
-            } else if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
-                setStockOutFormDataError((perv) => ({
-                    ...perv,
-                    [element]: true
-                }))
-                return element;
+                else if (stockInFormData[element] === true || stockInFormData[element] === '' || stockInFormData[element] === 0) {
+                    setStockInFormDataError((perv) => ({
+                        ...perv,
+                        [element]: true
+                    }))
+                    return element;
+                }
+            })
+            if (isValidate.length > 0) {
+                setError(
+                    "Please Fill All Field"
+                )
+            } else {
+                // console.log(">>", stockInFormData, stockInFormData.stockInDate, stockInFormData.stockInDate != 'Invalid Date' ? 'ue' : 'false')
+                stockIn()
             }
-            else if (stockOutFormData[element] === true || stockOutFormData[element] === '' || stockOutFormData[element] === 0) {
-                setStockOutFormDataError((perv) => ({
-                    ...perv,
-                    [element]: true
-                }))
-                return element;
-            }
-        })
-        if (isValidate.length > 0) {
-            setError(
-                "Please Fill All Field"
-            )
+        }
+    }
+    const submitStockOut = () => {
+        if (loading || success) {
+
         } else {
-            // console.log(">>", stockInFormData, stockInFormData.stockInDate, stockInFormData.stockInDate != 'Invalid Date' ? 'ue' : 'false')
-            stockOut()
+            const isValidate = stockOutErrorFields.filter(element => {
+                if (element === 'reason') {
+                    if (isEdit && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormDataError['reason'] === true) {
+                        setStockOutFormDataError((perv) => ({
+                            ...perv,
+                            reason: true
+                        }))
+                        return element;
+                    }
+                } else if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
+                    setStockOutFormDataError((perv) => ({
+                        ...perv,
+                        [element]: true
+                    }))
+                    return element;
+                }
+                else if (stockOutFormData[element] === true || stockOutFormData[element] === '' || stockOutFormData[element] === 0) {
+                    setStockOutFormDataError((perv) => ({
+                        ...perv,
+                        [element]: true
+                    }))
+                    return element;
+                }
+            })
+            if (isValidate.length > 0) {
+                setError(
+                    "Please Fill All Field"
+                )
+            } else {
+                // console.log(">>", stockInFormData, stockInFormData.stockInDate, stockInFormData.stockInDate != 'Invalid Date' ? 'ue' : 'false')
+                stockOut()
+            }
         }
     }
 

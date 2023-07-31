@@ -98,26 +98,30 @@ function AddUser() {
             })
     }
     const submit = () => {
-        console.log('>>>>>>>>>>', formData)
+        if (loading || success) {
 
-        const isValidate = fields.filter(element => {
-            if (element === 'emailId') {
-                return null
-            } else if (formDataError[element] === true || formData[element] === '') {
-                setFormDataError((perv) => ({
-                    ...perv,
-                    [element]: true
-                }))
-                return element;
-            }
-        })
-        console.log('????', isValidate);
-        if (isValidate.length > 0) {
-            setError(
-                "Please Fill All Field"
-            )
         } else {
-            addUser()
+            console.log('>>>>>>>>>>', formData)
+
+            const isValidate = fields.filter(element => {
+                if (element === 'emailId') {
+                    return null
+                } else if (formDataError[element] === true || formData[element] === '') {
+                    setFormDataError((perv) => ({
+                        ...perv,
+                        [element]: true
+                    }))
+                    return element;
+                }
+            })
+            console.log('????', isValidate);
+            if (isValidate.length > 0) {
+                setError(
+                    "Please Fill All Field"
+                )
+            } else {
+                addUser()
+            }
         }
     }
     if (loading) {

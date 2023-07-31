@@ -426,21 +426,25 @@ function SuppilerDetail() {
             })
     }
     const submitPayment = () => {
-        const isValidate = formDataErrorFeild.filter(element => {
-            if (formData[element] === true || formData[element] === '' || formData[element] === 0) {
-                setFormDataError((perv) => ({
-                    ...perv,
-                    [element]: true
-                }))
-                return element;
-            }
-        })
-        if (isValidate.length > 0) {
-            setError(
-                "Please Fill All Field"
-            )
+        if (loading || success) {
+
         } else {
-            makePayment()
+            const isValidate = formDataErrorFeild.filter(element => {
+                if (formData[element] === true || formData[element] === '' || formData[element] === 0) {
+                    setFormDataError((perv) => ({
+                        ...perv,
+                        [element]: true
+                    }))
+                    return element;
+                }
+            })
+            if (isValidate.length > 0) {
+                setError(
+                    "Please Fill All Field"
+                )
+            } else {
+                makePayment()
+            }
         }
     }
     const deleteStockIn = async (id) => {

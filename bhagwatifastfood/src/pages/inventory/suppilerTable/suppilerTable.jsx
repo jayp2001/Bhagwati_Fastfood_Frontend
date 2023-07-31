@@ -195,22 +195,26 @@ function SuppilerTable() {
     }
 
     const submitPayment = () => {
-        const isValidate = formDataErrorFeild.filter(element => {
-            if (formData[element] === true || formData[element] === '' || formData[element] === 0) {
-                setFormDataError((perv) => ({
-                    ...perv,
-                    [element]: true
-                }))
-                return element;
-            }
-        })
-        if (isValidate.length > 0) {
-            setError(
-                "Please Fill All Field"
-            )
+        if (loading || success) {
+
         } else {
-            // console.log(">>", stockInFormData, stockInFormData.stockInDate, stockInFormData.stockInDate != 'Invalid Date' ? 'ue' : 'false')
-            makePayment()
+            const isValidate = formDataErrorFeild.filter(element => {
+                if (formData[element] === true || formData[element] === '' || formData[element] === 0) {
+                    setFormDataError((perv) => ({
+                        ...perv,
+                        [element]: true
+                    }))
+                    return element;
+                }
+            })
+            if (isValidate.length > 0) {
+                setError(
+                    "Please Fill All Field"
+                )
+            } else {
+                // console.log(">>", stockInFormData, stockInFormData.stockInDate, stockInFormData.stockInDate != 'Invalid Date' ? 'ue' : 'false')
+                makePayment()
+            }
         }
     }
 
