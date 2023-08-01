@@ -369,7 +369,7 @@ function StockOut() {
             })
     }
     const getStockOutData = async () => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockOutList?page=${page + 1}&numPerPage=${rowsPerPage}`, config)
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockOutList?startDate=${new Date()}&endDate=${new Date()}&page=${page + 1}&numPerPage=${rowsPerPage}`, config)
             .then((res) => {
                 setStockOutData(res.data.rows);
                 setTotalRowsOut(res.data.numRows);
