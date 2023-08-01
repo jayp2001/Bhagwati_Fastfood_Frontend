@@ -301,7 +301,8 @@ function TransactionTable() {
         if (window.confirm("Are you sure you want to delete transaction?")) {
             deleteData(id);
             setTimeout(() => {
-                getDebitData();
+                getDebitDataByFilter();
+                getDebitCounts();
             }, 1000)
         }
     }
@@ -441,26 +442,12 @@ function TransactionTable() {
                                     </div> */}
                                     <div className={`flex col-span-3 justify-center ${tab === 2 || tab === '2' ? 'productTabAll' : 'productTab'}`}
                                         onClick={() => {
-                                            setTab(2); setSearchWord(''); setPage(0); setRowsPerPage(5); getDebitData(); getDebitCounts(); setFilter(false);
-                                            setState([
-                                                {
-                                                    startDate: new Date(),
-                                                    endDate: new Date(),
-                                                    key: 'selection'
-                                                }
-                                            ])
+                                            setTab(2); setSearchWord(''); setPage(0); setRowsPerPage(5); filter ? getDebitDataByFilter() : getDebitData(); getDebitCounts();
                                         }}>
                                         <div className='statusTabtext'>Debit</div>
                                     </div>
                                     <div className={`flex col-span-3 justify-center ${tab === 3 || tab === '3' ? 'productTabIn' : 'productTab'}`} onClick={() => {
-                                        setTab(3); setSearchWord(''); setPage(0); setRowsPerPage(5); getCashData(); setFilter(false); getCashCounts();
-                                        setState([
-                                            {
-                                                startDate: new Date(),
-                                                endDate: new Date(),
-                                                key: 'selection'
-                                            }
-                                        ])
+                                        setTab(3); setSearchWord(''); setPage(0); setRowsPerPage(5); filter ? getCashDataByFilter() : getCashData(); getCashCounts();
                                     }}>
                                         <div className='statusTabtext'>Cash</div>
                                     </div>
