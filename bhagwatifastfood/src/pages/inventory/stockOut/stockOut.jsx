@@ -602,7 +602,7 @@ function StockOut() {
                                     <div className=''>
                                         <TextField
                                             onBlur={(e) => {
-                                                if (e.target.value < 1 || e.target.value > stockOutFormData?.remainingStock) {
+                                                if (e.target.value > 0 || e.target.value > stockOutFormData?.remainingStock) {
                                                     setStockOutFormDataError((perv) => ({
                                                         ...perv,
                                                         productQty: true

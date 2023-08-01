@@ -1165,7 +1165,7 @@ function ProductDetails() {
                                     <div className='col-span-2'>
                                         <TextField
                                             onBlur={(e) => {
-                                                if (e.target.value < 1) {
+                                                if (e.target.value > 0) {
                                                     setStockInFormDataError((perv) => ({
                                                         ...perv,
                                                         productQty: true
@@ -1194,7 +1194,7 @@ function ProductDetails() {
                                     <div className='col-span-2'>
                                         <TextField
                                             onBlur={(e) => {
-                                                if (e.target.value < 1) {
+                                                if (e.target.value > 0) {
                                                     setStockInFormDataError((perv) => ({
                                                         ...perv,
                                                         productPrice: true
@@ -1227,7 +1227,7 @@ function ProductDetails() {
                                     <div className='col-span-2'>
                                         <TextField
                                             onBlur={(e) => {
-                                                if (e.target.value < 1) {
+                                                if (e.target.value > 0) {
                                                     setStockInFormDataError((perv) => ({
                                                         ...perv,
                                                         totalPrice: true
@@ -1395,7 +1395,7 @@ function ProductDetails() {
                                     <div className='col-span-3'>
                                         <TextField
                                             onBlur={(e) => {
-                                                if (e.target.value < 1 || e.target.value > statisticsCount?.remainingStock) {
+                                                if (e.target.value > 0 || e.target.value > statisticsCount?.remainingStock) {
                                                     setStockOutFormDataError((perv) => ({
                                                         ...perv,
                                                         productQty: true

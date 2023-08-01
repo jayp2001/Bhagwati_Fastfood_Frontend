@@ -862,7 +862,7 @@ function SuppilerDetail() {
                                     <TextField
                                         disabled={formData.remainingAmount === 0 ? true : false}
                                         onBlur={(e) => {
-                                            if (e.target.value < 1 || e.target.value > formData.remainingAmount) {
+                                            if (e.target.value > 0 || e.target.value > formData.remainingAmount) {
                                                 setFormDataError((perv) => ({
                                                     ...perv,
                                                     paidAmount: true

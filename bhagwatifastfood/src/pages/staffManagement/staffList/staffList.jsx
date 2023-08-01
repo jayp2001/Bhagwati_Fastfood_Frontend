@@ -516,7 +516,7 @@ function StaffList() {
                         <div className='col-span-6'>
                             <TextField
                                 onBlur={(e) => {
-                                    if (e.target.value < 1) {
+                                    if (e.target.value > 0) {
                                         setAddLeaveFormDataError((perv) => ({
                                             ...perv,
                                             numLeave: true

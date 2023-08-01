@@ -759,7 +759,7 @@ function ProductList() {
                         <div className='col-span-3'>
                             <TextField
                                 onBlur={(e) => {
-                                    if (!e.target.value.length || e.target.value < 1) {
+                                    if (!e.target.value.length || e.target.value > 0) {
                                         setFormDataError((perv) => ({
                                             ...perv,
                                             minProductQty: true
@@ -869,7 +869,7 @@ function ProductList() {
                         <div className='col-span-3'>
                             <TextField
                                 onBlur={(e) => {
-                                    if (e.target.value < 1) {
+                                    if (e.target.value > 0) {
                                         setStockInFormDataError((perv) => ({
                                             ...perv,
                                             productQty: true
@@ -898,7 +898,7 @@ function ProductList() {
                         <div className='col-span-3'>
                             <TextField
                                 onBlur={(e) => {
-                                    if (e.target.value < 1) {
+                                    if (e.target.value > 0) {
                                         setStockInFormDataError((perv) => ({
                                             ...perv,
                                             productPrice: true
@@ -930,7 +930,7 @@ function ProductList() {
                         <div className='col-span-3'>
                             <TextField
                                 onBlur={(e) => {
-                                    if (e.target.value < 1) {
+                                    if (e.target.value > 0) {
                                         setStockInFormDataError((perv) => ({
                                             ...perv,
                                             totalPrice: true
@@ -1110,7 +1110,7 @@ function ProductList() {
                         <div className='col-span-3'>
                             <TextField
                                 onBlur={(e) => {
-                                    if (e.target.value < 1 || e.target.value > stockOutFormData.remainingStock) {
+                                    if (e.target.value > 0 || e.target.value > stockOutFormData.remainingStock) {
                                         setStockOutFormDataError((perv) => ({
                                             ...perv,
                                             productQty: true
