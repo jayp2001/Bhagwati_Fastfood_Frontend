@@ -434,7 +434,7 @@ function SuppilerTable() {
                         <div className='col-span-6'>
                             <TextField
                                 onBlur={(e) => {
-                                    if (e.target.value > 0 || e.target.value > formData.remainingAmount) {
+                                    if (e.target.value < 0 || e.target.value > formData.remainingAmount) {
                                         setFormDataError((perv) => ({
                                             ...perv,
                                             paidAmount: true

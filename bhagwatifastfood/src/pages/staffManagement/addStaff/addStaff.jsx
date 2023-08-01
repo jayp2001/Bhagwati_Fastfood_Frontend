@@ -691,7 +691,7 @@ function AddEditStaff() {
                                     <div className="col-span-2">
                                         <TextField
                                             onBlur={(e) => {
-                                                if (e.target.value > 0) {
+                                                if (e.target.value < 0) {
                                                     setFormDataError((perv) => ({
                                                         ...perv,
                                                         maxLeave: true

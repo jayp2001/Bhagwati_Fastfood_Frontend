@@ -390,7 +390,7 @@ function StaffCategoryTable() {
                         <div className='col-span-3'>
                             <TextField
                                 onBlur={(e) => {
-                                    if (!e.target.value || e.target.value > 0) {
+                                    if (!e.target.value || e.target.value < 0) {
                                         setStaffCategoryPositionError(true);
                                     }
                                     else {

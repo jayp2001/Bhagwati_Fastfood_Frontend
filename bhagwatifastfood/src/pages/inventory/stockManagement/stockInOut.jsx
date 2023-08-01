@@ -1057,7 +1057,7 @@ function StockInOut() {
                                         <div className='col-span-2'>
                                             <TextField
                                                 onBlur={(e) => {
-                                                    if (e.target.value > 0) {
+                                                    if (e.target.value < 0) {
                                                         setStockInFormDataError((perv) => ({
                                                             ...perv,
                                                             productQty: true
@@ -1090,7 +1090,7 @@ function StockInOut() {
                                         <div className='col-span-2'>
                                             <TextField
                                                 onBlur={(e) => {
-                                                    if (e.target.value > 0) {
+                                                    if (e.target.value < 0) {
                                                         setStockInFormDataError((perv) => ({
                                                             ...perv,
                                                             productPrice: true
@@ -1122,7 +1122,7 @@ function StockInOut() {
                                         <div className='col-span-2'>
                                             <TextField
                                                 onBlur={(e) => {
-                                                    if (e.target.value > 0) {
+                                                    if (e.target.value < 0) {
                                                         setStockInFormDataError((perv) => ({
                                                             ...perv,
                                                             totalPrice: true
@@ -1304,7 +1304,7 @@ function StockInOut() {
                                         <div className='col-span-3'>
                                             <TextField
                                                 onBlur={(e) => {
-                                                    if (e.target.value > 0 || e.target.value > stockOutFormData?.remainingStock) {
+                                                    if (e.target.value < 0 || e.target.value > stockOutFormData?.remainingStock) {
                                                         setStockOutFormDataError((perv) => ({
                                                             ...perv,
                                                             productQty: true
