@@ -12,7 +12,7 @@ function EmployeeCard(props) {
     }
     const label = { inputProps: { 'aria-label': 'Size switch demo' } };
     return (
-        <div className='employeeCard'>
+        <div className='employeeCard' key={props.data.employeeId + 'employeeCard'}>
             <div className='flex h-full'>
                 <div className='imgNameWrp'>
                     <div className='imgWrpCard'>
