@@ -210,8 +210,8 @@ function TransactionTable() {
     const getDebitOnPageChange = async (pageNum, rowPerPageNum) => {
         await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getCashTransactionList?page=${pageNum}&numPerPage=${rowPerPageNum}&payMode=debit`, config)
             .then((res) => {
-                setCashTransaction(res.data.rows);
-                setTotalRowsCash(res.data.numRows);
+                setDebitData(res.data.rows);
+                setTotalRowsDebit(res.data.numRows);
             })
             .catch((error) => {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
@@ -231,8 +231,8 @@ function TransactionTable() {
     const getDebitOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
         await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getCashTransactionList?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${pageNum}&numPerPage=${rowPerPageNum}&payMode=debit`, config)
             .then((res) => {
-                setCashTransaction(res.data.rows);
-                setTotalRowsCash(res.data.numRows);
+                setDebitData(res.data.rows);
+                setTotalRowsDebit(res.data.numRows);
             })
             .catch((error) => {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
