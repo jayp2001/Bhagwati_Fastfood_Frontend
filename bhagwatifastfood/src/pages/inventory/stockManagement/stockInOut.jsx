@@ -881,6 +881,7 @@ function StockInOut() {
         await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeStockOutTransaction?stockOutId=${id}`, config)
             .then((res) => {
                 setSuccess(true);
+                getProductList();
             })
             .catch((error) => {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
