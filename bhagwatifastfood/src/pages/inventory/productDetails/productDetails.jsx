@@ -278,7 +278,16 @@ function ProductDetails() {
 
         } else {
             const isValidate = stockInErrorFields.filter(element => {
-                if (element === 'stockInDate' && stockInFormData[element] === '' || stockInFormData[element] === null || stockInFormData.stockInDate == 'Invalid Date') {
+                if (element === 'reason') {
+                    if (isEdit && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormDataError['reason'] === true) {
+                        setStockOutFormDataError((perv) => ({
+                            ...perv,
+                            reason: true
+                        }))
+                        return element;
+                    }
+                }
+                else if (element === 'stockInDate' && stockInFormData[element] === '' || stockInFormData[element] === null || stockInFormData.stockInDate == 'Invalid Date') {
                     setStockInFormDataError((perv) => ({
                         ...perv,
                         [element]: true
@@ -294,7 +303,6 @@ function ProductDetails() {
                 }
             })
             if (isValidate.length > 0) {
-                console.log('velidate', isValidate)
                 setError(
                     "Please Fill All Field"
                 )

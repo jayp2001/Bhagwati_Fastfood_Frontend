@@ -106,7 +106,10 @@ function StaffList() {
             employeeId: row.employeeId,
             nickName: row.nickName,
             paymentDue: row.paymentDue,
-            totalSalary: row.totalSalary + row.sumOfLeaveSalary
+            totalSalary: row.totalSalary,
+            advanceAmount: row.advanceAmount,
+            fineAmount: row.fineAmount,
+            paymentDue: row.paymentDue,
         }))
         setOpen(true);
     }
@@ -155,7 +158,10 @@ function StaffList() {
                 setLoading(false);
                 setSuccess(true);
                 handleClose();
-                getEmployeeList(activeCategory);
+                setTimeout(() => {
+                    getEmployeeList(activeCategory);
+                }, 50)
+
             })
             .catch((error) => {
                 setLoading(false);
@@ -225,29 +231,12 @@ function StaffList() {
     }
 
     const onChange = (e) => {
-        if (e.target.name === 'payAmount') {
-            if (e.target.value > formData.totalSalary && formData.amountType == 1) {
-                setFormDataError((perv) => ({
-                    ...perv,
-                    [e.target.name]: true
-                }))
-            }
-            else {
-                setFormDataError((perv) => ({
-                    ...perv,
-                    [e.target.name]: false
-                }))
-            }
-            setFormData((prevState) => ({
-                ...prevState,
-                [e.target.name]: e.target.value,
-            }))
-        } else {
-            setFormData((prevState) => ({
-                ...prevState,
-                [e.target.name]: e.target.value,
-            }))
-        }
+
+        setFormData((prevState) => ({
+            ...prevState,
+            [e.target.name]: e.target.value,
+        }))
+
     }
     const onChangeLeave = (e) => {
         setAddLeaveFormData((prevState) => ({
@@ -320,10 +309,13 @@ function StaffList() {
     }
 
     useEffect(() => {
+        console.log('>>>LLL')
         getEmployeeList('');
         getCategory();
     }, [])
-
+    if (!employeeList) {
+        return null;
+    }
     return (
         <div className='mainBody flex gap-4 pr-4 pl-4'>
             <div className='categoryListContainer'>
@@ -391,7 +383,7 @@ function StaffList() {
                         <div className='col-span-4'>
                             <TextField
                                 onBlur={(e) => {
-                                    if (e.target.value < 0 || (e.target.value > formData.totalSalary && formData.amountType == 1)) {
+                                    if (e.target.value < 0) {
                                         setFormDataError((perv) => ({
                                             ...perv,
                                             payAmount: true
@@ -411,7 +403,7 @@ function StaffList() {
                                 value={formData.payAmount}
                                 error={formDataError.payAmount}
                                 // helperText={formData.supplierName && !formDataError.productQty ? `Remain Payment  ${formData.remainingAmount}` : formDataError.paidAmount ? formData.paidAmount > formData.remainingAmount ? `Payment Amount can't be more than ${formData.remainingAmount}` : "Please Enter Amount" : ''}
-                                helperText={formData.amountType == 1 ? formData.payAmount ? formData.payAmount > formData.totalSalary ? `Amount can't be more than ${formData.totalSalary}` : `Remaining Payment ${formData.paymentDue}` : formDataError.totalSalary ? "Please Enter Amount" : `Remaining Payment ${formData.paymentDue}` : ''}
+                                // helperText={formData.amountType == 1 ? formData.payAmount ? formData.payAmount > formData.totalSalary ? `Amount can't be more than ${formData.totalSalary}` : `Remaining Payment ${formData.paymentDue}` : formDataError.totalSalary ? "Please Enter Amount" : `Remaining Payment ${formData.paymentDue}` : ''}
                                 name="payAmount"
                                 InputProps={{
                                     startAdornment: <InputAdornment position="start"><CurrencyRupeeIcon /></InputAdornment>,
@@ -473,8 +465,8 @@ function StaffList() {
                             <TextField
                                 disabled={formData.remainingAmount == 0}
                                 onChange={onChange}
-                                value={formData.transactionNote}
-                                name="transactionNote"
+                                value={formData.comment}
+                                name="comment"
                                 id="outlined-required"
                                 label="Comment"
                                 InputProps={{ style: { fontSize: 14 } }}
