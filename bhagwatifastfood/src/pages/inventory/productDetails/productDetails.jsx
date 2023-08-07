@@ -1123,6 +1123,7 @@ function ProductDetails() {
                                                 setTabStockInOut(1);
                                                 resetStockOutEdit();
                                                 setPage(0); setRowsPerPage(5);
+                                                filter ? getStockInDataByFilter() : getStockInData();
                                             }} >
                                             <div className='statusTabtext'>Stock In</div>
                                         </div>

@@ -114,7 +114,7 @@ function AddEditStaff() {
         }
     }
     const navigateToList = () => {
-        // navigate()
+        navigate('/staffList')
     }
     const reset = () => {
         setFormData(
@@ -505,6 +505,7 @@ function AddEditStaff() {
                                                         }))
                                                     }
                                                 }}
+                                                disabled={isEdit}
                                                 labelId="demo-simple-select-label"
                                                 id="demo-simple-select"
                                                 value={formData.employeeStatus ? true : false}

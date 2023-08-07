@@ -76,7 +76,7 @@ function TransactionTable() {
     const id = open ? 'simple-popover' : undefined;
 
     const getDebitData = async () => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getDebitTransactionList?&page=${page + 1}&numPerPage=${rowsPerPage}`, config)
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getDebitTransactionList?&page=${1}&numPerPage=${rowsPerPage}`, config)
             .then((res) => {
                 setDebitTransaction(res.data.rows);
                 setTotalRows(res.data.numRows);

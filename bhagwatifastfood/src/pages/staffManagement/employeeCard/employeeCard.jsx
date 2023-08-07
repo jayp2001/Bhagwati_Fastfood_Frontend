@@ -5,10 +5,10 @@ import { BACKEND_BASE_URL } from '../../../url';
 import Switch from '@mui/material/Switch';
 function EmployeeCard(props) {
     const handleEdit = () => {
-        // props.handleEditClick(props.productData)
+        props.handleEditEmployee(props.data.employeeId)
     }
     const handleDelete = () => {
-        // props.handleDeleteProduct(props.productData.productId);
+        props.handleDeleteEmployee(props.data.employeeId);
     }
     const label = { inputProps: { 'aria-label': 'Size switch demo' } };
     return (

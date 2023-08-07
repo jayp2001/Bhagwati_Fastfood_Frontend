@@ -21,6 +21,7 @@ import Select from '@mui/material/Select';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { useNavigate } from "react-router-dom";
 
 const styleStockIn = {
     position: 'absolute',
@@ -49,6 +50,7 @@ function StaffList() {
             Authorization: `Bearer ${userInfo.token}`,
         },
     };
+    const navigate = useNavigate();
     const [loading, setLoading] = React.useState(false);
     const [error, setError] = React.useState(false);
     const [success, setSuccess] = React.useState(false);
@@ -151,6 +153,21 @@ function StaffList() {
             ["leaveDate"]: date && date['$d'] ? date['$d'] : null,
         }))
     };
+    const deleteData = async (id) => {
+        await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeSupplierDetails?supplierId=${id}`, config)
+            .then((res) => {
+                // getData();
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const handleDeleteEmployee = (id) => {
+        if (window.prompt("Are you sure you want to delete Employee?") == 1234) {
+            // deleteData(id);
+            alert('heyy')
+        }
+    }
     const addPayment = async () => {
         setLoading(true);
         await axios.post(`${BACKEND_BASE_URL}staffrouter/addAmountOfSFA`, formData, config)
@@ -243,6 +260,9 @@ function StaffList() {
             ...prevState,
             [e.target.name]: e.target.value,
         }))
+    }
+    const handleEditEmployee = (id) => {
+        navigate(`/editStaff/${id}`)
     }
     const getCategory = async () => {
         await axios.get(`${BACKEND_BASE_URL}staffrouter/getStaffCategoryWithEmployeeNumber`, config)
@@ -352,7 +372,7 @@ function StaffList() {
                     <div className='grid grid-cols-2 gap-6'>
                         {
                             employeeList ? employeeList.map((employeeData, index) => (
-                                <EmployeeCard data={employeeData} handleOpen={handleOpen} handleOpenAddLeave={handleOpenAddLeave} />
+                                <EmployeeCard data={employeeData} handleOpen={handleOpen} handleOpenAddLeave={handleOpenAddLeave} handleDeleteEmployee={handleDeleteEmployee} handleEditEmployee={handleEditEmployee} />
                             ))
                                 :
                                 <div className='grid mt-24 col-span-5 content-center'>
