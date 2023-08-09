@@ -28,7 +28,7 @@ const styleStockIn = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 800,
+    width: 900,
     bgcolor: 'background.paper',
     boxShadow: 24,
     paddingLeft: '20px',
@@ -39,6 +39,7 @@ const styleStockIn = {
 };
 function StaffList() {
     const [category, setCategory] = useState('');
+    const [isInActive, setIsInActive] = useState('');
     const [open, setOpen] = React.useState(false);
     const [openAddLeave, setOpenAddLeave] = React.useState(false);
     const [activeCategory, setActiveCategory] = useState('');
@@ -70,6 +71,7 @@ function StaffList() {
         'leaveReason',
         'leaveDate',
     ]);
+
     const [formData, setFormData] = React.useState({
         employeeId: '',
         payAmount: '',
@@ -100,6 +102,7 @@ function StaffList() {
             amountType: false,
             amountDate: false,
         })
+        setIsInActive(false)
         setOpen(false);
     }
     const handleOpen = (row) => {
@@ -112,6 +115,7 @@ function StaffList() {
             advanceAmount: row.advanceAmount,
             fineAmount: row.fineAmount,
             paymentDue: row.paymentDue,
+            dateOfPayment: row.dateOfPayment
         }))
         setOpen(true);
     }
@@ -199,6 +203,42 @@ function StaffList() {
                 setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
+    const handleOpenInactive = async (row, index) => {
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getMidMonthInActiveSalaryOfEmployee?employeeId=${row.employeeId}`, config)
+            .then((res) => {
+                setFormData((perv) => ({
+                    ...perv,
+                    employeeId: row.employeeId,
+                    nickName: row.nickName,
+                    paymentDue: row.paymentDue,
+                    totalSalary: row.totalSalary + res.data.proratedSalary,
+                    advanceAmount: row.advanceAmount,
+                    fineAmount: row.fineAmount,
+                    paymentDue: row.paymentDue,
+                    proratedSalary: res.data.proratedSalary
+                }))
+                setOpen(true);
+            })
+            .catch((error) => {
+                setLoading(false);
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+            })
+    }
+    const handleActiveInactive = (row, index) => {
+        // alert("Jay")
+        let employeeData = employeeList;
+        if (employeeData[index].employeeStatus) {
+            setIsInActive(true);
+            employeeData[index].employeeStatus = false
+            setEmployeeList(employeeData);
+            console.log('inactiveAfter', employeeList[index])
+        }
+        else {
+            employeeData[index].employeeStatus = true
+            setEmployeeList(employeeData);
+            console.log('activeAfter', employeeList[index])
+        }
+    }
     const submit = () => {
         if (loading || success) {
 
@@ -222,6 +262,7 @@ function StaffList() {
             }
         }
     }
+
 
     const submitLeave = () => {
         if (loading || success) {
@@ -372,7 +413,7 @@ function StaffList() {
                     <div className='grid grid-cols-2 gap-6'>
                         {
                             employeeList ? employeeList.map((employeeData, index) => (
-                                <EmployeeCard data={employeeData} handleOpen={handleOpen} handleOpenAddLeave={handleOpenAddLeave} handleDeleteEmployee={handleDeleteEmployee} handleEditEmployee={handleEditEmployee} />
+                                <EmployeeCard handleActiveInactive={handleActiveInactive} formDataErrorFeild={formDataErrorFeild} getEmployeeList={getEmployeeList} setLoading={setLoading} loading={loading} activeCategory={activeCategory} setSuccess={setSuccess} success={success} handleClose={handleClose} formData={formData} formDataError={formDataError} setFormDataError={setFormDataError} onChange={onChange} setFormData={setFormData} switch={employeeData.employeeStatus} setOpen={setOpen} setError={setError} index={index} data={employeeData} handleOpen={handleOpen} handleOpenAddLeave={handleOpenAddLeave} handleDeleteEmployee={handleDeleteEmployee} handleEditEmployee={handleEditEmployee} />
                             ))
                                 :
                                 <div className='grid mt-24 col-span-5 content-center'>
@@ -394,6 +435,14 @@ function StaffList() {
                     <div className='flex justify-between'>
                         <Typography id="modal-modal" variant="h6" component="h2">
                             <span className='makePaymentHeader'>Make Payment to : </span><span className='makePaymentName'>{formData.nickName}</span>
+                        </Typography>
+                        <Typography id="modal-modal" variant="h6" component="h2">
+                            <span className='makePaymentHeader'>{'Payment Due :'}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{formData.totalSalary}</span>
+                        </Typography>
+                    </div>
+                    <div className='flex justify-between mt-3 mb-2'>
+                        <Typography id="modal-modal" variant="h6" component="h2">
+                            <span className='makePaymentHeader'>{'Salary (From - To) :'} </span><span className='makePaymentName'>{formData.dateOfPayment}</span>
                         </Typography>
                         <Typography id="modal-modal" variant="h6" component="h2">
                             <span className='makePaymentHeader'>{'Total Salary(With Leave) :'}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{formData.totalSalary}</span>
@@ -498,7 +547,7 @@ function StaffList() {
                     <div className='mt-4 grid grid-cols-12 gap-6'>
                         <div className='col-span-3 col-start-7'>
                             <button className='addCategorySaveBtn' onClick={() => {
-                                submit()
+                                submit();
                             }}>Make Payment</button>
                         </div>
                         <div className='col-span-3'>

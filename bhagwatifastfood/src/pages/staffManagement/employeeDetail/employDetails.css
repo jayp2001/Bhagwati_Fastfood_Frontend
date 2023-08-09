@@ -1,0 +1,12 @@
+.profileImage{
+    margin-left: 10px;
+    position: relative;
+    width: 200px;
+    height: 200px;
+    background-color: red;
+    top: -10px;
+}
+
+.imgDetailWrp{
+    width: 55%
+}
