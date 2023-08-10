@@ -350,20 +350,30 @@ function ProductDetails() {
         } else {
             console.log('submitStockOut')
             const isValidate = stockOutErrorFields.filter(element => {
-                if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
-                    setStockOutFormDataError((perv) => ({
-                        ...perv,
-                        [element]: true
-                    }))
-                    return element;
+                if (element === 'reason') {
+                    if (isEdit && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormDataError['reason'] === true) {
+                        setStockOutFormDataError((perv) => ({
+                            ...perv,
+                            reason: true
+                        }))
+                        return element;
+                    }
                 }
-                else if (stockOutFormData[element] === true || stockOutFormData[element] === '' || stockOutFormData[element] === 0) {
-                    setStockOutFormDataError((perv) => ({
-                        ...perv,
-                        [element]: true
-                    }))
-                    return element;
-                }
+                else
+                    if (element === 'stockOutDate' && stockOutFormData[element] === '' || stockOutFormData[element] === null || stockOutFormData.stockOutDate == 'Invalid Date') {
+                        setStockOutFormDataError((perv) => ({
+                            ...perv,
+                            [element]: true
+                        }))
+                        return element;
+                    }
+                    else if (stockOutFormData[element] === true || stockOutFormData[element] === '' || stockOutFormData[element] === 0) {
+                        setStockOutFormDataError((perv) => ({
+                            ...perv,
+                            [element]: true
+                        }))
+                        return element;
+                    }
             })
             if (isValidate.length > 0) {
                 console.log('velidate', isValidate)
@@ -458,8 +468,9 @@ function ProductDetails() {
     }
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
-        console.log("page change")
-        if (tab === 2 || tab === '2') {
+        console.log("page change", tab)
+        if (tabStockInOut === 2 || tabStockInOut === '2') {
+            console.log("page change>>")
             if (filter) {
                 getStockOutDataOnPageChangeByFilter(newPage + 1, rowsPerPage)
             }
@@ -513,7 +524,7 @@ function ProductDetails() {
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
-        if (tab === '1' || tab === 1) {
+        if (tabStockInOut === '1' || tabStockInOut === 1) {
             if (filter) {
                 getStockInDataOnPageChangeByFilter(1, parseInt(event.target.value, 10))
             }
