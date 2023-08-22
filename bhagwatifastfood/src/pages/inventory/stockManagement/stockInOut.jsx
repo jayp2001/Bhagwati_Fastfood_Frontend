@@ -295,8 +295,10 @@ function StockInOut() {
             })
     }
     const stockIn = async () => {
+        setLoading(true)
         await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addStockInDetails`, stockInFormData, config)
             .then((res) => {
+                setLoading(false);
                 setSuccess(true);
                 // getData();
                 setState([
@@ -545,8 +547,10 @@ function StockInOut() {
         }
     }
     const stockOut = async () => {
+        setLoading(true)
         await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addStockOutDetails`, stockOutFormData, config)
             .then((res) => {
+                setLoading(false);
                 setSuccess(true);
                 // getData();
                 // setTab(null)

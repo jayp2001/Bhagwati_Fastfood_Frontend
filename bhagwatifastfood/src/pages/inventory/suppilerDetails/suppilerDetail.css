@@ -1,6 +1,7 @@
 .suppilerDetailContainer {
     min-height: 420px;
     width: 100%;
+    word-wrap: break-word;
     background: #fff;
     border-radius: 10px;
     padding: 10px 20px 20px 20px;

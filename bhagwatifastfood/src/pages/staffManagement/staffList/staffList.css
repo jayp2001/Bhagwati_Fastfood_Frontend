@@ -1,5 +1,5 @@
 .categoryListContainer{
-    width: 18%;
+    width: 17%;
     /* background: black; */
     overflow: hidden;
     margin-top: 20px;
@@ -18,7 +18,7 @@
 
 }
 .employeeListContainer{
-    width: 82%;
+    width: 83%;
     height: 100%;
     overflow: hidden;
 }

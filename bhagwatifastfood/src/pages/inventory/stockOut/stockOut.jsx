@@ -244,8 +244,10 @@ function StockOut() {
         }
     }
     const stockOut = async () => {
+        setLoading(true)
         await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addStockOutDetails`, stockOutFormData, config)
             .then((res) => {
+                setLoading(false);
                 setSuccess(true);
                 setFilter(false);
                 getStockOutData();
@@ -359,7 +361,9 @@ function StockOut() {
             })
     }
     const getStockOutDataOnPageChange = async (pageNum, rowPerPageNum) => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockOutList?page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
+        let startDAte = new Date()
+        startDAte.setDate(new Date().getDate() - 7)
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockOutList?startDate=${startDAte}&endDate=${new Date()}page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
             .then((res) => {
                 setStockOutData(res.data.rows);
                 setTotalRowsOut(res.data.numRows);
@@ -369,7 +373,9 @@ function StockOut() {
             })
     }
     const getStockOutData = async () => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockOutList?startDate=${new Date()}&endDate=${new Date()}&page=${page + 1}&numPerPage=${rowsPerPage}`, config)
+        let startDAte = new Date()
+        startDAte.setDate(new Date().getDate() - 7)
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockOutList?startDate=${startDAte}&endDate=${new Date()}&page=${page + 1}&numPerPage=${rowsPerPage}`, config)
             .then((res) => {
                 setStockOutData(res.data.rows);
                 setTotalRowsOut(res.data.numRows);

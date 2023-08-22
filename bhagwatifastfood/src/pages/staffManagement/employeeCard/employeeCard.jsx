@@ -67,7 +67,8 @@ function EmployeeCard(props) {
                     advanceAmount: props.data.advanceAmount,
                     fineAmount: props.data.fineAmount,
                     paymentDue: props.data.paymentDue,
-                    proratedSalary: res.data.proratedSalary
+                    proratedSalary: res.data.proratedSalary,
+                    dateOfPayment: props.data.dateOfPayment
                 }))
                 setOpen(true);
             })
@@ -206,7 +207,7 @@ function EmployeeCard(props) {
                             <Switch
                                 {...label}
                                 defaultChecked
-                                checked={props.switch}
+                                checked={toggel}
                                 onChange={() => handleToggel()}
                             />
                         </div>

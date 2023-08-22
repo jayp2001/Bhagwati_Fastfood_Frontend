@@ -249,7 +249,7 @@ function ProductDetails() {
     };
     const onChangeStockOut = (e) => {
         if (e.target.name === 'productQty') {
-            if (e.target.value > statisticsCount?.remainingStock) {
+            if (e.target.value > (isEdit ? stockOutFormData.stockRemaining : statisticsCount?.remainingStock)) {
                 setStockOutFormDataError((perv) => ({
                     ...perv,
                     [e.target.name]: true
@@ -313,6 +313,7 @@ function ProductDetails() {
         }
     }
     const stockOut = async () => {
+        setLoading(true)
         const formdata = {
             productId: id,
             productQty: stockOutFormData.productQty,
@@ -325,6 +326,7 @@ function ProductDetails() {
             .then((res) => {
                 setSuccess(true)
                 // getData();
+                setLoading(false)
                 // setTab(null)
                 setState([
                     {
@@ -487,6 +489,7 @@ function ProductDetails() {
         }
     };
     const stockIn = async () => {
+        setLoading(true)
         const formdata = {
             productId: id,
             productQty: stockInFormData.productQty,
@@ -501,6 +504,7 @@ function ProductDetails() {
         }
         await axios.post(`${BACKEND_BASE_URL}inventoryrouter/addStockInDetails`, formdata, config)
             .then((res) => {
+                setLoading(false)
                 setSuccess(true)
                 // getData();
                 setState([
@@ -772,6 +776,7 @@ function ProductDetails() {
                     productUnit: res.data.productUnit,
                     stockOutCategory: res.data.stockOutCategory,
                     stockOutComment: res.data.stockOutComment,
+                    stockRemaining: statisticsCount.remainingStock + res.data.productQty,
                     stockOutDate: dayjs(res.data.stockOutDate)
                 }))
             })
@@ -1415,7 +1420,7 @@ function ProductDetails() {
                                     <div className='col-span-3'>
                                         <TextField
                                             onBlur={(e) => {
-                                                if (e.target.value < 0 || e.target.value > statisticsCount?.remainingStock) {
+                                                if (e.target.value < 0 || (isEdit ? e.target.value > stockOutFormData.stockRemaining : e.target.value > statisticsCount?.remainingStock)) {
                                                     setStockOutFormDataError((perv) => ({
                                                         ...perv,
                                                         productQty: true
@@ -1434,7 +1439,7 @@ function ProductDetails() {
                                             onChange={onChangeStockOut}
                                             value={stockOutFormData.productQty}
                                             error={stockOutFormDataError.productQty}
-                                            helperText={name && !stockOutFormDataError.productQty ? `Remaining Stock:-  ${statisticsCount?.remainingStock}  ${stockOutFormData.productUnit}` : stockOutFormDataError.productQty ? stockOutFormDataError.productQty && stockOutFormData.productQty > statisticsCount?.remainingStock ? `StockOut qty can't be more than ${statisticsCount?.remainingStock}  ${stockOutFormData.productUnit}` : "Please Enter Qty" : ''}
+                                            helperText={name && !stockOutFormDataError.productQty ? `Remaining Stock:-  ${isEdit ? stockOutFormData.stockRemaining : statisticsCount?.remainingStock}  ${stockOutFormData.productUnit}` : stockOutFormDataError.productQty ? stockOutFormDataError.productQty && stockOutFormData.productQty > (isEdit ? stockOutFormData.stockRemaining : statisticsCount?.remainingStock) ? `StockOut qty can't be more than ${isEdit ? stockOutFormData.stockRemaining : statisticsCount?.remainingStock}  ${stockOutFormData.productUnit}` : "Please Enter Qty" : ''}
                                             name="productQty"
                                             InputProps={{
                                                 endAdornment: <InputAdornment position="end">{unit}</InputAdornment>,
