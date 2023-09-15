@@ -291,7 +291,7 @@ function EmployeeCard(props) {
                             <span className='makePaymentHeader'>Make Payment to : </span><span className='makePaymentName'>{props.formData.nickName}</span>
                         </Typography>
                         <Typography id="modal-modal" variant="h6" component="h2">
-                            <span className='makePaymentHeader'>{'Payment Due :'}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{props.formData.totalSalary}</span>
+                            <span className='makePaymentHeader'>{'Payment Due :'}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{props.formData.paymentDue}</span>
                         </Typography>
                     </div>
                     <div className='flex justify-between mt-3 mb-2'>

@@ -508,6 +508,9 @@ function StaffList() {
                                     <MenuItem key={1} value={1}>{"Salary"}</MenuItem>
                                     <MenuItem key={2} value={2}>{"Advanced"}</MenuItem>
                                     <MenuItem key={3} value={3}>{"Fine"}</MenuItem>
+                                    <MenuItem key={4} value={4}>{"Credit Advance"}</MenuItem>
+                                    <MenuItem key={5} value={5}>{"Credit Fine"}</MenuItem>
+                                    <MenuItem key={6} value={6}>{"Bonus"}</MenuItem>
                                 </Select>
                             </FormControl>
                         </div>

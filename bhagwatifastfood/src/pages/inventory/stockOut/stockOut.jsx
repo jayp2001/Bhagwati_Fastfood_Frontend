@@ -363,7 +363,7 @@ function StockOut() {
     const getStockOutDataOnPageChange = async (pageNum, rowPerPageNum) => {
         let startDAte = new Date()
         startDAte.setDate(new Date().getDate() - 7)
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockOutList?startDate=${startDAte}&endDate=${new Date()}page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getStockOutList?startDate=${startDAte}&endDate=${new Date()}&page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
             .then((res) => {
                 setStockOutData(res.data.rows);
                 setTotalRowsOut(res.data.numRows);
