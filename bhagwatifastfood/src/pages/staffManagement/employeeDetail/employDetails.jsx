@@ -243,7 +243,7 @@ function EmployeeDetails() {
     };
     const handleChangeFineStatus = (e) => {
         setPage(0);
-        setRowsPerPage(0);
+        setRowsPerPage(5);
         filter ? getFineDataByFilterBySorting(e.target.value) : getFineDataBySorting(e.target.value)
         setFineStatus(e.target.value)
     };
@@ -766,7 +766,7 @@ function EmployeeDetails() {
             })
     }
     const getMonthlySalaryDataOnPageChange = async (pageNum, rowPerPageNum) => {
-        await axios.get(`${BACKEND_BASE_URL}staffrouter/getProductDetailsTable?page=${pageNum}&numPerPage=${rowPerPageNum}&employeeId=${id}`, config)
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getEmployeeMonthlySalaryById?page=${pageNum}&numPerPage=${rowPerPageNum}&employeeId=${id}`, config)
             .then((res) => {
                 setMonthlySalary(res.data.rows);
                 setTotalRowsMonthly(res.data.numRows);
@@ -1431,7 +1431,7 @@ function EmployeeDetails() {
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
-        if (tab === 1 || tab === '1') {
+        if (tabTable === 1 || tabTable === '1') {
             if (filter) {
                 getMonthlySalaryDataOnPageChangeByFilter(1, parseInt(event.target.value, 10))
             }
@@ -1439,7 +1439,7 @@ function EmployeeDetails() {
                 getMonthlySalaryDataOnPageChange(1, parseInt(event.target.value, 10))
             }
         }
-        else if (tab === 2 || tab === '2') {
+        else if (tabTable === 2 || tabTable === '2') {
             if (filter) {
                 getAdvanceDataOnPageChangeByFilter(1, parseInt(event.target.value, 10))
             }
@@ -1447,7 +1447,7 @@ function EmployeeDetails() {
                 getAdvanceDataOnPageChange(1, parseInt(event.target.value, 10))
             }
         }
-        else if (tab === 3 || tab === '3') {
+        else if (tabTable === 3 || tabTable === '3') {
             if (filter) {
                 getFineDataOnPageChangeByFilter(1, parseInt(event.target.value, 10))
             }
@@ -1455,7 +1455,7 @@ function EmployeeDetails() {
                 getFineDataOnPageChange(1, parseInt(event.target.value, 10))
             }
         }
-        else if (tab === 5 || tab === '5') {
+        else if (tabTable === 5 || tabTable === '5') {
             if (filter) {
                 getCreditDataOnPageChangeByFilter(1, parseInt(event.target.value, 10))
             }
@@ -1463,7 +1463,7 @@ function EmployeeDetails() {
                 getCreditDataOnPageChange(1, parseInt(event.target.value, 10))
             }
         }
-        else if (tab === 6 || tab === '6') {
+        else if (tabTable === 6 || tabTable === '6') {
             if (filter) {
                 getBonusDataOnPageChangeByFilter(1, parseInt(event.target.value, 10))
             }
@@ -1471,7 +1471,7 @@ function EmployeeDetails() {
                 getBonusDataOnPageChange(1, parseInt(event.target.value, 10))
             }
         }
-        else if (tab === 4 || tab === '4') {
+        else if (tabTable === 4 || tabTable === '4') {
             if (filter) {
                 getTransactionDataOnPageChangeByFilter(1, parseInt(event.target.value, 10))
             }
