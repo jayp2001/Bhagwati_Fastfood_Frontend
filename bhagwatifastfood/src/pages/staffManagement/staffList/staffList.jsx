@@ -303,7 +303,7 @@ function StaffList() {
         }))
     }
     const handleEditEmployee = (id) => {
-        navigate(`/editStaff/${id}`)
+        navigate(`/staff/editStaff/${id}`)
     }
     const getCategory = async () => {
         await axios.get(`${BACKEND_BASE_URL}staffrouter/getStaffCategoryWithEmployeeNumber`, config)
@@ -385,7 +385,7 @@ function StaffList() {
                     <hr className="hr"></hr>
                 </div>
                 <div className='categoryListWrp'>
-                    <div className={activeCategory === '' ? 'active' : 'navLink'} onClick={() => setActiveCategory('')}>
+                    <div className={activeCategory === '' ? 'active' : 'navLink'} onClick={() => { setActiveCategory(''); getEmployeeList('') }}>
                         All
                     </div>
                     {
@@ -666,7 +666,7 @@ function StaffList() {
                 </Box>
             </Modal>
             <ToastContainer />
-        </div>
+        </div >
     )
 }
 

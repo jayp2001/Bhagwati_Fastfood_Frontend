@@ -16,6 +16,9 @@ function Dashboard() {
     const goToAddUSer = () => {
         navigate('/addUser')
     }
+    const goToStaff = () => {
+        navigate('/staff/staffList')
+    }
     const goToProductList = () => {
         navigate('/productList')
     }
@@ -24,6 +27,7 @@ function Dashboard() {
             <div className="cardWrp">
                 <div className="grid lg:grid-cols-3 mobile:grid-cols-2 tablet1:grid-cols-3 tablet:grid-cols-4 laptop:grid-cols-5 desktop1:grid-cols-6 desktop2:grid-cols-7 desktop2:grid-cols-8' gap-6">
                     <ConsoleCard goToAddUSer={goToProductList} name={"Inventory"} imgName={'img11'} />
+                    <ConsoleCard goToAddUSer={goToStaff} name={"Staff Salary"} imgName={'staff'} />
                     <ConsoleCard goToAddUSer={goToAddUSer} name={"Add User"} imgName={'userAdd'} />
                 </div>
             </div>

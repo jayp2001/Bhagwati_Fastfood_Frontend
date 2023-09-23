@@ -301,6 +301,10 @@ function StaffCategoryTable() {
                                     <TableRow>
                                         <TableCell>No.</TableCell>
                                         <TableCell>Category Name</TableCell>
+                                        <TableCell>Active Employee</TableCell>
+                                        <TableCell>Total Salary</TableCell>
+                                        <TableCell>salary persentage</TableCell>
+                                        <TableCell>Inactive Employee</TableCell>
                                         <TableCell align="left">Position</TableCell>
                                         <TableCell align="right"></TableCell>
                                         <TableCell align="right"></TableCell>
@@ -319,6 +323,18 @@ function StaffCategoryTable() {
                                                 <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
                                                 <TableCell component="th" scope="row">
                                                     {row.staffCategoryName}
+                                                </TableCell>
+                                                <TableCell component="th" scope="row">
+                                                    {row.numberOfActiveEmployee}
+                                                </TableCell>
+                                                <TableCell component="th" scope="row">
+                                                    {row.totalSalary}
+                                                </TableCell>
+                                                <TableCell component="th" scope="row">
+                                                    {row.percentageOfTotalSalary}
+                                                </TableCell>
+                                                <TableCell component="th" scope="row">
+                                                    {row.numberOfInActiveEmployee}
                                                 </TableCell>
                                                 <TableCell align="left" >{row.staffCategoryPosition}</TableCell>
                                                 <TableCell align="right" ><div className=''><button className='editCategoryBtn mr-6' onClick={() => handleEdit(row.staffCategoryId, row.staffCategoryName, row.staffCategoryPosition)}>Edit</button><button className='deleteCategoryBtn' onClick={() => handleDelete(row.staffCategoryId)}>Delete</button></div></TableCell>

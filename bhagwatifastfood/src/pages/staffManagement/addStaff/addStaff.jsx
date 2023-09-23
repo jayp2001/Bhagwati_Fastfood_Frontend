@@ -114,7 +114,7 @@ function AddEditStaff() {
         }
     }
     const navigateToList = () => {
-        navigate('/staffList')
+        navigate('/staff/staffList')
     }
     const reset = () => {
         setFormData(

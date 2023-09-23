@@ -108,3 +108,9 @@
         font-weight: 600;
         color: #fff;
 }
+
+.nameWrp:hover{
+    text-decoration: underline;
+    color: blue;
+    cursor: pointer;
+}

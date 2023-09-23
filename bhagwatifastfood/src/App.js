@@ -27,6 +27,9 @@ import AddEditStaff from './pages/staffManagement/addStaff/addStaff';
 import StaffList from './pages/staffManagement/staffList/staffList';
 import StaffCategoryTable from './pages/staffManagement/staffCategoriesTable/staffCategoriesTable';
 import EmployeeDetails from './pages/staffManagement/employeeDetail/employDetails';
+import ProtectedAdminRoutes from './protectedAdminRoutes';
+import AllPayments from './pages/staffManagement/allPayment/allPayment';
+import Leaves from './pages/staffManagement/leaves/leaves';
 function App() {
   return (
     <div className="">
@@ -39,12 +42,14 @@ function App() {
                   {/* <Route path='list' exact element={<AgentList />}/> */}
                   <Route path='*' element={<PageNotFoundRedirect/>}/>
                 </Route>
-                 <Route path="/" >
-                  <Route path="/addStaff" element={<AddEditStaff/>}/>
-                  <Route path="/staffList" element={<StaffList/>}/>
-                  <Route path="/staffCategory" element={<StaffCategoryTable/>}/>
-                  <Route path="/editStaff/:id" element={<AddEditStaff/>}/>
-                  <Route path="/employeeDetail/:id" element={<EmployeeDetails/>}/>
+                 <Route path="/" element={<ProtectedAdminRoutes />}>
+                  <Route path="/staff/addStaff" element={<AddEditStaff/>}/>
+                  <Route path="/staff/staffList" element={<StaffList/>}/>
+                  <Route path="/staff/staffCategory" element={<StaffCategoryTable/>}/>
+                  <Route path="/staff/allPayments" element={<AllPayments/>}/>
+                  <Route path="/staff/leaves" element={<Leaves/>}/>
+                  <Route path="/staff/editStaff/:id" element={<AddEditStaff/>}/>
+                  <Route path="/staff/employeeDetail/:id" element={<EmployeeDetails/>}/>
                 </Route>
                 <Route path="/" element={<ProtectedUserRoutes/>}>
                   <Route path="/dashboard" element={<Dashboard/>}/>

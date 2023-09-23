@@ -62,7 +62,7 @@ function MenuTransaction(props) {
                         handleClose();
                         props.getInvoice(props.data.remainSalaryId)
                     }}>
-                    Download Receipt
+                    Print Salary Slip
                 </MenuItem>
                 <MenuItem key={'view'}
                     onClick={() => {

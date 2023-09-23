@@ -7,8 +7,29 @@ import { useNavigate } from "react-router-dom";
 
 
 const ITEM_HEIGHT = 48;
+function isDateInCurrentMonth(dateString) {
+    // Parse the input date string into a Date object
+    const parts = dateString.split('-');
+    if (parts.length !== 3) {
+        return false; // Invalid date string format
+    }
+    const day = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // Month is 0-based
+    const year = parseInt(parts[2], 10);
 
-function Menutemp(props) {
+    // Create a Date object from the parsed components
+    const date = new Date(year, month, day);
+
+    // Get the current date
+    const currentDate = new Date();
+
+    // Check if the year and month match the current year and month
+    return (
+        date.getFullYear() === currentDate.getFullYear() &&
+        date.getMonth() === currentDate.getMonth()
+    );
+}
+function MenuHoliday(props) {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -18,6 +39,10 @@ function Menutemp(props) {
     const handleClose = () => {
         setAnchorEl(null);
     };
+    const handleEditClick = (id) => {
+        navigate(`/editSuppiler/${id}`)
+    }
+    const isInCurrentMonth = isDateInCurrentMonth(props.data.holidayLeaveDate);
     return (
         <div>
             <IconButton
@@ -26,7 +51,7 @@ function Menutemp(props) {
                 aria-controls={open ? 'long-menu' : undefined}
                 aria-expanded={open ? 'true' : undefined}
                 aria-haspopup="true"
-                onClick={handleClick}
+                onClick={(e) => isInCurrentMonth ? handleClick(e) : () => { }}
             >
                 <MoreVertIcon />
             </IconButton>
@@ -45,32 +70,19 @@ function Menutemp(props) {
                     },
                 }}
             >
-                <MenuItem key={'delete'}
-                    onClick={() => {
-                        handleClose();
-                        props.handleDelete()
-                    }}>
-                    Delete
-                </MenuItem>
-                <MenuItem key={'Edit'}
-                    onClick={() => {
-                        handleClose();
-                        props.handleEdit()
-                    }}>
-                    Edit
-                </MenuItem>
-                <MenuItem key={'detail'}
-                    onClick={() => {
-                        handleClose();
-                        props.handleViewDetail()
-                    }}>
-                    View Details
-                </MenuItem>
+                {isInCurrentMonth &&
+                    <MenuItem key={'Edit'}
+                        onClick={() => {
+                            handleClose();
+                            props.handleDeleteHoliday(props.data.holidayId)
+                        }}>
+                        Delete
+                    </MenuItem>}
             </Menu>
         </div >
     );
 }
 
-export default Menutemp;
+export default MenuHoliday;
 
 

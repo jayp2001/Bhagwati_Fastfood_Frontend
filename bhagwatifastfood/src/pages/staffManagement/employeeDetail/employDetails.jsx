@@ -5,17 +5,15 @@ import { BACKEND_BASE_URL } from '../../../url';
 import axios from 'axios';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { useParams, useNavigate } from 'react-router-dom';
-// import CountCard from '../countCard/countCard';
 import CloseIcon from '@mui/icons-material/Close';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import Popover from '@mui/material/Popover';
 import Tooltip from '@mui/material/Tooltip';
 import { DateRangePicker } from 'react-date-range';
-import 'react-date-range/dist/styles.css'; // main style file
+import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
-// import ProductQtyCountCard from '../productQtyCard/productQtyCard';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
@@ -52,6 +50,9 @@ import MenuBonus from './menus/menuBonus';
 import MenuCredit from './menus/menuCredit';
 import MenuLeaves from './menus/menuLeaves';
 import MenuTransaction from './menus/menuTransaction';
+import ExportMenu from '../exportMenu';
+import CountCard from '../countCard/countCard';
+
 const styleStockIn = {
     position: 'absolute',
     top: '50%',
@@ -71,7 +72,7 @@ const viewCutTable = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: '50%',
+    width: '60%',
     height: '85%',
     maxHeight: '85%',
     overflow: 'hidden',
@@ -128,6 +129,7 @@ function EmployeeDetails() {
         leaveReason: '',
         leaveDate: dayjs(),
     });
+    const [countData, setCountData] = React.useState();
     const [addLeaveFormDataError, setAddLeaveFormDataError] = React.useState({
         numLeave: false,
         leaveReason: false,
@@ -482,6 +484,7 @@ function EmployeeDetails() {
     }
     const handleOpenModelCalculation = (id, salary, advance, fine) => {
         setEditFormData({
+            transactionId: id,
             salary: salary,
             advance: advance,
             fine: fine
@@ -661,8 +664,8 @@ function EmployeeDetails() {
         setAddLeaveFormData((perv) => ({
             ...perv,
             employeeId: row.employeeId,
-            availableLeave: row.totalMaxLeave - row.totalLeave,
-            totalMaxLeave: row.totalMaxLeave,
+            availableLeave: row.maxLeave - row.totalLeave,
+            totalMaxLeave: row.maxLeave,
             nickName: row.nickName,
             maxLeave: maxLeave,
             minDate: startDate,
@@ -756,7 +759,7 @@ function EmployeeDetails() {
     }
 
     const getMonthlySalaryDataByFilter = async () => {
-        await axios.get(`${BACKEND_BASE_URL}staffrouter/getEmployeeMonthlySalaryById?startMonth=${monthIndex[state.startMonth] + '-' + state.startYear}&endMonth=${monthIndex[state.endMonth] + '-' + state.endYear}&page=${1}&numPerPage=${5}&employeeId=${id}`, config)
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getEmployeeMonthlySalaryById?startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}&page=${1}&numPerPage=${5}&employeeId=${id}`, config)
             .then((res) => {
                 setMonthlySalary(res.data.rows);
                 setTotalRowsMonthly(res.data.numRows)
@@ -776,7 +779,7 @@ function EmployeeDetails() {
             })
     }
     const getMonthlySalaryDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
-        await axios.get(`${BACKEND_BASE_URL}staffrouter/getEmployeeMonthlySalaryById?startMonth=${monthIndex[state.startMonth] + '-' + state.startYear}&endMonth=${monthIndex[state.endMonth] + '-' + state.endYear}&page=${pageNum}&numPerPage=${rowPerPageNum}&employeeId=${id}`, config)
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getEmployeeMonthlySalaryById?startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}&page=${pageNum}&numPerPage=${rowPerPageNum}&employeeId=${id}`, config)
             .then((res) => {
                 setMonthlySalary(res.data.rows);
                 setTotalRowsMonthly(res.data.numRows);
@@ -799,7 +802,7 @@ function EmployeeDetails() {
     }
 
     const getAdvanceDataByFilter = async () => {
-        await axios.get(`${BACKEND_BASE_URL}staffrouter/getAdvanceDataById?startMonth=${monthIndex[state.startMonth] + '-' + state.startYear}&endMonth=${monthIndex[state.endMonth] + '-' + state.endYear}&page=${1}&numPerPage=${5}&employeeId=${id}`, config)
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getAdvanceDataById?startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}&page=${1}&numPerPage=${5}&employeeId=${id}`, config)
             .then((res) => {
                 setAdvanceData(res.data.rows);
                 setTotalRowsAdvance(res.data.numRows)
@@ -819,7 +822,7 @@ function EmployeeDetails() {
             })
     }
     const getAdvanceDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
-        await axios.get(`${BACKEND_BASE_URL}staffrouter/getAdvanceDataById?startMonth=${monthIndex[state.startMonth] + '-' + state.startYear}&endMonth=${monthIndex[state.endMonth] + '-' + state.endYear}&page=${pageNum}&numPerPage=${rowPerPageNum}&employeeId=${id}`, config)
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getAdvanceDataById?startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}&page=${pageNum}&numPerPage=${rowPerPageNum}&employeeId=${id}`, config)
             .then((res) => {
                 setAdvanceData(res.data.rows);
                 setTotalRowsAdvance(res.data.numRows);
@@ -842,7 +845,7 @@ function EmployeeDetails() {
     }
 
     const getFineDataByFilter = async () => {
-        await axios.get(`${BACKEND_BASE_URL}staffrouter/getFineDataById?startMonth=${monthIndex[state.startMonth] + '-' + state.startYear}&endMonth=${monthIndex[state.endMonth] + '-' + state.endYear}&page=${1}&numPerPage=${5}&employeeId=${id}&fineStatus=${fineStatus}`, config)
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getFineDataById?startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}&page=${1}&numPerPage=${5}&employeeId=${id}&fineStatus=${fineStatus}`, config)
             .then((res) => {
                 setFineData(res.data.rows);
                 setTotalRowsFine(res.data.numRows)
@@ -863,7 +866,7 @@ function EmployeeDetails() {
     }
 
     const getFineDataByFilterBySorting = async (status) => {
-        await axios.get(`${BACKEND_BASE_URL}staffrouter/getFineDataById?startMonth=${monthIndex[state.startMonth] + '-' + state.startYear}&endMonth=${monthIndex[state.endMonth] + '-' + state.endYear}&page=${1}&numPerPage=${5}&employeeId=${id}&fineStatus=${status}`, config)
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getFineDataById?startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}&page=${1}&numPerPage=${5}&employeeId=${id}&fineStatus=${status}`, config)
             .then((res) => {
                 setFineData(res.data.rows);
                 setTotalRowsFine(res.data.numRows)
@@ -883,7 +886,7 @@ function EmployeeDetails() {
             })
     }
     const getFineDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
-        await axios.get(`${BACKEND_BASE_URL}staffrouter/getFineDataById?startMonth=${monthIndex[state.startMonth] + '-' + state.startYear}&endMonth=${monthIndex[state.endMonth] + '-' + state.endYear}&page=${pageNum}&numPerPage=${rowPerPageNum}&employeeId=${id}&fineStatus=${fineStatus}`, config)
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getFineDataById?startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}&page=${pageNum}&numPerPage=${rowPerPageNum}&employeeId=${id}&fineStatus=${fineStatus}`, config)
             .then((res) => {
                 setFineData(res.data.rows);
                 setTotalRowsFine(res.data.numRows);
@@ -906,7 +909,7 @@ function EmployeeDetails() {
     }
 
     const getCreditDataByFilter = async () => {
-        await axios.get(`${BACKEND_BASE_URL}staffrouter/getCreditDataById?startMonth=${monthIndex[state.startMonth] + '-' + state.startYear}&endMonth=${monthIndex[state.endMonth] + '-' + state.endYear}&page=${1}&numPerPage=${5}&employeeId=${id}`, config)
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getCreditDataById?startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}&page=${1}&numPerPage=${5}&employeeId=${id}`, config)
             .then((res) => {
                 setCreditData(res.data.rows);
                 setTotalRowsCredit(res.data.numRows)
@@ -926,7 +929,7 @@ function EmployeeDetails() {
             })
     }
     const getCreditDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
-        await axios.get(`${BACKEND_BASE_URL}staffrouter/getCreditDataById?startMonth=${monthIndex[state.startMonth] + '-' + state.startYear}&endMonth=${monthIndex[state.endMonth] + '-' + state.endYear}&page=${pageNum}&numPerPage=${rowPerPageNum}&employeeId=${id}`, config)
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getCreditDataById?startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}&page=${pageNum}&numPerPage=${rowPerPageNum}&employeeId=${id}`, config)
             .then((res) => {
                 setCreditData(res.data.rows);
                 setTotalRowsCredit(res.data.numRows);
@@ -949,7 +952,7 @@ function EmployeeDetails() {
     }
 
     const getBonusDataByFilter = async () => {
-        await axios.get(`${BACKEND_BASE_URL}staffrouter/getBonusDataById?startMonth=${monthIndex[state.startMonth] + '-' + state.startYear}&endMonth=${monthIndex[state.endMonth] + '-' + state.endYear}&page=${1}&numPerPage=${5}&employeeId=${id}`, config)
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getBonusDataById?startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}&page=${1}&numPerPage=${5}&employeeId=${id}`, config)
             .then((res) => {
                 setBonusData(res.data.rows);
                 setTotalRowsBonus(res.data.numRows)
@@ -969,7 +972,7 @@ function EmployeeDetails() {
             })
     }
     const getBonusDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
-        await axios.get(`${BACKEND_BASE_URL}staffrouter/getBonusDataById?startMonth=${monthIndex[state.startMonth] + '-' + state.startYear}&endMonth=${monthIndex[state.endMonth] + '-' + state.endYear}&page=${pageNum}&numPerPage=${rowPerPageNum}&employeeId=${id}`, config)
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getBonusDataById?startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}&page=${pageNum}&numPerPage=${rowPerPageNum}&employeeId=${id}`, config)
             .then((res) => {
                 setBonusData(res.data.rows);
                 setTotalRowsBonus(res.data.numRows);
@@ -992,7 +995,7 @@ function EmployeeDetails() {
     }
 
     const getLeaveDataByFilter = async () => {
-        await axios.get(`${BACKEND_BASE_URL}staffrouter/getLeaveDataById?startMonth=${monthIndex[state.startMonth] + '-' + state.startYear}&endMonth=${monthIndex[state.endMonth] + '-' + state.endYear}&page=${1}&numPerPage=${5}&employeeId=${id}`, config)
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getLeaveDataById?startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}&page=${1}&numPerPage=${5}&employeeId=${id}`, config)
             .then((res) => {
                 setLeaveData(res.data.rows);
                 setTotalRowsLeaves(res.data.numRows)
@@ -1012,7 +1015,7 @@ function EmployeeDetails() {
             })
     }
     const getLeaveDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
-        await axios.get(`${BACKEND_BASE_URL}staffrouter/getLeaveDataById?startMonth=${monthIndex[state.startMonth] + '-' + state.startYear}&endMonth=${monthIndex[state.endMonth] + '-' + state.endYear}&page=${pageNum}&numPerPage=${rowPerPageNum}&employeeId=${id}`, config)
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getLeaveDataById?startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}&page=${pageNum}&numPerPage=${rowPerPageNum}&employeeId=${id}`, config)
             .then((res) => {
                 setLeaveData(res.data.rows);
                 setTotalRowsLeaves(res.data.numRows);
@@ -1035,7 +1038,7 @@ function EmployeeDetails() {
     }
 
     const getTransactionDataByFilter = async () => {
-        await axios.get(`${BACKEND_BASE_URL}staffrouter/getTransactionDataById?startMonth=${monthIndex[state.startMonth] + '-' + state.startYear}&endMonth=${monthIndex[state.endMonth] + '-' + state.endYear}&page=${1}&numPerPage=${5}&employeeId=${id}&searchNumber=${''}`, config)
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getTransactionDataById?startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}&page=${1}&numPerPage=${5}&employeeId=${id}&searchNumber=${''}`, config)
             .then((res) => {
                 setTransactionData(res.data.rows);
                 setTotalRowsTransaction(res.data.numRows)
@@ -1055,7 +1058,7 @@ function EmployeeDetails() {
             })
     }
     const getTransactionDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
-        await axios.get(`${BACKEND_BASE_URL}staffrouter/getTransactionDataById?startMonth=${monthIndex[state.startMonth] + '-' + state.startYear}&endMonth=${monthIndex[state.endMonth] + '-' + state.endYear}&page=${pageNum}&numPerPage=${rowPerPageNum}&employeeId=${id}&searchNumber=${''}`, config)
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getTransactionDataById?startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}&page=${pageNum}&numPerPage=${rowPerPageNum}&employeeId=${id}&searchNumber=${''}`, config)
             .then((res) => {
                 setTransactionData(res.data.rows);
                 setTotalRowsTransaction(res.data.numRows);
@@ -1249,7 +1252,7 @@ function EmployeeDetails() {
         setEditId(id)
     }
 
-    const getInvoice = async (tId, suppilerName) => {
+    const getInvoice = async (tId) => {
         if (window.confirm('Are you sure you want to Download Reciept ... ?')) {
             await axios({
                 url: `${BACKEND_BASE_URL}staffrouter/getEmployeeInvoice?employeeId=${id}&invoiceId=${tId}`,
@@ -1261,7 +1264,7 @@ function EmployeeDetails() {
                 const href = URL.createObjectURL(response.data);
                 // create "a" HTML element with href to file & click
                 const link = document.createElement('a');
-                const name = suppilerName + '_' + new Date().toLocaleDateString() + '.pdf'
+                const name = data.employeeNickName + '_' + new Date().toLocaleDateString() + '.pdf'
                 link.href = href;
                 link.setAttribute('download', name); //or any other extension
                 document.body.appendChild(link);
@@ -1499,10 +1502,10 @@ function EmployeeDetails() {
     const handleChangePageLeaves = (event, newPage) => {
         setPageLeaves(newPage);
         if (filter) {
-            getLeaveDataOnPageChangeByFilter(newPage + 1, rowsPerPage)
+            getLeaveDataOnPageChangeByFilter(newPage + 1, rowsPerPageLeaves)
         }
         else {
-            getLeaveDataOnPageChange(newPage + 1, rowsPerPage)
+            getLeaveDataOnPageChange(newPage + 1, rowsPerPageLeaves)
         }
 
     };
@@ -1519,8 +1522,375 @@ function EmployeeDetails() {
     };
 
 
+    const advanceExcelExport = async () => {
+        if (window.confirm('Are you sure you want to export Excel ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}staffrouter/exportExcelSheetForAdvanceData?employeeId=${id}&startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}`
+                    : `${BACKEND_BASE_URL}staffrouter/exportExcelSheetForAdvanceData?employeeId=${id}&startDate=${''}&endDate=${''}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = data.employeeNickName + '_Advance_Data_' + new Date().toLocaleDateString() + '.xlsx'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+    const advancePdfExport = async () => {
+        if (window.confirm('Are you sure you want to export Pdf ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}staffrouter/exportPdfForAdvanceData?employeeId=${id}&startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}`
+                    : `${BACKEND_BASE_URL}staffrouter/exportPdfForAdvanceData?employeeId=${id}&startDate=${''}&endDate=${''}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = data.employeeNickName + '_Advance_Data_' + new Date().toLocaleDateString() + '.pdf'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+
+    const fineExcelExport = async () => {
+        if (window.confirm('Are you sure you want to export Excel ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}staffrouter/exportExcelSheetForFineData?employeeId=${id}&startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}&fineStatus=${fineStatus}`
+                    : `${BACKEND_BASE_URL}staffrouter/exportExcelSheetForFineData?employeeId=${id}&startDate=${''}&endDate=${''}&fineStatus=${fineStatus}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = data.employeeNickName + '_Fine_Data_' + new Date().toLocaleDateString() + '.xlsx'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+    const finePdfExport = async () => {
+        if (window.confirm('Are you sure you want to export Pdf ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}staffrouter/exportPdfForFineData?employeeId=${id}&startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}&fineStatus=${fineStatus}`
+                    : `${BACKEND_BASE_URL}staffrouter/exportPdfForFineData?employeeId=${id}&startDate=${''}&endDate=${''}&fineStatus=${fineStatus}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = data.employeeNickName + '_Fine_Data_' + new Date().toLocaleDateString() + '.pdf'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+
+    const transactionExcelExport = async () => {
+        if (window.confirm('Are you sure you want to export Excel ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}staffrouter/exportExcelSheetForTransactionData?employeeId=${id}&startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}&searchNumber=${searchWord}`
+                    : `${BACKEND_BASE_URL}staffrouter/exportExcelSheetForTransactionData?employeeId=${id}&startDate=${''}&endDate=${''}&searchNumber=${searchWord}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = data.employeeNickName + '_Transaction_Data_' + new Date().toLocaleDateString() + '.xlsx'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+    const transactionPdfExport = async () => {
+        if (window.confirm('Are you sure you want to export Pdf ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}staffrouter/exportPdfForTransactionData?employeeId=${id}&startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}&searchNumber=${searchWord}`
+                    : `${BACKEND_BASE_URL}staffrouter/exportPdfForTransactionData?employeeId=${id}&startDate=${''}&endDate=${''}&searchNumber=${searchWord}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = data.employeeNickName + '_Transaction_Data_' + new Date().toLocaleDateString() + '.pdf'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+
+    const creditExcelExport = async () => {
+        if (window.confirm('Are you sure you want to export Excel ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}staffrouter/exportExcelSheetForCreditData?employeeId=${id}&startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}`
+                    : `${BACKEND_BASE_URL}staffrouter/exportExcelSheetForCreditData?employeeId=${id}&startDate=${''}&endDate=${''}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = data.employeeNickName + '_Credit_Data_' + new Date().toLocaleDateString() + '.xlsx'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+    const creditPdfExport = async () => {
+        if (window.confirm('Are you sure you want to export Pdf ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}staffrouter/exportPdfForCreditData?employeeId=${id}&startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}`
+                    : `${BACKEND_BASE_URL}staffrouter/exportPdfForCreditData?employeeId=${id}&startDate=${''}&endDate=${''}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = data.employeeNickName + '_Credit_Data_' + new Date().toLocaleDateString() + '.pdf'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+
+
+    const bonusExcelExport = async () => {
+        if (window.confirm('Are you sure you want to export Excel ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}staffrouter/exportExcelSheetForBonusData?employeeId=${id}&startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}`
+                    : `${BACKEND_BASE_URL}staffrouter/exportExcelSheetForBonusData?employeeId=${id}&startDate=${''}&endDate=${''}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = data.employeeNickName + '_Bonus_Data_' + new Date().toLocaleDateString() + '.xlsx'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+    const bonusPdfExport = async () => {
+        if (window.confirm('Are you sure you want to export Pdf ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}staffrouter/exportPdfForBonusData?employeeId=${id}&startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}`
+                    : `${BACKEND_BASE_URL}staffrouter/exportPdfForBonusData?employeeId=${id}&startDate=${''}&endDate=${''}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = data.employeeNickName + '_Bonus_Data_' + new Date().toLocaleDateString() + '.pdf'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+    const monthlySalaryExcelExport = async () => {
+        if (window.confirm('Are you sure you want to export Excel ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}staffrouter/exportExcelSheetForEmployeeMonthlySalaryDataById?employeeId=${id}&startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}`
+                    : `${BACKEND_BASE_URL}staffrouter/exportExcelSheetForEmployeeMonthlySalaryDataById?employeeId=${id}&startDate=${''}&endDate=${''}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = data.employeeNickName + '_MonthlySalary_Data_' + new Date().toLocaleDateString() + '.xlsx'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+    const monthlySalaryPdfExport = async () => {
+        if (window.confirm('Are you sure you want to export Pdf ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}staffrouter/exportPdfForEmployeeMonthlySalaryData?employeeId=${id}&startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}`
+                    : `${BACKEND_BASE_URL}staffrouter/exportPdfForEmployeeMonthlySalaryData?employeeId=${id}&startDate=${''}&endDate=${''}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = data.employeeNickName + '_MonthlySalary_Data_' + new Date().toLocaleDateString() + '.pdf'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+    const leaveExcelExport = async () => {
+        if (window.confirm('Are you sure you want to export Excel ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}staffrouter/exportExcelSheetForLeaveData?employeeId=${id}&startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}`
+                    : `${BACKEND_BASE_URL}staffrouter/exportExcelSheetForLeaveData?employeeId=${id}&startDate=${''}&endDate=${''}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = data.employeeNickName + '_Leave_Data_' + new Date().toLocaleDateString() + '.xlsx'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+    const leavePdfExport = async () => {
+        if (window.confirm('Are you sure you want to export Pdf ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}staffrouter/exportPdfForLeaveData?employeeId=${id}&startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}`
+                    : `${BACKEND_BASE_URL}staffrouter/exportPdfForLeaveData?employeeId=${id}&startDate=${''}&endDate=${''}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = data.employeeNickName + '_Leave_Data_' + new Date().toLocaleDateString() + '.pdf'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+
+    const getCountData = async () => {
+        await axios.get(filter ? `${BACKEND_BASE_URL}staffrouter/getAllPaymentStatisticsCountById?employeeId=${id}&startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}`
+            : `${BACKEND_BASE_URL}staffrouter/getAllPaymentStatisticsCountById?employeeId=${id}&startDate=${''}&endDate=${''}`, config)
+            .then((res) => {
+                setCountData(res.data);
+            })
+            .catch((error) => {
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+            })
+    }
     useEffect(() => {
         getData();
+        getCountData();
         getMonthlySalaryData();
     }, [])
     if (loading) {
@@ -1619,8 +1989,8 @@ function EmployeeDetails() {
                                                     onClick={() => {
                                                         setFilter(false);
                                                         setPage(0); setRowsPerPage(5);
-                                                        setTabTable(1);
-                                                        getMonthlySalaryData();
+                                                        getLeaveData();
+                                                        tabTable === 2 || tabTable === '2' ? getAdvanceData() : tabTable === 3 || tabTable === '3' ? getFineData() : tabTable === 6 || tabTable === '6' ? getBonusData() : tabTable === 5 || tabTable === '5' ? getCreditData() : tabTable === 4 || tabTable === '4' ? getTransactionData() : tabTable === 1 || tabTable === '1' ? getMonthlySalaryData() : getMonthlySalaryData();
                                                         setState({
                                                             startMonth: new Date().getMonth(),
                                                             startYear: new Date().getFullYear(),
@@ -1750,8 +2120,8 @@ function EmployeeDetails() {
                                                                 setFilter(true)
                                                                 handleClose();
                                                                 setPage(0); setRowsPerPage(5);
-                                                                setTabTable(1)
-                                                                getMonthlySalaryDataByFilter();
+                                                                getLeaveDataByFilter()
+                                                                tabTable === 2 || tabTable === '2' ? getAdvanceDataByFilter() : tabTable === 3 || tabTable === '3' ? getFineDataByFilter() : tabTable === 6 || tabTable === '6' ? getBonusDataByFilter() : tabTable === 5 || tabTable === '5' ? getCreditDataByFilter() : tabTable === 4 || tabTable === '4' ? getTransactionDataByFilter() : tabTable === 1 || tabTable === '1' ? getMonthlySalaryDataByFilter() : getMonthlySalaryDataByFilter();
                                                                 // setFilter(true); handleClose(); getStatisticsByFilter(); setTabTable(''); setPage(0); setRowsPerPage(5); getStockInDataByTabByFilter(''); getProductCountByFilter();
                                                             }}>Apply</button>
                                                         </div>
@@ -1953,72 +2323,100 @@ function EmployeeDetails() {
                         </div>
                         :
                         tab === 2 || tab === '2' ?
-                            <div className='grid gap-4 mt-12' style={{ maxHeight: '332px', overflowY: 'scroll' }}>
-                                <div className='grid grid-cols-2 gap-6 pb-3'>
-                                    {/* {
-                                    productQtyCount && productQtyCount?.map((row, index) => (
-                                        <ProductQtyCountCard productQtyUnit={row.productUnit} productQty={row.productQuantity} productName={row.productName} index={index} />
-                                    ))
-                                } */}
+                            <div className='grid gap-4 mt-12' >
+                                <div className='grid grid-cols-4 gap-6 pb-3'>
+                                    <CountCard color={'black'} count={countData && countData.totalAdvance ? countData.totalAdvance : 0} desc={'Total Advance'} productDetail={true} unitDesc={0} />
+                                    <CountCard color={'pink'} count={countData && countData.totalRemainAdvance ? countData.totalRemainAdvance : 0} desc={'Remaining Advance'} productDetail={true} unitDesc={0} />
+                                    <CountCard color={'black'} count={countData && countData.totalFine ? countData.totalFine : 0} desc={'Remaining Salary'} productDetail={true} unitDesc={0} />
+                                    <CountCard color={'pink'} count={countData && countData.totalConsiderFine ? countData.totalConsiderFine : 0} desc={'Remaining Advance'} productDetail={true} unitDesc={0} />
+                                    <CountCard color={'blue'} count={countData && countData.totalIgnoreFine ? countData.totalIgnoreFine : 0} desc={'Remaining Fine'} productDetail={true} unitDesc={0} />
+                                    <CountCard color={'black'} count={countData && countData.totalFine ? countData.totalFine : 0} desc={'Total Fine'} productDetail={true} unitDesc={0} />
+                                    <CountCard color={'pink'} count={countData && countData.totalConsiderFine ? countData.totalConsiderFine : 0} desc={'Considered Fine'} productDetail={true} unitDesc={0} />
+                                    <CountCard color={'blue'} count={countData && countData.totalIgnoreFine ? countData.totalIgnoreFine : 0} desc={'Ignored Fine'} productDetail={true} unitDesc={0} />
+                                    <CountCard color={'blue'} count={countData && countData.totalRemainFine ? countData.totalRemainFine : 0} desc={'Remaining Fine'} productDetail={true} unitDesc={0} />
+                                    <CountCard color={'black'} count={countData && countData.salaryPaySum ? countData.salaryPaySum : 0} desc={'Salary Paid'} productDetail={true} unitDesc={0} />
+                                    <CountCard color={'pink'} count={countData && countData.advanceCutSum ? countData.advanceCutSum : 0} desc={'Advance Cut'} productDetail={true} unitDesc={0} />
+                                    <CountCard color={'blue'} count={countData && countData.fineCutSum ? countData.fineCutSum : 0} desc={'Fine Cut'} productDetail={true} unitDesc={0} />
+                                    <CountCard color={'black'} count={countData && countData.totalCreditAmount ? countData.totalCreditAmount : 0} desc={'Total Credit'} productDetail={true} unitDesc={0} />
+                                    <CountCard color={'black'} count={countData && countData.totalBonusAmount ? countData.totalBonusAmount : 0} desc={'Total Bonus'} productDetail={true} unitDesc={0} />
                                 </div>
                             </div>
                             :
-                            <div className='tableSubContainer pt-2 mt-10'>
-                                <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px' }} component={Paper}>
-                                    <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
-                                        <TableHead >
-                                            <TableRow>
-                                                <TableCell >No.</TableCell>
-                                                <TableCell>Given By</TableCell>
-                                                <TableCell align="left">Leave Count</TableCell>
-                                                <TableCell align="left">Reason</TableCell>
-                                                <TableCell align="left">Date</TableCell>
-                                                <TableCell align="left"></TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {leaveData?.map((row, index) => (
-                                                totalRowsLeaves !== 0 ?
-                                                    <TableRow
-                                                        hover
-                                                        key={row.leaveId}
-                                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                                        style={{ cursor: "pointer" }}
-                                                        className='tableRow'
-                                                    >
-                                                        <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
-                                                        <Tooltip title={row.userName} placement="top-start" arrow>
-                                                            <TableCell component="th" scope="row" >
-                                                                {row.givenBy}
+                            <div className='tableSubContainer pt-2 mt-10' >
+                                <div className='grid grid-cols-12 pt-6'>
+                                    <div className='col-span-3 col-start-10 pr-5 flex justify-end'>
+                                        <ExportMenu exportExcel={
+                                            () => {
+                                                leaveExcelExport()
+                                            }
+                                        } exportPdf={
+                                            () => {
+                                                leavePdfExport()
+                                            }
+                                        }
+                                            isDisable={totalRowsLeaves == 0 ? true : false}
+                                        />
+                                    </div>
+                                </div>
+                                <div className='tableContainerWrapper displayTableTemp'>
+                                    {/* <Paper sx={{ width: '100%', overflow: 'hidden' }}> */}
+                                    <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px' }} component={Paper}>
+                                        <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
+                                            <TableHead >
+                                                <TableRow>
+                                                    <TableCell >No.</TableCell>
+                                                    <TableCell>Given By</TableCell>
+                                                    <TableCell align="left">Leave Count</TableCell>
+                                                    <TableCell align="left">Reason</TableCell>
+                                                    <TableCell align="left">Date</TableCell>
+                                                    <TableCell align="left"></TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {leaveData?.map((row, index) => (
+                                                    totalRowsLeaves !== 0 ?
+                                                        <TableRow
+                                                            hover
+                                                            key={row.leaveId}
+                                                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                            style={{ cursor: "pointer" }}
+                                                            className='tableRow'
+                                                        >
+                                                            <TableCell align="left" >{(index + 1) + (pageLeaves * rowsPerPageLeaves)}</TableCell>
+                                                            <Tooltip title={row.userName} placement="top-start" arrow>
+                                                                <TableCell component="th" scope="row" >
+                                                                    {row.givenBy}
+                                                                </TableCell>
+                                                            </Tooltip>
+                                                            <TableCell align="left" >{row.numLeave}</TableCell>
+                                                            <Tooltip title={row.leaveReason} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.leaveReason}</div></TableCell></Tooltip>
+                                                            <TableCell align="left" >{row.leaveDate}</TableCell>
+                                                            <TableCell align="right">
+                                                                <MenuLeaves data={row} handleDeleteLeave={handleDeleteLeave} handleEditLeaves={handleEditLeaves} />
                                                             </TableCell>
-                                                        </Tooltip>
-                                                        <TableCell align="left" >{row.numLeave}</TableCell>
-                                                        <Tooltip title={row.leaveReason} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.leaveReason}</div></TableCell></Tooltip>
-                                                        <TableCell align="left" >{row.leaveDate}</TableCell>
-                                                        <TableCell align="right">
-                                                            <MenuLeaves data={row} handleDeleteLeave={handleDeleteLeave} handleEditLeaves={handleEditLeaves} />
-                                                        </TableCell>
-                                                    </TableRow> :
-                                                    <TableRow
-                                                        key={row.userId}
-                                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                                    >
-                                                        <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
-                                                    </TableRow>
+                                                        </TableRow> :
+                                                        <TableRow
+                                                            key={row.userId}
+                                                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                        >
+                                                            <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
+                                                        </TableRow>
 
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                    <TablePagination
-                                        rowsPerPageOptions={[5, 10, 25]}
-                                        component="div"
-                                        count={totalRowsLeaves}
-                                        rowsPerPage={rowsPerPageLeaves}
-                                        page={pageLeaves}
-                                        onPageChange={handleChangePageLeaves}
-                                        onRowsPerPageChange={handleChangeRowsPerPageLeaves}
-                                    />
-                                </TableContainer>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                        <TablePagination
+                                            rowsPerPageOptions={[5, 10, 25]}
+                                            component="div"
+                                            count={totalRowsLeaves}
+                                            rowsPerPage={rowsPerPageLeaves}
+                                            page={pageLeaves}
+                                            onPageChange={handleChangePageLeaves}
+                                            onRowsPerPageChange={handleChangeRowsPerPageLeaves}
+                                        />
+                                    </TableContainer>
+                                    {/* </Paper> */}
+                                </div>
                             </div>
                     }
 
@@ -2084,6 +2482,83 @@ function EmployeeDetails() {
                     </div>
                 </div>
             </div>
+            <div className='mt-6'>
+                {
+                    (tabTable === 2 || tabTable === '2') &&
+                    <div className='grid grid-cols-12 gap-6'>
+                        <div className='col-span-3'>
+                            <CountCard color={'black'} count={countData && countData.totalAdvance ? countData.totalAdvance : 0} desc={'Total Advance'} productDetail={true} unitDesc={0} />
+                        </div>
+                        <div className='col-span-3'>
+                            <CountCard color={'pink'} count={countData && countData.totalRemainAdvance ? countData.totalRemainAdvance : 0} desc={'Remaining Advance'} productDetail={true} unitDesc={0} />
+                        </div>
+                    </div>
+                }
+                {
+                    (tabTable === 1 || tabTable === '1') &&
+                    <div className='grid grid-cols-12 gap-6'>
+                        <div className='col-span-3'>
+                            <CountCard color={'black'} count={countData && countData.totalFine ? countData.totalFine : 0} desc={'Remaining Salary'} productDetail={true} unitDesc={0} />
+                        </div>
+                        <div className='col-span-3'>
+                            <CountCard color={'pink'} count={countData && countData.totalRemainAdvance ? countData.totalRemainAdvance : 0} desc={'Remaining Advance'} productDetail={true} unitDesc={0} />
+                        </div>
+                        <div className='col-span-3'>
+                            <CountCard color={'blue'} count={countData && countData.totalRemainFine ? countData.totalRemainFine : 0} desc={'Remaining Fine'} productDetail={true} unitDesc={0} />
+                        </div>
+                        {/* <div className='col-span-3'>
+                            <CountCard color={'blue'} count={countData && countData.totalRemainFine ? countData.totalRemainFine : 0} desc={'Present Days'} productDetail={true} unitDesc={0} />
+                        </div> */}
+                    </div>
+                }
+                {
+                    (tabTable === 3 || tabTable === '3') &&
+                    <div className='grid grid-cols-12 gap-6'>
+                        <div className='col-span-3'>
+                            <CountCard color={'black'} count={countData && countData.totalFine ? countData.totalFine : 0} desc={'Total Fine'} productDetail={true} unitDesc={0} />
+                        </div>
+                        <div className='col-span-3'>
+                            <CountCard color={'pink'} count={countData && countData.totalConsiderFine ? countData.totalConsiderFine : 0} desc={'Considered Fine'} productDetail={true} unitDesc={0} />
+                        </div>
+                        <div className='col-span-3'>
+                            <CountCard color={'blue'} count={countData && countData.totalIgnoreFine ? countData.totalIgnoreFine : 0} desc={'Ignored Fine'} productDetail={true} unitDesc={0} />
+                        </div>
+                        <div className='col-span-3'>
+                            <CountCard color={'blue'} count={countData && countData.totalRemainFine ? countData.totalRemainFine : 0} desc={'Remaining Fine'} productDetail={true} unitDesc={0} />
+                        </div>
+                    </div>
+                }
+                {
+                    (tabTable === 4 || tabTable === '4') &&
+                    <div className='grid grid-cols-12 gap-6'>
+                        <div className='col-span-3'>
+                            <CountCard color={'black'} count={countData && countData.salaryPaySum ? countData.salaryPaySum : 0} desc={'Salary Paid'} productDetail={true} unitDesc={0} />
+                        </div>
+                        <div className='col-span-3'>
+                            <CountCard color={'pink'} count={countData && countData.advanceCutSum ? countData.advanceCutSum : 0} desc={'Advance Cut'} productDetail={true} unitDesc={0} />
+                        </div>
+                        <div className='col-span-3'>
+                            <CountCard color={'blue'} count={countData && countData.fineCutSum ? countData.fineCutSum : 0} desc={'Fine Cut'} productDetail={true} unitDesc={0} />
+                        </div>
+                    </div>
+                }
+                {
+                    (tabTable === 5 || tabTable === '5') &&
+                    <div className='grid grid-cols-12 gap-6'>
+                        <div className='col-span-3'>
+                            <CountCard color={'black'} count={countData && countData.totalCreditAmount ? countData.totalCreditAmount : 0} desc={'Total Credit'} productDetail={true} unitDesc={0} />
+                        </div>
+                    </div>
+                }
+                {
+                    (tabTable === 6 || tabTable === '6') &&
+                    <div className='grid grid-cols-12 gap-6'>
+                        <div className='col-span-3'>
+                            <CountCard color={'black'} count={countData && countData.totalBonusAmount ? countData.totalBonusAmount : 0} desc={'Total Bonus'} productDetail={true} unitDesc={0} />
+                        </div>
+                    </div>
+                }
+            </div>
             <div className='grid grid-cols-12 mt-6'>
                 <div className='col-span-12 pb-6'>
                     <div className='tableSubContainer pt-2'>
@@ -2126,9 +2601,17 @@ function EmployeeDetails() {
                                     </FormControl>
                                 </div>}
                             <div className='col-span-3 col-start-10 pr-5 flex justify-end'>
-                                <button className='exportExcelBtn'
-                                // onClick={() => { tab === 2 || tab === '2' ? debitExportExcel() : tab === 3 || tab === '3' ? CashExportExcel() : DebitDataExportExcel() }}
-                                ><FileDownloadIcon />&nbsp;&nbsp;Export Excle</button>
+                                <ExportMenu exportExcel={
+                                    () => {
+                                        tabTable === 2 || tabTable === '2' ? advanceExcelExport() : tabTable === 3 || tabTable === '3' ? fineExcelExport() : tabTable === 6 || tabTable === '6' ? bonusExcelExport() : tabTable === 5 || tabTable === '5' ? creditExcelExport() : tabTable === 4 || tabTable === '4' ? transactionExcelExport() : tabTable === 1 || tabTable === '1' ? monthlySalaryExcelExport() : advanceExcelExport();
+                                    }
+                                } exportPdf={
+                                    () => {
+                                        tabTable === 2 || tabTable === '2' ? advancePdfExport() : tabTable === 3 || tabTable === '3' ? finePdfExport() : tabTable === 6 || tabTable === '6' ? bonusPdfExport() : tabTable === 5 || tabTable === '5' ? creditPdfExport() : tabTable === 4 || tabTable === '4' ? transactionPdfExport() : tabTable === 1 || tabTable === '1' ? monthlySalaryPdfExport() : advancePdfExport();
+                                    }
+                                }
+                                    isDisable={tabTable === 2 || tabTable === '2' ? totalRowsAdvance == 0 ? true : false : tabTable === 3 || tabTable === '3' ? totalRowsFine == 0 ? true : false : tabTable === 6 || tabTable === '6' ? totalRowsBonus == 0 ? true : false : tabTable === 5 || tabTable === '5' ? totalRowsCredit == 0 ? true : false : tabTable === 4 || tabTable === '4' ? totalRowsTransaction == 0 ? true : false : tabTable === 1 || tabTable === '1' ? totalRowsMonthly == 0 ? true : false : false}
+                                />
                             </div>
                         </div>
                         {
@@ -2887,14 +3370,14 @@ function EmployeeDetails() {
                             </IconButton>
                         </div>
                     </div>
-                    <div className='flex justify-between'>
+                    {/* <div className='flex justify-between'>
                         <div className='pt-1 pl-2'>
                             <Typography id="modal-modal" variant="h6" component="h2">
                                 <span className='makePaymentHeader'>Total Payment : </span><span className='makePaymentName'>{"10000"}</span>
                             </Typography>
                         </div>
-                    </div>
-                    <div className='displayTable' style={{ maxHeight: '85%', overflow: "scroll" }}>
+                    </div> */}
+                    <div className='displayTable' style={{ maxHeight: '90%', overflow: "scroll" }}>
                         {/* <div className='mt-4 pb-2 displayTable mb-4' style={{ maxHeight: '320px', overflow: 'hidden' }}> */}
                         {/* <Paper sx={{ width: '100%', overflow: 'hidden' }}> */}
                         {/* <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', maxHeight: '300px' }} component={Paper}>
@@ -3010,6 +3493,8 @@ function EmployeeDetails() {
                                                     <TableCell>Total Salary</TableCell>
                                                     <TableCell align="left">Remaining Salary</TableCell>
                                                     <TableCell align="left">Salary Cut</TableCell>
+                                                    <TableCell align="left">Advance Cut</TableCell>
+                                                    <TableCell align="left">Fine Cut</TableCell>
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
@@ -3029,7 +3514,9 @@ function EmployeeDetails() {
                                                         </TableCell>
                                                         {/* </Tooltip> */}
                                                         <TableCell align="left">{row.totalSalary}</TableCell>
-                                                        <TableCell align="left">{row.cutSalaryAmount}</TableCell>
+                                                        <TableCell align="left">{row.salary}</TableCell>
+                                                        <TableCell align="left">{row.cutAdvance}</TableCell>
+                                                        <TableCell align="left">{row.cutFine}</TableCell>
                                                     </TableRow>
 
                                                 ))
@@ -3164,7 +3651,7 @@ function EmployeeDetails() {
                                         :
                                     </div>
                                     <div className='col-span-3 '>
-                                        10000
+                                        {calculationData ? calculationData.remainSalaryAmount : "~"}
                                     </div>
                                 </div>
                                 <div className='grid grid-cols-12 calculationFont'>
@@ -3175,7 +3662,7 @@ function EmployeeDetails() {
                                         :
                                     </div>
                                     <div className='col-span-3'>
-                                        10000
+                                        {calculationData ? calculationData.remainAdvanceAmount : "~"}
                                     </div>
                                 </div>
                                 <div className='grid grid-cols-12 calculationFont'>
@@ -3186,7 +3673,7 @@ function EmployeeDetails() {
                                         :
                                     </div>
                                     <div className='col-span-3 calculationFont'>
-                                        10000
+                                        {calculationData ? calculationData.remainFineAmount : "~"}
                                     </div>
                                 </div>
                                 <div className='lineBreak mt-4 mb-4'>
@@ -3236,7 +3723,7 @@ function EmployeeDetails() {
                                         :
                                     </div>
                                     <div className='col-span-3 '>
-                                        10000
+                                        {calculationData && editFormData ? calculationData.remainSalaryAmount - editFormData.salary - editFormData.advance - editFormData.fine : "~"}
                                     </div>
                                 </div>
                                 <div className='grid grid-cols-12 calculationFont'>
@@ -3247,7 +3734,7 @@ function EmployeeDetails() {
                                         :
                                     </div>
                                     <div className='col-span-3'>
-                                        10000
+                                        {calculationData && editFormData ? calculationData.remainAdvanceAmount - editFormData.advance : "~"}
                                     </div>
                                 </div>
                                 <div className='grid grid-cols-12 calculationFont'>
@@ -3258,7 +3745,12 @@ function EmployeeDetails() {
                                         :
                                     </div>
                                     <div className='col-span-3 calculationFont'>
-                                        10000
+                                        {calculationData && editFormData ? calculationData.remainFineAmount - editFormData.fine : "~"}
+                                    </div>
+                                    <div className='col-span-5  flex justify-end'>
+                                        <button className='exportExcelBtn'
+                                            onClick={() => getInvoice(editFormData.transactionId)}
+                                        ><FileDownloadIcon />&nbsp;&nbsp;Print Salary Slip</button>
                                     </div>
                                 </div>
                             </div>

@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 
 const ITEM_HEIGHT = 48;
 
-function Menutemp(props) {
+function MenuBonus(props) {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -18,6 +18,9 @@ function Menutemp(props) {
     const handleClose = () => {
         setAnchorEl(null);
     };
+    const handleEditClick = (id) => {
+        navigate(`/editSuppiler/${id}`)
+    }
     return (
         <div>
             <IconButton
@@ -48,29 +51,22 @@ function Menutemp(props) {
                 <MenuItem key={'delete'}
                     onClick={() => {
                         handleClose();
-                        props.handleDelete()
+                        props.handleDeleteBonus(props.data.advanceId)
                     }}>
                     Delete
                 </MenuItem>
-                <MenuItem key={'Edit'}
+                {/* <MenuItem key={'Edit'}
                     onClick={() => {
                         handleClose();
                         props.handleEdit()
                     }}>
                     Edit
-                </MenuItem>
-                <MenuItem key={'detail'}
-                    onClick={() => {
-                        handleClose();
-                        props.handleViewDetail()
-                    }}>
-                    View Details
-                </MenuItem>
+                </MenuItem> */}
             </Menu>
         </div >
     );
 }
 
-export default Menutemp;
+export default MenuBonus;
 
 

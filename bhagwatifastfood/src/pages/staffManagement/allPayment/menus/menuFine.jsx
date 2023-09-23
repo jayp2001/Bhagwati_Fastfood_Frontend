@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 
 const ITEM_HEIGHT = 48;
 
-function Menutemp(props) {
+function MenuFine(props) {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -18,6 +18,9 @@ function Menutemp(props) {
     const handleClose = () => {
         setAnchorEl(null);
     };
+    const handleEditClick = (id) => {
+        navigate(`/editSuppiler/${id}`)
+    }
     return (
         <div>
             <IconButton
@@ -45,32 +48,39 @@ function Menutemp(props) {
                     },
                 }}
             >
-                <MenuItem key={'delete'}
-                    onClick={() => {
-                        handleClose();
-                        props.handleDelete()
-                    }}>
-                    Delete
-                </MenuItem>
-                <MenuItem key={'Edit'}
-                    onClick={() => {
-                        handleClose();
-                        props.handleEdit()
-                    }}>
-                    Edit
-                </MenuItem>
-                <MenuItem key={'detail'}
-                    onClick={() => {
-                        handleClose();
-                        props.handleViewDetail()
-                    }}>
-                    View Details
-                </MenuItem>
+                {props.data.fineAmount == props.data.remainFineAmount &&
+                    <MenuItem key={'delete'}
+                        onClick={() => {
+                            handleClose();
+                            props.handleDeleteFine(props.data.fineId)
+                        }}>
+                        Delete
+                    </MenuItem>
+                }
+                {
+                    props.data.fineStatus ?
+
+                        <MenuItem key={'ignore'}
+                            onClick={() => {
+                                handleClose();
+                                props.markAsIgnore(props.data.fineId, props.data.employeeId)
+                            }}>
+                            Ignore
+                        </MenuItem>
+                        :
+                        <MenuItem key={'consider'}
+                            onClick={() => {
+                                handleClose();
+                                props.markAsConsider(props.data.fineId, props.data.employeeId)
+                            }}>
+                            Consider
+                        </MenuItem>
+                }
             </Menu>
         </div >
     );
 }
 
-export default Menutemp;
+export default MenuFine;
 
 

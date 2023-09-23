@@ -19,6 +19,7 @@ import Select from '@mui/material/Select';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { useNavigate } from "react-router-dom";
 const styleStockIn = {
     position: 'absolute',
     top: '50%',
@@ -34,6 +35,7 @@ const styleStockIn = {
     borderRadius: '10px'
 };
 function EmployeeCard(props) {
+    const navigate = useNavigate();
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const [open, setOpen] = useState(false);
     const config = {
@@ -54,6 +56,9 @@ function EmployeeCard(props) {
     }
     const handleDelete = () => {
         props.handleDeleteEmployee(props.data.employeeId);
+    }
+    const handleViewDetail = () => {
+        navigate(`/staff/employeeDetail/${props.data.employeeId}`)
     }
     const handleOpenInactive = async () => {
         await axios.get(`${BACKEND_BASE_URL}staffrouter/getMidMonthInActiveSalaryOfEmployee?employeeId=${props.data.employeeId}`, config)
@@ -190,7 +195,7 @@ function EmployeeCard(props) {
                     </div>
                     <div className='nameAndCategoryWrp'>
                         <Tooltip title={'Vikalp Dipakbhai Chavda'} placement="top-start" arrow>
-                            <div className='nameWrp'>
+                            <div className='nameWrp' onClick={() => handleViewDetail()}>
                                 {props.data.employeeName}
                             </div>
                         </Tooltip>
@@ -211,7 +216,7 @@ function EmployeeCard(props) {
                                 onChange={() => handleToggel()}
                             />
                         </div>
-                        <Menutemp handleDelete={handleDelete} handleEdit={handleEdit} />
+                        <Menutemp handleDelete={handleDelete} handleEdit={handleEdit} handleViewDetail={handleViewDetail} />
                     </div>
                     <div className='salaryDetailWrp grid grid-cols-3 gap-4'>
                         <div>

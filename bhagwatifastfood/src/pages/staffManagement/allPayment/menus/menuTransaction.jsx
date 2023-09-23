@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 
 const ITEM_HEIGHT = 48;
 
-function Menutemp(props) {
+function MenuTransaction(props) {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -18,6 +18,9 @@ function Menutemp(props) {
     const handleClose = () => {
         setAnchorEl(null);
     };
+    const handleEditClick = (id) => {
+        navigate(`/editSuppiler/${id}`)
+    }
     return (
         <div>
             <IconButton
@@ -45,32 +48,53 @@ function Menutemp(props) {
                     },
                 }}
             >
-                <MenuItem key={'delete'}
-                    onClick={() => {
-                        handleClose();
-                        props.handleDelete()
-                    }}>
-                    Delete
-                </MenuItem>
+                {props.data.fineAmount == props.data.remainFineAmount &&
+                    <MenuItem key={'delete'}
+                        onClick={() => {
+                            handleClose();
+                            props.handleDeleteTransaction(props.data.remainSalaryId)
+                        }}>
+                        Delete
+                    </MenuItem>
+                }
                 <MenuItem key={'Edit'}
                     onClick={() => {
                         handleClose();
-                        props.handleEdit()
+                        props.getInvoice(props.data.remainSalaryId)
                     }}>
-                    Edit
+                    Download Receipt
                 </MenuItem>
-                <MenuItem key={'detail'}
+                <MenuItem key={'view'}
                     onClick={() => {
                         handleClose();
-                        props.handleViewDetail()
+                        props.handleOpenModelCalculation(props.data.remainSalaryId, props.data.salaryPay, props.data.advanceCut, props.data.fineCut)
                     }}>
-                    View Details
+                    View Calculation
                 </MenuItem>
+                {/* {
+                    props.data.fineStatus ?
+
+                        <MenuItem key={'ignore'}
+                            onClick={() => {
+                                handleClose();
+                                props.markAsIgnore(props.data.fineId)
+                            }}>
+                            Ignore
+                        </MenuItem>
+                        :
+                        <MenuItem key={'consider'}
+                            onClick={() => {
+                                handleClose();
+                                props.markAsConsider(props.data.fineId)
+                            }}>
+                            Consider
+                        </MenuItem>
+                } */}
             </Menu>
         </div >
     );
 }
 
-export default Menutemp;
+export default MenuTransaction;
 
 

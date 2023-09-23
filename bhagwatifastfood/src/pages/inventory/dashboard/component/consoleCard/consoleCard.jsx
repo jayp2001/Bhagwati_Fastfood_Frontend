@@ -3,11 +3,14 @@ import deliveryBoyLogo from '../../../../../assets/deliveryBoy.svg'
 import bhagwatiLogo from '../../../../../assets/bhagwatiLogo.png';
 import img11 from '../../../../../assets/img11.png';
 import userAdd from '../../../../../assets/userAdd.png';
+import staff from '../../../../../assets/staff2.png';
 function ConsoleCard(props) {
     const getImg = (imgname) => {
         switch (imgname) {
             case 'img11':
                 return img11;
+            case 'staff':
+                return staff;
             default:
                 return userAdd;
         }
