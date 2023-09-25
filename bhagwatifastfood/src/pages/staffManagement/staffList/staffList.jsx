@@ -224,7 +224,7 @@ function StaffList() {
                 handleCloseModal();
                 setSearchWord('');
                 setTimeout(() => {
-                    getEmployeeList(activeCategory);
+                    activeCategory == 9999 ? getEmployeeListInactive('') : getEmployeeList(activeCategory);
                 }, 50)
 
             })
@@ -241,7 +241,7 @@ function StaffList() {
                 setSuccess(true);
                 handleCloseAddLeave();
                 setSearchWord('');
-                getEmployeeList(activeCategory);
+                activeCategory == 9999 ? getEmployeeListInactive('') : getEmployeeList(activeCategory);
             })
             .catch((error) => {
                 setLoading(false);
