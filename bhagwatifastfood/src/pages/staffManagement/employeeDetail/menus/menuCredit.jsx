@@ -55,6 +55,13 @@ function MenuCredit(props) {
                     }}>
                     Delete
                 </MenuItem>
+                <MenuItem key={'view'}
+                    onClick={() => {
+                        handleClose();
+                        props.handleOpenModelCalculationCredit(props.data.cafId, props.data.creditAmount, props.data.creditType)
+                    }}>
+                    View Calculation
+                </MenuItem>
                 {/* <MenuItem key={'Edit'}
                     onClick={() => {
                         handleClose();

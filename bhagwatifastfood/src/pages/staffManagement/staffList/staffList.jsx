@@ -22,6 +22,10 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { useNavigate } from "react-router-dom";
+import CloseIcon from '@mui/icons-material/Close';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import Popover from '@mui/material/Popover';
+import SearchIcon from '@mui/icons-material/Search';
 
 const styleStockIn = {
     position: 'absolute',
@@ -38,13 +42,41 @@ const styleStockIn = {
     borderRadius: '10px'
 };
 function StaffList() {
+    const monthIndex = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+    const monthIndexInt = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
+    const monthValue = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ]
+    const yearList = ["2020", "2021", "2022", "2023", "2024", "2025", "2026", "2027", "2028", "2029", "2030",
+        "2031", "2032", "2033", "2034", "2035", "2036", "2037", "2038", "2039", "2040",
+        "2041", "2042", "2043", "2044", "2045", "2046", "2047", "2048", "2049", "2050",
+        "2051", "2052", "2053", "2054", "2055", "2056", "2057", "2058", "2059", "2060",
+        "2061", "2062", "2063", "2064", "2065", "2066", "2067", "2068", "2069", "2070"
+    ]
+    const [state, setState] = useState(
+        {
+            startMonth: new Date().getMonth(),
+            startYear: new Date().getFullYear(),
+            endMonth: new Date().getMonth(),
+            endYear: new Date().getFullYear()
+        }
+    );
+    const [filter, setFilter] = React.useState(false);
     const [category, setCategory] = useState('');
+    const [tab, setTab] = React.useState(1);
+    const [searchWord, setSearchWord] = React.useState();
     const [isInActive, setIsInActive] = useState('');
-    const [open, setOpen] = React.useState(false);
+    const [openModal, setOpen] = React.useState(false);
     const [openAddLeave, setOpenAddLeave] = React.useState(false);
     const [activeCategory, setActiveCategory] = useState('');
     const [employeeList, setEmployeeList] = useState('');
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const [countData, setCountData] = React.useState();
+    const [dataSearch, setDataSearch] = React.useState();
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const open = Boolean(anchorEl);
+    const ids = open ? 'simple-popover' : undefined;
     const config = {
         headers: {
             "Content-Type": "application/json",
@@ -89,7 +121,7 @@ function StaffList() {
         'amountType',
         'amountDate',
     ]);
-    const handleClose = () => {
+    const handleCloseModal = () => {
         setFormData({
             employeeId: '',
             payAmount: '',
@@ -138,8 +170,8 @@ function StaffList() {
         setAddLeaveFormData((perv) => ({
             ...perv,
             employeeId: row.employeeId,
-            availableLeave: row.totalMaxLeave - row.totalLeave,
-            totalMaxLeave: row.totalMaxLeave,
+            availableLeave: row.availableLeave,
+            maxLeave: row.maxLeave,
             nickName: row.nickName,
         }))
         setOpenAddLeave(true);
@@ -158,9 +190,14 @@ function StaffList() {
         }))
     };
     const deleteData = async (id) => {
-        await axios.delete(`${BACKEND_BASE_URL}inventoryrouter/removeSupplierDetails?supplierId=${id}`, config)
+        setLoading(true);
+        await axios.delete(`${BACKEND_BASE_URL}staffrouter/removeEmployeeDetails?employeeId=${id}`, config)
             .then((res) => {
-                // getData();
+                setLoading(false);
+                setSuccess(true);
+                getEmployeeListWithoutTab();
+                getCategory()
+                filter ? getCountDataByFilter() : getCountData()
             })
             .catch((error) => {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
@@ -168,17 +205,24 @@ function StaffList() {
     }
     const handleDeleteEmployee = (id) => {
         if (window.prompt("Are you sure you want to delete Employee?") == 1234) {
-            // deleteData(id);
-            alert('heyy')
+            deleteData(id);
+            // alert('heyy')
         }
     }
+    const handleClose = () => {
+        setAnchorEl(null);
+    };
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
     const addPayment = async () => {
         setLoading(true);
         await axios.post(`${BACKEND_BASE_URL}staffrouter/addAmountOfSFA`, formData, config)
             .then((res) => {
                 setLoading(false);
                 setSuccess(true);
-                handleClose();
+                handleCloseModal();
+                setSearchWord('');
                 setTimeout(() => {
                     getEmployeeList(activeCategory);
                 }, 50)
@@ -196,6 +240,7 @@ function StaffList() {
                 setLoading(false);
                 setSuccess(true);
                 handleCloseAddLeave();
+                setSearchWord('');
                 getEmployeeList(activeCategory);
             })
             .catch((error) => {
@@ -264,6 +309,67 @@ function StaffList() {
     }
 
 
+    const getCountData = async (id) => {
+        await axios.get(filter ? `${BACKEND_BASE_URL}staffrouter/getEmployeeStatisticsByCategoryId?categoryId=${id}&startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}&employeeStatus=1`
+            : `${BACKEND_BASE_URL}staffrouter/getEmployeeStatisticsByCategoryId?categoryId=${id}&startDate=${''}&endDate=${''}&employeeStatus=1`, config)
+            .then((res) => {
+                setCountData(res.data);
+            })
+            .catch((error) => {
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+            })
+    }
+    const getCountDataByFilter = async (id, filter) => {
+        await axios.get(filter ? `${BACKEND_BASE_URL}staffrouter/getEmployeeStatisticsByCategoryId?categoryId=${id}&startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}&employeeStatus=1`
+            : `${BACKEND_BASE_URL}staffrouter/getEmployeeStatisticsByCategoryId?categoryId=${id}&startDate=${''}&endDate=${''}&employeeStatus=1`, config)
+            .then((res) => {
+                setCountData(res.data);
+            })
+            .catch((error) => {
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+            })
+    }
+    const getCountDataInactive = async () => {
+        await axios.get(filter ? `${BACKEND_BASE_URL}staffrouter/getEmployeeStatisticsByCategoryId?categoryId=${''}&startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}&employeeStatus=0`
+            : `${BACKEND_BASE_URL}staffrouter/getEmployeeStatisticsByCategoryId?categoryId=${''}&startDate=${''}&endDate=${''}&employeeStatus=0`, config)
+            .then((res) => {
+                setCountData(res.data);
+            })
+            .catch((error) => {
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+            })
+    }
+    const getCountDataInactiveByFilter = async (filter) => {
+        await axios.get(filter ? `${BACKEND_BASE_URL}staffrouter/getEmployeeStatisticsByCategoryId?categoryId=${''}&startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}&employeeStatus=0`
+            : `${BACKEND_BASE_URL}staffrouter/getEmployeeStatisticsByCategoryId?categoryId=${''}&startDate=${''}&endDate=${''}&employeeStatus=0`, config)
+            .then((res) => {
+                setCountData(res.data);
+            })
+            .catch((error) => {
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+            })
+    }
+    const onChangeMonthFilter = (e) => {
+        if (e.target.name == 'startYear') {
+            setState((prevState) => ({
+                ...prevState,
+                [e.target.name]: e.target.value,
+                endYear: e.target.value,
+            }))
+        } else if (e.target.name == 'startMonth') {
+            setState((prevState) => ({
+                ...prevState,
+                [e.target.name]: e.target.value,
+                endMonth: e.target.value
+            }))
+        }
+        else {
+            setState((prevState) => ({
+                ...prevState,
+                [e.target.name]: e.target.value,
+            }))
+        }
+    }
     const submitLeave = () => {
         if (loading || success) {
 
@@ -316,7 +422,27 @@ function StaffList() {
     }
 
     const getEmployeeList = async (tab) => {
-        await axios.get(`${BACKEND_BASE_URL}staffrouter/getEmployeeData?categoryId=${tab}`, config)
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getEmployeeData?categoryId=${tab}&employeeStatus=1`, config)
+            .then((res) => {
+                setEmployeeList(res.data);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getEmployeeListInactive = async (tab) => {
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getEmployeeData?categoryId=${tab}&employeeStatus=0`, config)
+            .then((res) => {
+                // setTimeout(() => {
+                setEmployeeList(res.data);
+                // },50)
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getEmployeeListWithoutTab = async () => {
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getEmployeeData?categoryId=${activeCategory}`, config)
             .then((res) => {
                 setEmployeeList(res.data);
             })
@@ -336,7 +462,7 @@ function StaffList() {
             {
                 type: 'success',
                 toastId: 'success',
-                position: "bottom-right",
+                position: "top-right",
                 toastId: 'error',
                 autoClose: 3000,
                 hideProgressBar: false,
@@ -368,15 +494,43 @@ function StaffList() {
         setLoading(false)
         setError(false);
     }
+    function removeDuplicatesById(arr) {
+        const seenIds = new Set();
+        return arr.filter(item => {
+            if (seenIds.has(item.employeeId)) {
+                return false; // This object has a duplicate id, so remove it
+            } else {
+                seenIds.add(item.employeeId);
+                return true; // This is the first occurrence of this id, so keep it
+            }
+        });
+    }
+    function combineArrays(arr1, arr2) {
+        return arr1.concat(arr2);
+    }
+    const onSearchChange = (e) => {
+        setSearchWord(e.target.value);
+        const filteredDataByName = employeeList.filter((item) => {
+            return item.employeeName.toLowerCase().includes(e.target.value.toLowerCase())
+        });
+        const filteredDataByNickName = employeeList.filter((item) => {
+            return item.nickName.toLowerCase().includes(e.target.value.toLowerCase())
+        })
+        const filteredData = combineArrays(filteredDataByName, filteredDataByNickName);
+        const cleanedData = removeDuplicatesById(filteredData)
+        setDataSearch(cleanedData);
+        console.log("search", filteredData, cleanedData);
+    }
 
     useEffect(() => {
         console.log('>>>LLL')
         getEmployeeList('');
         getCategory();
+        getCountData('');
     }, [])
-    if (!employeeList) {
-        return null;
-    }
+    // if (!employeeList) {
+    //     return null;
+    // }
     return (
         <div className='mainBody flex gap-4 pr-4 pl-4'>
             <div className='categoryListContainer'>
@@ -385,13 +539,13 @@ function StaffList() {
                     <hr className="hr"></hr>
                 </div>
                 <div className='categoryListWrp'>
-                    <div className={activeCategory === '' ? 'active' : 'navLink'} onClick={() => { setActiveCategory(''); getEmployeeList('') }}>
+                    {/* <div className={activeCategory === '' ? 'active' : 'navLink'} onClick={() => { setActiveCategory(''); getEmployeeList('') }}>
                         All
-                    </div>
+                    </div> */}
                     {
                         category ? category.map((data, index) => (
-                            <div key={data.staffCategoryId} className={activeCategory === data.staffCategoryId ? 'active' : 'navLink'} onClick={() => { setActiveCategory(data.staffCategoryId); getEmployeeList(data.staffCategoryId) }}>
-                                {data.staffCategoryName}
+                            <div key={data.staffCategoryId} className={`${activeCategory === data.staffCategoryId ? 'active' : 'navLink'} flex justify-between pl-2`} onClick={() => { setSearchWord(''); setEmployeeList(); setActiveCategory(data.staffCategoryId); index == (category.length - 1) ? getCountDataInactive() : getCountData(data.staffCategoryId); index == (category.length - 1) ? getEmployeeListInactive('') : getEmployeeList(data.staffCategoryId) }}>
+                                {data.staffCategoryName} &nbsp;<div className={'countOfEmployee pr-2'}> &nbsp; {data.numberOfEmployee}</div>
                             </div>
                         )) : <></>
                     }
@@ -399,35 +553,301 @@ function StaffList() {
             </div>
             <div className='employeeListContainer'>
                 <div className='searchBarAndCardWrp'>
-                    <div className='searchBarWrp'>
+                    {/* <div className='searchBarWrp'>
 
-                    </div>
-                    <div className='grid grid-cols-4 gap-6'>
+                    </div> */}
+                    {/* <div className='grid grid-cols-4 gap-6'>
                         <CountCard color={'black'} count={0} desc={'Total Purchase'} productDetail={true} unitDesc={'gm'} />
                         <CountCard color={'black'} count={0} desc={'Total Purchase'} productDetail={true} unitDesc={'gm'} />
                         <CountCard color={'black'} count={0} desc={'Total Purchase'} productDetail={true} unitDesc={'gm'} />
                         <CountCard color={'black'} count={0} desc={'Total Purchase'} productDetail={true} unitDesc={'gm'} />
+                    </div> */}
+                    <div className='productTableSubContainer'>
+                        <div className='grid grid-cols-12 pl-6 gap-3 h-full'>
+                            <div className={`flex col-span-2 justify-center ${tab === 1 || tab === '1' ? 'tabDebit' : 'productTab'}`} onClick={() => {
+                                setTab(1);
+                                getEmployeeListWithoutTab();
+                                setState({
+                                    startMonth: new Date().getMonth(),
+                                    startYear: new Date().getFullYear(),
+                                    endMonth: new Date().getMonth(),
+                                    endYear: new Date().getFullYear()
+                                })
+                                setFilter(false)
+                                // setPageLeaves(0); setRowsPerPageLeaves(5);
+                                // setPage(0); filter ? getStockInDataByTabByFilter('debit') : getStockInDataByTab('debit'); setRowsPerPage(5);
+                            }}>
+                                <div className='statusTabtext'>Employes</div>
+                            </div>
+                            <div className={`flex col-span-2 justify-center ${tab === 2 || tab === '2' ? 'tabCash' : 'productTab'}`} onClick={() => {
+                                setTab(2);
+                                // activeCategory == 9999 ? getCountDataInactive() : getCountData(activeCategory);
+                                // filter ? getHoliDataByFilter() : getHolidayData();
+                                // setPageLeaves(0); setRowsPerPageLeaves(5);
+                                // setPage(0); filter ? getStockInDataByTabByFilter('cash') : getStockInDataByTab('cash'); setRowsPerPage(5);
+                            }}>
+                                <div className='statusTabtext'>Statics</div>
+                            </div>
+                            {
+                                (tab === 1 || tab === '1') &&
+                                <div className='col-span-3 col-start-6 flex pr-4'>
+                                    <TextField
+                                        onChange={onSearchChange}
+                                        value={searchWord}
+                                        name="searchWord"
+                                        disabled={employeeList && employeeList.length == 0}
+                                        id="standard-basic"
+                                        variant="standard"
+                                        label="Search"
+                                        InputProps={{
+                                            endAdornment: <InputAdornment position="end"><SearchIcon /></InputAdornment>,
+                                            style: { fontSize: 14 }
+                                        }}
+                                        InputLabelProps={{ style: { fontSize: 14 } }}
+                                        fullWidth
+                                    />
+                                </div>
+                            }
+                            {
+                                (tab === 2 || tab === '2') &&
+                                <div className='col-span-6 col-start-7 flex justify-end pr-4'>
+                                    <div className='dateRange text-center self-center' aria-describedby={ids} onClick={handleClick}>
+                                        <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state.startMonth && filter ? '( ' + monthValue[state.startMonth] + ' / ' + state.startYear + ' )' : 'Select Date')} -- {(state.endMonth && filter ? '( ' + monthValue[state.endMonth] + ' / ' + state.endYear + ' )' : 'Select Date')}
+                                    </div>
+                                    <div className='resetBtnWrap col-span-3 self-center'>
+                                        <button
+                                            className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`}
+                                            onClick={() => {
+                                                setFilter(false);
+                                                activeCategory == 9999 ? getCountDataInactiveByFilter(false) : getCountData(activeCategory, false)
+                                                setState({
+                                                    startMonth: new Date().getMonth(),
+                                                    startYear: new Date().getFullYear(),
+                                                    endMonth: new Date().getMonth(),
+                                                    endYear: new Date().getFullYear()
+                                                })
+                                            }}><CloseIcon /></button>
+                                    </div>
+                                    <Popover
+                                        id={ids}
+                                        open={open}
+                                        style={{ zIndex: 10000, borderRadius: '10px', boxShadow: 'rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem' }}
+                                        anchorEl={anchorEl}
+                                        onClose={handleClose}
+                                        anchorOrigin={{
+                                            vertical: 'bottom',
+                                            horizontal: 'right',
+                                        }}
+                                    >
+                                        <Box sx={{ bgcolor: 'background.paper', padding: '20px', width: '600px', height: '175px', borderRadius: '10px', paddingTop: '30px' }}>
+                                            {/* <DateRangePicker
+                                                        ranges={state}
+                                                        onChange={item => { setState([item.selection]); console.log([item.selection]) }}
+                                                        direction="horizontal"
+                                                        months={2}
+                                                        showSelectionPreview={true}
+                                                        moveRangeOnFirstSelection={false}
+                                                    /> */}
+                                            <div className='mounthRangeSelect grid grid-cols-12 gap-6'>
+                                                <div className="col-span-3">
+                                                    <FormControl style={{ minWidth: '100%' }}>
+                                                        <InputLabel id="demo-simple-select-label">Start Month</InputLabel>
+                                                        <Select
+                                                            // disabled={isEdit}
+                                                            labelId="demo-simple-select-label"
+                                                            id="demo-simple-select"
+                                                            value={state.startMonth}
+                                                            name="startMonth"
+                                                            label="Start Month"
+                                                            onChange={onChangeMonthFilter}
+                                                            MenuProps={{
+                                                                style: { zIndex: 35001 }
+                                                            }}
+                                                        >
+                                                            {
+                                                                monthValue.map((data, index) => (
+                                                                    <MenuItem key={data} value={index}>{data}</MenuItem>
+                                                                ))
+                                                            }
+                                                        </Select>
+                                                    </FormControl>
+                                                </div>
+                                                <div className="col-span-3">
+                                                    <FormControl style={{ minWidth: '100%' }}>
+                                                        <InputLabel id="demo-simple-select-label">Start Year</InputLabel>
+                                                        <Select
+                                                            // disabled={isEdit}
+                                                            labelId="demo-simple-select-label"
+                                                            id="demo-simple-select"
+                                                            value={state.startYear}
+                                                            name="startYear"
+                                                            label="Start Year"
+                                                            onChange={onChangeMonthFilter}
+                                                            MenuProps={{
+                                                                style: { zIndex: 35001 }
+                                                            }}
+                                                        >
+                                                            {
+                                                                yearList.map((data, index) => (
+                                                                    <MenuItem key={data} value={data}>{data}</MenuItem>
+                                                                ))
+                                                            }
+                                                        </Select>
+                                                    </FormControl>
+                                                </div>
+                                                <div className="col-span-3">
+                                                    <FormControl style={{ minWidth: '100%' }}>
+                                                        <InputLabel id="demo-simple-select-label">End Month</InputLabel>
+                                                        <Select
+                                                            // disabled={isEdit}
+                                                            labelId="demo-simple-select-label"
+                                                            id="demo-simple-select"
+                                                            value={state.endMonth}
+                                                            name="endMonth"
+                                                            label="End Month"
+                                                            onChange={onChangeMonthFilter}
+                                                            MenuProps={{
+                                                                style: { zIndex: 35001 }
+                                                            }}
+                                                        >
+                                                            {
+                                                                monthIndexInt.map((data, index) => (
+                                                                    state.endYear == state.startYear ? data >= state.startMonth ? <MenuItem key={data} value={data}>{monthValue[data]}</MenuItem> : null : <MenuItem key={data} value={data}>{monthValue[data]}</MenuItem>
+                                                                ))
+                                                            }
+                                                        </Select>
+                                                    </FormControl>
+                                                </div>
+                                                <div className="col-span-3">
+                                                    <FormControl style={{ minWidth: '100%' }}>
+                                                        <InputLabel id="demo-simple-select-label">End Year</InputLabel>
+                                                        <Select
+                                                            // disabled={isEdit}
+                                                            labelId="demo-simple-select-label"
+                                                            id="demo-simple-select"
+                                                            value={state.endYear}
+                                                            name="endYear"
+                                                            label="End Year"
+                                                            onChange={onChangeMonthFilter}
+                                                            MenuProps={{
+                                                                style: { zIndex: 35001 }
+                                                            }}
+                                                        >
+                                                            {
+
+                                                                yearList.map((data, index) => (
+                                                                    data >= state.startYear ? <MenuItem key={data} value={data}>{data}</MenuItem> : null
+                                                                ))
+                                                            }
+                                                        </Select>
+                                                    </FormControl>
+                                                </div>
+                                            </div>
+                                            <div className='mt-8 grid gap-4 grid-cols-12'>
+                                                <div className='col-span-3 col-start-7'>
+                                                    <button className='stockInBtn' onClick={() => {
+                                                        setFilter(true)
+                                                        handleClose();
+                                                        activeCategory == 9999 ? getCountDataInactiveByFilter(true) : getCountDataByFilter(activeCategory, true)
+                                                        // getLeaveDataByFilter()
+                                                        // setFilter(true); handleClose(); getStatisticsByFilter(); setTabTable(''); setPage(0); setRowsPerPage(5); getStockInDataByTabByFilter(''); getProductCountByFilter();
+                                                    }}>Apply</button>
+                                                </div>
+                                                <div className='col-span-3'>
+                                                    <button className='stockOutBtn' onClick={handleClose}>cancle</button>
+                                                </div>
+                                            </div>
+                                        </Box>
+                                    </Popover>
+                                </div>
+                            }
+                            {
+                                (tab === 1 || tab === '1') &&
+                                <div className='col-span-2 col-start-11 flex justify-end pr-4'>
+                                    <button className='addSalary self-center'
+                                        onClick={() => navigate('/staff/addStaff')}
+                                    >Add Employee</button>
+                                </div>
+                            }
+
+                        </div>
                     </div>
                 </div>
                 <div className='employeeListWrp mt-6 pb-6'>
-                    <div className='grid grid-cols-2 gap-6'>
-                        {
-                            employeeList ? employeeList.map((employeeData, index) => (
-                                <EmployeeCard handleActiveInactive={handleActiveInactive} formDataErrorFeild={formDataErrorFeild} getEmployeeList={getEmployeeList} setLoading={setLoading} loading={loading} activeCategory={activeCategory} setSuccess={setSuccess} success={success} handleClose={handleClose} formData={formData} formDataError={formDataError} setFormDataError={setFormDataError} onChange={onChange} setFormData={setFormData} switch={employeeData.employeeStatus} setOpen={setOpen} setError={setError} index={index} data={employeeData} handleOpen={handleOpen} handleOpenAddLeave={handleOpenAddLeave} handleDeleteEmployee={handleDeleteEmployee} handleEditEmployee={handleEditEmployee} />
-                            ))
-                                :
-                                <div className='grid mt-24 col-span-5 content-center'>
-                                    <div className='text-center noDataFoundText'>
-                                        {error ? error : 'No Data Found'}
+                    {
+                        (tab === 1 || tab === '1') &&
+                        <div className='grid grid-cols-2 gap-6'>
+                            {searchWord && searchWord.length > 0 ?
+                                dataSearch && dataSearch.length > 0 ? dataSearch.map((employeeData, index) => (
+                                    <EmployeeCard handleActiveInactive={handleActiveInactive} getEmployeeListInactive={getEmployeeListInactive} getCategory={getCategory} formDataErrorFeild={formDataErrorFeild} getEmployeeList={getEmployeeList} setLoading={setLoading} loading={loading} activeCategory={activeCategory} setSuccess={setSuccess} success={success} handleClose={handleCloseModal} formData={formData} formDataError={formDataError} setFormDataError={setFormDataError} onChange={onChange} setFormData={setFormData} switch={employeeData.employeeStatus} setOpen={setOpen} setError={setError} index={index} data={employeeData} handleOpen={handleOpen} handleOpenAddLeave={handleOpenAddLeave} handleDeleteEmployee={handleDeleteEmployee} handleEditEmployee={handleEditEmployee} />
+                                ))
+                                    :
+                                    <div className='grid mt-24 col-span-5 content-center'>
+                                        <div className='text-center noDataFoundText'>
+                                            {error ? error : 'No Data Found'}
+                                        </div>
                                     </div>
+                                :
+                                employeeList && employeeList.length > 0 ? employeeList.map((employeeData, index) => (
+                                    <EmployeeCard handleActiveInactive={handleActiveInactive} getEmployeeListInactive={getEmployeeListInactive} getCategory={getCategory} formDataErrorFeild={formDataErrorFeild} getEmployeeList={getEmployeeList} setLoading={setLoading} loading={loading} activeCategory={activeCategory} setSuccess={setSuccess} success={success} handleClose={handleCloseModal} formData={formData} formDataError={formDataError} setFormDataError={setFormDataError} onChange={onChange} setFormData={setFormData} switch={employeeData.employeeStatus} setOpen={setOpen} setError={setError} index={index} data={employeeData} handleOpen={handleOpen} handleOpenAddLeave={handleOpenAddLeave} handleDeleteEmployee={handleDeleteEmployee} handleEditEmployee={handleEditEmployee} />
+                                ))
+                                    :
+                                    <div className='grid mt-24 col-span-5 content-center'>
+                                        <div className='text-center noDataFoundText'>
+                                            {error ? error : 'No Data Found'}
+                                        </div>
+                                    </div>
+                            }
+                        </div>
+                    }
+                    {(tab === 2 || tab === '2') &&
+                        <div className='grid gap-4 mt-12' >
+                            <div className='grid grid-cols-12 gap-6'>
+                                <div className='col-span-4'>
+                                    <CountCard color={'black'} count={countData && countData.totalSalary ? countData.totalSalary : 0} desc={'Total Salary'} productDetail={true} unitDesc={0} />
                                 </div>
-                        }
-                    </div>
+                                <div className='col-span-4'>
+                                    <CountCard color={'black'} count={countData && countData.totalDueSalary ? countData.totalDueSalary : 0} desc={'Total Due Salary'} productDetail={true} unitDesc={0} />
+                                </div>
+                            </div>
+                            <div className='grid grid-cols-12 gap-6'>
+                                <div className='col-span-4'>
+                                    <CountCard color={'black'} count={countData && countData.remainSalary ? countData.remainSalary : 0} desc={'Remaining Salary'} productDetail={true} unitDesc={0} />
+                                </div>
+                                <div className='col-span-4'>
+                                    <CountCard color={'pink'} count={countData && countData.remainAdvance ? countData.remainAdvance : 0} desc={'Remaining Advance'} productDetail={true} unitDesc={0} />
+                                </div>
+                                <div className='col-span-4'>
+                                    <CountCard color={'blue'} count={countData && countData.remainFine ? countData.remainFine : 0} desc={'Remaining Fine'} productDetail={true} unitDesc={0} />
+                                </div>
+                            </div>
+                            <div className='grid grid-cols-12 gap-6'>
+                                <div className='col-span-4'>
+                                    <CountCard color={'black'} count={countData && countData.advanceAmount ? countData.advanceAmount : 0} desc={'Total Advance'} productDetail={true} unitDesc={0} />
+                                </div>
+                                <div className='col-span-4'>
+                                    <CountCard color={'pink'} count={countData && countData.fineAmount ? countData.fineAmount : 0} desc={'Total Fine'} productDetail={true} unitDesc={0} />
+                                </div>
+                            </div>
+                            <div className='grid grid-cols-12 gap-6'>
+                                <div className='col-span-4'>
+                                    <CountCard color={'black'} count={countData && countData.totalConsiderFine ? countData.totalConsiderFine : 0} desc={'Considered Fine'} productDetail={true} unitDesc={0} />
+                                </div>
+                                <div className='col-span-4'>
+                                    <CountCard color={'pink'} count={countData && countData.totalIgnoreFine ? countData.totalIgnoreFine : 0} desc={'Ignored Fine'} productDetail={true} unitDesc={0} />
+                                </div>
+                                <div className='col-span-4'>
+                                    <CountCard color={'pink'} count={countData && countData.bonusAmount ? countData.bonusAmount : 0} desc={'Bonus'} productDetail={true} unitDesc={0} />
+                                </div>
+                            </div>
+                        </div>
+                    }
+
                 </div>
             </div>
             <Modal
-                open={open}
-                onClose={handleClose}
+                open={openModal}
+                onClose={handleCloseModal}
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
             >
@@ -437,7 +857,7 @@ function StaffList() {
                             <span className='makePaymentHeader'>Make Payment to : </span><span className='makePaymentName'>{formData.nickName}</span>
                         </Typography>
                         <Typography id="modal-modal" variant="h6" component="h2">
-                            <span className='makePaymentHeader'>{'Payment Due :'}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{formData.totalSalary}</span>
+                            <span className='makePaymentHeader'>{'Payment Due :'}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{formData.paymentDue}</span>
                         </Typography>
                     </div>
                     <div className='flex justify-between mt-3 mb-2'>
@@ -555,7 +975,7 @@ function StaffList() {
                         </div>
                         <div className='col-span-3'>
                             <button className='addCategoryCancleBtn' onClick={() => {
-                                handleClose();
+                                handleCloseModal();
                             }}>Cancle</button>
                         </div>
                     </div>
@@ -573,7 +993,7 @@ function StaffList() {
                             <span className='makePaymentHeader'> Add Leave for : </span><span className='makePaymentName'>{addLeaveFormData.nickName}</span>
                         </Typography>
                         <Typography id="modal-modal" variant="h6" component="h2">
-                            <span className='makePaymentHeader'>{`Available Leave(${'Max leave:' + addLeaveFormData.totalMaxLeave}) :`}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{addLeaveFormData.availableLeave}</span>
+                            <span className='makePaymentHeader'>{`Available Leave(${'Max leave:' + addLeaveFormData.maxLeave}) :`}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{addLeaveFormData.availableLeave}</span>
                         </Typography>
                     </div>
                     <div className='mt-6 grid grid-cols-12 gap-6'>

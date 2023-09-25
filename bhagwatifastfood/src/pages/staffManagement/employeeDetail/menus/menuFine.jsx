@@ -12,7 +12,12 @@ function MenuFine(props) {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
+        if (props.data.fineAmount == props.data.remainFineAmount) {
+            setAnchorEl(event.currentTarget);
+        }
+        else {
+            props.setError('you can not edit or delete Current row')
+        }
     };
     const navigate = useNavigate();
     const handleClose = () => {
@@ -48,40 +53,43 @@ function MenuFine(props) {
                     },
                 }}
             >
-                {props.data.fineAmount == props.data.remainFineAmount &&
-                    <MenuItem key={'delete'}
-                        onClick={() => {
-                            handleClose();
-                            props.handleDeleteFine(props.data.fineId)
-                        }}>
-                        Delete
-                    </MenuItem>
-                }
-                <MenuItem key={'Edit'}
-                    onClick={() => {
-                        handleClose();
-                        props.handleReduceFine(props.data.fineId, props.data.remainFineAmount)
-                    }}>
-                    Reduce Fine Amount
-                </MenuItem>
-                {
-                    props.data.fineStatus ?
+                {props.data.fineAmount == props.data.remainFineAmount ?
+                    <>
+                        <MenuItem key={'delete'}
+                            onClick={() => {
+                                handleClose();
+                                props.handleDeleteFine(props.data.fineId)
+                            }}>
+                            Delete
+                        </MenuItem>
 
-                        <MenuItem key={'ignore'}
+                        <MenuItem key={'Edit'}
                             onClick={() => {
                                 handleClose();
-                                props.markAsIgnore(props.data.fineId)
+                                props.handleReduceFine(props.data.fineId, props.data.remainFineAmount)
                             }}>
-                            Ignore
+                            Reduce Fine Amount
                         </MenuItem>
-                        :
-                        <MenuItem key={'consider'}
-                            onClick={() => {
-                                handleClose();
-                                props.markAsConsider(props.data.fineId)
-                            }}>
-                            Consider
-                        </MenuItem>
+
+                        {props.data.fineStatus ?
+                            <MenuItem key={'ignore'}
+                                onClick={() => {
+                                    handleClose();
+                                    props.markAsIgnore(props.data.fineId)
+                                }}>
+                                Ignore
+                            </MenuItem>
+                            :
+                            <MenuItem key={'consider'}
+                                onClick={() => {
+                                    handleClose();
+                                    props.markAsConsider(props.data.fineId)
+                                }}>
+                                Consider
+                            </MenuItem>
+                        }
+                    </> :
+                    <></>
                 }
             </Menu>
         </div >

@@ -84,6 +84,23 @@ const viewCutTable = {
     paddingBottom: '10px',
     borderRadius: '10px'
 };
+const viewCutTableCredit = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '50%',
+    // height: '60%',
+    maxHeight: '60%',
+    overflow: 'scroll',
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    paddingLeft: '15px',
+    paddingRight: '15px',
+    paddingTop: '15px',
+    paddingBottom: '10px',
+    borderRadius: '10px'
+};
 function EmployeeDetails() {
     const monthIndex = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
     const monthIndexInt = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
@@ -114,7 +131,9 @@ function EmployeeDetails() {
     const [openAddLeave, setOpenAddLeave] = React.useState(false);
     const [openModal, setOpenModal] = React.useState(false);
     const [openModalCalculation, setOpenModalCalculation] = React.useState(false);
+    const [openModalCalculationCredit, setOpenModalCalculationCredit] = React.useState(false);
     const [calculationData, setCalculationData] = React.useState();
+    const [calculationDataCredit, setCalculationDataCredit] = React.useState();
     const [openModalEditInActiveDate, setOpenModalEditInActiveDate] = React.useState(false);
     const [openModalEditFine, setOpenModalEditFine] = React.useState(false);
     const [editLeave, setEditLeave] = React.useState(false);
@@ -225,6 +244,15 @@ function EmployeeDetails() {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
+    const getCalculationDataCredit = async (id) => {
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getCutCreditDataById?cafId=${id}`, config)
+            .then((res) => {
+                setCalculationDataCredit(res.data);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
     const handlePaymentData = (date) => {
         setFormData((prevState) => ({
             ...prevState,
@@ -313,7 +341,9 @@ function EmployeeDetails() {
                 setLoading(false);
                 setSuccess(true);
                 handleCloseModel();
+
                 setTimeout(() => {
+                    getCountData();
                     getData()
                 }, 50)
 
@@ -324,30 +354,61 @@ function EmployeeDetails() {
             })
     }
     const makeInActive = async (mode) => {
-        let dataT = formData;
-        console.log('LLKKII', dataT, formData)
-        if (loading || success) {
+        if (window.confirm("Are you sure you want to Inactive this employee")) {
+            let dataT = formData;
+            if (loading || success) {
 
-        } else {
-            if (mode) {
-                const isValidate = formDataErrorFeild.filter(element => {
-                    if (formDataError[element] === true || formData[element] === '') {
-                        setFormDataError((perv) => ({
-                            ...perv,
-                            [element]: true
-                        }))
-                        return element;
+            } else {
+                if (mode) {
+                    const isValidate = formDataErrorFeild.filter(element => {
+                        if (formDataError[element] === true || formData[element] === '') {
+                            setFormDataError((perv) => ({
+                                ...perv,
+                                [element]: true
+                            }))
+                            return element;
+                        }
+                    })
+                    console.log('????', isValidate);
+                    if (isValidate.length > 0) {
+                        setError(
+                            "Please Fill All Field"
+                        )
+                    } else {
+                        dataT = {
+                            ...dataT,
+                            payStatus: true,
+                            employeeStatus: false
+                        }
+                        setLoading(true);
+                        await axios.post(`${BACKEND_BASE_URL}staffrouter/updateEmployeeStatus`, dataT, config)
+                            .then((res) => {
+                                setLoading(false);
+                                setSuccess(true);
+                                setPage(0);
+                                setRowsPerPage(5)
+                                filter ? getMonthlySalaryDataByFilter() : getMonthlySalaryData();
+                                handleCloseModel();
+
+                                setOpenModal(false)
+                                setToggel(false)
+                                setIsToggel(false);
+                                setTimeout(() => {
+                                    getCountData();
+                                    getData()
+                                }, 50)
+
+                            })
+                            .catch((error) => {
+                                setLoading(false);
+                                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+                            })
                     }
-                })
-                console.log('????', isValidate);
-                if (isValidate.length > 0) {
-                    setError(
-                        "Please Fill All Field"
-                    )
-                } else {
+                }
+                else {
                     dataT = {
                         ...dataT,
-                        payStatus: true,
+                        payStatus: false,
                         employeeStatus: false
                     }
                     setLoading(true);
@@ -355,11 +416,16 @@ function EmployeeDetails() {
                         .then((res) => {
                             setLoading(false);
                             setSuccess(true);
-                            handleCloseModel();
+
                             setOpenModal(false)
+                            setPage(0);
+                            setRowsPerPage(5)
+                            filter ? getMonthlySalaryDataByFilter() : getMonthlySalaryData();
                             setToggel(false)
+                            handleCloseModel();
                             setIsToggel(false);
                             setTimeout(() => {
+                                getCountData();
                                 getData()
                             }, 50)
 
@@ -370,31 +436,6 @@ function EmployeeDetails() {
                         })
                 }
             }
-            else {
-                dataT = {
-                    ...dataT,
-                    payStatus: false,
-                    employeeStatus: false
-                }
-                setLoading(true);
-                await axios.post(`${BACKEND_BASE_URL}staffrouter/updateEmployeeStatus`, dataT, config)
-                    .then((res) => {
-                        setLoading(false);
-                        setSuccess(true);
-                        setOpenModal(false)
-                        setToggel(false)
-                        handleCloseModel();
-                        setIsToggel(false);
-                        setTimeout(() => {
-                            getData()
-                        }, 50)
-
-                    })
-                    .catch((error) => {
-                        setLoading(false);
-                        setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
-                    })
-            }
         }
     }
     const addLeave = async () => {
@@ -404,6 +445,7 @@ function EmployeeDetails() {
                 setLoading(false);
                 setSuccess(true);
                 handleCloseAddLeave();
+                getCountData();
                 setAddLeaveFormData({
                     employeeId: '',
                     numLeave: '',
@@ -429,6 +471,7 @@ function EmployeeDetails() {
                 setLoading(false);
                 setSuccess(true);
                 handleCloseAddLeave();
+                getCountData();
                 setPageLeaves(0);
                 setRowsPerPageLeaves(5);
                 setAddLeaveFormData({
@@ -482,6 +525,10 @@ function EmployeeDetails() {
         setEditFormData()
         setOpenModalCalculation(false);
     }
+    const handleCloseModelCalculationCredit = () => {
+        setEditFormData()
+        setOpenModalCalculationCredit(false);
+    }
     const handleOpenModelCalculation = (id, salary, advance, fine) => {
         setEditFormData({
             transactionId: id,
@@ -491,6 +538,15 @@ function EmployeeDetails() {
         })
         getCalculationData(id);
         setOpenModalCalculation(true);
+    }
+    const handleOpenModelCalculationCredit = (id, credit, type) => {
+        setEditFormData({
+            cafId: id,
+            creditAmount: credit,
+            creditType: type,
+        })
+        getCalculationDataCredit(id);
+        setOpenModalCalculationCredit(true);
     }
     const handleCloseModelLeaveEdit = () => {
         setEditFormData()
@@ -519,27 +575,30 @@ function EmployeeDetails() {
             setIsToggel(true);
             handleOpenInactive()
         } else {
-            dataT = {
-                employeeId: data.employeeId,
-                employeeStatus: true,
-                payStatus: false
+            if (window.confirm('Are you sure you want to Active employee ...?')) {
+                dataT = {
+                    employeeId: data.employeeId,
+                    employeeStatus: true,
+                    payStatus: false
+                }
+                setLoading(true);
+                await axios.post(`${BACKEND_BASE_URL}staffrouter/updateEmployeeStatus`, dataT, config)
+                    .then((res) => {
+                        setLoading(false);
+                        setSuccess(true);
+                        setOpenModal(false)
+                        getCountData();
+                        setToggel(true);
+                        setPage(0);
+                        setRowsPerPage(5);
+                        filter ? getMonthlySalaryDataByFilter() : getMonthlySalaryData();
+                        handleCloseModel();
+                    })
+                    .catch((error) => {
+                        setLoading(false);
+                        setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+                    })
             }
-            setLoading(true);
-            await axios.post(`${BACKEND_BASE_URL}staffrouter/updateEmployeeStatus`, dataT, config)
-                .then((res) => {
-                    setLoading(false);
-                    setSuccess(true);
-                    setOpenModal(false)
-                    setToggel(true);
-                    setPage(0);
-                    setRowsPerPage(5);
-                    filter ? getMonthlySalaryDataByFilter() : getMonthlySalaryData();
-                    handleCloseModel();
-                })
-                .catch((error) => {
-                    setLoading(false);
-                    setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
-                })
         }
     }
     const submitLeave = () => {
@@ -578,6 +637,7 @@ function EmployeeDetails() {
                     getData();
                     setPage(0);
                     setRowsPerPage(5);
+                    getCountData();
                     getMonthlySalaryData();
                 })
                 .catch((error) => {
@@ -679,14 +739,14 @@ function EmployeeDetails() {
                 setFormData((perv) => ({
                     ...perv,
                     employeeId: data.employeeId,
-                    nickName: data.nickName,
+                    nickName: data.employeeNickName,
                     paymentDue: data.paymentDue,
                     totalSalary: data.totalSalary + res.data.proratedSalary,
                     advanceAmount: data.advanceAmount,
                     fineAmount: data.fineAmount,
-                    paymentDue: data.paymentDue,
+                    paymentDue: data.paymentDue + res.data.proratedSalary,
                     proratedSalary: res.data.proratedSalary,
-                    dateOfPayment: data.dateOfPayment
+                    dateOfPayment: res.data.dateOfPayment
                 }))
                 setOpenModal(true);
             })
@@ -737,6 +797,23 @@ function EmployeeDetails() {
         // Calculate the last day of the month
         // To do this, set the day to 0 of the next month (which is the last day of the current month)
         const dateNew = new Date(year, month - 1, day);
+
+        return {
+            dateNew,
+        };
+    }
+    function getDatePlusOne(dateString) {
+        console.log('newww', dateString);
+        // Split the input date string into day, month, and year components
+        const [day, month, year] = dateString.split('-').map(Number);
+
+        // Create a Date object for the first day of the month
+
+        // Calculate the last day of the month
+        // To do this, set the day to 0 of the next month (which is the last day of the current month)
+        const oneDayInMillis = 24 * 60 * 60 * 1000;
+        const newDate = new Date(year, month - 1, day);
+        const dateNew = new Date(newDate.getTime() + oneDayInMillis);
 
         return {
             dateNew,
@@ -1070,11 +1147,13 @@ function EmployeeDetails() {
 
 
     const deleteMonthlySalary = async (id) => {
+
         setLoading(true)
         await axios.delete(`${BACKEND_BASE_URL}staffrouter/removeMonthlySalary?monthlySalaryId=${id}`, config)
             .then((res) => {
                 setLoading(false)
                 setSuccess(true)
+                getCountData();
                 setPage(0);
                 setRowsPerPage(5);
                 getMonthlySalaryData();
@@ -1084,8 +1163,15 @@ function EmployeeDetails() {
             })
     }
     const handleDeleteMonthlySalary = (id) => {
-        if (window.confirm("Are you sure you want to delete Monthly Salary?")) {
+        const check = window.prompt('enter password');
+        console.log(">>>>LOG", check)
+        if (!check) {
+
+        }
+        else if (check == 1234) {
             deleteMonthlySalary(id);
+        } else {
+            alert('wrong password')
         }
     }
     const deleteAdvance = async (id) => {
@@ -1094,6 +1180,7 @@ function EmployeeDetails() {
             .then((res) => {
                 setLoading(false)
                 setSuccess(true)
+                getCountData();
                 setPage(0);
                 setRowsPerPage(5);
                 filter ? getAdvanceDataByFilter() : getAdvanceData();
@@ -1114,6 +1201,7 @@ function EmployeeDetails() {
                 setLoading(false)
                 setSuccess(true)
                 setPage(0);
+                getCountData();
                 setRowsPerPage(5);
                 filter ? getFineDataByFilter() : getFineData();
             })
@@ -1133,6 +1221,7 @@ function EmployeeDetails() {
                 setLoading(false)
                 setSuccess(true)
                 setPage(0);
+                getCountData();
                 setRowsPerPage(5);
                 getData()
                 filter ? getCreditDataByFilter() : getCreditData();
@@ -1154,6 +1243,7 @@ function EmployeeDetails() {
                 setSuccess(true)
                 setPage(0);
                 setRowsPerPage(5);
+                getCountData();
                 getData()
                 filter ? getTransactionDataByFilter() : getTransactionData();
             })
@@ -1172,6 +1262,7 @@ function EmployeeDetails() {
             .then((res) => {
                 setLoading(false)
                 setSuccess(true)
+                getCountData();
                 setPageLeaves(0);
                 setRowsPerPageLeaves(5);
                 filter ? getLeaveDataByFilter() : getLeaveData()
@@ -1192,6 +1283,7 @@ function EmployeeDetails() {
                 setLoading(false)
                 setSuccess(true)
                 setPage(0);
+                getCountData();
                 setRowsPerPage(5);
                 filter ? getBonusDataByFilter() : getBonusData();
             })
@@ -1207,17 +1299,17 @@ function EmployeeDetails() {
     const handleEditInactiveDate = (id, date) => {
         console.log('>?date', date)
         setOpenModalEditInActiveDate(true)
-        const { dateNew } = getDateLeave(date)
+        const { dateNew } = getDatePlusOne(date)
         const { startDate, endDate } = getStartAndEndDateOfMonth(date)
         setEditFormData({
             startDate: date,
             monthlySalaryId: id,
-            minDate: startDate,
+            minDate: dateNew,
             maxDate: endDate,
             newDate: dayjs(endDate),
         })
     }
-    const handleEditLeaves = (data, date) => {
+    const handleEditLeaves = (dataT, date) => {
         setEditLeave(true)
         const { startDate, endDate } = getStartAndEndDateOfMonth(date)
         const { dateNew } = getDateLeave(date)
@@ -1227,16 +1319,16 @@ function EmployeeDetails() {
         setAddLeaveFormData((perv) => ({
             ...perv,
             employeeId: id,
-            leaveId: data.leaveId,
+            leaveId: dataT.leaveId,
             minDate: startDate,
             maxDate: endDate,
-            numLeave: data.numLeave,
-            leaveReason: data.leaveReason,
+            numLeave: dataT.numLeave,
+            leaveReason: dataT.leaveReason,
             leaveDate: dateNew,
             maxLeave, maxLeave,
             // availableLeave: data.totalMaxLeave - data.totalLeave,
             // totalMaxLeave: data.totalMaxLeave,
-            nickName: data.nickName,
+            nickName: data.userName,
         }))
         setOpenAddLeave(true);
         // console.log("LeaveDate", editFormData.newLeaveDate)
@@ -1284,6 +1376,7 @@ function EmployeeDetails() {
                 setLoading(false)
                 setSuccess(true)
                 setPage(0);
+                getCountData();
                 setRowsPerPage(5);
                 filter ? getFineDataByFilter() : getFineData()
             })
@@ -1300,6 +1393,7 @@ function EmployeeDetails() {
                 setLoading(false)
                 setSuccess(true)
                 setPage(0);
+                getCountData();
                 setRowsPerPage(5);
                 filter ? getFineDataByFilter() : getFineData()
             })
@@ -1338,7 +1432,9 @@ function EmployeeDetails() {
             .then((res) => {
                 setLoading(false)
                 setSuccess(true)
+                getCountData();
                 setPage(0);
+                getCountData();
                 setRowsPerPage(5);
                 filter ? getFineDataByFilter() : getFineData()
             })
@@ -2236,12 +2332,20 @@ function EmployeeDetails() {
                                             {data.homeAddress}
                                         </div>
                                     </div>
-                                    <div className='grid grid-cols-12 gap-3'>
+                                    <div className='grid grid-cols-12 gap-3 hrLine'>
                                         <div className='col-span-5 suppilerDetailFeildHeader'>
                                             Category:
                                         </div>
                                         <div className='col-span-7 suppilerDetailFeild'>
                                             {data.category}
+                                        </div>
+                                    </div>
+                                    <div className='grid grid-cols-12 gap-3'>
+                                        <div className='col-span-5 suppilerDetailFeildHeader'>
+                                            Per Day Salary
+                                        </div>
+                                        <div className='col-span-7 suppilerDetailFeild'>
+                                            {data.perDaySalary}
                                         </div>
                                     </div>
                                 </div>
@@ -2310,12 +2414,20 @@ function EmployeeDetails() {
                                             {data.bankName}
                                         </div>
                                     </div>
-                                    <div className='grid grid-cols-12 gap-3'>
+                                    <div className='grid grid-cols-12 gap-3 hrLine'>
                                         <div className='col-span-5 suppilerDetailFeildHeader'>
                                             Branch Name:
                                         </div>
                                         <div className='col-span-7 suppilerDetailFeild'>
                                             {data.branchName}
+                                        </div>
+                                    </div>
+                                    <div className='grid grid-cols-12 gap-3'>
+                                        <div className='col-span-5 suppilerDetailFeildHeader'>
+                                            Available Leave:
+                                        </div>
+                                        <div className='col-span-7 suppilerDetailFeild'>
+                                            {data.availableLeave}
                                         </div>
                                     </div>
                                 </div>
@@ -2324,7 +2436,7 @@ function EmployeeDetails() {
                         :
                         tab === 2 || tab === '2' ?
                             <div className='grid gap-4 mt-12' >
-                                <div className='grid grid-cols-4 gap-6 pb-3'>
+                                {/* <div className='grid grid-cols-4 gap-6 pb-3'>
                                     <CountCard color={'black'} count={countData && countData.totalAdvance ? countData.totalAdvance : 0} desc={'Total Advance'} productDetail={true} unitDesc={0} />
                                     <CountCard color={'pink'} count={countData && countData.totalRemainAdvance ? countData.totalRemainAdvance : 0} desc={'Remaining Advance'} productDetail={true} unitDesc={0} />
                                     <CountCard color={'black'} count={countData && countData.totalFine ? countData.totalFine : 0} desc={'Remaining Salary'} productDetail={true} unitDesc={0} />
@@ -2339,6 +2451,58 @@ function EmployeeDetails() {
                                     <CountCard color={'blue'} count={countData && countData.fineCutSum ? countData.fineCutSum : 0} desc={'Fine Cut'} productDetail={true} unitDesc={0} />
                                     <CountCard color={'black'} count={countData && countData.totalCreditAmount ? countData.totalCreditAmount : 0} desc={'Total Credit'} productDetail={true} unitDesc={0} />
                                     <CountCard color={'black'} count={countData && countData.totalBonusAmount ? countData.totalBonusAmount : 0} desc={'Total Bonus'} productDetail={true} unitDesc={0} />
+                                </div> */}
+                                <div className='grid grid-cols-12 gap-6'>
+                                    <div className='col-span-3'>
+                                        <CountCard color={'black'} count={countData && countData.totalAdvance ? countData.totalAdvance : 0} desc={'Total Advance'} productDetail={true} unitDesc={0} />
+                                    </div>
+                                    <div className='col-span-3'>
+                                        <CountCard color={'pink'} count={countData && countData.totalRemainAdvance ? countData.totalRemainAdvance : 0} desc={'Remaining Advance'} productDetail={true} unitDesc={0} />
+                                    </div>
+                                </div>
+                                <div className='grid grid-cols-12 gap-6'>
+                                    <div className='col-span-3'>
+                                        <CountCard color={'black'} count={countData && countData.totalFine ? countData.totalFine : 0} desc={'Remaining Salary'} productDetail={true} unitDesc={0} />
+                                    </div>
+                                    <div className='col-span-3'>
+                                        <CountCard color={'pink'} count={countData && countData.totalRemainAdvance ? countData.totalRemainAdvance : 0} desc={'Remaining Advance'} productDetail={true} unitDesc={0} />
+                                    </div>
+                                    <div className='col-span-3'>
+                                        <CountCard color={'blue'} count={countData && countData.totalRemainFine ? countData.totalRemainFine : 0} desc={'Remaining Fine'} productDetail={true} unitDesc={0} />
+                                    </div>
+                                </div>
+                                <div className='grid grid-cols-12 gap-6'>
+                                    <div className='col-span-3'>
+                                        <CountCard color={'black'} count={countData && countData.totalFine ? countData.totalFine : 0} desc={'Total Fine'} productDetail={true} unitDesc={0} />
+                                    </div>
+                                    <div className='col-span-3'>
+                                        <CountCard color={'pink'} count={countData && countData.totalConsiderFine ? countData.totalConsiderFine : 0} desc={'Considered Fine'} productDetail={true} unitDesc={0} />
+                                    </div>
+                                    <div className='col-span-3'>
+                                        <CountCard color={'blue'} count={countData && countData.totalIgnoreFine ? countData.totalIgnoreFine : 0} desc={'Ignored Fine'} productDetail={true} unitDesc={0} />
+                                    </div>
+                                    <div className='col-span-3'>
+                                        <CountCard color={'blue'} count={countData && countData.totalRemainFine ? countData.totalRemainFine : 0} desc={'Remaining Fine'} productDetail={true} unitDesc={0} />
+                                    </div>
+                                </div>
+                                <div className='grid grid-cols-12 gap-6'>
+                                    <div className='col-span-3'>
+                                        <CountCard color={'black'} count={countData && countData.salaryPaySum ? countData.salaryPaySum : 0} desc={'Salary Paid'} productDetail={true} unitDesc={0} />
+                                    </div>
+                                    <div className='col-span-3'>
+                                        <CountCard color={'pink'} count={countData && countData.advanceCutSum ? countData.advanceCutSum : 0} desc={'Advance Cut'} productDetail={true} unitDesc={0} />
+                                    </div>
+                                    <div className='col-span-3'>
+                                        <CountCard color={'blue'} count={countData && countData.fineCutSum ? countData.fineCutSum : 0} desc={'Fine Cut'} productDetail={true} unitDesc={0} />
+                                    </div>
+                                </div>
+                                <div className='grid grid-cols-12 gap-6'>
+                                    <div className='col-span-3'>
+                                        <CountCard color={'black'} count={countData && countData.totalCreditAmount ? countData.totalCreditAmount : 0} desc={'Total Credit'} productDetail={true} unitDesc={0} />
+                                    </div>
+                                    <div className='col-span-3'>
+                                        <CountCard color={'black'} count={countData && countData.totalBonusAmount ? countData.totalBonusAmount : 0} desc={'Total Bonus'} productDetail={true} unitDesc={0} />
+                                    </div>
                                 </div>
                             </div>
                             :
@@ -2392,7 +2556,7 @@ function EmployeeDetails() {
                                                             <Tooltip title={row.leaveReason} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.leaveReason}</div></TableCell></Tooltip>
                                                             <TableCell align="left" >{row.leaveDate}</TableCell>
                                                             <TableCell align="right">
-                                                                <MenuLeaves data={row} handleDeleteLeave={handleDeleteLeave} handleEditLeaves={handleEditLeaves} />
+                                                                <MenuLeaves data={row} handleDeleteLeave={handleDeleteLeave} handleEditLeaves={handleEditLeaves} setError={setError} />
                                                             </TableCell>
                                                         </TableRow> :
                                                         <TableRow
@@ -2498,7 +2662,7 @@ function EmployeeDetails() {
                     (tabTable === 1 || tabTable === '1') &&
                     <div className='grid grid-cols-12 gap-6'>
                         <div className='col-span-3'>
-                            <CountCard color={'black'} count={countData && countData.totalFine ? countData.totalFine : 0} desc={'Remaining Salary'} productDetail={true} unitDesc={0} />
+                            <CountCard color={'black'} count={countData && countData.remainSalary ? countData.remainSalary : 0} desc={'Remaining Salary'} productDetail={true} unitDesc={0} />
                         </div>
                         <div className='col-span-3'>
                             <CountCard color={'pink'} count={countData && countData.totalRemainAdvance ? countData.totalRemainAdvance : 0} desc={'Remaining Advance'} productDetail={true} unitDesc={0} />
@@ -2506,9 +2670,9 @@ function EmployeeDetails() {
                         <div className='col-span-3'>
                             <CountCard color={'blue'} count={countData && countData.totalRemainFine ? countData.totalRemainFine : 0} desc={'Remaining Fine'} productDetail={true} unitDesc={0} />
                         </div>
-                        {/* <div className='col-span-3'>
-                            <CountCard color={'blue'} count={countData && countData.totalRemainFine ? countData.totalRemainFine : 0} desc={'Present Days'} productDetail={true} unitDesc={0} />
-                        </div> */}
+                        <div className='col-span-3'>
+                            <CountCard color={'blue'} count={data ? data.paymentDue : 0} desc={'Payment Due'} productDetail={true} unitDesc={0} />
+                        </div>
                     </div>
                 }
                 {
@@ -2728,7 +2892,7 @@ function EmployeeDetails() {
                                                         <TableCell align="left" >{row.advanceDate}</TableCell>
                                                         <TableCell align="left" >{row.givenTime}</TableCell>
                                                         <TableCell align="right">
-                                                            <MenuAdvance data={row} handleDeleteAdvance={handleDeleteAdvance} />
+                                                            <MenuAdvance data={row} handleDeleteAdvance={handleDeleteAdvance} setError={setError} />
                                                         </TableCell>
                                                     </TableRow> :
                                                     <TableRow
@@ -2789,12 +2953,12 @@ function EmployeeDetails() {
                                                         <TableCell align="left" >{row.fineAmount}</TableCell>
                                                         <TableCell align="left" >{row.remainFineAmount}</TableCell>
                                                         {console.log(row.reduceFineReson != null)}
-                                                        <Tooltip title={row.reason + `${row.reduceFineReson != null ? ' / ' + row.reduceFineReson : ''}`} placement="top-start" arrow><TableCell align="left" ><div className='fineReducedComment'>{row.reason + `${row.reduceFineReson != null ? ' / ' + row.reduceFineReson : ''}`}</div></TableCell></Tooltip>
+                                                        <Tooltip title={row.Reason} placement="top-start" arrow><TableCell align="left" ><div className='fineReducedComment'>{row.Reason}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.fineStatusName}</TableCell>
                                                         <TableCell align="left" >{row.fineDate}</TableCell>
                                                         <TableCell align="left" >{row.givenTime}</TableCell>
                                                         <TableCell align="right">
-                                                            <MenuFine data={row} handleDeleteFine={handleDeleteFine} markAsIgnore={markAsIgnore} markAsConsider={markAsConsider} handleReduceFine={handleReduceFine} />
+                                                            <MenuFine data={row} handleDeleteFine={handleDeleteFine} markAsIgnore={markAsIgnore} markAsConsider={markAsConsider} setError={setError} handleReduceFine={handleReduceFine} />
                                                         </TableCell>
                                                     </TableRow> :
                                                     <TableRow
@@ -2924,7 +3088,7 @@ function EmployeeDetails() {
                                                         <TableCell align="left" >{row.creditDate}</TableCell>
                                                         <TableCell align="left" >{row.givenTime}</TableCell>
                                                         <TableCell align="right">
-                                                            <MenuCredit data={row} handleDeleteCredit={handleDeleteCredit} />
+                                                            <MenuCredit data={row} handleDeleteCredit={handleDeleteCredit} handleOpenModelCalculationCredit={handleOpenModelCalculationCredit} />
                                                         </TableCell>
                                                     </TableRow> :
                                                     <TableRow
@@ -3033,7 +3197,7 @@ function EmployeeDetails() {
                             <span className='makePaymentHeader'>{'Salary (From - To) :'} </span><span className='makePaymentName'>{formData.dateOfPayment}</span>
                         </Typography>
                         <Typography id="modal-modal" variant="h6" component="h2">
-                            <span className='makePaymentHeader'>{'Total Salary(With Leave) :'}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{formData.totalSalary}</span>
+                            <span className='makePaymentHeader'>{'Total Salary(With Leave) :'}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{isToggel ? formData.proratedSalary : formData.totalSalary}</span>
                         </Typography>
                     </div>
                     <div className='mt-6 grid grid-cols-12 gap-6'>
@@ -3166,10 +3330,10 @@ function EmployeeDetails() {
                 <Box sx={styleStockIn}>
                     <div className='flex justify-between'>
                         <Typography id="modal-modal" variant="h6" component="h2">
-                            <span className='makePaymentHeader'> {editLeave ? 'Edit Leave for : ' : 'Add Leave for : '} </span><span className='makePaymentName'>{addLeaveFormData.nickName}</span>
+                            <span className='makePaymentHeader'> {editLeave ? 'Edit Leave for : ' : 'Add Leave for : '} </span><span className='makePaymentName'>{data.employeeNickName}</span>
                         </Typography>
                         <Typography id="modal-modal" variant="h6" component="h2">
-                            <span className='makePaymentHeader'>{`Available Leave(${'Max leave:' + addLeaveFormData.totalMaxLeave}) :`}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{addLeaveFormData.availableLeave}</span>
+                            <span className='makePaymentHeader'>{`Available Leave(${'Max leave:' + data.maxLeave}) :`}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{data.availableLeave}</span>
                         </Typography>
                     </div>
                     <div className='mt-6 grid grid-cols-12 gap-6'>
@@ -3378,102 +3542,6 @@ function EmployeeDetails() {
                         </div>
                     </div> */}
                     <div className='displayTable' style={{ maxHeight: '90%', overflow: "scroll" }}>
-                        {/* <div className='mt-4 pb-2 displayTable mb-4' style={{ maxHeight: '320px', overflow: 'hidden' }}> */}
-                        {/* <Paper sx={{ width: '100%', overflow: 'hidden' }}> */}
-                        {/* <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', maxHeight: '300px' }} component={Paper}>
-                                <Table stickyHeader aria-label="sticky table">
-                                    <TableHead >
-                                        <TableRow>
-                                            <TableCell >No.</TableCell>
-                                            <TableCell>Month</TableCell>
-                                            <TableCell>Total Salary</TableCell>
-                                            <TableCell align="left">Remaining Salary</TableCell>
-                                            <TableCell align="left">Salary Cut</TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {transactionData?.map((row, index) => (
-                                            totalRowsTransaction !== 0 ?
-                                                <TableRow
-                                                    hover
-                                                    key={row.trasactionId}
-                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                                    style={{ cursor: "pointer" }}
-                                                    className='tableRow'
-                                                >
-                                                    <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
-                                                    <TableCell align="left" >{row.trasactionId}</TableCell>
-                                                    <Tooltip title={row.userName} placement="top-start" arrow>
-                                                        <TableCell component="th" scope="row" >
-                                                            {row.givenBy}
-                                                        </TableCell>
-                                                    </Tooltip>
-                                                    <TableCell align="left" onClick={() => handleOpenModelCalculation(row.trasactionId, 1)}>{row.salaryPay}</TableCell>
-                                                    <TableCell align="left" onClick={() => handleOpenModelCalculation(row.trasactionId, 2)}>{row.advanceCut}</TableCell>
-                                                </TableRow> :
-                                                <TableRow
-                                                    key={row.userId}
-                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                                >
-                                                    <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
-                                                </TableRow>
-                                        ))}
-                                        {transactionData?.map((row, index) => (
-                                            totalRowsTransaction !== 0 ?
-                                                <TableRow
-                                                    hover
-                                                    key={row.trasactionId}
-                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                                    style={{ cursor: "pointer" }}
-                                                    className='tableRow'
-                                                >
-                                                    <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
-                                                    <TableCell align="left" >{row.trasactionId}</TableCell>
-                                                    <Tooltip title={row.userName} placement="top-start" arrow>
-                                                        <TableCell component="th" scope="row" >
-                                                            {row.givenBy}
-                                                        </TableCell>
-                                                    </Tooltip>
-                                                    <TableCell align="left" onClick={() => handleOpenModelCalculation(row.trasactionId, 1)}>{row.salaryPay}</TableCell>
-                                                    <TableCell align="left" onClick={() => handleOpenModelCalculation(row.trasactionId, 2)}>{row.advanceCut}</TableCell>
-                                                </TableRow> :
-                                                <TableRow
-                                                    key={row.userId}
-                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                                >
-                                                    <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
-                                                </TableRow>
-                                        ))}
-                                        {transactionData?.map((row, index) => (
-                                            totalRowsTransaction !== 0 ?
-                                                <TableRow
-                                                    hover
-                                                    key={row.trasactionId}
-                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                                    style={{ cursor: "pointer" }}
-                                                    className='tableRow'
-                                                >
-                                                    <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
-                                                    <TableCell align="left" >{row.trasactionId}</TableCell>
-                                                    <Tooltip title={row.userName} placement="top-start" arrow>
-                                                        <TableCell component="th" scope="row" >
-                                                            {row.givenBy}
-                                                        </TableCell>
-                                                    </Tooltip>
-                                                    <TableCell align="left" onClick={() => handleOpenModelCalculation(row.trasactionId, 1)}>{row.salaryPay}</TableCell>
-                                                    <TableCell align="left" onClick={() => handleOpenModelCalculation(row.trasactionId, 2)}>{row.advanceCut}</TableCell>
-                                                </TableRow> :
-                                                <TableRow
-                                                    key={row.userId}
-                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                                >
-                                                    <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
-                                                </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </TableContainer> */}
-                        {/* </Paper> */}
                         <div className='mt-6'>
                             <Accordion square='false' sx={{ width: "100%", borderRadius: '12px', boxShadow: 'rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem', padding: '0px' }}>
                                 <AccordionSummary
@@ -3755,6 +3823,192 @@ function EmployeeDetails() {
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </Box>
+            </Modal>
+            <Modal
+                open={openModalCalculationCredit}
+                onClose={handleCloseModelCalculationCredit}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={viewCutTableCredit}>
+                    <div className='flex justify-between'>
+                        <div className='pt-1 pl-2'>
+                            <Typography id="modal-modal" variant="h6" component="h2">
+                                <span className='makePaymentHeader'>Credit Cut From {editFormData && editFormData.creditType} </span>
+                            </Typography>
+                        </div>
+                        <div>
+                            <IconButton aria-label="delete" onClick={handleCloseModelCalculationCredit}>
+                                <CloseIcon />
+                            </IconButton>
+                        </div>
+                    </div>
+                    <div className='flex justify-between'>
+                        <div className='pt-1 pl-2'>
+                            <Typography id="modal-modal" variant="h6" component="h2">
+                                <span className='makePaymentHeader'>Credit : </span><span className='makePaymentName'>{editFormData && editFormData.creditAmount}</span>
+                            </Typography>
+                        </div>
+                    </div>
+                    <div className='displayTable' style={{ maxHeight: '90%', overflow: "scroll" }}>
+                        <div className='mt-6'>
+                            <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px' }} component={Paper}>
+                                <Table stickyHeader aria-label="sticky table">
+                                    <TableHead >
+                                        <TableRow>
+                                            <TableCell >No.</TableCell>
+                                            <TableCell>{editFormData && editFormData.creditType} Amount</TableCell>
+                                            <TableCell>Cut Credit Amount</TableCell>
+                                            <TableCell align="left">Date</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {calculationDataCredit && calculationDataCredit.length > 0 ? calculationDataCredit.map((row, index) => (
+                                            <TableRow
+                                                hover
+                                                key={row.monthlySalaryId}
+                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                style={{ cursor: "pointer" }}
+                                                className='tableRow'
+                                            >
+                                                <TableCell align="left" >{(index + 1)}</TableCell>
+                                                <TableCell align="left" >{row.Amount}</TableCell>
+                                                {/* <Tooltip title={row.userName} placement="top-start" arrow> */}
+                                                <TableCell component="th" scope="row" >
+                                                    {row.cutCreditAmount}
+                                                </TableCell>
+                                                {/* </Tooltip> */}
+                                                <TableCell align="left">{row.Date}</TableCell>
+                                            </TableRow>
+
+                                        ))
+                                            : <TableRow
+                                                key={"salary"}
+                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                            >
+                                                <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data"}</TableCell>
+                                            </TableRow>
+                                        }
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
+                        </div>
+                        {/* <div className='mt-10'>
+                            <div className='calculationWrp'>
+                                <div className='grid grid-cols-12 calculationFont'>
+                                    <div className='col-span-3'>
+                                        Total Salary
+                                    </div>
+                                    <div>
+                                        :
+                                    </div>
+                                    <div className='col-span-3 '>
+                                        {calculationData ? calculationData.remainSalaryAmount : "~"}
+                                    </div>
+                                </div>
+                                <div className='grid grid-cols-12 calculationFont'>
+                                    <div className='col-span-3 '>
+                                        Total Advance
+                                    </div>
+                                    <div>
+                                        :
+                                    </div>
+                                    <div className='col-span-3'>
+                                        {calculationData ? calculationData.remainAdvanceAmount : "~"}
+                                    </div>
+                                </div>
+                                <div className='grid grid-cols-12 calculationFont'>
+                                    <div className='col-span-3 '>
+                                        Total Fine
+                                    </div>
+                                    <div>
+                                        :
+                                    </div>
+                                    <div className='col-span-3 calculationFont'>
+                                        {calculationData ? calculationData.remainFineAmount : "~"}
+                                    </div>
+                                </div>
+                                <div className='lineBreak mt-4 mb-4'>
+                                    <hr className='lineBreakHr'></hr>
+                                </div>
+                                <div className='grid grid-cols-12 calculationFont'>
+                                    <div className='col-span-3'>
+                                        Salary Pay
+                                    </div>
+                                    <div>
+                                        :
+                                    </div>
+                                    <div className='col-span-3 '>
+                                        {editFormData && editFormData.salary}
+                                    </div>
+                                </div>
+                                <div className='grid grid-cols-12 calculationFont'>
+                                    <div className='col-span-3 '>
+                                        Advance Cut
+                                    </div>
+                                    <div>
+                                        :
+                                    </div>
+                                    <div className='col-span-3'>
+                                        {editFormData && editFormData.advance}
+                                    </div>
+                                </div>
+                                <div className='grid grid-cols-12 calculationFont'>
+                                    <div className='col-span-3 '>
+                                        Fine Cut
+                                    </div>
+                                    <div>
+                                        :
+                                    </div>
+                                    <div className='col-span-3 calculationFont'>
+                                        {editFormData && editFormData.fine}
+                                    </div>
+                                </div>
+                                <div className='lineBreak mt-4 mb-4'>
+                                    <hr className='lineBreakHr'></hr>
+                                </div>
+                                <div className='grid grid-cols-12 calculationFont'>
+                                    <div className='col-span-3'>
+                                        Remaining Salary
+                                    </div>
+                                    <div>
+                                        :
+                                    </div>
+                                    <div className='col-span-3 '>
+                                        {calculationData && editFormData ? calculationData.remainSalaryAmount - editFormData.salary - editFormData.advance - editFormData.fine : "~"}
+                                    </div>
+                                </div>
+                                <div className='grid grid-cols-12 calculationFont'>
+                                    <div className='col-span-3 '>
+                                        Remaining Advance
+                                    </div>
+                                    <div>
+                                        :
+                                    </div>
+                                    <div className='col-span-3'>
+                                        {calculationData && editFormData ? calculationData.remainAdvanceAmount - editFormData.advance : "~"}
+                                    </div>
+                                </div>
+                                <div className='grid grid-cols-12 calculationFont'>
+                                    <div className='col-span-3 '>
+                                        Remaining Fine
+                                    </div>
+                                    <div>
+                                        :
+                                    </div>
+                                    <div className='col-span-3 calculationFont'>
+                                        {calculationData && editFormData ? calculationData.remainFineAmount - editFormData.fine : "~"}
+                                    </div>
+                                    <div className='col-span-5  flex justify-end'>
+                                        <button className='exportExcelBtn'
+                                            onClick={() => getInvoice(editFormData.transactionId)}
+                                        ><FileDownloadIcon />&nbsp;&nbsp;Print Salary Slip</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> */}
                     </div>
                 </Box>
             </Modal>

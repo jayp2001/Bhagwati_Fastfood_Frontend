@@ -80,6 +80,23 @@ const viewCutTable = {
     paddingBottom: '10px',
     borderRadius: '10px'
 };
+const viewCutTableCredit = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: '50%',
+    // height: '60%',
+    maxHeight: '60%',
+    overflow: 'scroll',
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    paddingLeft: '15px',
+    paddingRight: '15px',
+    paddingTop: '15px',
+    paddingBottom: '10px',
+    borderRadius: '10px'
+};
 function AllPayments() {
     let { id } = useParams();
     const [tabTable, setTabTable] = React.useState(2);
@@ -130,16 +147,23 @@ function AllPayments() {
     const [totalRowsBonus, setTotalRowsBonus] = React.useState(0);
     const [totalRowsLeaves, setTotalRowsLeaves] = React.useState(0);
     const [totalRowsTransaction, setTotalRowsTransaction] = React.useState(0);
+    const [calculationDataCredit, setCalculationDataCredit] = React.useState();
+    const [openModalCalculationCredit, setOpenModalCalculationCredit] = React.useState(false);
 
 
 
 
+    const handleCloseModelCalculationCredit = () => {
+        setEditFormData()
+        setOpenModalCalculationCredit(false);
+    }
     const deleteBonus = async (id) => {
         setLoading(true)
         await axios.delete(`${BACKEND_BASE_URL}staffrouter/removeBonusTransaction?bonusId=${id}`, config)
             .then((res) => {
                 setLoading(false)
                 setSuccess(true)
+                getCountData();
                 setPage(0);
                 setRowsPerPage(5);
                 filter ? getBonusDataByFilter() : getBonusData();
@@ -159,6 +183,7 @@ function AllPayments() {
             .then((res) => {
                 setLoading(false)
                 setSuccess(true)
+                getCountData();
                 setPage(0);
                 setRowsPerPage(5);
                 filter ? getCreditDataByFilter() : getCreditData();
@@ -178,6 +203,7 @@ function AllPayments() {
             .then((res) => {
                 setLoading(false)
                 setSuccess(true)
+                getCountData();
                 setPage(0);
                 setRowsPerPage(5);
                 filter ? getTransactionDataByFilter() : getTransactionData();
@@ -287,6 +313,7 @@ function AllPayments() {
             .then((res) => {
                 setLoading(false)
                 setSuccess(true)
+                getCountData();
                 setPage(0);
                 setRowsPerPage(5);
                 filter ? getFineDataByFilter() : getFineData()
@@ -301,6 +328,7 @@ function AllPayments() {
             .then((res) => {
                 setLoading(false)
                 setSuccess(true)
+                getCountData();
                 setPage(0);
                 setRowsPerPage(5);
                 filter ? getFineDataByFilter() : getFineData()
@@ -321,6 +349,7 @@ function AllPayments() {
                 setLoading(false)
                 setSuccess(true)
                 setPage(0);
+                getCountData();
                 setRowsPerPage(5);
                 filter ? getAdvanceDataByFilter() : getAdvanceData();
             })
@@ -341,6 +370,7 @@ function AllPayments() {
                 setSuccess(true)
                 setPage(0);
                 setRowsPerPage(5);
+                getCountData();
                 filter ? getFineDataByFilter() : getFineData();
             })
             .catch((error) => {
@@ -628,6 +658,24 @@ function AllPayments() {
             }
         }
     };
+    const getCalculationDataCredit = async (id) => {
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getCutCreditDataById?cafId=${id}`, config)
+            .then((res) => {
+                setCalculationDataCredit(res.data);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const handleOpenModelCalculationCredit = (id, credit, type) => {
+        setEditFormData({
+            cafId: id,
+            creditAmount: credit,
+            creditType: type,
+        })
+        getCalculationDataCredit(id);
+        setOpenModalCalculationCredit(true);
+    }
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
@@ -1267,7 +1315,7 @@ function AllPayments() {
                                                         <TableCell align="left" >{row.advanceDate}</TableCell>
                                                         <TableCell align="left" >{row.givenTime}</TableCell>
                                                         <TableCell align="right">
-                                                            <MenuAdvance data={row} handleDeleteAdvance={handleDeleteAdvance} />
+                                                            <MenuAdvance data={row} handleDeleteAdvance={handleDeleteAdvance} setError={setError} />
                                                         </TableCell>
                                                     </TableRow> :
                                                     <TableRow
@@ -1339,7 +1387,7 @@ function AllPayments() {
                                                         <TableCell align="left" >{row.fineDate}</TableCell>
                                                         <TableCell align="left" >{row.givenTime}</TableCell>
                                                         <TableCell align="right">
-                                                            <MenuFine data={row} handleDeleteFine={handleDeleteFine} markAsIgnore={markAsIgnore} markAsConsider={markAsConsider} />
+                                                            <MenuFine data={row} handleDeleteFine={handleDeleteFine} markAsIgnore={markAsIgnore} setError={setError} markAsConsider={markAsConsider} />
                                                         </TableCell>
                                                     </TableRow> :
                                                     <TableRow
@@ -1481,7 +1529,7 @@ function AllPayments() {
                                                         <TableCell align="left" >{row.creditDate}</TableCell>
                                                         <TableCell align="left" >{row.givenTime}</TableCell>
                                                         <TableCell align="right">
-                                                            <MenuCredit data={row} handleDeleteCredit={handleDeleteCredit} />
+                                                            <MenuCredit data={row} handleDeleteCredit={handleDeleteCredit} handleOpenModelCalculationCredit={handleOpenModelCalculationCredit} />
                                                         </TableCell>
                                                     </TableRow> :
                                                     <TableRow
@@ -1779,7 +1827,7 @@ function AllPayments() {
                                         :
                                     </div>
                                     <div className='col-span-3 '>
-                                        10000
+                                        {calculationData ? calculationData.remainSalaryAmount : "~"}
                                     </div>
                                 </div>
                                 <div className='grid grid-cols-12 calculationFont'>
@@ -1790,7 +1838,7 @@ function AllPayments() {
                                         :
                                     </div>
                                     <div className='col-span-3'>
-                                        10000
+                                        {calculationData ? calculationData.remainAdvanceAmount : "~"}
                                     </div>
                                 </div>
                                 <div className='grid grid-cols-12 calculationFont'>
@@ -1801,7 +1849,7 @@ function AllPayments() {
                                         :
                                     </div>
                                     <div className='col-span-3 calculationFont'>
-                                        10000
+                                        {calculationData ? calculationData.remainFineAmount : "~"}
                                     </div>
                                 </div>
                                 <div className='lineBreak mt-4 mb-4'>
@@ -1851,7 +1899,7 @@ function AllPayments() {
                                         :
                                     </div>
                                     <div className='col-span-3 '>
-                                        10000
+                                        {calculationData && editFormData ? calculationData.remainSalaryAmount - editFormData.salary - editFormData.advance - editFormData.fine : "~"}
                                     </div>
                                 </div>
                                 <div className='grid grid-cols-12 calculationFont'>
@@ -1862,7 +1910,7 @@ function AllPayments() {
                                         :
                                     </div>
                                     <div className='col-span-3'>
-                                        10000
+                                        {calculationData && editFormData ? calculationData.remainAdvanceAmount - editFormData.advance : "~"}
                                     </div>
                                 </div>
                                 <div className='grid grid-cols-12 calculationFont'>
@@ -1873,10 +1921,87 @@ function AllPayments() {
                                         :
                                     </div>
                                     <div className='col-span-3 calculationFont'>
-                                        10000
+                                        {calculationData && editFormData ? calculationData.remainFineAmount - editFormData.fine : "~"}
+                                    </div>
+                                    <div className='col-span-5  flex justify-end'>
+                                        <button className='exportExcelBtn'
+                                            onClick={() => getInvoice(editFormData.transactionId)}
+                                        ><FileDownloadIcon />&nbsp;&nbsp;Print Salary Slip</button>
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
+            <Modal
+                open={openModalCalculationCredit}
+                onClose={handleCloseModelCalculationCredit}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={viewCutTableCredit}>
+                    <div className='flex justify-between'>
+                        <div className='pt-1 pl-2'>
+                            <Typography id="modal-modal" variant="h6" component="h2">
+                                <span className='makePaymentHeader'>Credit Cut From {editFormData && editFormData.creditType} </span>
+                            </Typography>
+                        </div>
+                        <div>
+                            <IconButton aria-label="delete" onClick={handleCloseModelCalculationCredit}>
+                                <CloseIcon />
+                            </IconButton>
+                        </div>
+                    </div>
+                    <div className='flex justify-between'>
+                        <div className='pt-1 pl-2'>
+                            <Typography id="modal-modal" variant="h6" component="h2">
+                                <span className='makePaymentHeader'>Credit : </span><span className='makePaymentName'>{editFormData && editFormData.creditAmount}</span>
+                            </Typography>
+                        </div>
+                    </div>
+                    <div className='displayTable' style={{ maxHeight: '90%', overflow: "scroll" }}>
+                        <div className='mt-6'>
+                            <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px' }} component={Paper}>
+                                <Table stickyHeader aria-label="sticky table">
+                                    <TableHead >
+                                        <TableRow>
+                                            <TableCell >No.</TableCell>
+                                            <TableCell>{editFormData && editFormData.creditType} Amount</TableCell>
+                                            <TableCell>Cut Credit Amount</TableCell>
+                                            <TableCell align="left">Date</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {calculationDataCredit && calculationDataCredit.length > 0 ? calculationDataCredit.map((row, index) => (
+                                            <TableRow
+                                                hover
+                                                key={row.monthlySalaryId}
+                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                style={{ cursor: "pointer" }}
+                                                className='tableRow'
+                                            >
+                                                <TableCell align="left" >{(index + 1)}</TableCell>
+                                                <TableCell align="left" >{row.Amount}</TableCell>
+                                                {/* <Tooltip title={row.userName} placement="top-start" arrow> */}
+                                                <TableCell component="th" scope="row" >
+                                                    {row.cutCreditAmount}
+                                                </TableCell>
+                                                {/* </Tooltip> */}
+                                                <TableCell align="left">{row.Date}</TableCell>
+                                            </TableRow>
+
+                                        ))
+                                            : <TableRow
+                                                key={"salary"}
+                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                            >
+                                                <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data"}</TableCell>
+                                            </TableRow>
+                                        }
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
                         </div>
                     </div>
                 </Box>

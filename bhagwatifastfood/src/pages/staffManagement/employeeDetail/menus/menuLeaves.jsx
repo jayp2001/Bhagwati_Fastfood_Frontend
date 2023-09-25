@@ -32,8 +32,14 @@ function isDateInCurrentMonth(dateString) {
 function MenuLeaves(props) {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
+    const isInCurrentMonth = isDateInCurrentMonth(props.data.dateLeave);
     const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
+        if (isInCurrentMonth) {
+            setAnchorEl(event.currentTarget);
+        }
+        else {
+            props.setError('you can only edit or delete Current month data')
+        }
     };
     const navigate = useNavigate();
     const handleClose = () => {
@@ -42,7 +48,7 @@ function MenuLeaves(props) {
     const handleEditClick = (id) => {
         navigate(`/editSuppiler/${id}`)
     }
-    const isInCurrentMonth = isDateInCurrentMonth(props.data.dateLeave);
+
     return (
         <div>
             <IconButton

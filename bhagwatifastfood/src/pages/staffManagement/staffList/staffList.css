@@ -24,7 +24,7 @@
 }
 
 .employeeListWrp{
-    height: 70%;
+    height: 85%;
     width: 100%;
     overflow: scroll;
     -ms-overflow-style: none;
@@ -39,7 +39,7 @@
 
 
 .searchBarAndCardWrp{
-    height: 25%;
+    height: 8%;
     margin-top: 20px;
     /* background-color: #191919; */
         width: 100%;
@@ -121,3 +121,13 @@ color: #fff;
     background: rgba(0, 122, 255, 1);
     color: white;
 }
+
+/* .countOfEmployee{
+    padding-top: 4px;
+    font-size: 12px;
+    height: 27px;
+    width: 27px;
+    border-radius: 50%;
+    background-color: #fff;
+    color: #191919;
+} */

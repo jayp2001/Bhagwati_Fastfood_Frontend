@@ -22,8 +22,15 @@ import { useNavigate, useParams } from "react-router-dom";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { useRef } from 'react';
 import dayjs from 'dayjs';
 function AddEditStaff() {
+    const textFieldRef = useRef(null);
+    const focus = () => {
+        if (textFieldRef.current) {
+            textFieldRef.current.focus();
+        }
+    };
     var customParseFormat = require('dayjs/plugin/customParseFormat')
     dayjs.extend(customParseFormat)
     const location = useLocation();
@@ -149,7 +156,6 @@ function AddEditStaff() {
             employeeMobileNumber: false,
             presentAddress: false,
             homeAddress: false,
-            adharCardNum: false,
             category: false,
             designation: false,
             salary: false,
@@ -168,7 +174,6 @@ function AddEditStaff() {
         'employeeMobileNumber',
         'presentAddress',
         'homeAddress',
-        'adharCardNum',
         'category',
         'designation',
         'salary',
@@ -271,6 +276,7 @@ function AddEditStaff() {
                 setLoading(false);
                 setSuccess(true);
                 reset();
+                focus()
             })
             .catch((error) => {
                 setLoading(false);
@@ -334,6 +340,7 @@ function AddEditStaff() {
     }
     useEffect(() => {
         getCategory();
+        focus();
         // getDesignation();
         if (location.pathname.split('/').at(-2) === 'editStaff' ? true : false) {
             getEmployeeDetail(location.pathname.split('/').at(-1))
@@ -374,6 +381,7 @@ function AddEditStaff() {
                                                 }
                                             }}
                                             onChange={onChange}
+                                            inputRef={textFieldRef}
                                             value={formData.employeeFirstName}
                                             error={formDataError.employeeFirstName}
                                             helperText={formDataError.employeeFirstName ? "Please Enter First Name" : ''}
@@ -551,24 +559,8 @@ function AddEditStaff() {
                                     </div>
                                     <div className="col-span-4">
                                         <TextField
-                                            onBlur={(e) => {
-                                                if (e.target.value.length < 2) {
-                                                    setFormDataError((perv) => ({
-                                                        ...perv,
-                                                        adharCardNum: true
-                                                    }))
-                                                }
-                                                else {
-                                                    setFormDataError((perv) => ({
-                                                        ...perv,
-                                                        adharCardNum: false
-                                                    }))
-                                                }
-                                            }}
                                             onChange={onChange}
                                             value={formData.adharCardNum}
-                                            error={formDataError.adharCardNum}
-                                            helperText={formDataError.adharCardNum ? "Please Enter ADHAR NUMBER" : ''}
                                             name="adharCardNum"
                                             id="outlined-required"
                                             label="Adhar card Number"

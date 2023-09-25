@@ -892,7 +892,7 @@ function Leaves() {
                                                         <Tooltip title={row.leaveReason} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.leaveReason}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.leaveDate}</TableCell>
                                                         <TableCell align="right">
-                                                            <MenuLeaves data={row} handleDeleteLeave={handleDeleteLeave} handleEditLeaves={handleEditLeaves} />
+                                                            <MenuLeaves data={row} handleDeleteLeave={handleDeleteLeave} handleEditLeaves={handleEditLeaves} setError={setError} />
                                                         </TableCell>
                                                     </TableRow> :
                                                     <TableRow
@@ -952,7 +952,7 @@ function Leaves() {
                                                         <Tooltip title={row.holidayReason} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.holidayReason}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.holidayDate}</TableCell>
                                                         <TableCell align="right">
-                                                            <MenuHoliday data={row} handleDeleteHoliday={handleDeleteHoliday} />
+                                                            <MenuHoliday data={row} handleDeleteHoliday={handleDeleteHoliday} setError={setError} />
                                                         </TableCell>
                                                     </TableRow> :
                                                     <TableRow

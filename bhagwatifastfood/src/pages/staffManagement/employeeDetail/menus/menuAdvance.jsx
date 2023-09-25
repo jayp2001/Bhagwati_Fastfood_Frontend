@@ -15,6 +15,9 @@ function MenuAdvance(props) {
         if (props.data.advanceAmount == props.data.remainAdvanceAmount) {
             setAnchorEl(event.currentTarget);
         }
+        else {
+            props.setError('you cant edit or delete this row')
+        }
     };
     const navigate = useNavigate();
     const handleClose = () => {

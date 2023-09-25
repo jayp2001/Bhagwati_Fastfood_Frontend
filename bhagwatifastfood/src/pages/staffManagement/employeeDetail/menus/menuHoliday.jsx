@@ -32,8 +32,14 @@ function isDateInCurrentMonth(dateString) {
 function MenuHoliday(props) {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
+    const isInCurrentMonth = isDateInCurrentMonth(props.data.holidayLeaveDate);
     const handleClick = (event) => {
-        setAnchorEl(event.currentTarget);
+        if (isInCurrentMonth) {
+            setAnchorEl(event.currentTarget);
+        }
+        else {
+            props.setError('you can only edit or delete Current month data')
+        }
     };
     const navigate = useNavigate();
     const handleClose = () => {
@@ -42,7 +48,6 @@ function MenuHoliday(props) {
     const handleEditClick = (id) => {
         navigate(`/editSuppiler/${id}`)
     }
-    const isInCurrentMonth = isDateInCurrentMonth(props.data.holidayLeaveDate);
     return (
         <div>
             <IconButton
@@ -51,7 +56,7 @@ function MenuHoliday(props) {
                 aria-controls={open ? 'long-menu' : undefined}
                 aria-expanded={open ? 'true' : undefined}
                 aria-haspopup="true"
-                onClick={(e) => isInCurrentMonth ? handleClick(e) : () => { }}
+                onClick={handleClick}
             >
                 <MoreVertIcon />
             </IconButton>

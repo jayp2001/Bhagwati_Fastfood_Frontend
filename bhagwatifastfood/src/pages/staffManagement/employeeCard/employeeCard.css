@@ -87,6 +87,15 @@
         color: #FF6347;
             border: 2px solid #FF6347;
 }
+.dueSalaryWrpGreen{
+    color: green !important;
+    border: 2px solid green !important;
+}
+
+.dueSalaryWrpBlack {
+    color: black !important;
+    border: 2px solid black !important;
+}
 
 .addSalary{
     width: 100%;

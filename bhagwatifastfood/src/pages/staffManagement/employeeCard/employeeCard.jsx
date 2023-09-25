@@ -50,6 +50,7 @@ function EmployeeCard(props) {
             ["amountDate"]: date && date['$d'] ? date['$d'] : null,
         }))
     };
+    console.log('>>LLKK', props.data.employeeStatus == 1 ? true : false)
     const [toggel, setToggel] = useState(props.data.employeeStatus == 1 ? true : false)
     const handleEdit = () => {
         props.handleEditEmployee(props.data.employeeId)
@@ -67,13 +68,12 @@ function EmployeeCard(props) {
                     ...perv,
                     employeeId: props.data.employeeId,
                     nickName: props.data.nickName,
-                    paymentDue: props.data.paymentDue,
+                    paymentDue: props.data.paymentDue + res.data.proratedSalary,
                     totalSalary: props.data.totalSalary + res.data.proratedSalary,
                     advanceAmount: props.data.advanceAmount,
                     fineAmount: props.data.fineAmount,
-                    paymentDue: props.data.paymentDue,
                     proratedSalary: res.data.proratedSalary,
-                    dateOfPayment: props.data.dateOfPayment
+                    dateOfPayment: res.data.dateOfPayment
                 }))
                 setOpen(true);
             })
@@ -90,80 +90,11 @@ function EmployeeCard(props) {
             // setToggel(false)
             handleOpenInactive()
         } else {
-            data = {
-                employeeId: props.data.employeeId,
-                employeeStatus: true,
-                payStatus: false
-            }
-            props.setLoading(true);
-            await axios.post(`${BACKEND_BASE_URL}staffrouter/updateEmployeeStatus`, data, config)
-                .then((res) => {
-                    props.setLoading(false);
-                    props.setSuccess(true);
-                    setOpen(false)
-                    setToggel(true)
-                    props.handleClose();
-                    setTimeout(() => {
-                        props.getEmployeeList(props.activeCategory);
-                    }, 50)
-
-                })
-                .catch((error) => {
-                    props.setLoading(false);
-                    props.setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
-                })
-        }
-    }
-    const makeInActive = async (mode) => {
-        let data = props.formData;
-        if (props.loading || props.success) {
-
-        } else {
-            if (mode) {
-                const isValidate = props.formDataErrorFeild.filter(element => {
-                    if (props.formDataError[element] === true || props.formData[element] === '') {
-                        props.setFormDataError((perv) => ({
-                            ...perv,
-                            [element]: true
-                        }))
-                        return element;
-                    }
-                })
-                console.log('????', isValidate);
-                if (isValidate.length > 0) {
-                    props.setError(
-                        "Please Fill All Field"
-                    )
-                } else {
-                    data = {
-                        ...data,
-                        payStatus: true,
-                        employeeStatus: false
-                    }
-                    props.setLoading(true);
-                    await axios.post(`${BACKEND_BASE_URL}staffrouter/updateEmployeeStatus`, data, config)
-                        .then((res) => {
-                            props.setLoading(false);
-                            props.setSuccess(true);
-                            props.handleClose();
-                            setOpen(false)
-                            setToggel(false)
-                            setTimeout(() => {
-                                props.getEmployeeList(props.activeCategory);
-                            }, 50)
-
-                        })
-                        .catch((error) => {
-                            props.setLoading(false);
-                            props.setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
-                        })
-                }
-            }
-            else {
+            if (window.confirm('Are you sure you want to Active employee ...?')) {
                 data = {
-                    ...data,
-                    payStatus: false,
-                    employeeStatus: false
+                    employeeId: props.data.employeeId,
+                    employeeStatus: true,
+                    payStatus: false
                 }
                 props.setLoading(true);
                 await axios.post(`${BACKEND_BASE_URL}staffrouter/updateEmployeeStatus`, data, config)
@@ -171,10 +102,11 @@ function EmployeeCard(props) {
                         props.setLoading(false);
                         props.setSuccess(true);
                         setOpen(false)
-                        setToggel(false)
+                        setToggel(true)
                         props.handleClose();
                         setTimeout(() => {
-                            props.getEmployeeList(props.activeCategory);
+                            props.getCategory();
+                            props.activeCategory == 9999 ? props.getEmployeeListInactive('') : props.getEmployeeList(props.activeCategory);
                         }, 50)
 
                     })
@@ -185,9 +117,84 @@ function EmployeeCard(props) {
             }
         }
     }
+    const makeInActive = async (mode) => {
+        if (window.confirm('Are you sure you want to Inactive employee ...?')) {
+            let data = props.formData;
+            if (props.loading || props.success) {
+
+            } else {
+                if (mode) {
+                    const isValidate = props.formDataErrorFeild.filter(element => {
+                        if (props.formDataError[element] === true || props.formData[element] === '') {
+                            props.setFormDataError((perv) => ({
+                                ...perv,
+                                [element]: true
+                            }))
+                            return element;
+                        }
+                    })
+                    console.log('????', isValidate);
+                    if (isValidate.length > 0) {
+                        props.setError(
+                            "Please Fill All Field"
+                        )
+                    } else {
+                        data = {
+                            ...data,
+                            payStatus: true,
+                            employeeStatus: false
+                        }
+                        props.setLoading(true);
+                        await axios.post(`${BACKEND_BASE_URL}staffrouter/updateEmployeeStatus`, data, config)
+                            .then((res) => {
+                                props.setLoading(false);
+                                props.setSuccess(true);
+                                props.handleClose();
+                                setOpen(false)
+                                setToggel(false)
+                                setTimeout(() => {
+                                    props.getCategory();
+                                    props.activeCategory == 9999 ? props.getEmployeeListInactive('') : props.getEmployeeList(props.activeCategory);
+                                }, 50)
+
+                            })
+                            .catch((error) => {
+                                props.setLoading(false);
+                                props.setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+                            })
+                    }
+                }
+                else {
+                    data = {
+                        ...data,
+                        payStatus: false,
+                        employeeStatus: false
+                    }
+                    props.setLoading(true);
+                    await axios.post(`${BACKEND_BASE_URL}staffrouter/updateEmployeeStatus`, data, config)
+                        .then((res) => {
+                            props.setLoading(false);
+                            props.setSuccess(true);
+                            setOpen(false)
+                            setToggel(false)
+                            props.handleClose();
+                            setTimeout(() => {
+                                props.getCategory();
+                                props.activeCategory == 9999 ? props.getEmployeeListInactive('') : props.getEmployeeList(props.activeCategory);
+                            }, 50)
+
+                        })
+                        .catch((error) => {
+                            props.setLoading(false);
+                            props.setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+                        })
+                }
+            }
+        }
+    }
     const label = { inputProps: { 'aria-label': 'Size switch demo' } };
     return (
-        <div className='employeeCard' key={props.data.employeeId + 'employeeCard'}>
+        <div className='employeeCard' key={props.data.category + props.data.employeeId + 'employeeCard'}>
             <div className='flex h-full'>
                 <div className='imgNameWrp'>
                     <div className='imgWrpCard'>
@@ -215,6 +222,7 @@ function EmployeeCard(props) {
                                 checked={toggel}
                                 onChange={() => handleToggel()}
                             />
+                            {/* <span>{toggel ? 'Active' : 'Inactive'}</span> */}
                         </div>
                         <Menutemp handleDelete={handleDelete} handleEdit={handleEdit} handleViewDetail={handleViewDetail} />
                     </div>
@@ -224,7 +232,7 @@ function EmployeeCard(props) {
                                 Salary
                             </div>
                             <div className='salaryNum mt-1'>
-                                {props.data.salary}
+                                {props.data.totalSalary}
                             </div>
                         </div>
                         <div>
@@ -250,23 +258,23 @@ function EmployeeCard(props) {
                                 Max-Leave
                             </div>
                             <div className='salaryNum mt-1'>
-                                {props.data.totalMaxLeave}
+                                {props.data.maxLeave}
                             </div>
                         </div>
                         <div className=''>
                             <div className='salaryHeader'>
-                                Leaves
+                                Avail Leave
                             </div>
                             <div className='salaryNum mt-1'>
-                                {props.data.totalLeave}
+                                {props.data.availableLeave}
                             </div>
                         </div>
                         <div className=''>
                             <div className='salaryHeader'>
-                                bonus
+                                Daily Salary
                             </div>
                             <div className='salaryNum mt-1'>
-                                {props.data.sumOfLeaveSalary}
+                                {props.data.perDaySalary}
                             </div>
                         </div>
                     </div>
@@ -275,7 +283,7 @@ function EmployeeCard(props) {
                             Due Salary
                         </div>
                     </div>
-                    <div className='dueSalaryWrp mt-3 ml-6 mr-6'>
+                    <div className={`${props.data.paymentDue > 0 ? 'dueSalaryWrpGreen' : props.data.paymentDue == 0 ? 'dueSalaryWrpBlack' : ''} dueSalaryWrp mt-3 ml-6 mr-6`}>
                         {props.data.paymentDue}
                     </div>
                     <div className='mt-3 ml-6 mr-6 grid grid-cols-2 gap-6'>
