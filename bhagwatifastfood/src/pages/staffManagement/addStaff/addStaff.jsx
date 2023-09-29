@@ -22,6 +22,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+
 import { useRef } from 'react';
 import dayjs from 'dayjs';
 function AddEditStaff() {
@@ -52,9 +53,65 @@ function AddEditStaff() {
     const [category, setCategory] = React.useState([]);
     const [designation, setDesignation] = React.useState([
         {
-            id: 1,
-            value: "Main"
-        }
+            id: 'Manager',
+            value: "Manager"
+        },
+        {
+            id: 'Assistant Manager',
+            value: "Assistant Manager"
+        },
+        {
+            id: 'Office Boy',
+            value: "Office Boy"
+        },
+        {
+            id: 'Billing Man',
+            value: "Billing Man"
+        },
+        {
+            id: 'Delivery Man',
+            value: "Delivery Man"
+        },
+        {
+            id: 'Chef',
+            value: "Chef"
+        },
+        {
+            id: 'Assistant Chef',
+            value: "Assistant Chef"
+        },
+        {
+            id: 'Captain',
+            value: "Captain"
+        },
+        {
+            id: 'Waiter',
+            value: "Waiter"
+        },
+        {
+            id: 'Helper',
+            value: "Helper"
+        },
+        {
+            id: 'Fatka',
+            value: "Fatka"
+        },
+        {
+            id: 'Store Supervisor',
+            value: "Store Supervisor"
+        },
+        {
+            id: 'Kitchen Supervisor',
+            value: "Kitchen Supervisor"
+        },
+        {
+            id: 'Mori Wala',
+            value: "Mori Wala"
+        },
+        {
+            id: 'Security Guard',
+            value: "Security Guard"
+        },
     ]);
     const [fileName, setFileName] = React.useState(null);
     const [file, setFile] = React.useState('');
@@ -348,6 +405,7 @@ function AddEditStaff() {
     }, [])
     return (
         <div className='mainBodyAddStaff grid content-center'>
+
             <div className="grid grid-cols-12">
                 <div className="col-span-8 col-start-3">
                     <div className="addStaffCard">

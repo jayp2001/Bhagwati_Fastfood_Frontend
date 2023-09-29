@@ -254,11 +254,12 @@ function AllPayments() {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
-    const handleOpenModelCalculation = (id, salary, advance, fine) => {
+    const handleOpenModelCalculation = (id, salary, advance, fine, name) => {
         setEditFormData({
             salary: salary,
             advance: advance,
-            fine: fine
+            fine: fine,
+            nickName: name
         })
         getCalculationData(id);
         setOpenModalCalculation(true);
@@ -667,11 +668,12 @@ function AllPayments() {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
-    const handleOpenModelCalculationCredit = (id, credit, type) => {
+    const handleOpenModelCalculationCredit = (id, credit, type, name) => {
         setEditFormData({
             cafId: id,
             creditAmount: credit,
             creditType: type,
+            nickName: name
         })
         getCalculationDataCredit(id);
         setOpenModalCalculationCredit(true);
@@ -1634,7 +1636,7 @@ function AllPayments() {
                     <div className='flex justify-between'>
                         <div className='pt-1 pl-2'>
                             <Typography id="modal-modal" variant="h6" component="h2">
-                                <span className='makePaymentHeader'>Paid Salary Calculation</span>
+                                <span className='makePaymentHeader'>Paid Salary Calculation for {editFormData && editFormData.nickName}</span>
                             </Typography>
                         </div>
                         <div>
@@ -1944,7 +1946,7 @@ function AllPayments() {
                     <div className='flex justify-between'>
                         <div className='pt-1 pl-2'>
                             <Typography id="modal-modal" variant="h6" component="h2">
-                                <span className='makePaymentHeader'>Credit Cut From {editFormData && editFormData.creditType} </span>
+                                <span className='makePaymentHeader'>Credit Cut From {editFormData && editFormData.creditType} for {editFormData && editFormData.nickName}</span>
                             </Typography>
                         </div>
                         <div>

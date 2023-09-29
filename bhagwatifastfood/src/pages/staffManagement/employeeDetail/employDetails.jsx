@@ -52,6 +52,9 @@ import MenuLeaves from './menus/menuLeaves';
 import MenuTransaction from './menus/menuTransaction';
 import ExportMenu from '../exportMenu';
 import CountCard from '../countCard/countCard';
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
+import Collapse from '@mui/material/Collapse';
 
 const styleStockIn = {
     position: 'absolute',
@@ -138,6 +141,7 @@ function EmployeeDetails() {
     const [openModalEditFine, setOpenModalEditFine] = React.useState(false);
     const [editLeave, setEditLeave] = React.useState(false);
     const [data, setData] = useState();
+    const [workDays, setWorkDays] = useState();
     const [searchWord, setSearchWord] = React.useState('');
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const [toggel, setToggel] = useState(false);
@@ -200,6 +204,7 @@ function EmployeeDetails() {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const ids = open ? 'simple-popover' : undefined;
+    const [openAlert, setOpenAlert] = React.useState(true);
 
 
     const [monthlySalary, setMonthlySalary] = React.useState();
@@ -230,6 +235,15 @@ function EmployeeDetails() {
             .then((res) => {
                 setToggel(res.data.employeeStatus == 1 ? true : false)
                 setData(res.data);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getWorkDaysData = async () => {
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getPresentDaysByEmployeeId?employeeId=${id}`, config)
+            .then((res) => {
+                setWorkDays(res.data);
             })
             .catch((error) => {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
@@ -340,8 +354,9 @@ function EmployeeDetails() {
             .then((res) => {
                 setLoading(false);
                 setSuccess(true);
+                setPage(0); setRowsPerPage(5);
                 handleCloseModel();
-
+                tabTable === 2 || tabTable === '2' ? getAdvanceData() : tabTable === 3 || tabTable === '3' ? getFineData() : tabTable === 6 || tabTable === '6' ? getBonusData() : tabTable === 5 || tabTable === '5' ? getCreditData() : tabTable === 4 || tabTable === '4' ? getTransactionData() : tabTable === 1 || tabTable === '1' ? getMonthlySalaryData() : getMonthlySalaryData();
                 setTimeout(() => {
                     getCountData();
                     getData()
@@ -1984,9 +1999,20 @@ function EmployeeDetails() {
                 setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
+    const getCountDataByFilter = async (filter) => {
+        await axios.get(filter ? `${BACKEND_BASE_URL}staffrouter/getAllPaymentStatisticsCountById?employeeId=${id}&startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}`
+            : `${BACKEND_BASE_URL}staffrouter/getAllPaymentStatisticsCountById?employeeId=${id}&startDate=${''}&endDate=${''}`, config)
+            .then((res) => {
+                setCountData(res.data);
+            })
+            .catch((error) => {
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+            })
+    }
     useEffect(() => {
         getData();
         getCountData();
+        getWorkDaysData();
         getMonthlySalaryData();
     }, [])
     if (loading) {
@@ -2037,7 +2063,14 @@ function EmployeeDetails() {
     if (!data) {
         return null;
     }
-    return (
+    return (<>
+        <div className='alertCss'>
+            <Collapse in={openAlert}>
+                <Alert style={{ border: '1px solid orange', marginTop: '20px' }} severity="warning" onClose={() => { setOpenAlert(false) }}>
+                    Been Working for 365 days <strong> Salary Increase Reminder...!</strong>
+                </Alert>
+            </Collapse>
+        </div>
         <div className='suppilerListContainer'>
             <div className='grid grid-cols-12 gap-8'>
                 <div className='col-span-12 '>
@@ -2086,6 +2119,7 @@ function EmployeeDetails() {
                                                         setFilter(false);
                                                         setPage(0); setRowsPerPage(5);
                                                         getLeaveData();
+                                                        getCountDataByFilter(false)
                                                         tabTable === 2 || tabTable === '2' ? getAdvanceData() : tabTable === 3 || tabTable === '3' ? getFineData() : tabTable === 6 || tabTable === '6' ? getBonusData() : tabTable === 5 || tabTable === '5' ? getCreditData() : tabTable === 4 || tabTable === '4' ? getTransactionData() : tabTable === 1 || tabTable === '1' ? getMonthlySalaryData() : getMonthlySalaryData();
                                                         setState({
                                                             startMonth: new Date().getMonth(),
@@ -2216,7 +2250,8 @@ function EmployeeDetails() {
                                                                 setFilter(true)
                                                                 handleClose();
                                                                 setPage(0); setRowsPerPage(5);
-                                                                getLeaveDataByFilter()
+                                                                getLeaveDataByFilter();
+                                                                getCountDataByFilter(true)
                                                                 tabTable === 2 || tabTable === '2' ? getAdvanceDataByFilter() : tabTable === 3 || tabTable === '3' ? getFineDataByFilter() : tabTable === 6 || tabTable === '6' ? getBonusDataByFilter() : tabTable === 5 || tabTable === '5' ? getCreditDataByFilter() : tabTable === 4 || tabTable === '4' ? getTransactionDataByFilter() : tabTable === 1 || tabTable === '1' ? getMonthlySalaryDataByFilter() : getMonthlySalaryDataByFilter();
                                                                 // setFilter(true); handleClose(); getStatisticsByFilter(); setTabTable(''); setPage(0); setRowsPerPage(5); getStockInDataByTabByFilter(''); getProductCountByFilter();
                                                             }}>Apply</button>
@@ -2462,7 +2497,7 @@ function EmployeeDetails() {
                                 </div>
                                 <div className='grid grid-cols-12 gap-6'>
                                     <div className='col-span-3'>
-                                        <CountCard color={'black'} count={countData && countData.totalFine ? countData.totalFine : 0} desc={'Remaining Salary'} productDetail={true} unitDesc={0} />
+                                        <CountCard color={'black'} count={countData && countData.remainSalary ? countData.remainSalary : 0} desc={'Remaining Salary'} productDetail={true} unitDesc={0} />
                                     </div>
                                     <div className='col-span-3'>
                                         <CountCard color={'pink'} count={countData && countData.totalRemainAdvance ? countData.totalRemainAdvance : 0} desc={'Remaining Advance'} productDetail={true} unitDesc={0} />
@@ -3186,7 +3221,7 @@ function EmployeeDetails() {
                 <Box sx={styleStockIn}>
                     <div className='flex justify-between'>
                         <Typography id="modal-modal" variant="h6" component="h2">
-                            <span className='makePaymentHeader'>Make Payment to : </span><span className='makePaymentName'>{formData.nickName}</span>
+                            <span className='makePaymentHeader'>Make Payment to : </span><span className='makePaymentName'>{data.employeeNickName}</span>
                         </Typography>
                         <Typography id="modal-modal" variant="h6" component="h2">
                             <span className='makePaymentHeader'>{'Payment Due :'}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{formData.paymentDue}</span>
@@ -4014,7 +4049,7 @@ function EmployeeDetails() {
             </Modal>
             <ToastContainer />
         </div >
-    )
+    </>)
 }
 
 export default EmployeeDetails;

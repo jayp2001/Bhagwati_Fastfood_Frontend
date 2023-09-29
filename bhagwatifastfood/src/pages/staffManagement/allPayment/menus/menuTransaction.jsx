@@ -67,7 +67,7 @@ function MenuTransaction(props) {
                 <MenuItem key={'view'}
                     onClick={() => {
                         handleClose();
-                        props.handleOpenModelCalculation(props.data.remainSalaryId, props.data.salaryPay, props.data.advanceCut, props.data.fineCut)
+                        props.handleOpenModelCalculation(props.data.remainSalaryId, props.data.salaryPay, props.data.advanceCut, props.data.fineCut, props.data.employeeName)
                     }}>
                     View Calculation
                 </MenuItem>

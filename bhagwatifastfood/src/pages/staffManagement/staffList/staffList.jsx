@@ -481,7 +481,7 @@ function StaffList() {
         toast.dismiss('loading');
         toast(error, {
             type: 'error',
-            position: "bottom-right",
+            position: "top-right",
             toastId: 'error',
             autoClose: 3000,
             hideProgressBar: false,

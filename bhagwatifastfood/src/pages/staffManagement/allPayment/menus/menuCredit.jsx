@@ -58,7 +58,7 @@ function MenuCredit(props) {
                 <MenuItem key={'view'}
                     onClick={() => {
                         handleClose();
-                        props.handleOpenModelCalculationCredit(props.data.cafId, props.data.creditAmount, props.data.creditType)
+                        props.handleOpenModelCalculationCredit(props.data.cafId, props.data.creditAmount, props.data.creditType, props.data.employeeName)
                     }}>
                     View Calculation
                 </MenuItem>
