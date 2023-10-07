@@ -31,7 +31,7 @@ import ProtectedAdminRoutes from './protectedAdminRoutes';
 import AllPayments from './pages/staffManagement/allPayment/allPayment';
 import Leaves from './pages/staffManagement/leaves/leaves';
 import PrintButton from './testThermal';
-import SetPrinter from './setPrinter';
+// import SetPrinter from './setPrinter';
 function App() {
   return (
     <div className="">
@@ -80,7 +80,7 @@ function App() {
                   <Route path="/bookList" element={<AllBookList/>}/> */}
                 </Route>
                 <Route path='/thermal' exact element={<PrintButton />}/>
-                <Route path='/setPrinter' exact element={<SetPrinter />}/>
+                {/* <Route path='/setPrinter' exact element={<SetPrinter />}/> */}
                 <Route path='/login' exact element={<LoginPage />}/>
                 <Route path='*' element={<PageNotFoundRedirect/>}/>
               </Routes>
