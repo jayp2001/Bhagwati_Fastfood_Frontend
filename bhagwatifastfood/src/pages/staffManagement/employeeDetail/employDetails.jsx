@@ -204,7 +204,7 @@ function EmployeeDetails() {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const ids = open ? 'simple-popover' : undefined;
-    const [openAlert, setOpenAlert] = React.useState(true);
+    const [openAlert, setOpenAlert] = React.useState(false);
 
 
     const [monthlySalary, setMonthlySalary] = React.useState();
@@ -214,6 +214,7 @@ function EmployeeDetails() {
     const [creditData, setCreditData] = React.useState();
     const [bonusData, setBonusData] = React.useState();
     const [leaveData, setLeaveData] = React.useState();
+    const [salaryHistory, setSalaryHistory] = React.useState();
     const [transactionData, setTransactionData] = React.useState();
     const [totalRowsMonthly, setTotalRowsMonthly] = React.useState(0);
     const [totalRowsAdvance, setTotalRowsAdvance] = React.useState(0);
@@ -221,6 +222,7 @@ function EmployeeDetails() {
     const [totalRowsCredit, setTotalRowsCredit] = React.useState(0);
     const [totalRowsBonus, setTotalRowsBonus] = React.useState(0);
     const [totalRowsLeaves, setTotalRowsLeaves] = React.useState(0);
+    const [totalRowsSalaryHistory, setTotalRowsSalaryHistory] = React.useState(0);
     const [totalRowsTransaction, setTotalRowsTransaction] = React.useState(0);
 
 
@@ -244,6 +246,7 @@ function EmployeeDetails() {
         await axios.get(`${BACKEND_BASE_URL}staffrouter/getPresentDaysByEmployeeId?employeeId=${id}`, config)
             .then((res) => {
                 setWorkDays(res.data);
+                setOpenAlert(res.data.alertDay < 366 || res.data.alertDay > 396 ? false : true)
             })
             .catch((error) => {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
@@ -1106,6 +1109,26 @@ function EmployeeDetails() {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
+    const getSalaryHistoryData = async () => {
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getSalaryIncreaseHistoryById?page=${1}&numPerPage=${5}&employeeId=${id}`, config)
+            .then((res) => {
+                setSalaryHistory(res.data.rows);
+                setTotalRowsSalaryHistory(res.data.numRows)
+            })
+            .catch((error) => {
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+            })
+    }
+    const getSalaryHistoryDataOnPageChange = async (pageNum, rowPerPageNum) => {
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getSalaryIncreaseHistoryById?page=${pageNum}&numPerPage=${rowPerPageNum}&employeeId=${id}`, config)
+            .then((res) => {
+                setSalaryHistory(res.data.rows);
+                setTotalRowsSalaryHistory(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
     const getLeaveDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
         await axios.get(`${BACKEND_BASE_URL}staffrouter/getLeaveDataById?startMonth=${state.startYear + '-' + monthIndex[state.startMonth]}&endMonth=${state.endYear + '-' + monthIndex[state.endMonth]}&page=${pageNum}&numPerPage=${rowPerPageNum}&employeeId=${id}`, config)
             .then((res) => {
@@ -1612,24 +1635,34 @@ function EmployeeDetails() {
 
     const handleChangePageLeaves = (event, newPage) => {
         setPageLeaves(newPage);
-        if (filter) {
-            getLeaveDataOnPageChangeByFilter(newPage + 1, rowsPerPageLeaves)
+        if (tab == 2) {
+            getSalaryHistoryDataOnPageChange(newPage + 1, rowsPerPageLeaves)
         }
         else {
-            getLeaveDataOnPageChange(newPage + 1, rowsPerPageLeaves)
+            if (filter) {
+                getLeaveDataOnPageChangeByFilter(newPage + 1, rowsPerPageLeaves)
+            }
+            else {
+                getLeaveDataOnPageChange(newPage + 1, rowsPerPageLeaves)
+            }
         }
+
 
     };
     const handleChangeRowsPerPageLeaves = (event) => {
         setRowsPerPageLeaves(parseInt(event.target.value, 10));
         setPageLeaves(0);
-        if (filter) {
-            getLeaveDataOnPageChangeByFilter(1, parseInt(event.target.value, 10))
+        if (tab == 2) {
+            getSalaryHistoryDataOnPageChange(1, parseInt(event.target.value, 10))
         }
         else {
-            getLeaveDataOnPageChange(1, parseInt(event.target.value, 10))
+            if (filter) {
+                getLeaveDataOnPageChangeByFilter(1, parseInt(event.target.value, 10))
+            }
+            else {
+                getLeaveDataOnPageChange(1, parseInt(event.target.value, 10))
+            }
         }
-
     };
 
 
@@ -2067,7 +2100,7 @@ function EmployeeDetails() {
         <div className='alertCss'>
             <Collapse in={openAlert}>
                 <Alert style={{ border: '1px solid orange', marginTop: '20px' }} severity="warning" onClose={() => { setOpenAlert(false) }}>
-                    Been Working for 365 days <strong> Salary Increase Reminder...!</strong>
+                    Been Working for {workDays && workDays.alertDay} days <strong> Salary Increase Reminder...!</strong>
                 </Alert>
             </Collapse>
         </div>
@@ -2092,10 +2125,11 @@ function EmployeeDetails() {
                                                 <div className={`flex col-span-3 justify-center ${tab === 2 || tab === '2' ? 'productTabIn' : 'productTab'}`}
                                                     onClick={() => {
                                                         setTab(2);
-                                                        setPageLeaves(0)
-                                                        setRowsPerPageLeaves(5)
+                                                        setPageLeaves(0);
+                                                        setRowsPerPageLeaves(5);
+                                                        getSalaryHistoryData();
                                                     }}>
-                                                    <div className='statusTabtext'>Statistics</div>
+                                                    <div className='statusTabtext'>Salary History</div>
                                                 </div>
                                                 <div className={`flex col-span-3 justify-center ${tab === 3 || tab === '3' ? 'tabDebit' : 'productTab'}`}
                                                     onClick={() => {
@@ -2361,18 +2395,18 @@ function EmployeeDetails() {
                                     </div>
                                     <div className='grid grid-cols-12 gap-3 hrLine'>
                                         <div className='col-span-5 suppilerDetailFeildHeader'>
-                                            Home Address:
+                                            Working For :
                                         </div>
                                         <div className='col-span-7 suppilerDetailFeild'>
-                                            {data.homeAddress}
+                                            {workDays && workDays.totalPresentDaysInword}
                                         </div>
                                     </div>
                                     <div className='grid grid-cols-12 gap-3 hrLine'>
                                         <div className='col-span-5 suppilerDetailFeildHeader'>
-                                            Category:
+                                            Working Days :
                                         </div>
                                         <div className='col-span-7 suppilerDetailFeild'>
-                                            {data.category}
+                                            {workDays && workDays.alertDay} Days
                                         </div>
                                     </div>
                                     <div className='grid grid-cols-12 gap-3'>
@@ -2380,7 +2414,7 @@ function EmployeeDetails() {
                                             Per Day Salary
                                         </div>
                                         <div className='col-span-7 suppilerDetailFeild'>
-                                            {data.perDaySalary}
+                                            {parseFloat(data.perDaySalary ? data.perDaySalary : 0).toLocaleString()}
                                         </div>
                                     </div>
                                 </div>
@@ -2390,7 +2424,7 @@ function EmployeeDetails() {
                                             Current Salary :
                                         </div>
                                         <div className='col-span-7 suppilerDetailFeild'>
-                                            {data.salary}
+                                            {parseFloat(data.salary ? data.salary : 0).toLocaleString()}
                                         </div>
                                     </div>
                                     <div className='grid grid-cols-12 gap-3 hrLine'>
@@ -2470,74 +2504,59 @@ function EmployeeDetails() {
                         </div>
                         :
                         tab === 2 || tab === '2' ?
-                            <div className='grid gap-4 mt-12' >
-                                {/* <div className='grid grid-cols-4 gap-6 pb-3'>
-                                    <CountCard color={'black'} count={countData && countData.totalAdvance ? countData.totalAdvance : 0} desc={'Total Advance'} productDetail={true} unitDesc={0} />
-                                    <CountCard color={'pink'} count={countData && countData.totalRemainAdvance ? countData.totalRemainAdvance : 0} desc={'Remaining Advance'} productDetail={true} unitDesc={0} />
-                                    <CountCard color={'black'} count={countData && countData.totalFine ? countData.totalFine : 0} desc={'Remaining Salary'} productDetail={true} unitDesc={0} />
-                                    <CountCard color={'pink'} count={countData && countData.totalConsiderFine ? countData.totalConsiderFine : 0} desc={'Remaining Advance'} productDetail={true} unitDesc={0} />
-                                    <CountCard color={'blue'} count={countData && countData.totalIgnoreFine ? countData.totalIgnoreFine : 0} desc={'Remaining Fine'} productDetail={true} unitDesc={0} />
-                                    <CountCard color={'black'} count={countData && countData.totalFine ? countData.totalFine : 0} desc={'Total Fine'} productDetail={true} unitDesc={0} />
-                                    <CountCard color={'pink'} count={countData && countData.totalConsiderFine ? countData.totalConsiderFine : 0} desc={'Considered Fine'} productDetail={true} unitDesc={0} />
-                                    <CountCard color={'blue'} count={countData && countData.totalIgnoreFine ? countData.totalIgnoreFine : 0} desc={'Ignored Fine'} productDetail={true} unitDesc={0} />
-                                    <CountCard color={'blue'} count={countData && countData.totalRemainFine ? countData.totalRemainFine : 0} desc={'Remaining Fine'} productDetail={true} unitDesc={0} />
-                                    <CountCard color={'black'} count={countData && countData.salaryPaySum ? countData.salaryPaySum : 0} desc={'Salary Paid'} productDetail={true} unitDesc={0} />
-                                    <CountCard color={'pink'} count={countData && countData.advanceCutSum ? countData.advanceCutSum : 0} desc={'Advance Cut'} productDetail={true} unitDesc={0} />
-                                    <CountCard color={'blue'} count={countData && countData.fineCutSum ? countData.fineCutSum : 0} desc={'Fine Cut'} productDetail={true} unitDesc={0} />
-                                    <CountCard color={'black'} count={countData && countData.totalCreditAmount ? countData.totalCreditAmount : 0} desc={'Total Credit'} productDetail={true} unitDesc={0} />
-                                    <CountCard color={'black'} count={countData && countData.totalBonusAmount ? countData.totalBonusAmount : 0} desc={'Total Bonus'} productDetail={true} unitDesc={0} />
-                                </div> */}
-                                <div className='grid grid-cols-12 gap-6'>
-                                    <div className='col-span-3'>
-                                        <CountCard color={'black'} count={countData && countData.totalAdvance ? countData.totalAdvance : 0} desc={'Total Advance'} productDetail={true} unitDesc={0} />
-                                    </div>
-                                    <div className='col-span-3'>
-                                        <CountCard color={'pink'} count={countData && countData.totalRemainAdvance ? countData.totalRemainAdvance : 0} desc={'Remaining Advance'} productDetail={true} unitDesc={0} />
-                                    </div>
-                                </div>
-                                <div className='grid grid-cols-12 gap-6'>
-                                    <div className='col-span-3'>
-                                        <CountCard color={'black'} count={countData && countData.remainSalary ? countData.remainSalary : 0} desc={'Remaining Salary'} productDetail={true} unitDesc={0} />
-                                    </div>
-                                    <div className='col-span-3'>
-                                        <CountCard color={'pink'} count={countData && countData.totalRemainAdvance ? countData.totalRemainAdvance : 0} desc={'Remaining Advance'} productDetail={true} unitDesc={0} />
-                                    </div>
-                                    <div className='col-span-3'>
-                                        <CountCard color={'blue'} count={countData && countData.totalRemainFine ? countData.totalRemainFine : 0} desc={'Remaining Fine'} productDetail={true} unitDesc={0} />
-                                    </div>
-                                </div>
-                                <div className='grid grid-cols-12 gap-6'>
-                                    <div className='col-span-3'>
-                                        <CountCard color={'black'} count={countData && countData.totalFine ? countData.totalFine : 0} desc={'Total Fine'} productDetail={true} unitDesc={0} />
-                                    </div>
-                                    <div className='col-span-3'>
-                                        <CountCard color={'pink'} count={countData && countData.totalConsiderFine ? countData.totalConsiderFine : 0} desc={'Considered Fine'} productDetail={true} unitDesc={0} />
-                                    </div>
-                                    <div className='col-span-3'>
-                                        <CountCard color={'blue'} count={countData && countData.totalIgnoreFine ? countData.totalIgnoreFine : 0} desc={'Ignored Fine'} productDetail={true} unitDesc={0} />
-                                    </div>
-                                    <div className='col-span-3'>
-                                        <CountCard color={'blue'} count={countData && countData.totalRemainFine ? countData.totalRemainFine : 0} desc={'Remaining Fine'} productDetail={true} unitDesc={0} />
-                                    </div>
-                                </div>
-                                <div className='grid grid-cols-12 gap-6'>
-                                    <div className='col-span-3'>
-                                        <CountCard color={'black'} count={countData && countData.salaryPaySum ? countData.salaryPaySum : 0} desc={'Salary Paid'} productDetail={true} unitDesc={0} />
-                                    </div>
-                                    <div className='col-span-3'>
-                                        <CountCard color={'pink'} count={countData && countData.advanceCutSum ? countData.advanceCutSum : 0} desc={'Advance Cut'} productDetail={true} unitDesc={0} />
-                                    </div>
-                                    <div className='col-span-3'>
-                                        <CountCard color={'blue'} count={countData && countData.fineCutSum ? countData.fineCutSum : 0} desc={'Fine Cut'} productDetail={true} unitDesc={0} />
-                                    </div>
-                                </div>
-                                <div className='grid grid-cols-12 gap-6'>
-                                    <div className='col-span-3'>
-                                        <CountCard color={'black'} count={countData && countData.totalCreditAmount ? countData.totalCreditAmount : 0} desc={'Total Credit'} productDetail={true} unitDesc={0} />
-                                    </div>
-                                    <div className='col-span-3'>
-                                        <CountCard color={'black'} count={countData && countData.totalBonusAmount ? countData.totalBonusAmount : 0} desc={'Total Bonus'} productDetail={true} unitDesc={0} />
-                                    </div>
+                            <div className='tableSubContainer pt-2 mt-10' >
+                                <div className='tableContainerWrapper displayTableTemp'>
+                                    {/* <Paper sx={{ width: '100%', overflow: 'hidden' }}> */}
+                                    <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px' }} component={Paper}>
+                                        <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
+                                            <TableHead >
+                                                <TableRow>
+                                                    <TableCell >No.</TableCell>
+                                                    <TableCell>Salary</TableCell>
+                                                    <TableCell align="left">Salary Period</TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {salaryHistory?.map((row, index) => (
+                                                    totalRowsSalaryHistory !== 0 ?
+                                                        <TableRow
+                                                            hover
+                                                            key={row.leaveId}
+                                                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                            style={{ cursor: "pointer" }}
+                                                            className='tableRow'
+                                                        >
+                                                            <TableCell align="left" >{(index + 1) + (pageLeaves * rowsPerPageLeaves)}</TableCell>
+                                                            {/* <Tooltip title={row.userName} placement="top-start" arrow> */}
+                                                            <TableCell component="th" scope="row" >
+                                                                {row.salary}
+                                                            </TableCell>
+                                                            <TableCell component="th" scope="row" >
+                                                                {row.salaryPeriod}
+                                                            </TableCell>
+                                                            {/* </Tooltip> */}
+                                                        </TableRow> :
+                                                        <TableRow
+                                                            key={row.userId}
+                                                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                        >
+                                                            <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
+                                                        </TableRow>
+
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                        <TablePagination
+                                            rowsPerPageOptions={[5, 10, 25]}
+                                            component="div"
+                                            count={totalRowsSalaryHistory}
+                                            rowsPerPage={rowsPerPageLeaves}
+                                            page={pageLeaves}
+                                            onPageChange={handleChangePageLeaves}
+                                            onRowsPerPageChange={handleChangeRowsPerPageLeaves}
+                                        />
+                                    </TableContainer>
+                                    {/* </Paper> */}
                                 </div>
                             </div>
                             :
@@ -3368,7 +3387,7 @@ function EmployeeDetails() {
                             <span className='makePaymentHeader'> {editLeave ? 'Edit Leave for : ' : 'Add Leave for : '} </span><span className='makePaymentName'>{data.employeeNickName}</span>
                         </Typography>
                         <Typography id="modal-modal" variant="h6" component="h2">
-                            <span className='makePaymentHeader'>{`Available Leave(${'Max leave:' + data.maxLeave}) :`}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{data.availableLeave}</span>
+                            <span className='makePaymentHeader'>{`Available Leave(${'Max leave:' + data.maxLeave}) :`}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{data.availableLeave + data.maxLeave}</span>
                         </Typography>
                     </div>
                     <div className='mt-6 grid grid-cols-12 gap-6'>

@@ -1,5 +1,5 @@
 import './staffList.css';
-import CountCard from '../../inventory/countCard/countCard'
+import CountCard from '../countCard/countCard'
 import EmployeeCard from '../employeeCard/employeeCard';
 import { useState, useEffect } from "react";
 import React from "react";

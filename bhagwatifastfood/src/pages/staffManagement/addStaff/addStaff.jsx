@@ -112,6 +112,14 @@ function AddEditStaff() {
             id: 'Security Guard',
             value: "Security Guard"
         },
+        {
+            id: 'Cleaner',
+            value: "Cleaner"
+        },
+        {
+            id: 'Pantry',
+            value: "Pantry"
+        },
     ]);
     const [fileName, setFileName] = React.useState(null);
     const [file, setFile] = React.useState('');
@@ -540,7 +548,7 @@ function AddEditStaff() {
                                     <div className="col-span-4">
                                         <TextField
                                             onChange={(e) => {
-                                                if ((regex.test(e.target.value) || e.target.value === '') && e.target.value.length < 15) {
+                                                if ((regex.test(e.target.value) || e.target.value === '') && e.target.value.length < 21) {
                                                     onChange(e)
                                                 }
                                             }}

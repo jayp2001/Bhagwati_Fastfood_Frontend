@@ -192,6 +192,7 @@ function EmployeeCard(props) {
             }
         }
     }
+    console.log(">>>", parseFloat(''))
     const label = { inputProps: { 'aria-label': 'Size switch demo' } };
     return (
         <div className='employeeCard' key={props.data.category + props.data.employeeId + 'employeeCard'}>
@@ -201,12 +202,12 @@ function EmployeeCard(props) {
                         <img src={BACKEND_BASE_URL + props.data.imageLink} />
                     </div>
                     <div className='nameAndCategoryWrp'>
-                        <Tooltip title={'Vikalp Dipakbhai Chavda'} placement="top-start" arrow>
+                        <Tooltip title={props.data.employeeName} placement="top-start" arrow>
                             <div className='nameWrp' onClick={() => handleViewDetail()}>
                                 {props.data.employeeName}
                             </div>
                         </Tooltip>
-                        <Tooltip title={'Panjabi(main)'} placement="top-start" arrow>
+                        <Tooltip title={props.data.category} placement="top-start" arrow>
                             <div className='categoryWrp'>
                                 {props.data.category}
                             </div>
@@ -232,7 +233,7 @@ function EmployeeCard(props) {
                                 Salary
                             </div>
                             <div className='salaryNum mt-1'>
-                                {props.data.totalSalary}
+                                {parseFloat(props.data.totalSalary ? props.data.totalSalary : 0).toLocaleString()}
                             </div>
                         </div>
                         <div>
@@ -274,7 +275,7 @@ function EmployeeCard(props) {
                                 Daily Salary
                             </div>
                             <div className='salaryNum mt-1'>
-                                {props.data.perDaySalary}
+                                {parseFloat(props.data.perDaySalary ? props.data.perDaySalary : 0).toLocaleString()}
                             </div>
                         </div>
                     </div>
@@ -284,7 +285,7 @@ function EmployeeCard(props) {
                         </div>
                     </div>
                     <div className={`${props.data.paymentDue > 0 ? 'dueSalaryWrpGreen' : props.data.paymentDue == 0 ? 'dueSalaryWrpBlack' : ''} dueSalaryWrp mt-3 ml-6 mr-6`}>
-                        {props.data.paymentDue}
+                        {parseFloat(props.data.paymentDue ? props.data.paymentDue : 0).toLocaleString()}
                     </div>
                     <div className='mt-3 ml-6 mr-6 grid grid-cols-2 gap-6'>
                         <button className='addSalary' onClick={() => props.handleOpen(props.data)}>Give Salary</button>

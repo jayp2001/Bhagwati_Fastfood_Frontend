@@ -32,20 +32,27 @@ function Dashboard() {
         setValue(newValue);
     }
     const goToAddUSer = () => {
-        // const auth = new Date(expirationTime) > new Date() && role == 6 ? true : false
-        // if (auth) {
-        //     navigate('/addUser')
-        // } else {
-        //     if (window.confirm("You are not Authorised. You want to Login again ?")) {
-        //         navigate('/login')
-        //     }
-        // }
-        navigate('/addUser')
+        const auth = new Date(expirationTime) > new Date() && role == 6 ? true : false
+        if (auth) {
+            navigate('/addUser')
+        } else {
+            if (window.confirm("You are not Authorised. You want to Login again ?")) {
+                navigate('/login')
+            }
+        }
+        // navigate('/addUser')
 
     }
     const goToStaff = () => {
-        const auth = new Date(expirationTime) > new Date() && role == 6 ? true : false
-        navigate('/staff/staffList')
+        const auth = new Date(expirationTime) > new Date() && (role == 1 || role == 2) ? true : false
+        if (auth) {
+            navigate('/staff/staffList')
+        } else {
+            if (window.confirm("You are not Authorised. You want to Login again ?")) {
+                navigate('/login')
+            }
+        }
+        // navigate('/staff/staffList')
     }
     const goToProductList = () => {
         // const auth = new Date(expirationTime) > new Date() && role == 6 ? true : false
