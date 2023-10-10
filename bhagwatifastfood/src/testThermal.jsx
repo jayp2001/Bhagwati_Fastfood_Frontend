@@ -1,9 +1,76 @@
 import React, { useEffect, useState } from 'react';
-import Img1 from './assets/Qr.png'
-
+import Img1 from './assets/Qr.png';
+// const usb = require('usb');
 const PrintButton = () => {
     const [printer, setPrinter] = useState(null);
     const [printer2, setPrinter2] = useState(null);
+
+    const handlePrintIp = () => {
+        const GS = String.fromCharCode(29);
+        const ESC = String.fromCharCode(27);
+        let COMMAND = "";
+
+        // COMMAND = ESC + "i";
+        // COMMAND += GS + "V" + String.fromCharCode(1);
+        COMMAND = ESC + "@";
+        COMMAND += ESC + "a" + String.fromCharCode(1); // Center alignment
+
+        // Your content goes here...
+
+        // Perform a partial paper cut
+        COMMAND += GS + "V" + String.fromCharCode(66) + String.fromCharCode(2);
+        const encoder = new TextEncoder();
+        const printData = `
+  \x1B\x40   // ESC @ (initialize the printer)
+  \x1B\x61\x01   // ESC a 1 (center align text)
+  Restaurant Name\n
+  --------------------------------\n
+  \x1B\x61\x00   // ESC a 0 (left align text)
+  Date: 2023-08-02\n
+  Item 1 x 2  $10.00\n
+  Item 2 x 1  $15.00\n
+  --------------------------------\n
+  Total: $35.00\n
+  \n
+  Thank you for dining with us!\n
+  \n
+`;
+        const data = encoder.encode(printData + COMMAND);
+        const sockket = new WebSocket('http://192.168.1.87:9100');
+        sockket.onopen = () => {
+            sockket.send(data)
+        }
+        sockket.onerror = (error) => {
+            console.log('error', error)
+        }
+        // sockket.onopen = () => {
+        //     sockket.send(data)
+        // }
+
+        // Replace with the IP address and port of your networked printer
+        // const printerUrl = 'http://printer-ip-address:631/printers/YourPrinterName';
+
+        // // Create an IPP client
+        // const client = ipp.Printer(printerUrl);
+
+        // // Create a print job request
+        // const request = {
+        //     'operation-attributes-tag': {
+        //         'job-name': 'MyPrintJob',
+        //         'document-format': 'application/octet-stream', // Replace with the appropriate format
+        //     },
+        //     data: 'Your print data goes here', // Replace with your data
+        // };
+
+        // Send the print job to the printer
+        // client.execute('Print-Job', request, (err, response) => {
+        //     if (!err) {
+        //         console.log('Print job sent successfully');
+        //     } else {
+        //         console.error('Error sending print job:', err);
+        //     }
+        // });
+    };
 
     useEffect(() => {
 
@@ -120,7 +187,8 @@ const PrintButton = () => {
 `;
             const data = encoder.encode(printData + COMMAND);
             console.log("command", encoder.encode(COMMAND))
-            await printer.transferOut(1, data); // Endpoint number may vary
+            window.print(data);
+            // await printer.transferOut(1, data); // Endpoint number may vary
 
             console.log('Print data sent to USB printer');
         } catch (error) {
@@ -188,6 +256,14 @@ const PrintButton = () => {
             <hr />
             <button onClick={handlePrint2} >
                 Print
+            </button>
+            <hr />
+            <button onClick={handlePrint2} >
+                Print
+            </button>
+            <hr />
+            <button onClick={handlePrintIp} >
+                Print Ip
             </button>
         </div>
     );

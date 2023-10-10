@@ -524,6 +524,13 @@ function StockOut() {
 
     }
 
+    // const handleViewDetail = (id) => {
+    //     navigate(`/stockManager/productDetail/${id}`)
+    // }
+    const handleViewDetail = (id, name, unit, remainingQty) => {
+        navigate(`/stockManager/productDetail/${id}/${name}/${unit}/${remainingQty}`)
+    }
+
     const handleSearch = () => {
         console.log(':::???:::', document.getElementById('searchWord').value)
         search(document.getElementById('searchWord').value)
@@ -578,8 +585,8 @@ function StockOut() {
                         </AccordionSummary>
                         <AccordionDetails>
                             <div className='stockInOutContainer'>
-                                <div className='mt-6 grid grid-cols-1 gap-6'>
-                                    <div className=''>
+                                <div className='mt-6 grid grid-cols-12 gap-6'>
+                                    <div className='col-span-3'>
                                         {!isEdit ?
                                             <FormControl fullWidth>
                                                 <Autocomplete
@@ -605,7 +612,7 @@ function StockOut() {
                                             />
                                         }
                                     </div>
-                                    <div className=''>
+                                    <div className='col-span-3'>
                                         <TextField
                                             onBlur={(e) => {
                                                 if (e.target.value < 0 || e.target.value > stockOutFormData?.remainingStock) {
@@ -635,7 +642,7 @@ function StockOut() {
                                             }}
                                         />
                                     </div>
-                                    <div className=''>
+                                    <div className='col-span-4'>
                                         <FormControl style={{ minWidth: '100%', maxWidth: '100%' }}>
                                             <InputLabel id="demo-simple-select-label" required error={stockOutFormDataError.stockOutCategory}>Category</InputLabel>
                                             <Select
@@ -670,7 +677,7 @@ function StockOut() {
                                             </Select>
                                         </FormControl>
                                     </div>
-                                    <div className=''>
+                                    <div className='col-span-2'>
                                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                                             <DesktopDatePicker
                                                 sx={{ width: '100%' }}
@@ -688,7 +695,7 @@ function StockOut() {
                                             />
                                         </LocalizationProvider>
                                     </div>
-                                    <div className=''>
+                                    <div className='col-span-6'>
                                         <TextField
                                             onChange={onChangeStockOut}
                                             value={stockOutFormData.stockOutComment}
@@ -701,7 +708,7 @@ function StockOut() {
                                         />
                                     </div>
                                     {isEdit &&
-                                        <div className=''>
+                                        <div className='col-span-6'>
                                             <TextField
                                                 onBlur={(e) => {
                                                     if (e.target.value.length < 4) {
@@ -730,12 +737,12 @@ function StockOut() {
                                             />
                                         </div>}
 
-                                    <div className=''>
+                                    <div className='col-span-2 col-start-9'>
                                         <button className='addCategorySaveBtn' onClick={() => {
                                             isEdit ? editSubmitStockOut() : submitStockOut()
                                         }}>{isEdit ? "Save" : "Stock Out"}</button>
                                     </div>
-                                    <div className=''>
+                                    <div className='col-span-2'>
                                         <button className='addCategoryCancleBtn' onClick={() => {
                                             handleResetStockOut();
                                             setIsEdit(false);
@@ -888,6 +895,7 @@ function StockOut() {
                                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                                         style={{ cursor: "pointer" }}
                                                         className='tableRow'
+                                                        onClick={() => handleViewDetail(row.productId, row.productName, row.minProductUnit, row.remainingStock)}
                                                     >
                                                         <TableCell align="left"  >{(index + 1) + (page * rowsPerPage)}</TableCell>
                                                         <TableCell component="th" scope="row"  >

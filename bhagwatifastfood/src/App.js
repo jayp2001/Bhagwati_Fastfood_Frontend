@@ -31,6 +31,7 @@ import ProtectedAdminRoutes from './protectedAdminRoutes';
 import AllPayments from './pages/staffManagement/allPayment/allPayment';
 import Leaves from './pages/staffManagement/leaves/leaves';
 import PrintButton from './testThermal';
+import ProductDetailsManager from './pages/inventory/stockOut/productDetailsManager';
 // import SetPrinter from './setPrinter';
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<ProtectedStockManagerRoutes/>}>
                   <Route path="/stockOut" element={<StockOut />}/>
+                  <Route path="/stockManager/productDetail/:id/:name/:unit/:remainingQty" element={<ProductDetailsManager />}/>
                   {/* <Route path='list' exact element={<AgentList />}/> */}
                   <Route path='*' element={<PageNotFoundRedirect/>}/>
                 </Route>
