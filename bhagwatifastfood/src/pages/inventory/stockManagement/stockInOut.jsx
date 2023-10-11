@@ -135,7 +135,7 @@ function StockInOut() {
         setIsEdit(false)
     }
 
-    const fillStockInEdit = async (id) => {
+    const fillStockInEdit = async (id, isFullEdit) => {
         await axios.get(`${BACKEND_BASE_URL}inventoryrouter/fillStockInTransaction?stockInId=${id}`, config)
             .then((res) => {
                 setStockInFormData((perv) => ({
@@ -151,7 +151,8 @@ function StockInOut() {
                     supplierId: res.data.supplierId,
                     stockInPaymentMethod: res.data.stockInPaymentMethod,
                     stockInComment: res.data.stockInComment,
-                    stockInDate: dayjs(res.data.stockInDate)
+                    stockInDate: dayjs(res.data.stockInDate),
+                    isFullEdit: isFullEdit
                 }))
                 getSuppilerList(res.data.productId)
             })
@@ -183,10 +184,10 @@ function StockInOut() {
             })
     }
 
-    const handleAccordionOpenOnEdit = (data) => {
+    const handleAccordionOpenOnEdit = (data, isFullEdit) => {
         console.log('edit', data)
         if (tab === 1 || tab === '1') {
-            fillStockInEdit(data);
+            fillStockInEdit(data, isFullEdit);
         }
         else {
             fillStockOutEdit(data)
@@ -1083,6 +1084,7 @@ function StockInOut() {
                                                         onChangeStockIn(e)
                                                     }
                                                 }}
+                                                disabled={isEdit ? stockInFormData.isFullEdit ? false : true : false}
                                                 value={stockInFormData.productQty}
                                                 error={stockInFormDataError.productQty}
                                                 helperText={stockInFormDataError.productQty ? "Enter Qty" : ''}
@@ -1119,6 +1121,7 @@ function StockInOut() {
                                                 name="productPrice"
                                                 id="outlined-required"
                                                 label="Product Price"
+                                                disabled={isEdit ? stockInFormData.isFullEdit ? false : true : false}
                                                 InputProps={{ style: { fontSize: 14 } }}
                                                 InputLabelProps={{ style: { fontSize: 14 } }}
                                                 fullWidth
@@ -1152,6 +1155,7 @@ function StockInOut() {
                                                 name="totalPrice"
                                                 id="outlined-required"
                                                 label="Total Price"
+                                                disabled={isEdit ? stockInFormData.isFullEdit ? false : true : false}
                                                 InputProps={{ style: { fontSize: 14 } }}
                                                 InputLabelProps={{ style: { fontSize: 14 } }}
                                                 fullWidth

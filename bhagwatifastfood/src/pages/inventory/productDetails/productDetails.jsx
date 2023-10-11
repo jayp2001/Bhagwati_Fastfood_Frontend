@@ -738,7 +738,7 @@ function ProductDetails() {
         setIsEdit(false)
     }
 
-    const fillStockInEdit = async (id) => {
+    const fillStockInEdit = async (id, isFullEdit) => {
         await axios.get(`${BACKEND_BASE_URL}inventoryrouter/fillStockInTransaction?stockInId=${id}`, config)
             .then((res) => {
                 setStockInFormData((perv) => ({
@@ -754,7 +754,8 @@ function ProductDetails() {
                     supplierId: res.data.supplierId,
                     stockInPaymentMethod: res.data.stockInPaymentMethod,
                     stockInComment: res.data.stockInComment,
-                    stockInDate: dayjs(res.data.stockInDate)
+                    stockInDate: dayjs(res.data.stockInDate),
+                    isFullEdit: isFullEdit
                 }))
                 getSuppilerList(res.data.productId)
             })
@@ -786,9 +787,9 @@ function ProductDetails() {
             })
     }
 
-    const handleAccordionOpenOnEdit = (data) => {
+    const handleAccordionOpenOnEdit = (data, isFullEdit) => {
         if (tabStockInOut === 1 || tabStockInOut === '1') {
-            fillStockInEdit(data);
+            fillStockInEdit(data, isFullEdit);
         }
         else {
             fillStockOutEdit(data)
@@ -1207,6 +1208,7 @@ function ProductDetails() {
                                             label="Qty"
                                             fullWidth
                                             onChange={onChangeStockIn}
+                                            disabled={isEdit ? stockInFormData.isFullEdit ? false : true : false}
                                             value={stockInFormData.productQty}
                                             error={stockInFormDataError.productQty}
                                             helperText={stockInFormDataError.productQty ? "Enter Qty" : ''}
@@ -1242,6 +1244,7 @@ function ProductDetails() {
                                             error={stockInFormDataError.productPrice}
                                             helperText={stockInFormDataError.productPrice ? "Enter Price" : ''}
                                             name="productPrice"
+                                            disabled={isEdit ? stockInFormData.isFullEdit ? false : true : false}
                                             id="outlined-required"
                                             label="Product Price"
                                             InputProps={{ style: { fontSize: 14 } }}
@@ -1275,6 +1278,7 @@ function ProductDetails() {
                                             error={stockInFormDataError.totalPrice}
                                             helperText={stockInFormDataError.totalPrice ? "Total Price" : ''}
                                             name="totalPrice"
+                                            disabled={isEdit ? stockInFormData.isFullEdit ? false : true : false}
                                             id="outlined-required"
                                             label="Total Price"
                                             InputProps={{ style: { fontSize: 14 } }}

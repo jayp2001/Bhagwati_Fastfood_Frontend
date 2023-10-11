@@ -58,7 +58,7 @@ function MenuStockInOut(props) {
                 <MenuItem key={'InVoice'}
                     onClick={() => {
                         handleClose();
-                        props.data.remainingQty == props.data.productQty ? props.handleAccordionOpenOnEdit(props.stockInOutId) : props.setError("You can not edit this data...!!")
+                        props.handleAccordionOpenOnEdit(props.stockInOutId, props.data.remainingQty == props.data.productQty ? true : false)
                     }}>
                     Edit
                 </MenuItem>
