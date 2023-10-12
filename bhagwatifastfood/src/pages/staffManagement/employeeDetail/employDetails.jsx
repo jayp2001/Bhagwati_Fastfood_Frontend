@@ -464,6 +464,9 @@ function EmployeeDetails() {
                 setSuccess(true);
                 handleCloseAddLeave();
                 getCountData();
+                setPageLeaves(0);
+                setRowsPerPageLeaves(5)
+                getLeaveData();
                 setAddLeaveFormData({
                     employeeId: '',
                     numLeave: '',
@@ -742,7 +745,7 @@ function EmployeeDetails() {
         setAddLeaveFormData((perv) => ({
             ...perv,
             employeeId: row.employeeId,
-            availableLeave: row.maxLeave - row.totalLeave,
+            availableLeave: data.availableLeave,
             totalMaxLeave: row.maxLeave,
             nickName: row.nickName,
             maxLeave: maxLeave,
@@ -1301,6 +1304,7 @@ function EmployeeDetails() {
                 setLoading(false)
                 setSuccess(true)
                 getCountData();
+                getData();
                 setPageLeaves(0);
                 setRowsPerPageLeaves(5);
                 filter ? getLeaveDataByFilter() : getLeaveData()
@@ -3387,7 +3391,7 @@ function EmployeeDetails() {
                             <span className='makePaymentHeader'> {editLeave ? 'Edit Leave for : ' : 'Add Leave for : '} </span><span className='makePaymentName'>{data.employeeNickName}</span>
                         </Typography>
                         <Typography id="modal-modal" variant="h6" component="h2">
-                            <span className='makePaymentHeader'>{`Available Leave(${'Max leave:' + data.maxLeave}) :`}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{data.availableLeave + data.maxLeave}</span>
+                            <span className='makePaymentHeader'>{`Available Leave(${'Max leave:' + data.maxLeave}) :`}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{data.availableLeave}</span>
                         </Typography>
                     </div>
                     <div className='mt-6 grid grid-cols-12 gap-6'>
