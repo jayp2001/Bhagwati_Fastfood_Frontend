@@ -397,7 +397,7 @@ function CategoriesTable() {
                                 Categories List
                             </div>
                             <div>
-                                Total StockOut Cost : {totalStockOutPrice}
+                                Total StockOut Cost : {parseFloat(totalStockOutPrice).toLocaleString('en-IN')}
                             </div>
                         </div>
                     </div>

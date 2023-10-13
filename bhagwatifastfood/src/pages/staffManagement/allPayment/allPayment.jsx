@@ -990,6 +990,24 @@ function AllPayments() {
                 setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
+    const getCountDataByFliter = async () => {
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getAllPaymentStatisticsCount?startDate=${state[0].startDate}&endDate=${state[0].endDate}`, config)
+            .then((res) => {
+                setCountData(res.data);
+            })
+            .catch((error) => {
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+            })
+    }
+    const getCountDataOnCancle = async () => {
+        await axios.get(`${BACKEND_BASE_URL}staffrouter/getAllPaymentStatisticsCount?startDate=${''}&endDate=${''}`, config)
+            .then((res) => {
+                setCountData(res.data);
+            })
+            .catch((error) => {
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+            })
+    }
 
     useEffect(() => {
         // getData();
@@ -1168,6 +1186,7 @@ function AllPayments() {
                                     <button className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`} onClick={() => {
                                         setFilter(false);
                                         setPage(0);
+                                        getCountDataOnCancle();
                                         setRowsPerPage(5)
                                         tabTable === 2 || tabTable === '2' ? getAdvanceData() : tabTable === 3 || tabTable === '3' ? getFineData() : tabTable === 6 || tabTable === '6' ? getBonusData() : tabTable === 5 || tabTable === '5' ? getCreditData() : tabTable === 4 || tabTable === '4' ? getTransactionData() : tabTable === 3 || tabTable === '3' ? getFineData() : getAdvanceData();
                                         // tab === 2 || tab === '2' ?
@@ -1209,6 +1228,7 @@ function AllPayments() {
                                                     // tab === 2 || tab === '2' ? getDebitCountsByFilter() : tab === 3 || tab === '3' ? getCashCountsByFilter() : getDebitCountsByFilter();
                                                     setSearchWord('');
                                                     setRowsPerPage(5)
+                                                    getCountDataByFliter();
                                                     setFilter(true); setPage(0); handleClose()
                                                 }}>Apply</button>
                                             </div>

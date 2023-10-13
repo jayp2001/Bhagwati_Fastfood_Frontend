@@ -39,6 +39,7 @@ const styleStockIn = {
 
 function SuppilerTable() {
     const [searchWord, setSearchWord] = React.useState('');
+    const [debitCount, setDebitCount] = React.useState();
     const navigate = useNavigate();
     const [page, setPage] = React.useState(0);
     const [open, setOpen] = React.useState(false);
@@ -161,6 +162,7 @@ function SuppilerTable() {
     }
     useEffect(() => {
         getData();
+        getDebitCounts();
     }, [])
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -193,7 +195,15 @@ function SuppilerTable() {
                 setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
-
+    const getDebitCounts = async () => {
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getDebitTransactionCounter?`, config)
+            .then((res) => {
+                setDebitCount(res.data);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
     const submitPayment = () => {
         if (loading || success) {
 
@@ -303,6 +313,9 @@ function SuppilerTable() {
                             <div className='tableHeader flex justify-between'>
                                 <div>
                                     Suppiler List
+                                </div>
+                                <div>
+                                    Total Remaining Payment : {debitCount && debitCount.remainingAmount ? parseInt(debitCount.remainingAmount).toLocaleString('en-IN') : 0}
                                 </div>
                             </div>
                         </div>
