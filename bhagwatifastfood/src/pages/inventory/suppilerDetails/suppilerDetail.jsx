@@ -1011,8 +1011,8 @@ function SuppilerDetail() {
                                                     </Tooltip>
                                                     <TableCell align="left" >{row.productName}</TableCell>
                                                     <TableCell align="left" >{row.Quantity}</TableCell>
-                                                    <TableCell align="right" >{row.productPrice}</TableCell>
-                                                    <TableCell align="right" >{row.totalPrice}</TableCell>
+                                                    <TableCell align="right" >{parseFloat(row.productPrice ? row.productPrice : 0).toLocaleString('en-IN')}</TableCell>
+                                                    <TableCell align="right" >{parseFloat(row.totalPrice ? row.totalPrice : 0).toLocaleString('en-IN')}</TableCell>
                                                     <TableCell align="left" >{row.billNumber}</TableCell>
                                                     <TableCell align="left" >{row.stockInPaymentMethod}</TableCell>
                                                     <Tooltip title={row.stockInComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.stockInComment}</div></TableCell></Tooltip>
@@ -1070,9 +1070,9 @@ function SuppilerDetail() {
                                                             {row.productName}
                                                         </TableCell>
                                                         <TableCell align="left" >{row.productQuantity} {row.productUnit}</TableCell>
-                                                        <TableCell align="left" >{row.totalExpense}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.totalExpense ? row.totalExpense : 0).toLocaleString('en-IN')}</TableCell>
                                                         <TableCell align="left" >{row.lastStockIN} {row.productUnit}</TableCell>
-                                                        <TableCell align="left" ><div >{row.lastUpdatedPrice}</div></TableCell>
+                                                        <TableCell align="left" ><div >{parseFloat(row.lastUpdatedPrice ? row.lastUpdatedPrice : 0).toLocaleString('en-IN')}</div></TableCell>
                                                         <TableCell align="left" >{row.lastStockdInAt}</TableCell>
                                                     </TableRow> :
                                                     <TableRow
@@ -1125,8 +1125,8 @@ function SuppilerDetail() {
                                                             {row.paidBy}
                                                         </TableCell>
                                                         <TableCell align="left" >{row.receivedBy}</TableCell>
-                                                        <TableCell align="right" >{row.pendingAmount}</TableCell>
-                                                        <TableCell align="right" >{row.paidAmount}</TableCell>
+                                                        <TableCell align="right" >{parseFloat(row.pendingAmount ? row.pendingAmount : 0).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="right" >{parseFloat(row.paidAmount ? row.paidAmount : 0).toLocaleString('en-IN')}</TableCell>
                                                         <Tooltip title={row.transactionNote} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.transactionNote}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.transactionDate}</TableCell>
                                                         <TableCell align="left" >{row.transactionTime}</TableCell>

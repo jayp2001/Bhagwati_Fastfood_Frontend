@@ -1607,8 +1607,8 @@ function ProductDetails() {
                                                         </Tooltip>
                                                         <TableCell align="left" >{row.productName}</TableCell>
                                                         <TableCell align="left" >{row.Quantity}</TableCell>
-                                                        <TableCell align="right" >{row.productPrice}</TableCell>
-                                                        <TableCell align="right" >{row.totalPrice}</TableCell>
+                                                        <TableCell align="right" >{parseFloat(row.productPrice ? row.productPrice : 0).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="right" >{parseFloat(row.totalPrice ? row.totalPrice : 0).toLocaleString('en-IN')}</TableCell>
                                                         <TableCell align="left" >{row.billNumber}</TableCell>
                                                         <TableCell align="left" >{row.supplier}</TableCell>
                                                         <TableCell align="left" >{row.stockInPaymentMethod}</TableCell>
@@ -1673,7 +1673,7 @@ function ProductDetails() {
                                                         </Tooltip>
                                                         <TableCell align="left" >{row.productName}</TableCell>
                                                         <TableCell align="left" >{row.Quantity}</TableCell>
-                                                        <TableCell align="left" >{row.stockOutPrice}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.stockOutPrice ? row.stockOutPrice : 0).toLocaleString('en-IN')}</TableCell>
                                                         <TableCell align="left" >{row.stockOutCategoryName}</TableCell>
                                                         <Tooltip title={row.stockOutComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.stockOutComment}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.stockOutDate}</TableCell>

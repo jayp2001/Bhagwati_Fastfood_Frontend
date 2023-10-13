@@ -226,24 +226,24 @@ function NavBar() {
             <div className='flex justify-between h-full'>
                 <div className='logoWrp flex h-full'>
                     {
-                        // role != 6 ?
-                        <div className='h-full grid content-center'>
-                            <div>
-                                {['left'].map((anchor) => (
-                                    <React.Fragment key={anchor}>
-                                        <Button onClick={toggleDrawer(anchor, true)}><MenuIcon fontSize='large' style={{ color: 'black' }} /></Button>
-                                        <Drawer
-                                            anchor={anchor}
-                                            open={state[anchor]}
-                                            onClose={toggleDrawer(anchor, false)}
-                                        >
-                                            {list(anchor)}
-                                        </Drawer>
-                                    </React.Fragment>
-                                ))}
+                        location.pathname.split('/')[1] != 'dashboard' ?
+                            <div className='h-full grid content-center'>
+                                <div>
+                                    {['left'].map((anchor) => (
+                                        <React.Fragment key={anchor}>
+                                            <Button onClick={toggleDrawer(anchor, true)}><MenuIcon fontSize='large' style={{ color: 'black' }} /></Button>
+                                            <Drawer
+                                                anchor={anchor}
+                                                open={state[anchor]}
+                                                onClose={toggleDrawer(anchor, false)}
+                                            >
+                                                {list(anchor)}
+                                            </Drawer>
+                                        </React.Fragment>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-                        // : null
+                            : null
                     }
                     <div>
                         <img className='headerImg' src={bhagwatiHeaderLogo} alt='No Image Found' />

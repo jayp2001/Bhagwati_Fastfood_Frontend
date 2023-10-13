@@ -328,7 +328,7 @@ function StaffCategoryTable() {
                                                     {row.numberOfActiveEmployee}
                                                 </TableCell>
                                                 <TableCell component="th" scope="row">
-                                                    {row.totalSalary}
+                                                    {parseFloat(row.totalSalary ? row.totalSalary : 0).toLocaleString('en-IN')}
                                                 </TableCell>
                                                 <TableCell component="th" scope="row">
                                                     {row.percentageOfTotalSalary}

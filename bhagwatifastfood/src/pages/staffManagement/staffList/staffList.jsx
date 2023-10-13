@@ -857,7 +857,7 @@ function StaffList() {
                             <span className='makePaymentHeader'>Make Payment to : </span><span className='makePaymentName'>{formData.nickName}</span>
                         </Typography>
                         <Typography id="modal-modal" variant="h6" component="h2">
-                            <span className='makePaymentHeader'>{'Payment Due :'}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{formData.paymentDue}</span>
+                            <span className='makePaymentHeader'>{'Payment Due :'}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{parseFloat(formData.paymentDue).toLocaleString('en-IN')}</span>
                         </Typography>
                     </div>
                     <div className='flex justify-between mt-3 mb-2'>
@@ -865,7 +865,7 @@ function StaffList() {
                             <span className='makePaymentHeader'>{'Salary (From - To) :'} </span><span className='makePaymentName'>{formData.dateOfPayment}</span>
                         </Typography>
                         <Typography id="modal-modal" variant="h6" component="h2">
-                            <span className='makePaymentHeader'>{'Total Salary(With Leave) :'}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{formData.totalSalary}</span>
+                            <span className='makePaymentHeader'>{'Total Salary(With Leave) :'}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{parseFloat(formData.totalSalary).toLocaleString('en-IN')}</span>
                         </Typography>
                     </div>
                     <div className='mt-6 grid grid-cols-12 gap-6'>

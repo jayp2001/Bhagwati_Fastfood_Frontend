@@ -361,7 +361,7 @@ function SuppilerTable() {
                                                     <TableCell onClick={() => handleSuppilerOnClick(row.supplierId)} align="left" >{row.supplierName}</TableCell>
                                                     <TableCell onClick={() => handleSuppilerOnClick(row.supplierId)} align="left" >{row.supplierPhoneNumber}</TableCell>
                                                     {/* <TableCell align="left" >{row.rightsName}</TableCell> */}
-                                                    <TableCell onClick={() => handleSuppilerOnClick(row.supplierId)} align="left" >{row.remainingAmount}</TableCell>
+                                                    <TableCell onClick={() => handleSuppilerOnClick(row.supplierId)} align="left" >{parseFloat(row.remainingAmount ? row.remainingAmount : 0).toLocaleString('en-IN')}</TableCell>
                                                     <TableCell align="right">
                                                         <Menutemp supplierId={row.supplierId} handleOpen={handleOpen} data={row} deleteSuppiler={handleDeleteSuppiler} />
                                                     </TableCell>

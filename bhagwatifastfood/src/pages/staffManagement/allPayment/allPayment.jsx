@@ -1311,8 +1311,8 @@ function AllPayments() {
                                                                 {row.employeeName}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="left" >{row.advanceAmount}</TableCell>
-                                                        <TableCell align="left" >{row.remainAdvanceAmount}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.advanceAmount).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.remainAdvanceAmount).toLocaleString('en-IN')}</TableCell>
                                                         <Tooltip title={row.advanceComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.advanceComment}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.advanceDate}</TableCell>
                                                         <TableCell align="left" >{row.givenTime}</TableCell>
@@ -1381,8 +1381,8 @@ function AllPayments() {
                                                                 {row.employeeName}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="left" >{row.fineAmount}</TableCell>
-                                                        <TableCell align="left" >{row.remainFineAmount}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.fineAmount ? row.fineAmount : 0).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.remainFineAmount ? row.remainFineAmount : 0).toLocaleString('en-IN')}</TableCell>
                                                         {console.log(row.reduceFineReson != null)}
                                                         <Tooltip title={row.reason + `${row.reduceFineReson != null ? ' / ' + row.reduceFineReson : ''}`} placement="top-start" arrow><TableCell align="left" ><div className='fineReducedComment'>{row.reason + `${row.reduceFineReson != null ? ' / ' + row.reduceFineReson : ''}`}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.fineStatusName}</TableCell>
@@ -1455,9 +1455,9 @@ function AllPayments() {
                                                                 {row.employeeName}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="left" >{row.salaryPay}</TableCell>
-                                                        <TableCell align="left" >{row.advanceCut}</TableCell>
-                                                        <TableCell align="left" >{row.fineCut}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.salaryPay ? row.salaryPay : 0).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.advanceCut ? row.advanceCut : 0).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.fineCut ? row.fineCut : 0).toLocaleString('en-IN')}</TableCell>
                                                         <Tooltip title={row.salaryComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.salaryComment}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.salaryDate}</TableCell>
                                                         <TableCell align="left" >{row.salaryTime}</TableCell>
@@ -1525,7 +1525,7 @@ function AllPayments() {
                                                                 {row.employeeName}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="left" >{row.creditAmount}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.creditAmount ? row.creditAmount : 0).toLocaleString('en-IN')}</TableCell>
                                                         <TableCell align="left" >{row.creditType}</TableCell>
                                                         <Tooltip title={row.creditComent} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.creditComent}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.creditDate}</TableCell>
@@ -1592,7 +1592,7 @@ function AllPayments() {
                                                                 {row.employeeName}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="left" >{row.bonusAmount}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.bonusAmount ? row.bonusAmount : 0).toLocaleString('en-IN')}</TableCell>
                                                         <Tooltip title={row.bonusComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.bonusComment}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.bonusDate}</TableCell>
                                                         <TableCell align="left" >{row.givenTime}</TableCell>
@@ -1690,11 +1690,11 @@ function AllPayments() {
                                                         <TableCell align="left" >{row.monthYear}</TableCell>
                                                         {/* <Tooltip title={row.userName} placement="top-start" arrow> */}
                                                         <TableCell component="th" scope="row" >
-                                                            {row.originalTotalSalary}
+                                                            {parseFloat(row.originalTotalSalary ? row.originalTotalSalary : 0).toLocaleString('en-IN')}
                                                         </TableCell>
                                                         {/* </Tooltip> */}
-                                                        <TableCell align="left">{row.totalSalary}</TableCell>
-                                                        <TableCell align="left">{row.cutSalaryAmount}</TableCell>
+                                                        <TableCell align="left">{parseFloat(row.totalSalary ? row.totalSalary : 0).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="left">{parseFloat(row.cutSalaryAmount ? row.cutSalaryAmount : 0).toLocaleString('en-IN')}</TableCell>
                                                     </TableRow>
 
                                                 ))
@@ -1742,13 +1742,13 @@ function AllPayments() {
                                                         className='tableRow'
                                                     >
                                                         <TableCell align="left" >{(index + 1)}</TableCell>
-                                                        <TableCell align="left" >{row.advanceAmount}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.advanceAmount ? row.advanceAmount : 0).toLocaleString('en-IN')}</TableCell>
                                                         {/* <Tooltip title={row.userName} placement="top-start" arrow> */}
                                                         <TableCell component="th" scope="row" >
-                                                            {row.remainAdvanceAmount}
+                                                            {parseFloat(row.remainAdvanceAmount ? row.remainAdvanceAmount : 0).toLocaleString('en-IN')}
                                                         </TableCell>
                                                         {/* </Tooltip> */}
-                                                        <TableCell align="left">{row.cutAdvanceAmount}</TableCell>
+                                                        <TableCell align="left">{parseFloat(row.cutAdvanceAmount ? row.cutAdvanceAmount : 0).toLocaleString('en-IN')}</TableCell>
                                                         <TableCell align="left">{row.advanceDate}</TableCell>
                                                     </TableRow>
                                                 ))
@@ -1796,13 +1796,13 @@ function AllPayments() {
                                                         className='tableRow'
                                                     >
                                                         <TableCell align="left" >{(index + 1)}</TableCell>
-                                                        <TableCell align="left" >{row.fineAmount}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.fineAmount ? row.fineAmount : 0).toLocaleString('en-IN')}</TableCell>
                                                         {/* <Tooltip title={row.userName} placement="top-start" arrow> */}
                                                         <TableCell component="th" scope="row" >
-                                                            {row.remainFineAmount}
+                                                            {parseFloat(row.remainFineAmount ? row.remainFineAmount : 0).toLocaleString('en-IN')}
                                                         </TableCell>
                                                         {/* </Tooltip> */}
-                                                        <TableCell align="left">{row.cutFineAmount}</TableCell>
+                                                        <TableCell align="left">{parseFloat(row.cutFineAmount ? row.cutFineAmount : 0).toLocaleString('en-IN')}</TableCell>
                                                         <TableCell align="left">{row.fineDate}</TableCell>
                                                     </TableRow>
                                                 ))
@@ -1829,7 +1829,7 @@ function AllPayments() {
                                         :
                                     </div>
                                     <div className='col-span-3 '>
-                                        {calculationData ? calculationData.remainSalaryAmount : "~"}
+                                        {calculationData ? parseFloat(calculationData.remainSalaryAmount).toLocaleString('en-IN') : "~"}
                                     </div>
                                 </div>
                                 <div className='grid grid-cols-12 calculationFont'>
@@ -1840,7 +1840,7 @@ function AllPayments() {
                                         :
                                     </div>
                                     <div className='col-span-3'>
-                                        {calculationData ? calculationData.remainAdvanceAmount : "~"}
+                                        {calculationData ? parseFloat(calculationData.remainAdvanceAmount).toLocaleString('en-IN') : "~"}
                                     </div>
                                 </div>
                                 <div className='grid grid-cols-12 calculationFont'>
@@ -1851,7 +1851,7 @@ function AllPayments() {
                                         :
                                     </div>
                                     <div className='col-span-3 calculationFont'>
-                                        {calculationData ? calculationData.remainFineAmount : "~"}
+                                        {calculationData ? parseFloat(calculationData.remainFineAmount).toLocaleString('en-IN') : "~"}
                                     </div>
                                 </div>
                                 <div className='lineBreak mt-4 mb-4'>
@@ -1865,7 +1865,7 @@ function AllPayments() {
                                         :
                                     </div>
                                     <div className='col-span-3 '>
-                                        {editFormData && editFormData.salary}
+                                        {parseFloat(editFormData && editFormData.salary).toLocaleString('en-IN')}
                                     </div>
                                 </div>
                                 <div className='grid grid-cols-12 calculationFont'>
@@ -1876,7 +1876,7 @@ function AllPayments() {
                                         :
                                     </div>
                                     <div className='col-span-3'>
-                                        {editFormData && editFormData.advance}
+                                        {parseFloat(editFormData && editFormData.advance).toLocaleString('en-IN')}
                                     </div>
                                 </div>
                                 <div className='grid grid-cols-12 calculationFont'>
@@ -1887,7 +1887,7 @@ function AllPayments() {
                                         :
                                     </div>
                                     <div className='col-span-3 calculationFont'>
-                                        {editFormData && editFormData.fine}
+                                        {parseFloat(editFormData && editFormData.fine).toLocaleString('en-IN')}
                                     </div>
                                 </div>
                                 <div className='lineBreak mt-4 mb-4'>
@@ -1901,7 +1901,7 @@ function AllPayments() {
                                         :
                                     </div>
                                     <div className='col-span-3 '>
-                                        {calculationData && editFormData ? calculationData.remainSalaryAmount - editFormData.salary - editFormData.advance - editFormData.fine : "~"}
+                                        {calculationData && editFormData ? parseFloat(calculationData.remainSalaryAmount - editFormData.salary - editFormData.advance - editFormData.fine).toLocaleString('en-IN') : "~"}
                                     </div>
                                 </div>
                                 <div className='grid grid-cols-12 calculationFont'>
@@ -1912,7 +1912,7 @@ function AllPayments() {
                                         :
                                     </div>
                                     <div className='col-span-3'>
-                                        {calculationData && editFormData ? calculationData.remainAdvanceAmount - editFormData.advance : "~"}
+                                        {calculationData && editFormData ? parseFloat(calculationData.remainAdvanceAmount - editFormData.advance).toLocaleString('en-IN') : "~"}
                                     </div>
                                 </div>
                                 <div className='grid grid-cols-12 calculationFont'>
@@ -1923,7 +1923,7 @@ function AllPayments() {
                                         :
                                     </div>
                                     <div className='col-span-3 calculationFont'>
-                                        {calculationData && editFormData ? calculationData.remainFineAmount - editFormData.fine : "~"}
+                                        {calculationData && editFormData ? parseFloat(calculationData.remainFineAmount - editFormData.fine).toLocaleString('en-IN') : "~"}
                                     </div>
                                     <div className='col-span-5  flex justify-end'>
                                         <button className='exportExcelBtn'
