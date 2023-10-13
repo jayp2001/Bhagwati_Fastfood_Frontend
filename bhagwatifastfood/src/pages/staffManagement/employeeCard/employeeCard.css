@@ -1,5 +1,5 @@
-.employeeCard{
-    height: 310px;
+.employeeCard {
+    height: 312px;
     /* height: 310px; */
     width: 100%;
     border-radius: 10px;
@@ -7,33 +7,35 @@
     background: #fff;
 }
 
-.imgWrpCard{
+.imgWrpCard {
     max-height: 200px;
     max-width: 200px;
     height: 200px;
     width: 200px;
     /* background: red; */
 }
-.imgWrpCard img{
+
+.imgWrpCard img {
     /* min-height: 200px;
     min-width: 200px; */
     max-height: 200px;
-        max-width: 200px;
+    max-width: 200px;
     /* background: red; */
 }
-.editBtnWrp{
+
+.editBtnWrp {
     height: 40px;
     width: 100%;
     /* background: red; */
 }
 
-.nameAndCategoryWrp{
+.nameAndCategoryWrp {
     height: 75px;
     width: 100%;
     text-align: center;
 }
 
-.nameWrp{
+.nameWrp {
     max-width: 200px;
     padding-left: 10px;
     white-space: nowrap;
@@ -44,51 +46,52 @@
     font-size: 16px;
 }
 
-.categoryWrp{
+.categoryWrp {
     padding-left: 10px;
     width: 100%;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        margin-top: 5px;
-        /* font-weight: 600; */
-        font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 5px;
+    /* font-weight: 600; */
+    font-size: 14px;
 }
 
-.salaryDetailWrp{
+.salaryDetailWrp {
     text-align: left;
     padding-left: 1.5rem;
     padding-right: 10px;
 }
 
-.salaryHeader{
+.salaryHeader {
     font-size: 16px;
     font-weight: 600;
-        white-space: nowrap;
-        overflow: hidden;
-        color: gray;
+    white-space: nowrap;
+    overflow: hidden;
+    color: gray;
 }
 
-.salaryNum{
+.salaryNum {
     font-weight: 600;
-        font-size: 14px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.dueSalaryWrp{
+.dueSalaryWrp {
     width: calc(100% - 3rem);
-        padding-top: 5px;
-        text-align: center;
-        height: 40px;
-        font-weight: 600;
-        letter-spacing: 1px;
-        border-radius: 10px;
-        color: #FF6347;
-            border: 2px solid #FF6347;
+    padding-top: 5px;
+    text-align: center;
+    height: 40px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    border-radius: 10px;
+    color: #FF6347;
+    border: 2px solid #FF6347;
 }
-.dueSalaryWrpGreen{
+
+.dueSalaryWrpGreen {
     color: green !important;
     border: 2px solid green !important;
 }
@@ -98,28 +101,28 @@
     border: 2px solid black !important;
 }
 
-.addSalary{
+.addSalary {
     width: 100%;
-        height: 40px;
-        background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(0, 122, 255, 1) 0%, rgba(0, 156, 255, 1) 78%);
-        border-radius: 10px;
-        font-weight: 600;
-        font-size: 14px;
-        color: #fff;
+    height: 40px;
+    background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(0, 122, 255, 1) 0%, rgba(0, 156, 255, 1) 78%);
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #fff;
 }
 
-.addLeave{
+.addLeave {
     width: 100%;
-        height: 40px;
-        font-size: 14px;
-        background-image: linear-gradient(195deg, rgb(116, 123, 138), rgb(73, 83, 97));
-        background: linear-gradient(195deg, #42424a, #191919);
-        border-radius: 10px;
-        font-weight: 600;
-        color: #fff;
+    height: 40px;
+    font-size: 14px;
+    background-image: linear-gradient(195deg, rgb(116, 123, 138), rgb(73, 83, 97));
+    background: linear-gradient(195deg, #42424a, #191919);
+    border-radius: 10px;
+    font-weight: 600;
+    color: #fff;
 }
 
-.nameWrp:hover{
+.nameWrp:hover {
     text-decoration: underline;
     color: blue;
     cursor: pointer;

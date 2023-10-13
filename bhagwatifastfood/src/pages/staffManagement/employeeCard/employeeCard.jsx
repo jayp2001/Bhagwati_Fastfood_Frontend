@@ -212,6 +212,11 @@ function EmployeeCard(props) {
                                 {props.data.category}
                             </div>
                         </Tooltip>
+                        <Tooltip title={('₹' + props.data.salary).toLocaleString('en-IN')} placement="top-start" arrow>
+                            <div className='categoryWrp'>
+                                <b>Salary</b> : ₹ {parseFloat(props.data.salary ? props.data.salary : 0).toLocaleString('en-IN')}
+                            </div>
+                        </Tooltip>
                     </div>
                 </div>
                 <div className='salaryDetailContainer w-full'>
@@ -230,7 +235,7 @@ function EmployeeCard(props) {
                     <div className='salaryDetailWrp grid grid-cols-3 gap-4'>
                         <div>
                             <div className='salaryHeader'>
-                                Salary
+                                Mo. Salary
                             </div>
                             <div className='salaryNum mt-1'>
                                 {parseFloat(props.data.totalSalary ? props.data.totalSalary : 0).toLocaleString()}
@@ -285,7 +290,7 @@ function EmployeeCard(props) {
                         </div>
                     </div>
                     <div className={`${props.data.paymentDue > 0 ? 'dueSalaryWrpGreen' : props.data.paymentDue == 0 ? 'dueSalaryWrpBlack' : ''} dueSalaryWrp mt-3 ml-6 mr-6`}>
-                        {parseFloat(props.data.paymentDue ? props.data.paymentDue : 0).toLocaleString()}
+                        ₹ {parseFloat(props.data.paymentDue ? props.data.paymentDue : 0).toLocaleString()}
                     </div>
                     <div className='mt-3 ml-6 mr-6 grid grid-cols-2 gap-6'>
                         <button className='addSalary' onClick={() => props.handleOpen(props.data)}>Give Salary</button>
