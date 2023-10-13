@@ -18,7 +18,16 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
+import { useParams } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
+import 'react-date-range/dist/styles.css'; // main style file
+import 'react-date-range/dist/theme/default.css';
+import { DateRangePicker } from 'react-date-range';
+import Popover from '@mui/material/Popover';
+import { useNavigate } from "react-router-dom";
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import CloseIcon from '@mui/icons-material/Close';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
 const style = {
     position: 'absolute',
@@ -40,7 +49,7 @@ function CategoriesTable() {
         stockOutCategoryName: '',
         stockOutCategoryId: ''
     })
-
+    const navigate = useNavigate();
     useEffect(() => {
         const handleKeyDown = (event) => {
             if (event.key === 'F10') {
@@ -55,7 +64,9 @@ function CategoriesTable() {
             document.removeEventListener('keydown', handleKeyDown);
         };
     }, []);
-
+    var date = new Date(), y = date.getFullYear(), m = (date.getMonth());
+    var firstDay = new Date(y, m, 1).toString().slice(4, 15);
+    var lastDay = new Date(y, m + 1, 0).toString().slice(4, 15);
     const textFieldRef = useRef(null);
 
     const focus = () => {
@@ -65,11 +76,18 @@ function CategoriesTable() {
     };
 
     const [isEdit, setIsEdit] = React.useState(false);
+    const [anchorEl, setAnchorEl] = React.useState(null);
     const [category, setCategory] = React.useState('');
     const [categoryError, setCategoryError] = React.useState('');
-    const [open, setOpen] = React.useState(false);
+    const [openModal, setOpen] = React.useState(false);
+    const [filter, setFilter] = React.useState(false);
     const handleOpen = () => setOpen(true);
+    const [totalStockOutPrice, setTotalStockOutPrice] = React.useState();
     const handleClose = () => {
+        setAnchorEl(null);
+    };
+
+    const handleCloseModal = () => {
         setOpen(false);
         setCategory('');
         setCategoryError(false);
@@ -79,6 +97,16 @@ function CategoriesTable() {
         });
         setIsEdit(false);
     }
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const [state, setState] = useState([
+        {
+            startDate: new Date(),
+            endDate: new Date(),
+            key: 'selection'
+        }
+    ]);
     const handleReset = () => {
         setCategory('');
         setCategoryError(false);
@@ -102,12 +130,31 @@ function CategoriesTable() {
     const [error, setError] = React.useState(false);
     const [success, setSuccess] = React.useState(false);
     const [data, setData] = React.useState();
+
+
+
+
+    const open = Boolean(anchorEl);
+    const id = open ? 'simple-popover' : undefined;
     const getData = async () => {
         console.log("page get", page, rowsPerPage)
         await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getCategoryList?page=${page + 1}&numPerPage=${rowsPerPage}`, config)
             .then((res) => {
                 setData(res.data.rows);
                 setTotalRows(res.data.numRows);
+                setTotalStockOutPrice(res.data.totalCategoryStockOutPrice)
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getDataByFilter = async () => {
+        console.log("page get", page, rowsPerPage)
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getCategoryList?page=${page + 1}&numPerPage=${rowsPerPage}&startDate=${state[0].startDate}&endDate=${state[0].endDate}`, config)
+            .then((res) => {
+                setData(res.data.rows);
+                setTotalRows(res.data.numRows);
+                setTotalStockOutPrice(res.data.totalCategoryStockOutPrice)
             })
             .catch((error) => {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
@@ -119,6 +166,19 @@ function CategoriesTable() {
             .then((res) => {
                 setData(res.data.rows);
                 setTotalRows(res.data.numRows);
+                setTotalStockOutPrice(res.data.totalCategoryStockOutPrice)
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
+        console.log("page get", page, rowsPerPage)
+        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getCategoryList?page=${pageNum}&numPerPage=${rowPerPageNum}&startDate=${state[0].startDate}&endDate=${state[0].endDate}`, config)
+            .then((res) => {
+                setData(res.data.rows);
+                setTotalRows(res.data.numRows);
+                setTotalStockOutPrice(res.data.totalCategoryStockOutPrice)
             })
             .catch((error) => {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
@@ -139,12 +199,24 @@ function CategoriesTable() {
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
         console.log("page change")
-        getDataOnPageChange(newPage + 1, rowsPerPage)
+        if (filter) {
+            getDataOnPageChangeByFilter(newPage + 1, rowsPerPage)
+        }
+        else {
+            getDataOnPageChange(newPage + 1, rowsPerPage)
+        }
+
     };
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
-        getDataOnPageChange(1, parseInt(event.target.value, 10))
+        if (filter) {
+            getDataOnPageChangeByFilter(1, parseInt(event.target.value, 10))
+        }
+        else {
+            getDataOnPageChange(1, parseInt(event.target.value, 10))
+        }
+
     };
     const handleDelete = (id) => {
         if (window.confirm("Are you sure you want to delete Category?")) {
@@ -181,7 +253,7 @@ function CategoriesTable() {
                         setLoading(false);
                         setSuccess(true)
                         getData();
-                        handleClose()
+                        handleCloseModal()
                     })
                     .catch((error) => {
                         setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
@@ -216,6 +288,59 @@ function CategoriesTable() {
                 addCategory()
             }
         }
+    }
+    const excelExportProductWise = async () => {
+        if (window.confirm('Are you sure you want to export product wise Excel ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}inventoryrouter/exportCategoryWisedProductUsedData?startDate=${state[0].startDate}&endDate=${state[0].endDate}` : `${BACKEND_BASE_URL}inventoryrouter/exportCategoryWisedProductUsedData?startDate=${''}&endDate=${''}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = filter ? 'StockOut_ProductWise_' + state[0].startDate.toLocaleDateString() + ' To ' + state[0].endDate.toLocaleDateString() + '.xlsx'
+                    : 'StockOut_ProductWise_' + firstDay + ' To ' + lastDay + '.xlsx'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+    const pdfExportCategoryWise = async () => {
+        if (window.confirm('Are you sure you want to export category wise Pdf ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}inventoryrouter/exportPdfForInventoryCategoryData?startDate=${state[0].startDate}&endDate=${state[0].endDate}` : `${BACKEND_BASE_URL}inventoryrouter/exportPdfForInventoryCategoryData?startDate=${''}&endDate=${''}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = filter ? 'StockOut_CategoryWise_' + state[0].startDate.toLocaleDateString() + ' To ' + state[0].endDate.toLocaleDateString() + '.pdf'
+                    : 'StockOut_ProductWise_' + firstDay + ' To ' + lastDay + '.pdf'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+    const navigateToDetail = (name, id) => {
+        navigate(`/stockOutByCategory/${name}/${id}`);
     }
     if (loading) {
         console.log('>>>>??')
@@ -271,11 +396,73 @@ function CategoriesTable() {
                             <div>
                                 Categories List
                             </div>
+                            <div>
+                                Total StockOut Cost : {totalStockOutPrice}
+                            </div>
                         </div>
                     </div>
                     <div className='grid grid-cols-12'>
-                        <div className='col-span-2 col-start-11'>
-                            <button className='addCategoryBtn' onClick={handleOpen}>Add Category</button>
+                        <div className='ml-4 col-span-6' >
+                            <div className='flex'>
+                                <div className='dateRange text-center' aria-describedby={id} onClick={handleClick}>
+                                    <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
+                                </div>
+                                <div className='resetBtnWrap col-span-3'>
+                                    <button className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`} onClick={() => {
+                                        setFilter(false);
+                                        getData();
+                                        setState([
+                                            {
+                                                startDate: new Date(),
+                                                endDate: new Date(),
+                                                key: 'selection'
+                                            }
+                                        ])
+                                    }}><CloseIcon /></button>
+                                </div>
+                            </div>
+                            <Popover
+                                id={id}
+                                open={open}
+                                style={{ zIndex: 10000, borderRadius: '10px', boxShadow: 'rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem' }}
+                                anchorEl={anchorEl}
+                                onClose={handleClose}
+                                anchorOrigin={{
+                                    vertical: 'bottom',
+                                    horizontal: 'left',
+                                }}
+                            >
+                                <Box sx={{ bgcolor: 'background.paper', padding: '20px', width: 'auto', height: 'auto', borderRadius: '10px' }}>
+                                    <DateRangePicker
+                                        ranges={state}
+                                        onChange={item => { setState([item.selection]); console.log([item.selection]) }}
+                                        direction="horizontal"
+                                        months={2}
+                                        showSelectionPreview={true}
+                                        moveRangeOnFirstSelection={false}
+                                    />
+                                    <div className='mt-8 grid gap-4 grid-cols-12'>
+                                        <div className='col-span-3 col-start-7'>
+                                            <button className='stockInBtn' onClick={() => { getDataByFilter(); setFilter(true); setPage(0); handleClose() }}>Apply</button>
+                                        </div>
+                                        <div className='col-span-3'>
+                                            <button className='stockOutBtn' onClick={handleClose}>cancle</button>
+                                        </div>
+                                    </div>
+                                </Box>
+                            </Popover>
+                        </div>
+                        <div className='col-span-2  pr-5 flex justify-end'>
+                            <button className='exportExcelBtn' onClick={() => excelExportProductWise()}><FileDownloadIcon />&nbsp;&nbsp;Product Wise</button>
+                        </div>
+                        <div className='col-span-2 pr-5 flex justify-end'>
+                            <button className='exportExcelBtn' onClick={() => pdfExportCategoryWise()}><FileDownloadIcon />&nbsp;&nbsp;Category Wise</button>
+                        </div>
+                        <div className='col-span-2 col-start-11 mr-6'>
+                            <div className='flex justify-end'>
+                                <button className='addCategoryBtn' onClick={handleOpen}>Add Category</button>
+                            </div>
+
                         </div>
                     </div>
                     <div className='tableContainerWrapper'>
@@ -285,7 +472,8 @@ function CategoriesTable() {
                                     <TableRow>
                                         <TableCell>No.</TableCell>
                                         <TableCell>Category Name</TableCell>
-                                        <TableCell align="right"></TableCell>
+                                        <TableCell align="right">Used Cost</TableCell>
+                                        <TableCell align="right">Percentage</TableCell>
                                         <TableCell align="right"></TableCell>
                                         <TableCell align="right"></TableCell>
                                     </TableRow>
@@ -300,11 +488,12 @@ function CategoriesTable() {
                                                 style={{ cursor: "pointer" }}
                                                 className='tableRow'
                                             >
-                                                <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
-                                                <TableCell component="th" scope="row">
+                                                <TableCell align="left" onClick={() => navigateToDetail(row.stockOutCategoryName, row.stockOutCategoryId)}>{(index + 1) + (page * rowsPerPage)}</TableCell>
+                                                <TableCell component="th" scope="row" onClick={() => navigateToDetail(row.stockOutCategoryName, row.stockOutCategoryId)}>
                                                     {row.stockOutCategoryName}
                                                 </TableCell>
-                                                <TableCell align="right" ></TableCell>
+                                                <TableCell align="right" onClick={() => navigateToDetail(row.stockOutCategoryName, row.stockOutCategoryId)}>{parseFloat(row.outPrice ? row.outPrice : 0).toLocaleString('en-IN')}</TableCell>
+                                                <TableCell align="right" onClick={() => navigateToDetail(row.stockOutCategoryName, row.stockOutCategoryId)}>{row.percentage}</TableCell>
                                                 <TableCell align="right" ><div className=''><button className='editCategoryBtn mr-6' onClick={() => handleEdit(row.stockOutCategoryId, row.stockOutCategoryName)}>Edit</button><button className='deleteCategoryBtn' onClick={() => handleDelete(row.stockOutCategoryId)}>Delete</button></div></TableCell>
                                                 <TableCell align="right">
                                                 </TableCell>
@@ -333,8 +522,8 @@ function CategoriesTable() {
                 </div>
             </div>
             <Modal
-                open={open}
-                onClose={handleClose}
+                open={openModal}
+                onClose={handleCloseModal}
                 aria-labelledby="modal-modal-title"
                 aria-describedby="modal-modal-description"
             >
@@ -378,7 +567,7 @@ function CategoriesTable() {
                         </div>
                         <div className='col-span-3'>
                             <button className='addCategoryCancleBtn' onClick={() => {
-                                handleClose(); setEditCategory((perv) => ({
+                                handleCloseModal(); setEditCategory((perv) => ({
                                     ...perv,
                                     stockOutCategoryId: '',
                                     stockOutCategoryName: ''
@@ -390,7 +579,7 @@ function CategoriesTable() {
                 </Box>
             </Modal>
             <ToastContainer />
-        </div>
+        </div >
     )
 }
 

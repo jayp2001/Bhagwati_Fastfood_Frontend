@@ -102,7 +102,7 @@ function EmployeeCard(props) {
                         props.setLoading(false);
                         props.setSuccess(true);
                         setOpen(false)
-                        setToggel(true)
+                        // setToggel(true)
                         props.handleClose();
                         setTimeout(() => {
                             props.getCategory();
@@ -151,7 +151,7 @@ function EmployeeCard(props) {
                                 props.setSuccess(true);
                                 props.handleClose();
                                 setOpen(false)
-                                setToggel(false)
+                                // setToggel(false)
                                 setTimeout(() => {
                                     props.getCategory();
                                     props.activeCategory == 9999 ? props.getEmployeeListInactive('') : props.getEmployeeList(props.activeCategory);
@@ -176,7 +176,7 @@ function EmployeeCard(props) {
                             props.setLoading(false);
                             props.setSuccess(true);
                             setOpen(false)
-                            setToggel(false)
+                            // setToggel(false)
                             props.handleClose();
                             setTimeout(() => {
                                 props.getCategory();
@@ -233,7 +233,7 @@ function EmployeeCard(props) {
                                 Salary
                             </div>
                             <div className='salaryNum mt-1'>
-                                {parseFloat(props.data.totalSalary ? props.data.totalSalary : 0).toLocaleString()}
+                                {parseFloat(props.data.totalSalary ? props.data.totalSalary : 0).toLocaleString('en-IN')}
                             </div>
                         </div>
                         <div>
@@ -241,7 +241,7 @@ function EmployeeCard(props) {
                                 Advanced
                             </div>
                             <div className='salaryNum mt-1'>
-                                {props.data.advanceAmount}
+                                {parseFloat(props.data.advanceAmount).toLocaleString('en-IN')}
                             </div>
                         </div>
                         <div>
@@ -249,7 +249,7 @@ function EmployeeCard(props) {
                                 Fine/Penalty
                             </div>
                             <div className='salaryNum mt-1'>
-                                {props.data.fineAmount}
+                                {parseFloat(props.data.fineAmount).toLocaleString('en-IN')}
                             </div>
                         </div>
                     </div>
@@ -275,7 +275,7 @@ function EmployeeCard(props) {
                                 Daily Salary
                             </div>
                             <div className='salaryNum mt-1'>
-                                {parseFloat(props.data.perDaySalary ? props.data.perDaySalary : 0).toLocaleString()}
+                                {parseFloat(props.data.perDaySalary ? props.data.perDaySalary : 0).toLocaleString('en-IN')}
                             </div>
                         </div>
                     </div>
@@ -285,7 +285,7 @@ function EmployeeCard(props) {
                         </div>
                     </div>
                     <div className={`${props.data.paymentDue > 0 ? 'dueSalaryWrpGreen' : props.data.paymentDue == 0 ? 'dueSalaryWrpBlack' : ''} dueSalaryWrp mt-3 ml-6 mr-6`}>
-                        {parseFloat(props.data.paymentDue ? props.data.paymentDue : 0).toLocaleString()}
+                        {parseFloat(props.data.paymentDue ? props.data.paymentDue : 0).toLocaleString('en-IN')}
                     </div>
                     <div className='mt-3 ml-6 mr-6 grid grid-cols-2 gap-6'>
                         <button className='addSalary' onClick={() => props.handleOpen(props.data)}>Give Salary</button>
@@ -305,7 +305,7 @@ function EmployeeCard(props) {
                             <span className='makePaymentHeader'>Make Payment to : </span><span className='makePaymentName'>{props.formData.nickName}</span>
                         </Typography>
                         <Typography id="modal-modal" variant="h6" component="h2">
-                            <span className='makePaymentHeader'>{'Payment Due :'}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{props.formData.paymentDue}</span>
+                            <span className='makePaymentHeader'>{'Payment Due :'}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{parseFloat(props.formData.paymentDue).toLocaleString('en-IN')}</span>
                         </Typography>
                     </div>
                     <div className='flex justify-between mt-3 mb-2'>
@@ -313,7 +313,7 @@ function EmployeeCard(props) {
                             <span className='makePaymentHeader'>{'Salary (From - To) :'} </span><span className='makePaymentName'>{props.formData.dateOfPayment}</span>
                         </Typography>
                         <Typography id="modal-modal" variant="h6" component="h2">
-                            <span className='makePaymentHeader'>{'Total Salary(With Leave) :'}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{props.formData.totalSalary}</span>
+                            <span className='makePaymentHeader'>{'Total Salary(With Leave) :'}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{parseFloat(props.formData.totalSalary).toLocaleString('en-IN')}</span>
                         </Typography>
                     </div>
                     <div className='mt-6 grid grid-cols-12 gap-6'>

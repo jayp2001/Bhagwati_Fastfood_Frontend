@@ -32,6 +32,7 @@ import AllPayments from './pages/staffManagement/allPayment/allPayment';
 import Leaves from './pages/staffManagement/leaves/leaves';
 import PrintButton from './testThermal';
 import ProductDetailsManager from './pages/inventory/stockOut/productDetailsManager';
+import StockOutByCategory from './pages/inventory/categoryDetail/categoryDetail';
 // import SetPrinter from './setPrinter';
 function App() {
   return (
@@ -70,6 +71,7 @@ function App() {
                   <Route path="/editHistory/:id" element={<EditHistory/>}/>
                   <Route path="/editSuppiler/:id" element={<EditSuppiler/>}/>
                   <Route path="/suppilerDetails/:id" element={<SuppilerDetail/>}/>
+                  <Route path="/stockOutByCategory/:category/:categoryId" element={<StockOutByCategory/>}/>
                   <Route path="/productDetails/:id/:name/:unit/:remainingQty" element={<ProductDetails/>}/>
                   {/* <Route path="/dashboard" element={<Dashboard/>}/>
                   <Route path="/dealer/:id" element={<DealerDetail/>}/>

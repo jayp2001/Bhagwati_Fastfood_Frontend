@@ -2418,7 +2418,7 @@ function EmployeeDetails() {
                                             Per Day Salary
                                         </div>
                                         <div className='col-span-7 suppilerDetailFeild'>
-                                            {parseFloat(data.perDaySalary ? data.perDaySalary : 0).toLocaleString()}
+                                            {parseFloat(data.perDaySalary ? data.perDaySalary : 0).toLocaleString('en-IN')}
                                         </div>
                                     </div>
                                 </div>
@@ -2428,7 +2428,7 @@ function EmployeeDetails() {
                                             Current Salary :
                                         </div>
                                         <div className='col-span-7 suppilerDetailFeild'>
-                                            {parseFloat(data.salary ? data.salary : 0).toLocaleString()}
+                                            {parseFloat(data.salary ? data.salary : 0).toLocaleString('en-IN')}
                                         </div>
                                     </div>
                                     <div className='grid grid-cols-12 gap-3 hrLine'>
@@ -2442,6 +2442,14 @@ function EmployeeDetails() {
                                     <div className='grid grid-cols-12 gap-3 hrLine'>
                                         <div className='col-span-5 suppilerDetailFeildHeader'>
                                             Employee Joining :
+                                        </div>
+                                        <div className='col-span-7 suppilerDetailFeild'>
+                                            {data.employeeStaticJoiningDate}
+                                        </div>
+                                    </div>
+                                    <div className='grid grid-cols-12 gap-3 hrLine'>
+                                        <div className='col-span-5 suppilerDetailFeildHeader'>
+                                            Calculation Date :
                                         </div>
                                         <div className='col-span-7 suppilerDetailFeild'>
                                             {data.employeeJoiningDate}
@@ -2872,10 +2880,10 @@ function EmployeeDetails() {
                                                                 {row.salaryMonth}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="left" >{row.totalSalary}</TableCell>
-                                                        <TableCell align="left" >{row.remainSalary} </TableCell>
-                                                        <TableCell align="left" >{row.amountOfAdvance}</TableCell>
-                                                        <TableCell align="left" >{row.amountOfFine}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.totalSalary).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.remainSalary).toLocaleString('en-IN')} </TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.amountOfAdvance).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.amountOfFine).toLocaleString('en-IN')}</TableCell>
                                                         <TableCell align="left" >{row.maxLeave}</TableCell>
                                                         <TableCell align="left" >{row.takenLeaves}</TableCell>
                                                         <TableCell align="left" >{row.extraLeaves}</TableCell>
@@ -2944,8 +2952,8 @@ function EmployeeDetails() {
                                                                 {row.givenBy}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="left" >{row.advanceAmount}</TableCell>
-                                                        <TableCell align="left" >{row.remainAdvanceAmount}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.advanceAmount).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.remainAdvanceAmount).toLocaleString('en-IN')}</TableCell>
                                                         <Tooltip title={row.advanceComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.advanceComment}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.advanceDate}</TableCell>
                                                         <TableCell align="left" >{row.givenTime}</TableCell>
@@ -3008,8 +3016,8 @@ function EmployeeDetails() {
                                                                 {row.givenBy}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="left" >{row.fineAmount}</TableCell>
-                                                        <TableCell align="left" >{row.remainFineAmount}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.fineAmount).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.remainFineAmount).toLocaleString('en-IN')}</TableCell>
                                                         {console.log(row.reduceFineReson != null)}
                                                         <Tooltip title={row.Reason} placement="top-start" arrow><TableCell align="left" ><div className='fineReducedComment'>{row.Reason}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.fineStatusName}</TableCell>
@@ -3076,9 +3084,9 @@ function EmployeeDetails() {
                                                                 {row.givenBy}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="left" >{row.salaryPay}</TableCell>
-                                                        <TableCell align="left" >{row.advanceCut}</TableCell>
-                                                        <TableCell align="left" >{row.fineCut}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.salaryPay).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.advanceCut).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.fineCut).toLocaleString('en-IN')}</TableCell>
                                                         <Tooltip title={row.salaryComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.salaryComment}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.salaryDate}</TableCell>
                                                         <TableCell align="left" >{row.salaryTime}</TableCell>
@@ -3140,7 +3148,7 @@ function EmployeeDetails() {
                                                                 {row.givenBy}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="left" >{row.creditAmount}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.creditAmount).toLocaleString('en-IN')}</TableCell>
                                                         <TableCell align="left" >{row.creditType}</TableCell>
                                                         <Tooltip title={row.creditComent} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.creditComent}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.creditDate}</TableCell>
@@ -3201,7 +3209,7 @@ function EmployeeDetails() {
                                                                 {row.givenBy}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="left" >{row.bonusAmount}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.bonusAmount).toLocaleString('en-IN')}</TableCell>
                                                         <Tooltip title={row.bonusComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.bonusComment}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.bonusDate}</TableCell>
                                                         <TableCell align="left" >{row.givenTime}</TableCell>
@@ -3247,7 +3255,7 @@ function EmployeeDetails() {
                             <span className='makePaymentHeader'>Make Payment to : </span><span className='makePaymentName'>{data.employeeNickName}</span>
                         </Typography>
                         <Typography id="modal-modal" variant="h6" component="h2">
-                            <span className='makePaymentHeader'>{'Payment Due :'}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{formData.paymentDue}</span>
+                            <span className='makePaymentHeader'>{'Payment Due :'}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{parseFloat(formData.paymentDue).toLocaleString('en-IN')}</span>
                         </Typography>
                     </div>
                     <div className='flex justify-between mt-3 mb-2'>
@@ -3255,7 +3263,7 @@ function EmployeeDetails() {
                             <span className='makePaymentHeader'>{'Salary (From - To) :'} </span><span className='makePaymentName'>{formData.dateOfPayment}</span>
                         </Typography>
                         <Typography id="modal-modal" variant="h6" component="h2">
-                            <span className='makePaymentHeader'>{'Total Salary(With Leave) :'}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{isToggel ? formData.proratedSalary : formData.totalSalary}</span>
+                            <span className='makePaymentHeader'>{'Total Salary(With Leave) :'}&nbsp;&nbsp;&nbsp;&nbsp;</span><span className='makePaymentName'>{isToggel ? parseFloat(formData.proratedSalary).toLocaleString('en-IN') : parseFloat(formData.totalSalary).toLocaleString('en-IN')}</span>
                         </Typography>
                     </div>
                     <div className='mt-6 grid grid-cols-12 gap-6'>
@@ -3636,13 +3644,13 @@ function EmployeeDetails() {
                                                         <TableCell align="left" >{row.monthYear}</TableCell>
                                                         {/* <Tooltip title={row.userName} placement="top-start" arrow> */}
                                                         <TableCell component="th" scope="row" >
-                                                            {row.originalTotalSalary}
+                                                            {parseFloat(row.originalTotalSalary).toLocaleString('en-IN')}
                                                         </TableCell>
                                                         {/* </Tooltip> */}
-                                                        <TableCell align="left">{row.totalSalary}</TableCell>
-                                                        <TableCell align="left">{row.salary}</TableCell>
-                                                        <TableCell align="left">{row.cutAdvance}</TableCell>
-                                                        <TableCell align="left">{row.cutFine}</TableCell>
+                                                        <TableCell align="left">{parseFloat(row.totalSalary).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="left">{parseFloat(row.salary).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="left">{parseFloat(row.cutAdvance).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="left">{parseFloat(row.cutFine).toLocaleString('en-IN')}</TableCell>
                                                     </TableRow>
 
                                                 ))
@@ -3744,14 +3752,14 @@ function EmployeeDetails() {
                                                         className='tableRow'
                                                     >
                                                         <TableCell align="left" >{(index + 1)}</TableCell>
-                                                        <TableCell align="left" >{row.fineAmount}</TableCell>
+                                                        <TableCell align="left" >{parseFloat(row.fineAmount).toLocaleString('en-IN')}</TableCell>
                                                         {/* <Tooltip title={row.userName} placement="top-start" arrow> */}
                                                         <TableCell component="th" scope="row" >
-                                                            {row.remainFineAmount}
+                                                            {parseFloat(row.remainFineAmount).toLocaleString('en-IN')}
                                                         </TableCell>
                                                         {/* </Tooltip> */}
-                                                        <TableCell align="left">{row.cutFineAmount}</TableCell>
-                                                        <TableCell align="left">{row.fineDate}</TableCell>
+                                                        <TableCell align="left">{parseFloat(row.cutFineAmount).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="left">{parseFloat(row.fineDate).toLocaleString('en-IN')}</TableCell>
                                                     </TableRow>
                                                 ))
                                                     : <TableRow
@@ -3777,7 +3785,7 @@ function EmployeeDetails() {
                                         :
                                     </div>
                                     <div className='col-span-3 '>
-                                        {calculationData ? calculationData.remainSalaryAmount : "~"}
+                                        {calculationData ? parseFloat(calculationData.remainSalaryAmount).toLocaleString('en-IN') : "~"}
                                     </div>
                                 </div>
                                 <div className='grid grid-cols-12 calculationFont'>
@@ -3788,7 +3796,7 @@ function EmployeeDetails() {
                                         :
                                     </div>
                                     <div className='col-span-3'>
-                                        {calculationData ? calculationData.remainAdvanceAmount : "~"}
+                                        {calculationData ? parseFloat(calculationData.remainAdvanceAmount).toLocaleString('en-IN') : "~"}
                                     </div>
                                 </div>
                                 <div className='grid grid-cols-12 calculationFont'>
@@ -3799,7 +3807,7 @@ function EmployeeDetails() {
                                         :
                                     </div>
                                     <div className='col-span-3 calculationFont'>
-                                        {calculationData ? calculationData.remainFineAmount : "~"}
+                                        {calculationData ? parseFloat(calculationData.remainFineAmount).toLocaleString('en-IN') : "~"}
                                     </div>
                                 </div>
                                 <div className='lineBreak mt-4 mb-4'>
@@ -3813,7 +3821,7 @@ function EmployeeDetails() {
                                         :
                                     </div>
                                     <div className='col-span-3 '>
-                                        {editFormData && editFormData.salary}
+                                        {parseFloat(editFormData && editFormData.salary).toLocaleString('en-IN')}
                                     </div>
                                 </div>
                                 <div className='grid grid-cols-12 calculationFont'>
@@ -3824,7 +3832,7 @@ function EmployeeDetails() {
                                         :
                                     </div>
                                     <div className='col-span-3'>
-                                        {editFormData && editFormData.advance}
+                                        {parseFloat(editFormData && editFormData.advance).toLocaleString('en-IN')}
                                     </div>
                                 </div>
                                 <div className='grid grid-cols-12 calculationFont'>
@@ -3835,7 +3843,7 @@ function EmployeeDetails() {
                                         :
                                     </div>
                                     <div className='col-span-3 calculationFont'>
-                                        {editFormData && editFormData.fine}
+                                        {parseFloat(editFormData && editFormData.fine).toLocaleString('en-IN')}
                                     </div>
                                 </div>
                                 <div className='lineBreak mt-4 mb-4'>
@@ -3849,7 +3857,7 @@ function EmployeeDetails() {
                                         :
                                     </div>
                                     <div className='col-span-3 '>
-                                        {calculationData && editFormData ? calculationData.remainSalaryAmount - editFormData.salary - editFormData.advance - editFormData.fine : "~"}
+                                        {calculationData && editFormData ? parseFloat(calculationData.remainSalaryAmount - editFormData.salary - editFormData.advance - editFormData.fine).toLocaleString('en-IN') : "~"}
                                     </div>
                                 </div>
                                 <div className='grid grid-cols-12 calculationFont'>
@@ -3860,7 +3868,7 @@ function EmployeeDetails() {
                                         :
                                     </div>
                                     <div className='col-span-3'>
-                                        {calculationData && editFormData ? calculationData.remainAdvanceAmount - editFormData.advance : "~"}
+                                        {calculationData && editFormData ? parseFloat(calculationData.remainAdvanceAmount - editFormData.advance).toLocaleString('en-IN') : "~"}
                                     </div>
                                 </div>
                                 <div className='grid grid-cols-12 calculationFont'>
@@ -3871,7 +3879,7 @@ function EmployeeDetails() {
                                         :
                                     </div>
                                     <div className='col-span-3 calculationFont'>
-                                        {calculationData && editFormData ? calculationData.remainFineAmount - editFormData.fine : "~"}
+                                        {calculationData && editFormData ? parseFloat(calculationData.remainFineAmount - editFormData.fine).toLocaleString('en-IN') : "~"}
                                     </div>
                                     <div className='col-span-5  flex justify-end'>
                                         <button className='exportExcelBtn'
@@ -3906,7 +3914,7 @@ function EmployeeDetails() {
                     <div className='flex justify-between'>
                         <div className='pt-1 pl-2'>
                             <Typography id="modal-modal" variant="h6" component="h2">
-                                <span className='makePaymentHeader'>Credit : </span><span className='makePaymentName'>{editFormData && editFormData.creditAmount}</span>
+                                <span className='makePaymentHeader'>Credit : </span><span className='makePaymentName'>{parseFloat(editFormData && editFormData.creditAmount).toLocaleString('en-IN')}</span>
                             </Typography>
                         </div>
                     </div>
@@ -3932,10 +3940,10 @@ function EmployeeDetails() {
                                                 className='tableRow'
                                             >
                                                 <TableCell align="left" >{(index + 1)}</TableCell>
-                                                <TableCell align="left" >{row.Amount}</TableCell>
+                                                <TableCell align="left" >{parseFloat(row.Amount ? row.Amount : 0).toLocaleString('en-IN')}</TableCell>
                                                 {/* <Tooltip title={row.userName} placement="top-start" arrow> */}
                                                 <TableCell component="th" scope="row" >
-                                                    {row.cutCreditAmount}
+                                                    {parseFloat(row.cutCreditAmount ? row.cutCreditAmount : 0).toLocaleString('en-IN')}
                                                 </TableCell>
                                                 {/* </Tooltip> */}
                                                 <TableCell align="left">{row.Date}</TableCell>

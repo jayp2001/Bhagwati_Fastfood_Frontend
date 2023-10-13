@@ -603,21 +603,21 @@ function TransactionTable() {
             </div>
             {tab === 2 || tab === '2' ?
                 <div className='mt-6 grid grid-cols-4 gap-6'>
-                    <CountCard color={'blue'} count={debitCount && debitCount.totalExpense ? debitCount.totalExpense : 0} desc={'Total Expense'} />
-                    <CountCard color={'green'} count={debitCount && debitCount.totalExpenseOfDebit ? debitCount.totalExpenseOfDebit : 0} desc={'Total Debit'} />
-                    <CountCard color={'yellow'} count={debitCount && debitCount.totalPaid ? debitCount.totalPaid : 0} desc={'Paid Debit'} />
-                    <CountCard color={'pink'} count={debitCount && debitCount.remainingAmount ? debitCount.remainingAmount : 0} desc={'Total Remaining'} />
+                    <CountCard color={'blue'} count={debitCount && debitCount.totalExpense ? debitCount.totalExpense : 0} desc={'Total Expense'} unitDesc={0} />
+                    <CountCard color={'green'} count={debitCount && debitCount.totalExpenseOfDebit ? debitCount.totalExpenseOfDebit : 0} desc={'Total Debit'} unitDesc={0} />
+                    <CountCard color={'yellow'} count={debitCount && debitCount.totalPaid ? debitCount.totalPaid : 0} desc={'Paid Debit'} unitDesc={0} />
+                    <CountCard color={'pink'} count={debitCount && debitCount.remainingAmount ? debitCount.remainingAmount : 0} desc={'Total Remaining'} unitDesc={0} />
                 </div>
                 : tab === 3 || tab === '3' ?
                     <div className='mt-6 grid grid-cols-4 gap-6'>
-                        <CountCard color={'blue'} count={cashCount && cashCount.totalExpense ? cashCount.totalExpense : 0} desc={'Total Expense'} />
-                        <CountCard color={'green'} count={cashCount && cashCount.totalExpenseOfCash ? cashCount.totalExpenseOfCash : 0} desc={'Total Cash'} />
+                        <CountCard color={'blue'} count={cashCount && cashCount.totalExpense ? cashCount.totalExpense : 0} desc={'Total Expense'} unitDesc={0} />
+                        <CountCard color={'green'} count={cashCount && cashCount.totalExpenseOfCash ? cashCount.totalExpenseOfCash : 0} desc={'Total Cash'} unitDesc={0} />
                         {/* <CountCard color={'yellow'} count={500} desc={'Paind Debit'} />
                     <CountCard color={'pink'} count={3000} desc={'Total Remaining'} /> */}
                     </div> :
                     <div className='mt-6 grid grid-cols-4 gap-6'>
-                        <CountCard color={'blue'} count={debitCount && debitCount.totalExpense ? debitCount.totalExpense : 0} desc={'Total Expense'} />
-                        <CountCard color={'green'} count={debitCount && debitCount.totalExpenseOfDebit ? debitCount.totalExpenseOfDebit : 0} desc={'Total Debit'} />
+                        <CountCard color={'blue'} count={debitCount && debitCount.totalExpense ? debitCount.totalExpense : 0} desc={'Total Expense'} unitDesc={0} />
+                        <CountCard color={'green'} count={debitCount && debitCount.totalExpenseOfDebit ? debitCount.totalExpenseOfDebit : 0} desc={'Total Debit'} unitDesc={0} />
                     </div>
 
             }
@@ -687,8 +687,8 @@ function TransactionTable() {
                                                         </TableCell>
                                                         <TableCell align="left" >{row.supplierNickName}</TableCell>
                                                         <TableCell align="left" >{row.receivedBy}</TableCell>
-                                                        <TableCell align="right" >{row.pendingAmount}</TableCell>
-                                                        <TableCell align="right" >{row.paidAmount}</TableCell>
+                                                        <TableCell align="right" >{parseFloat(row.pendingAmount ? row.pendingAmount : 0).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="right" >{parseFloat(row.paidAmount ? row.paidAmount : 0).toLocaleString('en-IN')}</TableCell>
                                                         <Tooltip title={row.transactionNote} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.transactionNote}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.transactionDate}</TableCell>
                                                         <TableCell align="left" >{row.transactionTime}</TableCell>
@@ -747,7 +747,7 @@ function TransactionTable() {
                                                                 {row.paidBy}
                                                             </TableCell>
                                                             <TableCell align="left" >{row.receviedBy}</TableCell>
-                                                            <TableCell align="left" >{row.paidAmount}</TableCell>
+                                                            <TableCell align="left" >{parseFloat(row.paidAmount ? row.paidAmount : 0).toLocaleString('en-IN')}</TableCell>
                                                             <TableCell align="left" >{row.transactionDate}</TableCell>
                                                             <TableCell align="left" >{row.transactionTime}</TableCell>
                                                             {/* <TableCell align="left" >{row.stockOutDate}</TableCell> */}
@@ -802,7 +802,7 @@ function TransactionTable() {
                                                                 {row.paidBy}
                                                             </TableCell>
                                                             <TableCell align="left" >{row.receviedBy}</TableCell>
-                                                            <TableCell align="left" >{row.paidAmount}</TableCell>
+                                                            <TableCell align="left" >{parseFloat(row.paidAmount ? row.paidAmount : 0).toLocaleString('en-IN')}</TableCell>
                                                             <TableCell align="left" >{row.transactionDate}</TableCell>
                                                             <TableCell align="left" >{row.transactionTime}</TableCell>
                                                             {/* <TableCell align="left" >{row.stockOutDate}</TableCell> */}
