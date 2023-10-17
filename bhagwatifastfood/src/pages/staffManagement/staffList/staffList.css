@@ -39,7 +39,7 @@
     /* Firefox */
 }
 
-.employeeListWrp :-webkit-scrollbar {
+.employeeListWrp::-webkit-scrollbar {
     display: none;
 }
 
