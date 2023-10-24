@@ -33,6 +33,7 @@ import Leaves from './pages/staffManagement/leaves/leaves';
 import PrintButton from './testThermal';
 import ProductDetailsManager from './pages/inventory/stockOut/productDetailsManager';
 import StockOutByCategory from './pages/inventory/categoryDetail/categoryDetail';
+import ExpenseDashboard from './pages/expense/dashboard/dashboard';
 // import SetPrinter from './setPrinter';
 function App() {
   return (
@@ -55,6 +56,16 @@ function App() {
                   <Route path="/staff/leaves" element={<Leaves/>}/>
                   <Route path="/staff/editStaff/:id" element={<AddEditStaff/>}/>
                   <Route path="/staff/employeeDetail/:id" element={<EmployeeDetails/>}/>
+                </Route>
+                 <Route path="/" element={<ProtectedAdminRoutes />}>
+                  <Route path="/expense/dashboard" element={<ExpenseDashboard/>}/>
+                  {/* <Route path="/staff/addStaff" element={<AddEditStaff/>}/>
+                  <Route path="/staff/staffList" element={<StaffList/>}/>
+                  <Route path="/staff/staffCategory" element={<StaffCategoryTable/>}/>
+                  <Route path="/staff/allPayments" element={<AllPayments/>}/>
+                  <Route path="/staff/leaves" element={<Leaves/>}/>
+                  <Route path="/staff/editStaff/:id" element={<AddEditStaff/>}/>
+                  <Route path="/staff/employeeDetail/:id" element={<EmployeeDetails/>}/> */}
                 </Route>
                 <Route path="/" element={<ProtectedUserRoutes/>}>
                   <Route path="/dashboard" element={<Dashboard/>}/>

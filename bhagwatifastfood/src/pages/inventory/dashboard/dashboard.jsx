@@ -28,11 +28,10 @@ function Dashboard() {
 
 
     const handleValueChange = (newValue) => {
-        console.log("newValue:", newValue);
         setValue(newValue);
     }
     const goToAddUSer = () => {
-        const auth = new Date(expirationTime) > new Date() && role == 6 ? true : false
+        const auth = new Date(expirationTime) > new Date() && (role == 1) ? true : false
         if (auth) {
             navigate('/addUser')
         } else {
@@ -40,8 +39,26 @@ function Dashboard() {
                 navigate('/login')
             }
         }
-        // navigate('/addUser')
-
+    }
+    const goToUserList = () => {
+        const auth = new Date(expirationTime) > new Date() && (role == 1) ? true : false
+        if (auth) {
+            navigate('/userTable')
+        } else {
+            if (window.confirm("You are not Authorised. You want to Login again ?")) {
+                navigate('/login')
+            }
+        }
+    }
+    const goToExpense = () => {
+        const auth = new Date(expirationTime) > new Date() && (role == 1 || role == 2) ? true : false
+        if (auth) {
+            navigate('/expense/dashboard')
+        } else {
+            if (window.confirm("You are not Authorised. You want to Login again ?")) {
+                navigate('/login')
+            }
+        }
     }
     const goToStaff = () => {
         const auth = new Date(expirationTime) > new Date() && (role == 1 || role == 2) ? true : false
@@ -52,10 +69,8 @@ function Dashboard() {
                 navigate('/login')
             }
         }
-        // navigate('/staff/staffList')
     }
     const goToProductList = () => {
-        // const auth = new Date(expirationTime) > new Date() && role == 6 ? true : false
         navigate('/productList')
     }
     return (
@@ -65,6 +80,8 @@ function Dashboard() {
                     <ConsoleCard goToAddUSer={goToProductList} name={"Inventory"} imgName={'img11'} />
                     <ConsoleCard goToAddUSer={goToStaff} name={"Staff Salary"} imgName={'staff'} />
                     <ConsoleCard goToAddUSer={goToAddUSer} name={"Add User"} imgName={'userAdd'} />
+                    <ConsoleCard goToAddUSer={goToUserList} name={"User List"} imgName={'userList'} />
+                    <ConsoleCard goToAddUSer={goToExpense} name={"Expense"} imgName={'expense'} />
                 </div>
             </div>
         </div>
