@@ -34,6 +34,8 @@ import PrintButton from './testThermal';
 import ProductDetailsManager from './pages/inventory/stockOut/productDetailsManager';
 import StockOutByCategory from './pages/inventory/categoryDetail/categoryDetail';
 import ExpenseDashboard from './pages/expense/dashboard/dashboard';
+import SubCategoryTable from './pages/expense/subCategory/subCategory';
+import SubCategoryDetail from './pages/expense/subCategoryDetail/subCategoryDetail';
 // import SetPrinter from './setPrinter';
 function App() {
   return (
@@ -59,6 +61,8 @@ function App() {
                 </Route>
                  <Route path="/" element={<ProtectedAdminRoutes />}>
                   <Route path="/expense/dashboard" element={<ExpenseDashboard/>}/>
+                  <Route path="/expense/subCategories/:category" element={<SubCategoryTable/>}/>
+                  <Route path="/expense/subCategory/:category" element={<SubCategoryDetail/>}/>
                   {/* <Route path="/staff/addStaff" element={<AddEditStaff/>}/>
                   <Route path="/staff/staffList" element={<StaffList/>}/>
                   <Route path="/staff/staffCategory" element={<StaffCategoryTable/>}/>
