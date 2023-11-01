@@ -2418,7 +2418,7 @@ function EmployeeDetails() {
                                             Per Day Salary
                                         </div>
                                         <div className='col-span-7 suppilerDetailFeild'>
-                                            {parseFloat(data.perDaySalary ? data.perDaySalary : 0).toLocaleString('en-IN')}
+                                            ₹ {parseFloat(data.perDaySalary ? data.perDaySalary : 0).toLocaleString('en-IN')} /-
                                         </div>
                                     </div>
                                 </div>
@@ -2428,7 +2428,7 @@ function EmployeeDetails() {
                                             Current Salary :
                                         </div>
                                         <div className='col-span-7 suppilerDetailFeild'>
-                                            {parseFloat(data.salary ? data.salary : 0).toLocaleString('en-IN')}
+                                            ₹ {parseFloat(data.salary ? data.salary : 0).toLocaleString('en-IN')} /-
                                         </div>
                                     </div>
                                     <div className='grid grid-cols-12 gap-3 hrLine'>
@@ -2436,7 +2436,7 @@ function EmployeeDetails() {
                                             Max Leave :
                                         </div>
                                         <div className='col-span-7 suppilerDetailFeild'>
-                                            {data.maxLeave}
+                                            {data.maxLeave} Day
                                         </div>
                                     </div>
                                     <div className='grid grid-cols-12 gap-3 hrLine'>
@@ -2508,7 +2508,7 @@ function EmployeeDetails() {
                                             Available Leave:
                                         </div>
                                         <div className='col-span-7 suppilerDetailFeild'>
-                                            {data.availableLeave}
+                                            {data.availableLeave} Day
                                         </div>
                                     </div>
                                 </div>
@@ -2880,15 +2880,15 @@ function EmployeeDetails() {
                                                                 {row.salaryMonth}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="left" >{parseFloat(row.totalSalary).toLocaleString('en-IN')}</TableCell>
-                                                        <TableCell align="left" >{parseFloat(row.remainSalary).toLocaleString('en-IN')} </TableCell>
-                                                        <TableCell align="left" >{parseFloat(row.amountOfAdvance).toLocaleString('en-IN')}</TableCell>
-                                                        <TableCell align="left" >{parseFloat(row.amountOfFine).toLocaleString('en-IN')}</TableCell>
-                                                        <TableCell align="left" >{row.maxLeave}</TableCell>
-                                                        <TableCell align="left" >{row.takenLeaves}</TableCell>
-                                                        <TableCell align="left" >{row.extraLeaves}</TableCell>
-                                                        <TableCell align="left" >{row.deductionSalaryOfLeave}</TableCell>
-                                                        <TableCell align="left" >{row.presentDays}</TableCell>
+                                                        <TableCell align="center" >₹ {parseFloat(row.totalSalary).toLocaleString('en-IN')} /-</TableCell>
+                                                        <TableCell align="center" >₹ {parseFloat(row.remainSalary).toLocaleString('en-IN')} /-</TableCell>
+                                                        <TableCell align="center" >₹ {parseFloat(row.amountOfAdvance).toLocaleString('en-IN')} /-</TableCell>
+                                                        <TableCell align="center" >₹ {parseFloat(row.amountOfFine).toLocaleString('en-IN')} /-</TableCell>
+                                                        <TableCell align="center" >{row.maxLeave} Day</TableCell>
+                                                        <TableCell align="center" >{row.takenLeaves} Day</TableCell>
+                                                        <TableCell align="center" >{row.extraLeaves} Day</TableCell>
+                                                        <TableCell align="center" >₹ {row.deductionSalaryOfLeave} /-</TableCell>
+                                                        <TableCell align="center" >{row.presentDays} Day</TableCell>
                                                         {index == 0 && row.totalSalary == row.remainSalary && data.employeeStatus != 1 ?
                                                             <TableCell align="right">
                                                                 {/* <Menutemp productId={row.productId} data={row} handleOpenStockOut={handleOpenStockOut} handleOpenStockIn={handleOpenStockIn} handleDeleteProduct={handleDeleteProduct} handleEditClick={handleEditClick} /> */}
