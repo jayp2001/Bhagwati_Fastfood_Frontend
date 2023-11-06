@@ -1695,6 +1695,8 @@ function AllPayments() {
                                                     <TableCell>Total Salary</TableCell>
                                                     <TableCell align="left">Remaining Salary</TableCell>
                                                     <TableCell align="left">Salary Cut</TableCell>
+                                                    <TableCell align="left">Advance Cut</TableCell>
+                                                    <TableCell align="left">Fine Cut</TableCell>
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
@@ -1714,7 +1716,9 @@ function AllPayments() {
                                                         </TableCell>
                                                         {/* </Tooltip> */}
                                                         <TableCell align="left">{parseFloat(row.totalSalary ? row.totalSalary : 0).toLocaleString('en-IN')}</TableCell>
-                                                        <TableCell align="left">{parseFloat(row.cutSalaryAmount ? row.cutSalaryAmount : 0).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="left">{parseFloat(row.salary ? row.salary : 0).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="left">{parseFloat(row.cutAdvance).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="left">{parseFloat(row.cutFine).toLocaleString('en-IN')}</TableCell>
                                                     </TableRow>
 
                                                 ))
