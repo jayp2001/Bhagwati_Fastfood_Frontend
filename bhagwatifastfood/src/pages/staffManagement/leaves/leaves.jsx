@@ -861,6 +861,7 @@ function Leaves() {
                                                 <TableCell >No.</TableCell>
                                                 <TableCell>Given By</TableCell>
                                                 <TableCell>Employee Name</TableCell>
+                                                <TableCell>Category</TableCell>
                                                 <TableCell align="left">Leave Count</TableCell>
                                                 <TableCell align="left">Reason</TableCell>
                                                 <TableCell align="left">Date</TableCell>
@@ -1035,8 +1036,8 @@ function Leaves() {
                                 disabled={addLeaveFormData.employeeId == '' || !addLeaveFormData.employeeId}
                                 onChange={onChangeLeave}
                                 value={addLeaveFormData.numLeave}
-                                error={addLeaveFormDataError.numLeave || (addLeaveFormData.numLeave > addLeaveFormData.maxLeave)}
-                                helperText={addLeaveFormData.numLeave && addLeaveFormData.numLeave > addLeaveFormData.maxLeave ? `Leaves can not be greater than ${addLeaveFormData.maxLeave}` : addLeaveFormDataError.numLeave ? 'Please enter leave' : `Max Leave is ${addLeaveFormData.maxLeave}`}
+                                error={addLeaveFormDataError.numLeave}
+                                helperText={addLeaveFormDataError.numLeave ? "Pls add leave" : ""}
                                 name="numLeave"
                             />
                         </div>
@@ -1140,8 +1141,8 @@ function Leaves() {
                                 fullWidth
                                 onChange={onChangeLeave}
                                 value={addLeaveFormData.numLeave}
-                                error={addLeaveFormDataError.numLeave || (addLeaveFormData.numLeave > addLeaveFormData.maxLeave)}
-                                helperText={addLeaveFormData.numLeave && addLeaveFormData.numLeave > addLeaveFormData.maxLeave ? `Leaves can not be greater than ${addLeaveFormData.maxLeave}` : addLeaveFormDataError.numLeave ? 'Please enter leave' : `Max Leave is ${addLeaveFormData.maxLeave}`}
+                                error={addLeaveFormDataError.numLeave}
+                                helperText={addLeaveFormDataError.numLeave ? "Pls add leave" : ""}
                                 name="numLeave"
                             />
                         </div>
