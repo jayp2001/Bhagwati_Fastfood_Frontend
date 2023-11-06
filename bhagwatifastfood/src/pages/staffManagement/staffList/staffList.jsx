@@ -184,7 +184,7 @@ function StaffList() {
         }))
     };
     const handleLeaveDate = (date) => {
-        setFormData((prevState) => ({
+        setAddLeaveFormData((prevState) => ({
             ...prevState,
             ["leaveDate"]: date && date['$d'] ? date['$d'] : null,
         }))
