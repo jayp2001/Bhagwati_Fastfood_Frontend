@@ -2596,10 +2596,10 @@ function EmployeeDetails() {
                                                 <TableRow>
                                                     <TableCell >No.</TableCell>
                                                     <TableCell>Given By</TableCell>
-                                                    <TableCell align="left">Leave Count</TableCell>
-                                                    <TableCell align="left">Reason</TableCell>
-                                                    <TableCell align="left">Date</TableCell>
-                                                    <TableCell align="left"></TableCell>
+                                                    <TableCell align="center">Leave Count</TableCell>
+                                                    <TableCell align="center">Reason</TableCell>
+                                                    <TableCell align="center">Date</TableCell>
+                                                    <TableCell align="center"></TableCell>
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
@@ -2618,9 +2618,9 @@ function EmployeeDetails() {
                                                                     {row.givenBy}
                                                                 </TableCell>
                                                             </Tooltip>
-                                                            <TableCell align="left" >{row.numLeave}</TableCell>
-                                                            <Tooltip title={row.leaveReason} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.leaveReason}</div></TableCell></Tooltip>
-                                                            <TableCell align="left" >{row.leaveDate}</TableCell>
+                                                            <TableCell align="center" >{row.numLeave} Day</TableCell>
+                                                            <Tooltip title={row.leaveReason} placement="top-start" arrow><TableCell align="center" ><div className='Comment'>{row.leaveReason}</div></TableCell></Tooltip>
+                                                            <TableCell align="center" >{row.leaveDate}</TableCell>
                                                             <TableCell align="right">
                                                                 <MenuLeaves data={row} handleDeleteLeave={handleDeleteLeave} handleEditLeaves={handleEditLeaves} setError={setError} />
                                                             </TableCell>
@@ -2852,16 +2852,16 @@ function EmployeeDetails() {
                                             <TableRow>
                                                 <TableCell >No.</TableCell>
                                                 <TableCell> Salary Month</TableCell>
-                                                <TableCell> Total Salary</TableCell>
-                                                <TableCell align="left">Remaining Salary</TableCell>
-                                                <TableCell align="left">Advance Taken</TableCell>
-                                                <TableCell align="left">Fine</TableCell>
-                                                <TableCell align="left">Max Leave</TableCell>
-                                                <TableCell align="left">Leave Taken</TableCell>
-                                                <TableCell align="left">Extra Leaves</TableCell>
-                                                <TableCell align="left">Extra leave salary cut</TableCell>
-                                                <TableCell align="left">Present days</TableCell>
-                                                <TableCell align="left"></TableCell>
+                                                <TableCell align="center"> Total Salary</TableCell>
+                                                <TableCell align="center">Remaining Salary</TableCell>
+                                                <TableCell align="center">Advance Taken</TableCell>
+                                                <TableCell align="center">Fine</TableCell>
+                                                <TableCell align="center">Max Leave</TableCell>
+                                                <TableCell align="center">Leave Taken</TableCell>
+                                                <TableCell align="center">Extra Leaves</TableCell>
+                                                <TableCell align="center">Extra leave salary cut</TableCell>
+                                                <TableCell align="center">Present days</TableCell>
+                                                <TableCell align="center"></TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
@@ -2928,12 +2928,12 @@ function EmployeeDetails() {
                                             <TableRow>
                                                 <TableCell >No.</TableCell>
                                                 <TableCell>Given By</TableCell>
-                                                <TableCell align="left">Advance Amount</TableCell>
-                                                <TableCell align="left">Remaining Advance</TableCell>
+                                                <TableCell align="center">Advance Amount</TableCell>
+                                                <TableCell align="center">Remaining Advance</TableCell>
                                                 <TableCell align="left">Comment</TableCell>
-                                                <TableCell align="left">Date</TableCell>
-                                                <TableCell align="left">Time</TableCell>
-                                                <TableCell align="left"></TableCell>
+                                                <TableCell align="center">Date</TableCell>
+                                                <TableCell align="center">Time</TableCell>
+                                                <TableCell align="center"></TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
@@ -2952,11 +2952,11 @@ function EmployeeDetails() {
                                                                 {row.givenBy}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="left" >{parseFloat(row.advanceAmount).toLocaleString('en-IN')}</TableCell>
-                                                        <TableCell align="left" >{parseFloat(row.remainAdvanceAmount).toLocaleString('en-IN')}</TableCell>
-                                                        <Tooltip title={row.advanceComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.advanceComment}</div></TableCell></Tooltip>
-                                                        <TableCell align="left" >{row.advanceDate}</TableCell>
-                                                        <TableCell align="left" >{row.givenTime}</TableCell>
+                                                        <TableCell align="center" >₹ {parseFloat(row.advanceAmount).toLocaleString('en-IN')} /-</TableCell>
+                                                        <TableCell align="center" >₹ {parseFloat(row.remainAdvanceAmount).toLocaleString('en-IN')} /-</TableCell>
+                                                        <Tooltip title={row.advanceComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'><marquee scrollamount="3">{row.advanceComment}</marquee></div></TableCell></Tooltip>
+                                                        <TableCell align="center" >{row.advanceDate}</TableCell>
+                                                        <TableCell align="center" >{row.givenTime}</TableCell>
                                                         <TableCell align="right">
                                                             <MenuAdvance data={row} handleDeleteAdvance={handleDeleteAdvance} setError={setError} />
                                                         </TableCell>
@@ -2991,13 +2991,13 @@ function EmployeeDetails() {
                                             <TableRow>
                                                 <TableCell >No.</TableCell>
                                                 <TableCell>Given By</TableCell>
-                                                <TableCell align="left">Fine Amount</TableCell>
-                                                <TableCell align="left">Remaining Fine</TableCell>
+                                                <TableCell align="center">Fine Amount</TableCell>
+                                                <TableCell align="center">Remaining Fine</TableCell>
                                                 <TableCell align="left">Reason</TableCell>
-                                                <TableCell align="left">Fine Status</TableCell>
-                                                <TableCell align="left">Date</TableCell>
-                                                <TableCell align="left">Time</TableCell>
-                                                <TableCell align="left"></TableCell>
+                                                <TableCell align="center">Fine Status</TableCell>
+                                                <TableCell align="center">Date</TableCell>
+                                                <TableCell align="center">Time</TableCell>
+                                                <TableCell align="center"></TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
@@ -3016,13 +3016,13 @@ function EmployeeDetails() {
                                                                 {row.givenBy}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="left" >{parseFloat(row.fineAmount).toLocaleString('en-IN')}</TableCell>
-                                                        <TableCell align="left" >{parseFloat(row.remainFineAmount).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="center" >₹ {parseFloat(row.fineAmount).toLocaleString('en-IN')} /-</TableCell>
+                                                        <TableCell align="center" >₹ {parseFloat(row.remainFineAmount).toLocaleString('en-IN')} /-</TableCell>
                                                         {console.log(row.reduceFineReson != null)}
-                                                        <Tooltip title={row.Reason} placement="top-start" arrow><TableCell align="left" ><div className='fineReducedComment'>{row.Reason}</div></TableCell></Tooltip>
-                                                        <TableCell align="left" >{row.fineStatusName}</TableCell>
-                                                        <TableCell align="left" >{row.fineDate}</TableCell>
-                                                        <TableCell align="left" >{row.givenTime}</TableCell>
+                                                        <Tooltip title={row.Reason} placement="top-start" arrow><TableCell align="left" ><div className='fineReducedComment'><marquee scrollamount="3">{row.Reason}</marquee></div></TableCell></Tooltip>
+                                                        <TableCell align="center" >{row.fineStatusName}</TableCell>
+                                                        <TableCell align="center" >{row.fineDate}</TableCell>
+                                                        <TableCell align="center" >{row.givenTime}</TableCell>
                                                         <TableCell align="right">
                                                             <MenuFine data={row} handleDeleteFine={handleDeleteFine} markAsIgnore={markAsIgnore} markAsConsider={markAsConsider} setError={setError} handleReduceFine={handleReduceFine} />
                                                         </TableCell>
@@ -3084,10 +3084,10 @@ function EmployeeDetails() {
                                                                 {row.givenBy}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="left" >{parseFloat(row.salaryPay).toLocaleString('en-IN')}</TableCell>
-                                                        <TableCell align="left" >{parseFloat(row.advanceCut).toLocaleString('en-IN')}</TableCell>
-                                                        <TableCell align="left" >{parseFloat(row.fineCut).toLocaleString('en-IN')}</TableCell>
-                                                        <Tooltip title={row.salaryComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.salaryComment}</div></TableCell></Tooltip>
+                                                        <TableCell align="left" >₹ {parseFloat(row.salaryPay).toLocaleString('en-IN')} /-</TableCell>
+                                                        <TableCell align="left" >₹ {parseFloat(row.advanceCut).toLocaleString('en-IN')} /-</TableCell>
+                                                        <TableCell align="left" >₹ {parseFloat(row.fineCut).toLocaleString('en-IN')} /-</TableCell>
+                                                        <Tooltip title={row.salaryComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'><marquee scrollamount="3">{row.salaryComment}</marquee></div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.salaryDate}</TableCell>
                                                         <TableCell align="left" >{row.salaryTime}</TableCell>
                                                         <TableCell align="right">
@@ -3148,9 +3148,9 @@ function EmployeeDetails() {
                                                                 {row.givenBy}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="left" >{parseFloat(row.creditAmount).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="left" >₹ {parseFloat(row.creditAmount).toLocaleString('en-IN')} /-</TableCell>
                                                         <TableCell align="left" >{row.creditType}</TableCell>
-                                                        <Tooltip title={row.creditComent} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.creditComent}</div></TableCell></Tooltip>
+                                                        <Tooltip title={row.creditComent} placement="top-start" arrow><TableCell align="left" ><div className='Comment'><marquee scrollamount="3">{row.creditComent}</marquee></div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.creditDate}</TableCell>
                                                         <TableCell align="left" >{row.givenTime}</TableCell>
                                                         <TableCell align="right">
@@ -3209,8 +3209,8 @@ function EmployeeDetails() {
                                                                 {row.givenBy}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="left" >{parseFloat(row.bonusAmount).toLocaleString('en-IN')}</TableCell>
-                                                        <Tooltip title={row.bonusComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.bonusComment}</div></TableCell></Tooltip>
+                                                        <TableCell align="left" >₹ {parseFloat(row.bonusAmount).toLocaleString('en-IN')} /-</TableCell>
+                                                        <Tooltip title={row.bonusComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'><marquee scrollamount="3">{row.bonusComment}</marquee></div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.bonusDate}</TableCell>
                                                         <TableCell align="left" >{row.givenTime}</TableCell>
                                                         <TableCell align="right">

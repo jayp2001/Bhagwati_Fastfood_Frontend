@@ -1331,9 +1331,9 @@ function AllPayments() {
                                                                 {row.employeeName}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="left" >{parseFloat(row.advanceAmount).toLocaleString('en-IN')}</TableCell>
-                                                        <TableCell align="left" >{parseFloat(row.remainAdvanceAmount).toLocaleString('en-IN')}</TableCell>
-                                                        <Tooltip title={row.advanceComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.advanceComment}</div></TableCell></Tooltip>
+                                                        <TableCell align="left" >₹ {parseFloat(row.advanceAmount).toLocaleString('en-IN')} /-</TableCell>
+                                                        <TableCell align="left" >₹ {parseFloat(row.remainAdvanceAmount).toLocaleString('en-IN')} /-</TableCell>
+                                                        <Tooltip title={row.advanceComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'><marquee scrollamount="3">{row.advanceComment}</marquee></div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.advanceDate}</TableCell>
                                                         <TableCell align="left" >{row.givenTime}</TableCell>
                                                         <TableCell align="right">
@@ -1401,10 +1401,10 @@ function AllPayments() {
                                                                 {row.employeeName}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="left" >{parseFloat(row.fineAmount ? row.fineAmount : 0).toLocaleString('en-IN')}</TableCell>
-                                                        <TableCell align="left" >{parseFloat(row.remainFineAmount ? row.remainFineAmount : 0).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="left" >₹ {parseFloat(row.fineAmount ? row.fineAmount : 0).toLocaleString('en-IN')} /-</TableCell>
+                                                        <TableCell align="left" >₹ {parseFloat(row.remainFineAmount ? row.remainFineAmount : 0).toLocaleString('en-IN')} /-</TableCell>
                                                         {console.log(row.reduceFineReson != null)}
-                                                        <Tooltip title={row.reason + `${row.reduceFineReson != null ? ' / ' + row.reduceFineReson : ''}`} placement="top-start" arrow><TableCell align="left" ><div className='fineReducedComment'>{row.reason + `${row.reduceFineReson != null ? ' / ' + row.reduceFineReson : ''}`}</div></TableCell></Tooltip>
+                                                        <Tooltip title={row.reason + `${row.reduceFineReson != null ? ' / ' + row.reduceFineReson : ''}`} placement="top-start" arrow><TableCell align="left" ><div className='fineReducedComment'><marquee scrollamount='3'>{row.reason + `${row.reduceFineReson != null ? ' / ' + row.reduceFineReson : ''}`}</marquee></div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.fineStatusName}</TableCell>
                                                         <TableCell align="left" >{row.fineDate}</TableCell>
                                                         <TableCell align="left" >{row.givenTime}</TableCell>
@@ -1475,10 +1475,10 @@ function AllPayments() {
                                                                 {row.employeeName}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="left" >{parseFloat(row.salaryPay ? row.salaryPay : 0).toLocaleString('en-IN')}</TableCell>
-                                                        <TableCell align="left" >{parseFloat(row.advanceCut ? row.advanceCut : 0).toLocaleString('en-IN')}</TableCell>
-                                                        <TableCell align="left" >{parseFloat(row.fineCut ? row.fineCut : 0).toLocaleString('en-IN')}</TableCell>
-                                                        <Tooltip title={row.salaryComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.salaryComment}</div></TableCell></Tooltip>
+                                                        <TableCell align="left" >₹ {parseFloat(row.salaryPay ? row.salaryPay : 0).toLocaleString('en-IN')} /-</TableCell>
+                                                        <TableCell align="left" >₹ {parseFloat(row.advanceCut ? row.advanceCut : 0).toLocaleString('en-IN')} /-</TableCell>
+                                                        <TableCell align="left" >₹ {parseFloat(row.fineCut ? row.fineCut : 0).toLocaleString('en-IN')} /-</TableCell>
+                                                        <Tooltip title={row.salaryComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'><marquee scrollamount='3'>{row.salaryComment}</marquee></div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.salaryDate}</TableCell>
                                                         <TableCell align="left" >{row.salaryTime}</TableCell>
                                                         <TableCell align="right">
@@ -1545,9 +1545,9 @@ function AllPayments() {
                                                                 {row.employeeName}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="left" >{parseFloat(row.creditAmount ? row.creditAmount : 0).toLocaleString('en-IN')}</TableCell>
+                                                        <TableCell align="left" >₹ {parseFloat(row.creditAmount ? row.creditAmount : 0).toLocaleString('en-IN')} /-</TableCell>
                                                         <TableCell align="left" >{row.creditType}</TableCell>
-                                                        <Tooltip title={row.creditComent} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.creditComent}</div></TableCell></Tooltip>
+                                                        <Tooltip title={row.creditComent} placement="top-start" arrow><TableCell align="left" ><div className='Comment'><marquee scrollamount='3'>{row.creditComent}</marquee></div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.creditDate}</TableCell>
                                                         <TableCell align="left" >{row.givenTime}</TableCell>
                                                         <TableCell align="right">
@@ -1612,8 +1612,8 @@ function AllPayments() {
                                                                 {row.employeeName}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="left" >{parseFloat(row.bonusAmount ? row.bonusAmount : 0).toLocaleString('en-IN')}</TableCell>
-                                                        <Tooltip title={row.bonusComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.bonusComment}</div></TableCell></Tooltip>
+                                                        <TableCell align="left" >₹ {parseFloat(row.bonusAmount ? row.bonusAmount : 0).toLocaleString('en-IN')} /-</TableCell>
+                                                        <Tooltip title={row.bonusComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'><marquee scrollamount='3'>{row.bonusComment}</marquee></div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.bonusDate}</TableCell>
                                                         <TableCell align="left" >{row.givenTime}</TableCell>
                                                         <TableCell align="right">

@@ -888,7 +888,7 @@ function Leaves() {
                                                                 {row.employeeName}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="left" >{row.numLeave}</TableCell>
+                                                        <TableCell align="left" >{row.numLeave} Day</TableCell>
                                                         <Tooltip title={row.leaveReason} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.leaveReason}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.leaveDate}</TableCell>
                                                         <TableCell align="right">
@@ -948,7 +948,7 @@ function Leaves() {
                                                                 {row.givenBy}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="left" >{row.numLeave}</TableCell>
+                                                        <TableCell align="left" >{row.numLeave} Day</TableCell>
                                                         <Tooltip title={row.holidayReason} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.holidayReason}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.holidayDate}</TableCell>
                                                         <TableCell align="right">
