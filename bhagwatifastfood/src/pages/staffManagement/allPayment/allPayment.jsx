@@ -217,7 +217,7 @@ function AllPayments() {
             deleteTransaction(id);
         }
     }
-    const getInvoice = async (tId, suppilerName) => {
+    const getInvoice = async (id, tId, employeeNickName) => {
         if (window.confirm('Are you sure you want to Download Reciept ... ?')) {
             await axios({
                 url: `${BACKEND_BASE_URL}staffrouter/getEmployeeInvoice?employeeId=${id}&invoiceId=${tId}`,
@@ -229,7 +229,7 @@ function AllPayments() {
                 const href = URL.createObjectURL(response.data);
                 // create "a" HTML element with href to file & click
                 const link = document.createElement('a');
-                const name = suppilerName + '_' + new Date().toLocaleDateString() + '.pdf'
+                const name = employeeNickName + '_' + new Date().toLocaleDateString() + '.pdf'
                 link.href = href;
                 link.setAttribute('download', name); //or any other extension
                 document.body.appendChild(link);
@@ -254,11 +254,13 @@ function AllPayments() {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
-    const handleOpenModelCalculation = (id, salary, advance, fine, name) => {
+    const handleOpenModelCalculation = (id, employeeId, salary, advance, fine, name) => {
         setEditFormData({
             salary: salary,
             advance: advance,
             fine: fine,
+            employeeId: employeeId,
+            transactionId: id,
             nickName: name
         })
         getCalculationData(id);
@@ -1951,7 +1953,7 @@ function AllPayments() {
                                     </div>
                                     <div className='col-span-5  flex justify-end'>
                                         <button className='exportExcelBtn'
-                                            onClick={() => getInvoice(editFormData.transactionId)}
+                                            onClick={() => getInvoice(editFormData.employeeId, editFormData.transactionId, editFormData.nickName)}
                                         ><FileDownloadIcon />&nbsp;&nbsp;Print Salary Slip</button>
                                     </div>
                                 </div>

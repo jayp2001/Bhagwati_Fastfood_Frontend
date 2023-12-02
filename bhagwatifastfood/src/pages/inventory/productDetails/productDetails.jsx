@@ -294,7 +294,7 @@ function ProductDetails() {
                     }))
                     return element;
                 }
-                else if (stockInFormData[element] === true || stockInFormData[element] === '' || stockInFormData[element] === 0) {
+                else if (stockInFormDataError[element] === true || stockInFormData[element] === '' || stockInFormData[element] === 0) {
                     setStockInFormDataError((perv) => ({
                         ...perv,
                         [element]: true
@@ -369,7 +369,7 @@ function ProductDetails() {
                         }))
                         return element;
                     }
-                    else if (stockOutFormData[element] === true || stockOutFormData[element] === '' || stockOutFormData[element] === 0) {
+                    else if (stockOutFormDataError[element] === true || stockOutFormData[element] === '' || stockOutFormData[element] === 0) {
                         setStockOutFormDataError((perv) => ({
                             ...perv,
                             [element]: true
@@ -859,7 +859,7 @@ function ProductDetails() {
                     }))
                     return element;
                 }
-                else if (stockOutFormData[element] === true || stockOutFormData[element] === '' || stockOutFormData[element] === 0) {
+                else if (stockOutFormDataError[element] === true || stockOutFormData[element] === '' || stockOutFormData[element] === 0) {
                     setStockOutFormDataError((perv) => ({
                         ...perv,
                         [element]: true
@@ -887,7 +887,7 @@ function ProductDetails() {
                 }))
                 return element;
             }
-            else if (stockInFormData[element] === true || stockInFormData[element] === '' || stockInFormData[element] === 0) {
+            else if (stockInFormDataError[element] === true || stockInFormData[element] === '' || stockInFormData[element] === 0) {
                 setStockInFormDataError((perv) => ({
                     ...perv,
                     [element]: true

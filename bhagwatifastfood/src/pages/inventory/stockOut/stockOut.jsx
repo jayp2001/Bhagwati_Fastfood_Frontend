@@ -294,7 +294,7 @@ function StockOut() {
                     }))
                     return element;
                 }
-                else if (stockOutFormData[element] === true || stockOutFormData[element] === '' || stockOutFormData[element] === 0) {
+                else if (stockOutFormDataError[element] === true || stockOutFormData[element] === '' || stockOutFormData[element] === 0) {
                     setStockOutFormDataError((perv) => ({
                         ...perv,
                         [element]: true
@@ -333,7 +333,7 @@ function StockOut() {
                     }))
                     return element;
                 }
-                else if (stockOutFormData[element] === true || stockOutFormData[element] === '' || stockOutFormData[element] === 0) {
+                else if (stockOutFormDataError[element] === true || stockOutFormData[element] === '' || stockOutFormData[element] === 0) {
                     setStockOutFormDataError((perv) => ({
                         ...perv,
                         [element]: true

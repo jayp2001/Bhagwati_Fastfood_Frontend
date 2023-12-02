@@ -377,18 +377,6 @@ function SuppilerDetail() {
     }, [])
     const onChange = (e) => {
         if (e.target.name === 'paidAmount') {
-            if (e.target.value > formData.remainingAmount) {
-                setFormDataError((perv) => ({
-                    ...perv,
-                    [e.target.name]: true
-                }))
-            }
-            else {
-                setFormDataError((perv) => ({
-                    ...perv,
-                    [e.target.name]: false
-                }))
-            }
             setFormData((prevState) => ({
                 ...prevState,
                 [e.target.name]: e.target.value,
@@ -430,7 +418,7 @@ function SuppilerDetail() {
 
         } else {
             const isValidate = formDataErrorFeild.filter(element => {
-                if (formData[element] === true || formData[element] === '' || formData[element] === 0) {
+                if (formDataError[element] === true || formData[element] === '' || formData[element] === 0) {
                     setFormDataError((perv) => ({
                         ...perv,
                         [element]: true
@@ -862,7 +850,7 @@ function SuppilerDetail() {
                                     <TextField
                                         disabled={formData.remainingAmount === 0 ? true : false}
                                         onBlur={(e) => {
-                                            if (e.target.value < 0 || e.target.value > formData.remainingAmount) {
+                                            if (e.target.value < 0) {
                                                 setFormDataError((perv) => ({
                                                     ...perv,
                                                     paidAmount: true
@@ -882,7 +870,7 @@ function SuppilerDetail() {
                                         value={formData.paidAmount ? formData.paidAmount : 0}
                                         error={formDataError.paidAmount}
                                         // helperText={formData.supplierName && !formDataError.productQty ? `Remain Payment  ${formData.remainingAmount}` : formDataError.paidAmount ? formData.paidAmount > formData.remainingAmount ? `Payment Amount can't be more than ${formData.remainingAmount}` : "Please Enter Amount" : ''}
-                                        helperText={formData.paidAmount ? formData.paidAmount > formData.remainingAmount ? `Payment Amount can't be more than ${formData.remainingAmount}` : `Remaining Payment ${formData.remainingAmount}` : formDataError.paidAmount ? "Please Enter Amount" : `Remaining Payment ${formData.remainingAmount}`}
+                                        helperText={`Remaining Payment ${formData.remainingAmount}`}
                                         name="paidAmount"
                                         InputProps={{
                                             startAdornment: <InputAdornment position="start"><CurrencyRupeeIcon /></InputAdornment>,

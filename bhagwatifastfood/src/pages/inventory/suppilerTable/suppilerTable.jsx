@@ -100,18 +100,18 @@ function SuppilerTable() {
     }
     const onChange = (e) => {
         if (e.target.name === 'paidAmount') {
-            if (e.target.value > formData.remainingAmount) {
-                setFormDataError((perv) => ({
-                    ...perv,
-                    [e.target.name]: true
-                }))
-            }
-            else {
-                setFormDataError((perv) => ({
-                    ...perv,
-                    [e.target.name]: false
-                }))
-            }
+            // if (e.target.value > formData.remainingAmount) {
+            //     setFormDataError((perv) => ({
+            //         ...perv,
+            //         [e.target.name]: true
+            //     }))
+            // }
+            // else {
+            //     setFormDataError((perv) => ({
+            //         ...perv,
+            //         [e.target.name]: false
+            //     }))
+            // }
             setFormData((prevState) => ({
                 ...prevState,
                 [e.target.name]: e.target.value,
@@ -209,7 +209,7 @@ function SuppilerTable() {
 
         } else {
             const isValidate = formDataErrorFeild.filter(element => {
-                if (formData[element] === true || formData[element] === '' || formData[element] === 0) {
+                if (formDataError[element] === true || formData[element] === '' || formData[element] === 0) {
                     setFormDataError((perv) => ({
                         ...perv,
                         [element]: true
@@ -447,7 +447,7 @@ function SuppilerTable() {
                         <div className='col-span-6'>
                             <TextField
                                 onBlur={(e) => {
-                                    if (e.target.value < 0 || e.target.value > formData.remainingAmount) {
+                                    if (e.target.value < 0) {
                                         setFormDataError((perv) => ({
                                             ...perv,
                                             paidAmount: true
@@ -468,7 +468,7 @@ function SuppilerTable() {
                                 value={formData.paidAmount}
                                 error={formDataError.paidAmount}
                                 // helperText={formData.supplierName && !formDataError.productQty ? `Remain Payment  ${formData.remainingAmount}` : formDataError.paidAmount ? formData.paidAmount > formData.remainingAmount ? `Payment Amount can't be more than ${formData.remainingAmount}` : "Please Enter Amount" : ''}
-                                helperText={formData.paidAmount ? formData.paidAmount > formData.remainingAmount ? `Payment Amount can't be more than ${formData.remainingAmount}` : `Remaining Payment ${formData.remainingAmount}` : formDataError.paidAmount ? "Please Enter Amount" : `Remaining Payment ${formData.remainingAmount}`}
+                                helperText={`Remaining Payment ${formData.remainingAmount}`}
                                 name="paidAmount"
                                 InputProps={{
                                     startAdornment: <InputAdornment position="start"><CurrencyRupeeIcon /></InputAdornment>,

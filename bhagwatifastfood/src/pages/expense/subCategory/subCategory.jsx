@@ -45,6 +45,7 @@ const style = {
 };
 
 function SubCategoryTable() {
+    const { categoryId } = useParams()
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const [filter, setFilter] = React.useState(false);
@@ -57,6 +58,24 @@ function SubCategoryTable() {
     const [openModal, setOpen] = React.useState(false);
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const [tab, setTab] = React.useState(1);
+    const [categoryError, setCategoryError] = React.useState({
+        subCategoryName: false
+    });
+    const [editCateory, setEditCategory] = React.useState({
+        subCategoryName: '',
+        subCategoryId: ''
+    })
+    const textFieldRef = useRef(null);
+    const focus = () => {
+        if (textFieldRef.current) {
+            textFieldRef.current.focus();
+        }
+    };
+    const [category, setCategory] = React.useState({
+        categoryId: categoryId,
+        subCategoryName: ''
+    });
+
     const config = {
         headers: {
             "Content-Type": "application/json",
@@ -86,6 +105,172 @@ function SubCategoryTable() {
         // setIsEdit(false);
         setOpen(false)
     }
+    const handleReset = () => {
+        setCategory('');
+        setCategoryError(false);
+        setEditCategory({
+            subCategoryName: '',
+            subCategoryId: ''
+        });
+        setIsEdit(false);
+    }
+    const addCategory = async () => {
+        setLoading(true);
+        await axios.post(`${BACKEND_BASE_URL}expenseAndBankrouter/addSubCategory`, category, config)
+            .then((res) => {
+                setSuccess(true)
+                filter ? getDataByFilter() : getData();
+                setPage(0);
+                setRowsPerPage(5);
+                setLoading(false);
+                handleReset();
+                focus();
+            })
+            .catch((error) => {
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+            })
+    }
+    const submit = () => {
+        if (loading || success) {
+
+        } else {
+            if (category.length < 2) {
+                setError(
+                    "Please Fill category"
+                )
+                setCategoryError(true);
+            } else {
+                addCategory()
+            }
+        }
+    }
+    const editCategory = async () => {
+        if (loading || success) {
+
+        } else {
+            if (editCateory.subCategoryName.length < 2) {
+                setError(
+                    "Please Fill category"
+                )
+                setCategoryError(true);
+            }
+            else {
+                setLoading(true);
+                await axios.post(`${BACKEND_BASE_URL}expenseAndBankrouter/updateSubCategory`, editCateory, config)
+                    .then((res) => {
+                        setLoading(false);
+                        setSuccess(true)
+                        filter ? getDataByFilter() : getData();
+                        setPage(0);
+                        setIsEdit(false)
+                        setRowsPerPage(5)
+                        handleCloseModal()
+                    })
+                    .catch((error) => {
+                        setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+                    })
+            }
+        }
+    }
+    const getDataOnPageChange = async (pageNum, rowPerPageNum) => {
+        console.log("page get", page, rowsPerPage)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getSubCategoryListById?page=${pageNum}&numPerPage=${rowPerPageNum}&mainCategoryId=${categoryId}`, config)
+            .then((res) => {
+                setData(res.data.rows);
+                setTotalRows(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
+        console.log("page get", page, rowsPerPage)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getSubCategoryListById?page=${pageNum}&numPerPage=${rowPerPageNum}&startDate=${state[0].startDate}&endDate=${state[0].endDate}&mainCategoryId=${categoryId}`, config)
+            .then((res) => {
+                setData(res.data.rows);
+                setTotalRows(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+        if (filter) {
+            getDataOnPageChangeByFilter(newPage + 1, rowsPerPage)
+        }
+        else {
+            getDataOnPageChange(newPage + 1, rowsPerPage)
+        }
+
+    };
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+        if (filter) {
+            getDataOnPageChangeByFilter(1, parseInt(event.target.value, 10))
+        }
+        else {
+            getDataOnPageChange(1, parseInt(event.target.value, 10))
+        }
+
+    };
+    const getDataByFilter = async () => {
+        console.log("page get", page, rowsPerPage)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getSubCategoryListById?page=${page + 1}&numPerPage=${rowsPerPage}&startDate=${state[0].startDate}&endDate=${state[0].endDate}&mainCategoryId=${categoryId}`, config)
+            .then((res) => {
+                setData(res.data.rows);
+                setTotalRows(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getData = async () => {
+        console.log("page get", page, rowsPerPage)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getSubCategoryListById?page=${page + 1}&numPerPage=${rowsPerPage}&mainCategoryId=${categoryId}`, config)
+            .then((res) => {
+                setData(res.data.rows);
+                setTotalRows(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const handleDelete = (id) => {
+        if (window.confirm("Are you sure you want to delete Category?")) {
+            deleteData(id);
+            setTimeout(() => {
+                setPage(0);
+                setRowsPerPage(5);
+                filter ? getDataByFilter() : getData();
+            }, 50)
+        }
+    }
+    const deleteData = async (id) => {
+        setLoading(true)
+        await axios.delete(`${BACKEND_BASE_URL}expenseAndBankrouter/removeSubCategory?subCategoryId=${id}`, config)
+            .then((res) => {
+                setLoading(false);
+                setSuccess(true)
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const handleEdit = (id, name) => {
+        setCategoryError(false);
+        setIsEdit(true);
+        setEditCategory((perv) => ({
+            ...perv,
+            subCategoryId: id,
+            subCategoryName: name,
+        }))
+        setOpen(true)
+    }
+    useEffect(() => {
+        getData();
+    }, [])
     const navigateToDetail = (name, id) => {
         navigate(`/stockOutByCategory/${name}/${id}`);
     }
@@ -95,6 +280,50 @@ function SubCategoryTable() {
     const handleClose = () => {
         setAnchorEl(null);
     };
+    if (loading) {
+        console.log('>>>>??')
+        toast.loading("Please wait...", {
+            toastId: 'loading'
+        })
+    }
+    if (success) {
+        toast.dismiss('loading');
+        toast('success',
+            {
+                type: 'success',
+                toastId: 'success',
+                position: "top-right",
+                toastId: 'error',
+                autoClose: 1500,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+            });
+        setTimeout(() => {
+            setSuccess(false)
+            setLoading(false);
+        }, 50)
+    }
+    if (error) {
+        setLoading(false)
+        toast.dismiss('loading');
+        toast(error, {
+            type: 'error',
+            position: "top-right",
+            toastId: 'error',
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+        });
+        setError(false);
+    }
     const handleOpen = () => setOpen(true);
     return (
         <div className='productListContainer'>
@@ -232,40 +461,40 @@ function SubCategoryTable() {
                                         <TableRow>
                                             <TableCell>No.</TableCell>
                                             <TableCell>Category Name</TableCell>
-                                            <TableCell align="right">Used Cost</TableCell>
-                                            <TableCell align="right">Percentage</TableCell>
+                                            {/* <TableCell align="right">Used Cost</TableCell>
+                                            <TableCell align="right">Percentage</TableCell> */}
                                             <TableCell align="right"></TableCell>
                                             <TableCell align="right"></TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
-                                        {/* {data?.map((row, index) => (
-                                        totalRows !== 0 ?
-                                            <TableRow
-                                                hover
-                                                key={row.stockOutCategoryId}
-                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                                style={{ cursor: "pointer" }}
-                                                className='tableRow'
-                                            >
-                                                <TableCell align="left" onClick={() => navigateToDetail(row.stockOutCategoryName, row.stockOutCategoryId)}>{(index + 1) + (page * rowsPerPage)}</TableCell>
-                                                <TableCell component="th" scope="row" onClick={() => navigateToDetail(row.stockOutCategoryName, row.stockOutCategoryId)}>
-                                                    {row.stockOutCategoryName}
-                                                </TableCell>
-                                                <TableCell align="right" onClick={() => navigateToDetail(row.stockOutCategoryName, row.stockOutCategoryId)}>{parseFloat(row.outPrice ? row.outPrice : 0).toLocaleString('en-IN')}</TableCell>
-                                                <TableCell align="right" onClick={() => navigateToDetail(row.stockOutCategoryName, row.stockOutCategoryId)}>{row.percentage}</TableCell>
-                                                <TableCell align="right" ><div className=''><button className='editCategoryBtn mr-6' onClick={() => handleEdit(row.stockOutCategoryId, row.stockOutCategoryName)}>Edit</button><button className='deleteCategoryBtn' onClick={() => handleDelete(row.stockOutCategoryId)}>Delete</button></div></TableCell>
-                                                <TableCell align="right">
-                                                </TableCell>
-                                            </TableRow> :
-                                            <TableRow
-                                                key={row.userId}
-                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                            >
-                                                <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
-                                            </TableRow>
+                                        {data?.map((row, index) => (
+                                            totalRows !== 0 ?
+                                                <TableRow
+                                                    hover
+                                                    key={row.subCategoryId}
+                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                    style={{ cursor: "pointer" }}
+                                                    className='tableRow'
+                                                >
+                                                    <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
+                                                    <TableCell component="th" scope="row" >
+                                                        {row.subCategoryName}
+                                                    </TableCell>
+                                                    {/* <TableCell align="right" >{parseFloat(row.outPrice ? row.outPrice : 0).toLocaleString('en-IN')}</TableCell>
+                                                    <TableCell align="right" >{row.percentage}</TableCell> */}
+                                                    <TableCell align="right" ><div className=''><button className='editCategoryBtn mr-6' onClick={() => handleEdit(row.subCategoryId, row.subCategoryName)}>Edit</button><button className='deleteCategoryBtn' onClick={() => handleDelete(row.subCategoryId)}>Delete</button></div></TableCell>
+                                                    <TableCell align="right">
+                                                    </TableCell>
+                                                </TableRow> :
+                                                <TableRow
+                                                    key={row.userId}
+                                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                >
+                                                    <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
+                                                </TableRow>
 
-                                    ))} */}
+                                        ))}
                                     </TableBody>
                                 </Table>
                                 <TablePagination
@@ -274,8 +503,8 @@ function SubCategoryTable() {
                                     count={totalRows}
                                     rowsPerPage={rowsPerPage}
                                     page={page}
-                                // onPageChange={handleChangePage}
-                                // onRowsPerPageChange={handleChangeRowsPerPage}
+                                    onPageChange={handleChangePage}
+                                    onRowsPerPageChange={handleChangeRowsPerPage}
                                 />
                             </TableContainer>
                         </div>
@@ -291,51 +520,58 @@ function SubCategoryTable() {
                         <Typography id="modal-modal-title" variant="h6" component="h2">
                             {isEdit ? 'Edit Category' : 'Add Category'}
                         </Typography>
-                        {/* <div className='mt-6 grid grid-cols-12 gap-6'>
-                        <div className='col-span-6'>
-                            <TextField
-                                onBlur={(e) => {
-                                    if (e.target.value.length < 2) {
-                                        setCategoryError(true);
-                                    }
-                                    else {
-                                        setCategoryError(false)
-                                    }
-                                }}
-                                onChange={(e) => {
-                                    isEdit ? setEditCategory((perv) => ({
+                        <div className='mt-6 grid grid-cols-12 gap-6'>
+                            <div className='col-span-6'>
+                                <TextField
+                                    onBlur={(e) => {
+                                        if (e.target.value.length < 2) {
+                                            setCategoryError(true);
+                                        }
+                                        else {
+                                            setCategoryError(false)
+                                        }
+                                    }}
+                                    onChange={(e) => {
+                                        isEdit ? setEditCategory((perv) => ({
+                                            ...perv,
+                                            subCategoryName: e.target.value
+                                        })) : setCategory((perv) => ({
+                                            ...perv,
+                                            subCategoryName: e.target.value
+                                        }))
+                                    }}
+                                    value={isEdit ? editCateory.subCategoryName ? editCateory.subCategoryName : '' : category.subCategoryName ? category.subCategoryName : ''}
+                                    error={categoryError.subCategoryName ? true : false}
+                                    inputRef={textFieldRef}
+                                    helperText={categoryError.subCategoryName ? "Please Enter Category" : ''}
+                                    name="subCategoryName"
+                                    id="outlined-required"
+                                    label="Category"
+                                    InputProps={{ style: { fontSize: 17 } }}
+                                    InputLabelProps={{ style: { fontSize: 17 } }}
+                                    fullWidth
+                                />
+                            </div>
+                            <div className='col-span-3'>
+                                <button className='addCategorySaveBtn' onClick={() => {
+                                    isEdit ? editCategory() : submit()
+                                }}>{isEdit ? 'Save' : 'Add'}</button>
+                            </div>
+                            <div className='col-span-3'>
+                                <button className='addCategoryCancleBtn' onClick={() => {
+                                    handleCloseModal(); setEditCategory((perv) => ({
                                         ...perv,
-                                        stockOutCategoryName: e.target.value
-                                    })) : setCategory(e.target.value)
-                                }}
-                                value={isEdit ? editCateory.stockOutCategoryName ? editCateory.stockOutCategoryName : '' : category}
-                                error={categoryError ? true : false}
-                                inputRef={textFieldRef}
-                                helperText={categoryError ? "Please Enter Category" : ''}
-                                name="category"
-                                id="outlined-required"
-                                label="Category"
-                                InputProps={{ style: { fontSize: 14 } }}
-                                InputLabelProps={{ style: { fontSize: 14 } }}
-                                fullWidth
-                            />
+                                        subCategoryId: '',
+                                        subCategoryName: '',
+                                    }));
+                                    setCategory({
+                                        categoryId: categoryId,
+                                        subCategoryName: ''
+                                    })
+                                    setIsEdit(false)
+                                }}>Cancle</button>
+                            </div>
                         </div>
-                        <div className='col-span-3'>
-                            <button className='addCategorySaveBtn' onClick={() => {
-                                isEdit ? editCategory() : submit()
-                            }}>{isEdit ? 'Save' : 'Add'}</button>
-                        </div>
-                        <div className='col-span-3'>
-                            <button className='addCategoryCancleBtn' onClick={() => {
-                                handleCloseModal(); setEditCategory((perv) => ({
-                                    ...perv,
-                                    stockOutCategoryId: '',
-                                    stockOutCategoryName: ''
-                                }));
-                                setIsEdit(false)
-                            }}>Cancle</button>
-                        </div>
-                    </div> */}
                     </Box>
                 </Modal>
                 <ToastContainer />

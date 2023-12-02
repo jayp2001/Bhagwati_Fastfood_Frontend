@@ -566,7 +566,8 @@ function StaffList() {
                         <div className='grid grid-cols-12 pl-6 gap-3 h-full'>
                             <div className={`flex col-span-2 justify-center ${tab === 1 || tab === '1' ? 'tabDebit' : 'productTab'}`} onClick={() => {
                                 setTab(1);
-                                getEmployeeListWithoutTab();
+                                // getEmployeeListWithoutTab();
+                                activeCategory == 9999 ? getEmployeeListInactive('') : getEmployeeList(activeCategory);
                                 setState({
                                     startMonth: new Date().getMonth(),
                                     startYear: new Date().getFullYear(),
@@ -808,6 +809,9 @@ function StaffList() {
                                 </div>
                                 <div className='col-span-4'>
                                     <CountCard color={'black'} count={countData && countData.totalDueSalary ? countData.totalDueSalary : 0} desc={'Total Due Salary'} productDetail={true} unitDesc={0} />
+                                </div>
+                                <div className='col-span-4'>
+                                    <CountCard color={'green'} count={countData && countData.remainPaySalary ? countData.remainPaySalary : 0} desc={'To be Pay'} productDetail={true} unitDesc={0} />
                                 </div>
                             </div>
                             <div className='grid grid-cols-12 gap-6'>

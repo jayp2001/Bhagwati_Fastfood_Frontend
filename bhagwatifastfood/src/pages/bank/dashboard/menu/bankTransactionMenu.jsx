@@ -4,11 +4,11 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import { useNavigate } from "react-router-dom";
-
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 const ITEM_HEIGHT = 48;
 
-function MenuTransaction(props) {
+function BankTransactionMenu(props) {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -48,53 +48,25 @@ function MenuTransaction(props) {
                     },
                 }}
             >
-                {props.data.fineAmount == props.data.remainFineAmount &&
-                    <MenuItem key={'delete'}
-                        onClick={() => {
-                            handleClose();
-                            props.handleDeleteTransaction(props.data.remainSalaryId)
-                        }}>
-                        Delete
-                    </MenuItem>
-                }
-                <MenuItem key={'Edit'}
+                <MenuItem key={'delete'}
                     onClick={() => {
                         handleClose();
-                        props.getInvoice(props.data.remainSalaryId)
+                        props.handleDelete(props.data.transactionId)
                     }}>
-                    Download Receipt
+                    Delete
                 </MenuItem>
-                <MenuItem key={'view'}
+                <MenuItem key={'InVoice'}
                     onClick={() => {
                         handleClose();
-                        props.handleOpenModelCalculation(props.data.remainSalaryId, props.data.employeeId, props.data.salaryPay, props.data.advanceCut, props.data.fineCut, props.data.employeeName)
+                        props.handleEdit(props.data)
                     }}>
-                    View Calculation
+                    Edit
                 </MenuItem>
-                {/* {
-                    props.data.fineStatus ?
-
-                        <MenuItem key={'ignore'}
-                            onClick={() => {
-                                handleClose();
-                                props.markAsIgnore(props.data.fineId)
-                            }}>
-                            Ignore
-                        </MenuItem>
-                        :
-                        <MenuItem key={'consider'}
-                            onClick={() => {
-                                handleClose();
-                                props.markAsConsider(props.data.fineId)
-                            }}>
-                            Consider
-                        </MenuItem>
-                } */}
             </Menu>
         </div >
     );
 }
 
-export default MenuTransaction;
+export default BankTransactionMenu;
 
 

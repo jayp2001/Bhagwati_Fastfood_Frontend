@@ -253,6 +253,9 @@ function CategoriesTable() {
                         setLoading(false);
                         setSuccess(true)
                         getData();
+                        setPage(0);
+                        setRowsPerPage(5)
+                        setIsEdit(false)
                         handleCloseModal()
                     })
                     .catch((error) => {
@@ -572,6 +575,7 @@ function CategoriesTable() {
                                     stockOutCategoryId: '',
                                     stockOutCategoryName: ''
                                 }));
+                                setCategory('')
                                 setIsEdit(false)
                             }}>Cancle</button>
                         </div>

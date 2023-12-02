@@ -13,6 +13,8 @@ import FormLabel from '@mui/material/FormLabel';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Select from '@mui/material/Select';
+import { BACKEND_BASE_URL } from '../../../url';
+import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import jwt_decode from 'jwt-decode'
 import CryptoJS from 'crypto-js';
@@ -40,12 +42,19 @@ import CloseIcon from '@mui/icons-material/Close';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import Accordion from '@mui/material/Accordion';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import BankMenu from '../../bank/dashboard/menu/menuBank';
+import dayjs from 'dayjs';
+import ExpenseMenu from "./menu/menuExpense";
 const style = {
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 600,
+    width: 900,
     bgcolor: 'background.paper',
     boxShadow: 24,
     paddingLeft: '20px',
@@ -64,12 +73,19 @@ function ExpenseDashboard() {
             Authorization: `Bearer ${userInfo.token}`,
         },
     };
+    const [expanded, setExpanded] = React.useState(false);
     const textFieldRef = useRef(null);
     const focus = () => {
         if (textFieldRef.current) {
             textFieldRef.current.focus();
         }
     };
+    const [editCateory, setEditCategory] = React.useState({
+        categoryName: '',
+        categoryIconName: '',
+        categoryId: ''
+    })
+    const [categoryError, setCategoryError] = React.useState('');
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [totalRows, setTotalRows] = React.useState(0);
@@ -79,23 +95,30 @@ function ExpenseDashboard() {
     const [rights, setRights] = useState();
     const [isEdit, setIsEdit] = React.useState(false);
     const [formData, setFormData] = useState({
-        userFirstName: '',
-        userLastName: '',
-        userGender: '',
-        userName: '',
-        password: '',
-        emailId: '',
-        userRights: ''
+        moneySourceId: '',
+        categoryId: '',
+        subcategoryId: '',
+        transactionDate: dayjs().hour() < 4 ? dayjs().subtract(1, 'day') : dayjs(),
+        transactionAmount: '',
+        comment: '',
     });
+    const [data, setData] = React.useState();
+    const [expenseData, setExpenseData] = React.useState();
+    const [totalRowsExpense, setTotalRowsExpense] = React.useState();
     const [formDataError, setFormDataError] = useState({
-        userFirstName: false,
-        userLastName: false,
-        userGender: false,
-        userName: false,
-        password: false,
-        emailId: false,
-        userRights: false
+        source: false,
+        categories: false,
+        subCategory: false,
+        transactionAmount: false,
+        transactionDate: false
     })
+    const [formDataErrorFields, setFormDataErrorFields] = useState([
+        "source",
+        "categories",
+        "subCategory",
+        "transactionAmount",
+        "transactionDate",
+    ])
     const [state, setState] = useState([
         {
             startDate: new Date(),
@@ -118,9 +141,11 @@ function ExpenseDashboard() {
     const id = open ? 'simple-popover' : undefined;
     const [sourceList, setSourceList] = React.useState();
     const [categories, setCategories] = React.useState();
+    const [source, setSource] = React.useState();
     const [subCategories, setSubCategories] = React.useState();
     const [tab, setTab] = React.useState(1);
     const [openModal, setOpen] = React.useState(false);
+    const [category, setCategory] = React.useState('');
     const navigate = useNavigate();
     const [value, setValue] = useState({
         startDate: null,
@@ -132,6 +157,10 @@ function ExpenseDashboard() {
         const data = JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
         return (data);
     };
+    useEffect(() => {
+        getCategoryDDL();
+        getSourceDDL();
+    }, [])
     const user = JSON.parse(localStorage.getItem('userInfo'))
     let location = useLocation();
     if (!user) {
@@ -147,6 +176,24 @@ function ExpenseDashboard() {
     const handleClose = () => {
         setAnchorEl(null);
     };
+    const resetAddExpense = () => {
+        setFormData({
+            moneySourceId: '',
+            categoryId: '',
+            subcategoryId: '',
+            transactionAmount: '',
+            comment: '',
+            transactionDate: dayjs().hour() < 4 ? dayjs().subtract(1, 'day') : dayjs(),
+        })
+        setFormDataError({
+            moneySourceId: false,
+            categoryId: false,
+            subcategoryId: false,
+            transactionAmount: false,
+            transactionDate: false
+        })
+        setIsEdit(false)
+    }
     const handleOpen = () => setOpen(true);
     const onChange = (e) => {
         setFormData((prevState) => ({
@@ -154,13 +201,154 @@ function ExpenseDashboard() {
             [e.target.name]: e.target.value,
         }))
     }
+    const navigateToDetail = (name, id) => {
+        navigate(`/stockOutByCategory/${name}/${id}`);
+    }
+    const handleDelete = (id) => {
+        if (window.confirm("Are you sure you want to delete Category?")) {
+            deleteData(id);
+        }
+    }
+    const handleDeleteExpense = (id) => {
+        if (window.confirm("Are you sure you want to delete Expense?")) {
+            deleteExpenseData(id);
+        }
+    }
+    const deleteData = async (id) => {
+        await axios.delete(`${BACKEND_BASE_URL}expenseAndBankrouter/removeMainCategory?mainCategoryId=${id}`, config)
+            .then((res) => {
+                setSuccess(true)
+                setPage(0);
+                setRowsPerPage(5);
+                getData();
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const deleteExpenseData = async (id) => {
+        await axios.delete(`${BACKEND_BASE_URL}expenseAndBankrouter/removeExpenseData?transactionId=${id}`, config)
+            .then((res) => {
+                setSuccess(true)
+                setPage(0);
+                setRowsPerPage(5);
+                getExpenseData();
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const handleEdit = (id, name, icon) => {
+        setCategoryError(false);
+        setIsEdit(true);
+        setEditCategory((perv) => ({
+            ...perv,
+            mainCategoryId: id,
+            categoryName: name,
+            categoryIconName: icon
+        }))
+        setOpen(true)
+    }
+    const handleEditExpense = async (data) => {
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/fillExpenseDataById?transactionId=${data.transactionId}`, config)
+            .then((res) => {
+                getCategoryDDL(res.data.mainCategory.categoryId);
+                setFormDataError({
+                    moneySourceId: false,
+                    categoryId: false,
+                    subcategoryId: false,
+                    transactionAmount: false,
+                    transactionDate: false
+                })
+                setIsEdit(true);
+                setExpanded(true);
+                setFormData({
+                    transactionId: data.transactionId,
+                    moneySourceId: res.data && res.data.moneySource ? res.data.moneySource.toId : '',
+                    categoryId: res.data && res.data.mainCategory ? res.data.mainCategory.categoryId : '',
+                    subcategoryId: res.data && res.data.subCategory ? res.data.subCategory.subcategoryId : '',
+                    source: res.data && res.data.moneySource ? res.data.moneySource : null,
+                    category: res.data && res.data.mainCategory ? res.data.mainCategory : null,
+                    subCategory: res.data && res.data.subCategory ? res.data.subCategory : null,
+                    transactionAmount: data.expenseAmount,
+                    comment: data.expenseComment,
+                    transactionDate: dayjs(data.dateExpense)
+                })
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+
+    }
+    const getData = async () => {
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getMainCategoryList?page=${page + 1}&numPerPage=${rowsPerPage}`, config)
+            .then((res) => {
+                setData(res.data.rows);
+                setTotalRows(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getExpenseDataOnTab = async () => {
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getExpenseTransactionData?page=${1}&numPerPage=${5}`, config)
+            .then((res) => {
+                setExpenseData(res.data.rows);
+                setTotalRowsExpense(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getExpenseData = async () => {
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getExpenseTransactionData?page=${page + 1}&numPerPage=${rowsPerPage}`, config)
+            .then((res) => {
+                setExpenseData(res.data.rows);
+                setTotalRowsExpense(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getExpenseDataByFilter = async () => {
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getExpenseTransactionData?page=${1}&numPerPage=${5}&startDate=${state[0].startDate}&endDate=${state[0].endDate}`, config)
+            .then((res) => {
+                setExpenseData(res.data.rows);
+                setTotalRowsExpense(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getExpenseDataOnPageChange = async (pageNum, rowPerPageNum) => {
+        console.log("page get", page, rowsPerPage)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getExpenseTransactionData?page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
+            .then((res) => {
+                setExpenseData(res.data.rows);
+                setTotalRowsExpense(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getExpenseDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
+        console.log("page get", page, rowsPerPage)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getExpenseTransactionData?page=${pageNum}&numPerPage=${rowPerPageNum}&startDate=${state[0].startDate}&endDate=${state[0].endDate}`, config)
+            .then((res) => {
+                setExpenseData(res.data.rows);
+                setTotalRowsExpense(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
     const handleCloseModal = () => {
         // setOpen(false);
         // setCategory('');
         // setCategoryError(false);
         // setEditCategory({
-        //     stockOutCategoryName: '',
-        //     stockOutCategoryId: ''
+        //     categoryName: '',
+        //     categoryId: ''
         // });
         // setIsEdit(false);
         setOpen(false)
@@ -172,11 +360,34 @@ function ExpenseDashboard() {
         }))
     };
     const handleSourceNameAutoComplete = (event, value) => {
-        formData((prevState) => ({
+        setFormData((prevState) => ({
             ...prevState,
             ['source']: value,
-            sourceId: value && value.productId ? value.productId : '',
+            moneySourceId: value && value.toId ? value.toId : '',
         }))
+        // getSuppilerList(value && value.productId ? value.productId : '')
+        // console.log('formddds', stockInFormData)
+    }
+    const handleCategoryAutoComplete = (event, value) => {
+        setFormData((prevState) => ({
+            ...prevState,
+            ['category']: value,
+            subcategoryId: '',
+            subCategory: null,
+            categoryId: value && value.categoryId ? value.categoryId : '',
+        }));
+        (value && value.categoryId) && getSubCategoryDDL(value.categoryId);
+        // getSuppilerList(value && value.productId ? value.productId : '')
+        // console.log('formddds', stockInFormData)
+    }
+    const handleSubCategoryAutoComplete = (event, value) => {
+        setFormData((prevState) => ({
+            ...prevState,
+            ['subCategory']: value,
+            subcategoryId: value && value.subCategoryId ? value.subCategoryId : '',
+        }))
+        // if (value && value.subcategoryId ? true : false)
+        //     getSubCategoryDDL(value.subcategoryId)
         // getSuppilerList(value && value.productId ? value.productId : '')
         // console.log('formddds', stockInFormData)
     }
@@ -223,8 +434,299 @@ function ExpenseDashboard() {
             }
         }
     }
+    const handleTransactionDate = (date) => {
+        setFormData((prevState) => ({
+            ...prevState,
+            ["transactionDate"]: date && date['$d'] ? date['$d'] : null,
+        }))
+    };
+    const getDataOnPageChange = async (pageNum, rowPerPageNum) => {
+        console.log("page get", page, rowsPerPage)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getMainCategoryList?page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
+            .then((res) => {
+                setData(res.data.rows);
+                setTotalRows(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
+        console.log("page get", page, rowsPerPage)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getMainCategoryList?page=${pageNum}&numPerPage=${rowPerPageNum}&startDate=${state[0].startDate}&endDate=${state[0].endDate}`, config)
+            .then((res) => {
+                setData(res.data.rows);
+                setTotalRows(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+        if (tab === 2 || tab === '2') {
+            if (filter) {
+                getExpenseDataOnPageChangeByFilter(newPage + 1, rowsPerPage)
+            }
+            else {
+                getExpenseDataOnPageChange(newPage + 1, rowsPerPage)
+            }
+        }
+        else {
+            if (filter) {
+                getDataOnPageChangeByFilter(newPage + 1, rowsPerPage)
+            }
+            else {
+                getDataOnPageChange(newPage + 1, rowsPerPage)
+            }
+        }
+
+
+    };
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+        if (tab === 2 || tab === '2') {
+            if (filter) {
+                getExpenseDataOnPageChangeByFilter(1, parseInt(event.target.value, 10))
+            }
+            else {
+                getExpenseDataOnPageChange(1, parseInt(event.target.value, 10))
+            }
+        }
+        else {
+            if (filter) {
+                getDataOnPageChangeByFilter(1, parseInt(event.target.value, 10))
+            }
+            else {
+                getDataOnPageChange(1, parseInt(event.target.value, 10))
+            }
+        }
+
+
+    };
+    const editCategory = async () => {
+        if (loading || success) {
+        } else {
+            if (editCateory.categoryName.length < 2) {
+                setError(
+                    "Please Fill category"
+                )
+                setCategoryError(true);
+            }
+            else {
+                setLoading(true);
+                await axios.post(`${BACKEND_BASE_URL}expenseAndBankrouter/updateMainCategory`, editCateory, config)
+                    .then((res) => {
+                        setLoading(false);
+                        setSuccess(true)
+                        getData();
+                        setPage(0);
+                        setIsEdit(false)
+                        setRowsPerPage(5)
+                        handleCloseModal()
+                    })
+                    .catch((error) => {
+                        setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+                    })
+            }
+        }
+    }
+    const addExpense = async () => {
+        setLoading(true);
+        await axios.post(`${BACKEND_BASE_URL}expenseAndBankrouter/addExpenseData`, formData, config)
+            .then((res) => {
+                setSuccess(true)
+                setLoading(false);
+                resetAddExpense();
+                setPage(0);
+                setRowsPerPage(5)
+                getExpenseData();
+                focus();
+            })
+            .catch((error) => {
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+            })
+    }
+    const editExpense = async () => {
+        setLoading(true);
+        await axios.post(`${BACKEND_BASE_URL}expenseAndBankrouter/updateExpenseData`, formData, config)
+            .then((res) => {
+                setSuccess(true)
+                setLoading(false);
+                resetAddExpense();
+                setPage(0);
+                setRowsPerPage(5)
+                getExpenseData();
+                focus();
+            })
+            .catch((error) => {
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+            })
+    }
+    const submitAddExpense = () => {
+        if (loading || success) {
+
+        } else {
+            const isValidate = formDataErrorFields.filter(element => {
+                if (formDataError[element] === true || formData[element] === '' || formData[element] === 0) {
+                    setFormDataError((perv) => ({
+                        ...perv,
+                        [element]: true
+                    }))
+                    return element;
+                }
+            })
+            if (isValidate.length > 0) {
+                setError(
+                    "Please Fill All Field"
+                )
+            } else {
+                // console.log(">>", stockInFormData, stockInFormData.stockInDate, stockInFormData.stockInDate != 'Invalid Date' ? 'ue' : 'false')
+                // addBank()
+                addExpense();
+                // console.log('submit add funds')
+            }
+        }
+    }
+    const submitEditExpense = () => {
+        if (loading || success) {
+
+        } else {
+            const isValidate = formDataErrorFields.filter(element => {
+                if (formDataError[element] === true || formData[element] === '' || formData[element] === 0) {
+                    setFormDataError((perv) => ({
+                        ...perv,
+                        [element]: true
+                    }))
+                    return element;
+                }
+            })
+            if (isValidate.length > 0) {
+                setError(
+                    "Please Fill All Field"
+                )
+            } else {
+                // console.log(">>", stockInFormData, stockInFormData.stockInDate, stockInFormData.stockInDate != 'Invalid Date' ? 'ue' : 'false')
+                // addBank()
+                editExpense();
+                // console.log('submit add funds')
+            }
+        }
+    }
+    const handleReset = () => {
+        setCategory('');
+        setCategoryError(false);
+        setEditCategory({
+            categoryName: '',
+            categoryIconName: '',
+            categoryId: ''
+        });
+        setIsEdit(false);
+    }
+    const addCategory = async () => {
+        setLoading(true);
+        await axios.post(`${BACKEND_BASE_URL}expenseAndBankrouter/addMainCategory`, category, config)
+            .then((res) => {
+                setSuccess(true)
+                getData();
+                setPage(0);
+                setRowsPerPage(5);
+                setLoading(false);
+                handleReset();
+                focus();
+            })
+            .catch((error) => {
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+            })
+    }
+    const submit = () => {
+        if (loading || success) {
+
+        } else {
+            if (category.length < 2) {
+                setError(
+                    "Please Fill category"
+                )
+                setCategoryError(true);
+            } else {
+                addCategory()
+            }
+        }
+    }
+    const getSourceDDL = async () => {
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/ddlToData`, config)
+            .then((res) => {
+                setSource(res.data);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getCategoryDDL = async () => {
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/ddlMainCategoryData`, config)
+            .then((res) => {
+                setCategories(res.data);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getSubCategoryDDL = async (id) => {
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/ddlSubCategoryData?categoryId=${id}`, config)
+            .then((res) => {
+                setSubCategories(res.data);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
     const goToProductList = () => {
         navigate('/productList')
+    }
+    if (loading) {
+        console.log('>>>>??')
+        toast.loading("Please wait...", {
+            toastId: 'loading'
+        })
+    }
+    if (success) {
+        toast.dismiss('loading');
+        toast('success',
+            {
+                type: 'success',
+                toastId: 'success',
+                position: "top-right",
+                toastId: 'error',
+                autoClose: 1500,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+            });
+        setTimeout(() => {
+            setSuccess(false)
+            setLoading(false);
+        }, 50)
+    }
+    if (error) {
+        setLoading(false)
+        toast.dismiss('loading');
+        toast(error, {
+            type: 'error',
+            position: "top-right",
+            toastId: 'error',
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+        });
+        setError(false);
     }
     return (
         <div className='mainBody'>
@@ -242,16 +744,22 @@ function ExpenseDashboard() {
                                         </div>
                                         <div className={`flex col-span-3 justify-center ${tab === 2 || tab === '2' ? 'productTabIn' : 'productTab'}`} onClick={() => {
                                             setTab(2);
+                                            getExpenseDataOnTab();
+                                            setPage(0);
+                                            setRowsPerPage(5);
+                                            setFilter(false);
+                                            setState([
+                                                {
+                                                    startDate: new Date(),
+                                                    endDate: new Date(),
+                                                    key: 'selection'
+                                                }
+                                            ])
                                         }}>
                                             <div className='statusTabtext'>Add Expenses</div>
                                         </div>
-                                        <div className={`flex col-span-3 justify-center ${tab === 3 || tab === '3' ? 'productTabOut' : 'productTab'}`} onClick={() => {
-                                            setTab(3)
-                                        }}>
-                                            <div className='statusTabtext'>Today's Expenses</div>
-                                        </div>
                                         <div className={`flex col-span-3 justify-center ${tab === 4 || tab === '4' ? 'products' : 'productTab'}`} onClick={() => {
-                                            setTab(4)
+                                            setTab(4); setPage(0); setRowsPerPage(5); getData();
                                         }}>
                                             <div className='statusTabtext'>Category Table</div>
                                         </div>
@@ -279,217 +787,297 @@ function ExpenseDashboard() {
             }
             {
                 (tab === 2 || tab === '2') &&
-                <div className="grid grid-cols-12">
-                    <div className="col-span-9">
-                        <div className="addCard">
-                            <div className='addUserTextFieldWrp'>
-                                <div className='grid grid-rows-2 gap-6'>
-                                    <div className='grid grid-cols-12 gap-6'>
-                                        <div className="col-span-4">
-                                            <FormControl fullWidth>
-                                                <Autocomplete
-                                                    defaultValue={null}
-                                                    id='source'
-                                                    disablePortal
-                                                    sx={{ width: '100%' }}
-                                                    // disabled={isEdit}
-                                                    value={formData.source ? formData.source : null}
-                                                    onChange={handleSourceNameAutoComplete}
-                                                    options={sourceList ? sourceList : []}
-                                                    getOptionLabel={(options) => options.productName}
-                                                    renderInput={(params) => <TextField inputRef={textFieldRef} {...params} label="Money Source" />}
-                                                />
-                                            </FormControl>
-                                        </div>
-                                        <div className="col-span-4">
-                                            <FormControl fullWidth>
-                                                <Autocomplete
-                                                    defaultValue={null}
-                                                    id='category'
-                                                    disablePortal
-                                                    sx={{ width: '100%' }}
-                                                    // disabled={isEdit}
-                                                    value={formData.categories ? formData.categories : null}
-                                                    onChange={handleSourceNameAutoComplete}
-                                                    options={categories ? categories : []}
-                                                    getOptionLabel={(options) => options.productName}
-                                                    renderInput={(params) => <TextField {...params} label="Category" />}
-                                                />
-                                            </FormControl>
-                                        </div>
-                                        <div className="col-span-4">
-                                            <FormControl fullWidth>
-                                                <Autocomplete
-                                                    defaultValue={null}
-                                                    id='subCategory'
-                                                    disablePortal
-                                                    sx={{ width: '100%' }}
-                                                    // disabled={isEdit}
-                                                    value={formData.subCategory ? formData.subCategory : null}
-                                                    onChange={handleSourceNameAutoComplete}
-                                                    options={subCategories ? subCategories : []}
-                                                    getOptionLabel={(options) => options.productName}
-                                                    renderInput={(params) => <TextField {...params} label="Sub Category" />}
-                                                />
-                                            </FormControl>
-                                        </div>
-                                    </div>
-                                    <div className='grid grid-cols-12 gap-6'>
-                                        <div className="col-span-4">
-                                            <TextField
-                                                error={formDataError.emailId}
-                                                helperText={formDataError.emailId ? "Please Enter valid Email" : ''}
-                                                onChange={onChange}
-                                                value={formData.emailId}
-                                                name="emailId"
-                                                id="outlined-required"
-                                                label="Amount"
-                                                InputProps={{ style: { fontSize: 14 } }}
-                                                InputLabelProps={{ style: { fontSize: 14 } }}
-                                                fullWidth
-                                            />
-                                        </div>
-                                        <div className="col-span-4">
-                                            <TextField
-                                                // onBlur={(e) => {
-                                                //     if (e.target.value.length < 2) {
-                                                //         setFormDataError((perv) => ({
-                                                //             ...perv,
-                                                //             userName: true
-                                                //         }))
-                                                //     }
-                                                //     else {
-                                                //         setFormDataError((perv) => ({
-                                                //             ...perv,
-                                                //             userName: false
-                                                //         }))
-                                                //     }
-                                                // }}
-                                                onChange={onChange}
-                                                value={formData.userName}
-                                                error={formDataError.userName}
-                                                helperText={formDataError.userName ? "Please Enter First Name" : ''}
-                                                name="userName"
-                                                id="outlined-required"
-                                                label="Comment"
-                                                InputProps={{ style: { fontSize: 14 } }}
-                                                InputLabelProps={{ style: { fontSize: 14 } }}
-                                                fullWidth
-                                            />
-                                        </div>
-                                        <div className="col-span-4">
-                                            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                                <DesktopDatePicker
-                                                    textFieldStyle={{ width: '100%' }}
-                                                    InputProps={{ style: { fontSize: 14, width: '100%' } }}
-                                                    InputLabelProps={{ style: { fontSize: 14 } }}
-                                                    label="Stock In Date"
-                                                    format="DD/MM/YYYY"
-                                                    required
-                                                    error={formDataError.expenseDate}
-                                                    value={formData.expenseDate}
-                                                    onChange={handleExpenseDate}
-                                                    name="expenseDate"
-                                                    slotProps={{ textField: { fullWidth: true } }}
-                                                    renderInput={(params) => <TextField {...params} sx={{ width: '100%' }} />}
-                                                />
-                                            </LocalizationProvider>
+                <div className="grid grid-cols-12 productListContainer">
+                    <div className="col-span-12">
+                        <Accordion expanded={expanded} square='false' sx={{ width: "100%", borderRadius: '12px', boxShadow: 'rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem' }}>
+                            <AccordionSummary
+                                sx={{ height: '60px', borderRadius: '0.75rem' }}
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="panel1a-content"
+                                id="panel1a-header"
+                                onClick={() => { setExpanded(!expanded); resetAddExpense(); }}
+                            >
+                                <div className='stockAccordinHeader'>Add Expenses</div>
+                            </AccordionSummary>
+                            <AccordionDetails>
+                                <div className="stockInOutContainer">
+                                    <div className=''>
+                                        <div className='grid grid-rows-2 gap-6'>
+                                            <div className='grid grid-cols-12 gap-6'>
+                                                <div className="col-span-3">
+                                                    <FormControl fullWidth>
+                                                        <Autocomplete
+                                                            defaultValue={null}
+                                                            id='source'
+                                                            disablePortal
+                                                            sx={{ width: '100%' }}
+                                                            // disabled={isEdit}
+                                                            value={formData.source ? formData.source : null}
+                                                            onChange={handleSourceNameAutoComplete}
+                                                            options={source ? source : []}
+                                                            getOptionLabel={(options) => options.toName}
+                                                            renderInput={(params) => <TextField inputRef={textFieldRef}
+                                                                {...params}
+                                                                error={formDataError.source}
+                                                                helperText={formDataError.source ? "Please Select" : ''}
+                                                                label="Money Source" />}
+                                                        />
+                                                    </FormControl>
+                                                </div>
+                                                <div className="col-span-3">
+                                                    <FormControl fullWidth>
+                                                        <Autocomplete
+                                                            defaultValue={null}
+                                                            id='category'
+                                                            disablePortal
+                                                            sx={{ width: '100%' }}
+                                                            // disabled={isEdit}
+                                                            value={formData.category ? formData.category : null}
+                                                            onChange={handleCategoryAutoComplete}
+                                                            options={categories ? categories : []}
+                                                            getOptionLabel={(options) => options.categoryName}
+                                                            renderInput={(params) => <TextField {...params}
+                                                                error={formDataError.categories}
+                                                                helperText={formDataError.categories ? "Please Select" : ''}
+                                                                label="Category" />}
+                                                        />
+                                                    </FormControl>
+                                                </div>
+                                                <div className="col-span-3">
+                                                    <FormControl fullWidth>
+                                                        <Autocomplete
+                                                            defaultValue={null}
+                                                            id='subCategory'
+                                                            disablePortal
+                                                            sx={{ width: '100%' }}
+                                                            disabled={!formData.category}
+                                                            value={formData.subCategory ? formData.subCategory : null}
+                                                            onChange={handleSubCategoryAutoComplete}
+                                                            options={subCategories ? subCategories : []}
+                                                            getOptionLabel={(options) => options.subCategoryName}
+                                                            renderInput={(params) => <TextField {...params}
+                                                                error={formDataError.subCategory}
+                                                                helperText={formDataError.subCategory ? "Please Select" : ''}
+                                                                label="Sub Category" />}
+                                                        />
+                                                    </FormControl>
+                                                </div>
+                                                <div className="col-span-3">
+                                                    <TextField
+                                                        onBlur={(e) => {
+                                                            if (!e.target.value || e.target.value < 1) {
+                                                                setFormDataError((perv) => ({
+                                                                    ...perv,
+                                                                    transactionAmount: true
+                                                                }))
+                                                            }
+                                                            else {
+                                                                setFormDataError((perv) => ({
+                                                                    ...perv,
+                                                                    transactionAmount: false
+                                                                }))
+                                                            }
+                                                        }}
+                                                        error={formDataError.transactionAmount}
+                                                        helperText={formDataError.transactionAmount ? "Please Enter Amount" : ''}
+                                                        onChange={onChange}
+                                                        value={formData.transactionAmount}
+                                                        name="transactionAmount"
+                                                        id="outlined-required"
+                                                        label="Amount"
+                                                        InputProps={{ style: { fontSize: 14 } }}
+                                                        InputLabelProps={{ style: { fontSize: 14 } }}
+                                                        fullWidth
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className='grid grid-cols-12 gap-6'>
+                                                <div className="col-span-3">
+                                                    <TextField
+                                                        onChange={onChange}
+                                                        value={formData.comment}
+                                                        name="comment"
+                                                        id="outlined-required"
+                                                        label="Comment"
+                                                        InputProps={{ style: { fontSize: 14 } }}
+                                                        InputLabelProps={{ style: { fontSize: 14 } }}
+                                                        fullWidth
+                                                    />
+                                                </div>
+                                                <div className="col-span-3">
+                                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                                        <DesktopDatePicker
+                                                            textFieldStyle={{ width: '100%' }}
+                                                            InputProps={{ style: { fontSize: 14, width: '100%' } }}
+                                                            InputLabelProps={{ style: { fontSize: 14 } }}
+                                                            label="Transaction Date"
+                                                            format="DD/MM/YYYY"
+                                                            required
+                                                            error={formDataError.transactionDate}
+                                                            value={formData.transactionDate}
+                                                            onChange={handleTransactionDate}
+                                                            name="transactionDate"
+                                                            slotProps={{ textField: { fullWidth: true } }}
+                                                            renderInput={(params) => <TextField {...params} sx={{ width: '100%' }} />}
+                                                        />
+                                                    </LocalizationProvider>
+                                                </div>
+                                                <div className="col-span-6">
+                                                    <div className='grid grid-cols-12 gap-6'>
+                                                        <div className='col-span-6'>
+                                                            <button onClick={() => { isEdit ? submitEditExpense() : submitAddExpense() }} className='saveBtn' >Save</button>
+                                                        </div>
+                                                        <div className='col-span-6'>
+                                                            <button onClick={() => { resetAddExpense() }} className='resetBtn'>reset</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div className='addUserBtnContainer grid grid-rows-1'>
-                                <div className='grid grid-cols-12 gap-6'>
-                                    <div className='col-start-4 col-span-3'>
-                                        <button onClick={() => { }} className='saveBtn' >Save</button>
-                                    </div>
-                                    <div className='col-span-3'>
-                                        <button onClick={() => { }} className='resetBtn'>reset</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                            </AccordionDetails>
+                        </Accordion>
                     </div>
-                </div>
-            }
-            {(tab === 3 || tab === '3') &&
-                <div className='grid grid-cols-12 mt-6 tableCardMargin'>
-                    <div className='col-span-12'>
-                        <div className='userTableSubContainer'>
-                            <div className='grid grid-cols-12 pt-6'>
-                                <div className='ml-6 col-span-6' >
+                    <div className="col-span-12">
+                        <div className='grid grid-cols-12 mt-6'>
+                            <div className='col-span-12'>
+                                <div className='userTableSubContainer pt-4'>
+                                    <div className='grid grid-cols-12'>
+                                        <div className='ml-4 col-span-6' >
+                                            <div className='flex'>
+                                                <div className='dateRange text-center' aria-describedby={id} onClick={handleClick}>
+                                                    <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
+                                                </div>
+                                                <div className='resetBtnWrap col-span-3'>
+                                                    <button className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`} onClick={() => {
+                                                        setFilter(false);
+                                                        // getData();
+                                                        setPage(0);
+                                                        setRowsPerPage(5)
+                                                        getExpenseDataOnTab()
+                                                        setState([
+                                                            {
+                                                                startDate: new Date(),
+                                                                endDate: new Date(),
+                                                                key: 'selection'
+                                                            }
+                                                        ])
+                                                    }}><CloseIcon /></button>
+                                                </div>
+                                            </div>
+                                            <Popover
+                                                id={id}
+                                                open={open}
+                                                style={{ zIndex: 10000, borderRadius: '10px', boxShadow: 'rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem' }}
+                                                anchorEl={anchorEl}
+                                                onClose={handleClose}
+                                                anchorOrigin={{
+                                                    vertical: 'bottom',
+                                                    horizontal: 'left',
+                                                }}
+                                            >
+                                                <Box sx={{ bgcolor: 'background.paper', padding: '20px', width: 'auto', height: 'auto', borderRadius: '10px' }}>
+                                                    <DateRangePicker
+                                                        ranges={state}
+                                                        onChange={item => { setState([item.selection]); console.log([item.selection]) }}
+                                                        direction="horizontal"
+                                                        months={2}
+                                                        showSelectionPreview={true}
+                                                        moveRangeOnFirstSelection={false}
+                                                    />
+                                                    <div className='mt-8 grid gap-4 grid-cols-12'>
+                                                        <div className='col-span-3 col-start-7'>
+                                                            <button className='stockInBtn' onClick={() => {
+                                                                getExpenseDataByFilter(); setFilter(true); setPage(0); setRowsPerPage(5); handleClose()
+                                                            }
+                                                            }>Apply</button>
+                                                        </div>
+                                                        <div className='col-span-3'>
+                                                            <button className='stockOutBtn' onClick={handleClose}>cancle</button>
+                                                        </div>
+                                                    </div>
+                                                </Box>
+                                            </Popover>
+                                        </div>
+                                        <div className='col-start-9 col-span-2  pr-5 flex justify-end'>
+                                            <button className='exportExcelBtn' onClick={() => { }
+                                            }><FileDownloadIcon />&nbsp;&nbsp;Product Wise</button>
+                                        </div>
+                                        <div className='col-span-2 pr-5 flex justify-end'>
+                                            <button className='exportExcelBtn' onClick={() => { }
+                                            }><FileDownloadIcon />&nbsp;&nbsp;Bank Wise</button>
+                                        </div>
+                                    </div>
+                                    <div className='tableContainerWrapper'>
+                                        <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
+                                            <Table sx={{ minWidth: 650 }} aria-label="simple table">
+                                                <TableHead>
+                                                    <TableRow>
+                                                        <TableCell>No.</TableCell>
+                                                        <TableCell>Entered By</TableCell>
+                                                        <TableCell>Source</TableCell>
+                                                        <TableCell>Category</TableCell>
+                                                        <TableCell>Sub-Category</TableCell>
+                                                        <TableCell>Amount</TableCell>
+                                                        <TableCell align="left">Comment</TableCell>
+                                                        {/* <TableCell align="right">Percentage</TableCell> */}
+                                                        <TableCell align="left">Date</TableCell>
+                                                        <TableCell align="left">Time</TableCell>
+                                                        <TableCell ></TableCell>
+                                                    </TableRow>
+                                                </TableHead>
+                                                <TableBody>
+                                                    {expenseData?.map((row, index) => (
+                                                        totalRowsExpense !== 0 ?
+                                                            <TableRow
+                                                                hover
+                                                                key={row.transactionId}
+                                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                                style={{ cursor: "pointer" }}
+                                                                className='tableRow'
+                                                            >
+                                                                <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
+                                                                <Tooltip title={row.userName}>
+                                                                    <TableCell component="th" scope="row" >
+                                                                        {row.enterBy}
+                                                                    </TableCell>
+                                                                </Tooltip>
+                                                                <TableCell align="left" >{row.moneySource}</TableCell>
+                                                                <TableCell align="left" >{row.mainCategory}</TableCell>
+                                                                <TableCell align="left" >{row.subCategory}</TableCell>
+                                                                <TableCell align="left" >{parseFloat(row.expenseAmount).toLocaleString('en-IN')}</TableCell>
+                                                                {/* <TableCell align="right" onClick={() => navigateToDetail(row.bankName, row.bankId)}>{parseFloat(row.outPrice ? row.outPrice : 0).toLocaleString('en-IN')}</TableCell> */}
+                                                                <TableCell align="left" >{row.expenseComment}</TableCell>
+                                                                <TableCell align="left" >{row.expenseDate}</TableCell>
+                                                                <TableCell align="left" >{row.expenseTime}</TableCell>
+                                                                {/* <TableCell align="right" ><div className=''><button className='editCategoryBtn mr-6' onClick={() => handleEdit(row.bankId, row.bankName, row.bankIconName)}>Edit</button><button className='deleteCategoryBtn' onClick={() => handleDelete(row.bankId)}>Delete</button></div></TableCell> */}
+                                                                <TableCell align="left" ><ExpenseMenu data={row} handleDelete={handleDeleteExpense} handleEdit={handleEditExpense} setError={setError} /></TableCell>
+                                                            </TableRow> :
+                                                            <TableRow
+                                                                key={row.userId}
+                                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                            >
+                                                                <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
+                                                            </TableRow>
+
+                                                    ))}
+                                                </TableBody>
+                                            </Table>
+                                            <TablePagination
+                                                rowsPerPageOptions={[5, 10, 25]}
+                                                component="div"
+                                                count={totalRowsExpense}
+                                                rowsPerPage={rowsPerPage}
+                                                page={page}
+                                                onPageChange={handleChangePage}
+                                                onRowsPerPageChange={handleChangeRowsPerPage}
+                                            />
+                                        </TableContainer>
+                                    </div>
                                 </div>
                             </div>
-                            <div className='tableContainerWrapper'>
-                                <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
-                                    <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell>No.</TableCell>
-                                                <TableCell>Entered By</TableCell>
-                                                <TableCell align="left">Product Name</TableCell>
-                                                <TableCell align="left">Qty</TableCell>
-                                                <TableCell align="right">Price</TableCell>
-                                                <TableCell align="right">Total Price</TableCell>
-                                                <TableCell align="left">Bill No.</TableCell>
-                                                <TableCell align="left">Supplier</TableCell>
-                                                <TableCell align="left">Pay Mode</TableCell>
-                                                <TableCell align="left">Comment</TableCell>
-                                                <TableCell align="left">Date</TableCell>
-                                                <TableCell align="left"></TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        {/* <TableBody>
-                                            {stockInData?.map((row, index) => (
-                                                totalRows !== 0 ?
-                                                    <TableRow
-                                                        hover
-                                                        key={row.stockInId}
-                                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                                        style={{ cursor: "pointer" }}
-                                                        className='tableRow'
-                                                    >
-                                                        <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
-                                                        <Tooltip title={row.userName} placement="top-start" arrow>
-                                                            <TableCell component="th" scope="row">
-                                                                {row.enteredBy}
-                                                            </TableCell>
-                                                        </Tooltip>
-                                                        <TableCell align="left" >{row.productName}</TableCell>
-                                                        <TableCell align="left" >{row.Quantity}</TableCell>
-                                                        <TableCell align="right" >{parseFloat(row.productPrice ? row.productPrice : 0).toLocaleString('en-IN')}</TableCell>
-                                                        <TableCell align="right" >{parseFloat(row.totalPrice ? row.totalPrice : 0).toLocaleString('en-IN')}</TableCell>
-                                                        <TableCell align="left" >{row.billNumber}</TableCell>
-                                                        <TableCell align="left" >{row.supplier}</TableCell>
-                                                        <TableCell align="left" >{row.stockInPaymentMethod}</TableCell>
-                                                        <Tooltip title={row.stockInComment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.stockInComment}</div></TableCell></Tooltip>
-                                                        <TableCell align="left" >{row.stockInDate}</TableCell>
-                                                        <TableCell align="right">
-                                                            <MenuStockInOut handleAccordionOpenOnEdit={handleAccordionOpenOnEdit} stockInOutId={row.stockInId} data={row} deleteStockInOut={handleDeleteStockIn} setError={setError} />
-                                                        </TableCell>
-                                                    </TableRow> :
-                                                    <TableRow
-                                                        key={row.userId}
-                                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                                    >
-                                                        <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
-                                                    </TableRow>
-
-                                            ))}
-                                        </TableBody> */}
-                                    </Table>
-                                    <TablePagination
-                                        rowsPerPageOptions={[5, 10, 25]}
-                                        component="div"
-                                        count={totalRows}
-                                        rowsPerPage={rowsPerPage}
-                                        page={page}
-                                    // onPageChange={handleChangePage}
-                                    // onRowsPerPageChange={handleChangeRowsPerPage}
-                                    />
-                                </TableContainer>
-                            </div>
-                        </div>
+                        </div >
                     </div>
                 </div>
             }
@@ -574,40 +1162,38 @@ function ExpenseDashboard() {
                                             <TableRow>
                                                 <TableCell>No.</TableCell>
                                                 <TableCell>Category Name</TableCell>
-                                                <TableCell align="right">Used Cost</TableCell>
-                                                <TableCell align="right">Percentage</TableCell>
+                                                <TableCell align="left">Icon Name</TableCell>
+                                                {/* <TableCell align="right">Percentage</TableCell> */}
                                                 <TableCell align="right"></TableCell>
-                                                <TableCell align="right"></TableCell>
+                                                {/* <TableCell align="right"></TableCell> */}
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {/* {data?.map((row, index) => (
-                                        totalRows !== 0 ?
-                                            <TableRow
-                                                hover
-                                                key={row.stockOutCategoryId}
-                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                                style={{ cursor: "pointer" }}
-                                                className='tableRow'
-                                            >
-                                                <TableCell align="left" onClick={() => navigateToDetail(row.stockOutCategoryName, row.stockOutCategoryId)}>{(index + 1) + (page * rowsPerPage)}</TableCell>
-                                                <TableCell component="th" scope="row" onClick={() => navigateToDetail(row.stockOutCategoryName, row.stockOutCategoryId)}>
-                                                    {row.stockOutCategoryName}
-                                                </TableCell>
-                                                <TableCell align="right" onClick={() => navigateToDetail(row.stockOutCategoryName, row.stockOutCategoryId)}>{parseFloat(row.outPrice ? row.outPrice : 0).toLocaleString('en-IN')}</TableCell>
-                                                <TableCell align="right" onClick={() => navigateToDetail(row.stockOutCategoryName, row.stockOutCategoryId)}>{row.percentage}</TableCell>
-                                                <TableCell align="right" ><div className=''><button className='editCategoryBtn mr-6' onClick={() => handleEdit(row.stockOutCategoryId, row.stockOutCategoryName)}>Edit</button><button className='deleteCategoryBtn' onClick={() => handleDelete(row.stockOutCategoryId)}>Delete</button></div></TableCell>
-                                                <TableCell align="right">
-                                                </TableCell>
-                                            </TableRow> :
-                                            <TableRow
-                                                key={row.userId}
-                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                            >
-                                                <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
-                                            </TableRow>
+                                            {data?.map((row, index) => (
+                                                totalRows !== 0 ?
+                                                    <TableRow
+                                                        hover
+                                                        key={row.categoryId}
+                                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                        style={{ cursor: "pointer" }}
+                                                        className='tableRow'
+                                                    >
+                                                        <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
+                                                        <TableCell component="th" scope="row" onClick={() => navigateToDetail(row.categoryName, row.categoryId)}>
+                                                            {row.categoryName}
+                                                        </TableCell>
+                                                        {/* <TableCell align="right" onClick={() => navigateToDetail(row.categoryName, row.categoryId)}>{parseFloat(row.outPrice ? row.outPrice : 0).toLocaleString('en-IN')}</TableCell> */}
+                                                        <TableCell align="left" >{row.categoryIconName}</TableCell>
+                                                        <TableCell align="right" ><div className=''><button className='editCategoryBtn mr-6' onClick={() => handleEdit(row.categoryId, row.categoryName, row.categoryIconName)}>Edit</button><button className='deleteCategoryBtn' onClick={() => handleDelete(row.categoryId)}>Delete</button></div></TableCell>
+                                                    </TableRow> :
+                                                    <TableRow
+                                                        key={row.userId}
+                                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                    >
+                                                        <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
+                                                    </TableRow>
 
-                                    ))} */}
+                                            ))}
                                         </TableBody>
                                     </Table>
                                     <TablePagination
@@ -616,8 +1202,8 @@ function ExpenseDashboard() {
                                         count={totalRows}
                                         rowsPerPage={rowsPerPage}
                                         page={page}
-                                    // onPageChange={handleChangePage}
-                                    // onRowsPerPageChange={handleChangeRowsPerPage}
+                                        onPageChange={handleChangePage}
+                                        onRowsPerPageChange={handleChangeRowsPerPage}
                                     />
                                 </TableContainer>
                             </div>
@@ -633,58 +1219,105 @@ function ExpenseDashboard() {
                             <Typography id="modal-modal-title" variant="h6" component="h2">
                                 {isEdit ? 'Edit Category' : 'Add Category'}
                             </Typography>
-                            {/* <div className='mt-6 grid grid-cols-12 gap-6'>
-                        <div className='col-span-6'>
-                            <TextField
-                                onBlur={(e) => {
-                                    if (e.target.value.length < 2) {
-                                        setCategoryError(true);
-                                    }
-                                    else {
-                                        setCategoryError(false)
-                                    }
-                                }}
-                                onChange={(e) => {
-                                    isEdit ? setEditCategory((perv) => ({
-                                        ...perv,
-                                        stockOutCategoryName: e.target.value
-                                    })) : setCategory(e.target.value)
-                                }}
-                                value={isEdit ? editCateory.stockOutCategoryName ? editCateory.stockOutCategoryName : '' : category}
-                                error={categoryError ? true : false}
-                                inputRef={textFieldRef}
-                                helperText={categoryError ? "Please Enter Category" : ''}
-                                name="category"
-                                id="outlined-required"
-                                label="Category"
-                                InputProps={{ style: { fontSize: 14 } }}
-                                InputLabelProps={{ style: { fontSize: 14 } }}
-                                fullWidth
-                            />
-                        </div>
-                        <div className='col-span-3'>
-                            <button className='addCategorySaveBtn' onClick={() => {
-                                isEdit ? editCategory() : submit()
-                            }}>{isEdit ? 'Save' : 'Add'}</button>
-                        </div>
-                        <div className='col-span-3'>
-                            <button className='addCategoryCancleBtn' onClick={() => {
-                                handleCloseModal(); setEditCategory((perv) => ({
-                                    ...perv,
-                                    stockOutCategoryId: '',
-                                    stockOutCategoryName: ''
-                                }));
-                                setIsEdit(false)
-                            }}>Cancle</button>
-                        </div>
-                    </div> */}
+                            <div className='mt-6 grid grid-cols-12 gap-6'>
+                                <div className='col-span-4'>
+                                    <TextField
+                                        onBlur={(e) => {
+                                            if (e.target.value.length < 2) {
+                                                setCategoryError((perv) => ({
+                                                    ...perv,
+                                                    categoryName: true
+                                                }));
+                                            }
+                                            else {
+                                                setCategoryError((perv) => ({
+                                                    ...perv,
+                                                    categoryName: false
+                                                }))
+                                            }
+                                        }}
+                                        onChange={(e) => {
+                                            isEdit ? setEditCategory((perv) => ({
+                                                ...perv,
+                                                categoryName: e.target.value
+                                            })) : setCategory((perv) => ({
+                                                ...perv,
+                                                categoryName: e.target.value
+                                            }))
+                                        }}
+                                        value={isEdit ? editCateory.categoryName ? editCateory.categoryName : '' : category.categoryName ? category.categoryName : ''}
+                                        error={categoryError.categoryName ? true : false}
+                                        inputRef={textFieldRef}
+                                        helperText={categoryError.categoryName ? "Please Enter Category" : ''}
+                                        name="category"
+                                        id="outlined-required"
+                                        label="Category"
+                                        InputProps={{ style: { fontSize: 17 } }}
+                                        InputLabelProps={{ style: { fontSize: 17 } }}
+                                        fullWidth
+                                    />
+                                </div>
+                                <div className="col-span-4">
+                                    <FormControl style={{ minWidth: '100%', maxWidth: '100%' }}>
+                                        <InputLabel id="demo-simple-select-label" error={setCategoryError.categoryIconName}>Icon Name</InputLabel>
+                                        <Select
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
+                                            value={isEdit ? editCateory.categoryIconName ? editCateory.categoryIconName : '' : category.categoryIconName ? category.categoryIconName : ''}
+                                            error={categoryError.categoryIconName ? true : false}
+                                            name="stockInPaymentMethod"
+                                            label="Icon Name"
+                                            onBlur={(e) => {
+                                                if (!e.target.value) {
+                                                    setCategoryError((perv) => ({
+                                                        ...perv,
+                                                        categoryIconName: true
+                                                    }))
+                                                }
+                                                else {
+                                                    setCategoryError((perv) => ({
+                                                        ...perv,
+                                                        categoryIconName: false
+                                                    }))
+                                                }
+                                            }}
+                                            onChange={(e) => isEdit ? setEditCategory((perv) => ({
+                                                ...perv,
+                                                categoryIconName: e.target.value
+                                            })) : setCategory((perv) => ({
+                                                ...perv,
+                                                categoryIconName: e.target.value
+                                            }))}
+                                        >
+                                            <MenuItem key={'cash'} value={'cash'}>{'Cash'}</MenuItem>
+                                            <MenuItem key={'debit'} value={'debit'}>{'Debit'}</MenuItem>
+                                        </Select>
+                                    </FormControl>
+                                </div>
+                                <div className='col-span-2'>
+                                    <button className='addCategorySaveBtn' onClick={() => {
+                                        isEdit ? editCategory() : submit()
+                                    }}>{isEdit ? 'Save' : 'Add'}</button>
+                                </div>
+                                <div className='col-span-2'>
+                                    <button className='addCategoryCancleBtn' onClick={() => {
+                                        handleCloseModal(); setEditCategory((perv) => ({
+                                            ...perv,
+                                            categoryId: '',
+                                            categoryName: '',
+                                            categoryIconName: ''
+                                        }));
+                                        setIsEdit(false)
+                                    }}>Cancle</button>
+                                </div>
+                            </div>
                         </Box>
                     </Modal>
                     <ToastContainer />
                 </div >
             }
             <ToastContainer />
-        </div>
+        </div >
     )
 }
 
