@@ -421,10 +421,14 @@ function BankDashboard() {
         //     bankName: '',
         //     bankId: ''
         // });
-        // setIsEdit(false);
+        setIsEdit(false);
         setOpen(false)
     }
+    const gotToBankDetail = (id) => {
+        navigate(`/bank/detail/${id}`)
+    }
     const handleTransactionDate = (date) => {
+        console.log('edit Date', date && date['$d'] ? 'false' : 'true')
         setFormData((prevState) => ({
             ...prevState,
             ["transactionDate"]: date && date['$d'] ? date['$d'] : null,
@@ -863,7 +867,8 @@ function BankDashboard() {
         } else {
 
             const isValidate = formDataErrorFields.filter(element => {
-                if (formDataError[element] === true || formData[element] === '' || formData[element] === 0 || !formData[element]) {
+                console.log('submit dta', element, formDataError[element], formData[element])
+                if (formDataError[element] === true || formData[element] === '' || formData[element] === null || formData[element] === 0 || !formData[element]) {
                     setFormDataError((perv) => ({
                         ...perv,
                         [element]: true
@@ -958,7 +963,8 @@ function BankDashboard() {
                                 <div className='h-full mobile:col-span-10  tablet1:col-span-10  tablet:col-span-7  laptop:col-span-7  desktop1:col-span-7  desktop2:col-span-7  desktop2:col-span-7 '>
                                     <div className='grid grid-cols-12 pl-6 gap-3 h-full'>
                                         <div className={`flex col-span-3 justify-center ${tab === 1 || tab === '1' ? 'productTabAll' : 'productTab'}`} onClick={() => {
-                                            setTab(1)
+                                            setTab(1);
+                                            getBanks();
                                         }}>
                                             <div className='statusTabtext'>Dashboard</div>
                                         </div>
@@ -1436,15 +1442,15 @@ function BankDashboard() {
                                                         className='tableRow'
                                                     >
                                                         <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
-                                                        <TableCell component="th" scope="row" >
+                                                        <TableCell component="th" scope="row" onClick={() => gotToBankDetail(row.bankId)}>
                                                             {row.bankName}
                                                         </TableCell>
-                                                        <TableCell align="left" >{row.bankDisplayName}</TableCell>
-                                                        <TableCell align="left" >{row.bankShortForm}</TableCell>
-                                                        <TableCell align="left" >{row.bankAccountNumber}</TableCell>
-                                                        <TableCell align="left" >{row.ifscCode}</TableCell>
+                                                        <TableCell align="left" onClick={() => gotToBankDetail(row.bankId)}>{row.bankDisplayName}</TableCell>
+                                                        <TableCell align="left" onClick={() => gotToBankDetail(row.bankId)}>{row.bankShortForm}</TableCell>
+                                                        <TableCell align="left" onClick={() => gotToBankDetail(row.bankId)}>{row.bankAccountNumber}</TableCell>
+                                                        <TableCell align="left" onClick={() => gotToBankDetail(row.bankId)}>{row.ifscCode}</TableCell>
                                                         {/* <TableCell align="right" onClick={() => navigateToDetail(row.bankName, row.bankId)}>{parseFloat(row.outPrice ? row.outPrice : 0).toLocaleString('en-IN')}</TableCell> */}
-                                                        <TableCell align="left" >{row.bankIconName}</TableCell>
+                                                        <TableCell align="left" onClick={() => gotToBankDetail(row.bankId)}>{row.bankIconName}</TableCell>
                                                         {/* <TableCell align="right" ><div className=''><button className='editCategoryBtn mr-6' onClick={() => handleEdit(row.bankId, row.bankName, row.bankIconName)}>Edit</button><button className='deleteCategoryBtn' onClick={() => handleDelete(row.bankId)}>Delete</button></div></TableCell> */}
                                                         <TableCell align="left" ><BankMenu data={row} handleDelete={handleDelete} handleEdit={handleEdit} setError={setError} /></TableCell>
                                                     </TableRow> :
@@ -1826,7 +1832,7 @@ function BankDashboard() {
                     >
                         <Box sx={style}>
                             <Typography id="modal-modal-title" variant="h6" component="h2">
-                                {isEdit ? 'Edit Bank' : 'Add Bank'}
+                                {isEdit ? 'Edit Income Source' : 'Add Income Source'}
                             </Typography>
                             <div className='mt-6 grid grid-cols-12 gap-6'>
                                 <div className='col-span-4'>

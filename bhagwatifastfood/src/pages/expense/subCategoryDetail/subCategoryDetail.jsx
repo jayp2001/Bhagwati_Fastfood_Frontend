@@ -28,6 +28,7 @@ import { useNavigate } from "react-router-dom";
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import CloseIcon from '@mui/icons-material/Close';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import Category from '@mui/icons-material/Category';
 
 const style = {
     position: 'absolute',
@@ -47,6 +48,7 @@ const style = {
 function SubCategoryDetail() {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
+    let { category, categoryId } = useParams();
     const [filter, setFilter] = React.useState(false);
     const id = open ? 'simple-popover' : undefined;
     const navigate = useNavigate();
@@ -96,6 +98,101 @@ function SubCategoryDetail() {
         setAnchorEl(null);
     };
     const handleOpen = () => setOpen(true);
+    const getData = async () => {
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getSubCategoryListById?page=${page + 1}&numPerPage=${rowsPerPage}`, config)
+            .then((res) => {
+                setData(res.data.rows);
+                setTotalRows(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getDataOnPageChange = async (pageNum, rowPerPageNum) => {
+        console.log("page get", page, rowsPerPage)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getSubCategoryListById?page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
+            .then((res) => {
+                setData(res.data.rows);
+                setTotalRows(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
+        console.log("page get", page, rowsPerPage)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getSubCategoryListById?page=${pageNum}&numPerPage=${rowPerPageNum}&startDate=${state[0].startDate}&endDate=${state[0].endDate}`, config)
+            .then((res) => {
+                setData(res.data.rows);
+                setTotalRows(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+        if (filter) {
+            getDataOnPageChangeByFilter(newPage + 1, rowsPerPage)
+        }
+        else {
+            getDataOnPageChange(newPage + 1, rowsPerPage)
+        }
+    };
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+        if (filter) {
+            getDataOnPageChangeByFilter(1, parseInt(event.target.value, 10))
+        }
+        else {
+            getDataOnPageChange(1, parseInt(event.target.value, 10))
+        }
+    };
+    if (loading) {
+        console.log('>>>>??')
+        toast.loading("Please wait...", {
+            toastId: 'loading'
+        })
+    }
+    if (success) {
+        toast.dismiss('loading');
+        toast('success',
+            {
+                type: 'success',
+                toastId: 'success',
+                position: "top-right",
+                toastId: 'error',
+                autoClose: 1500,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+            });
+        setTimeout(() => {
+            setSuccess(false)
+            setLoading(false);
+        }, 50)
+    }
+    if (error) {
+        setLoading(false)
+        toast.dismiss('loading');
+        toast(error, {
+            type: 'error',
+            position: "top-right",
+            toastId: 'error',
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+        });
+        setError(false);
+    }
     return (
         <div className='productListContainer'>
             <div className='grid grid-cols-12'>
@@ -104,7 +201,7 @@ function SubCategoryDetail() {
                         <div className='h-full grid grid-cols-12'>
                             <div className='h-full mobile:col-span-10  tablet1:col-span-10  tablet:col-span-7  laptop:col-span-7  desktop1:col-span-7  desktop2:col-span-7  desktop2:col-span-7 '>
                                 <div className='grid grid-cols-12 pl-6 gap-3 h-full'>
-                                    <div className={`flex col-span-3 justify-center ${tab === 1 || tab === '1' ? 'productTabAll' : 'productTab'}`} onClick={() => {
+                                    <div className={`flex col-span-6 justify-center ${tab === 1 || tab === '1' ? 'productTabAll' : 'productTab'}`} onClick={() => {
                                         setTab(1);
                                         // setPage(0); setRowsPerPage(5); getStockInData(); setFilter(false);
                                         // resetStockOutEdit();
@@ -116,7 +213,7 @@ function SubCategoryDetail() {
                                         //     }
                                         // ])
                                     }}>
-                                        <div className='statusTabtext'>Sub Catagory Name</div>
+                                        <div className='statusTabtext'>Sub Catagory {category}</div>
                                     </div>
                                     {/* <div className={`flex col-span-3 justify-center ${tab === 2 || tab === '2' ? 'productTabOut' : 'productTab'}`} onClick={() => {
                                         setTab(2);

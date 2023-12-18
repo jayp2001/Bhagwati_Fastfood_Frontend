@@ -13,6 +13,12 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import TablePagination from '@mui/material/TablePagination';
 // import Menutemp from './menu';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import Select from '@mui/material/Select';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
@@ -28,6 +34,7 @@ import { useNavigate } from "react-router-dom";
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import CloseIcon from '@mui/icons-material/Close';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import ExportMenu from '../exportMenu/exportMenu';
 
 const style = {
     position: 'absolute',
@@ -45,14 +52,17 @@ const style = {
 };
 
 function SubCategoryTable() {
-    const { categoryId } = useParams()
+    const { categoryName, categoryId } = useParams()
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
+    const [totalExpense, setTotalExpense] = React.useState('');
     const [filter, setFilter] = React.useState(false);
     const id = open ? 'simple-popover' : undefined;
     const navigate = useNavigate();
+    const [incomeSourceFilter, setIncomeSourceFilter] = React.useState('');
     const [isEdit, setIsEdit] = React.useState(false);
     const [page, setPage] = React.useState(0);
+    const [source, setSource] = React.useState()
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [totalRows, setTotalRows] = React.useState(0);
     const [openModal, setOpen] = React.useState(false);
@@ -114,6 +124,15 @@ function SubCategoryTable() {
         });
         setIsEdit(false);
     }
+    const getSourceDDL = async () => {
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/ddlToData`, config)
+            .then((res) => {
+                setSource(res.data);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
     const addCategory = async () => {
         setLoading(true);
         await axios.post(`${BACKEND_BASE_URL}expenseAndBankrouter/addSubCategory`, category, config)
@@ -129,6 +148,56 @@ function SubCategoryTable() {
             .catch((error) => {
                 setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
+    }
+    const excelExport = async () => {
+        if (window.confirm('Are you sure you want to export Excel ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/exportExcelForSubCategoryData?startDate=${state[0].startDate}&endDate=${state[0].endDate}&mainCategoryId=${categoryId}&moneySourceId=${incomeSourceFilter}`
+                    : `${BACKEND_BASE_URL}expenseAndBankrouter/exportExcelForSubCategoryData?mainCategoryId=${categoryId}&moneySourceId=${incomeSourceFilter}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = 'SubCategory_List_for_' + categoryName + '_' + new Date().toLocaleDateString() + '.xlsx'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+    const pdfExport = async () => {
+        if (window.confirm('Are you sure you want to export Pdf ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/exportPdfForSubcategoryData?startDate=${state[0].startDate}&endDate=${state[0].endDate}&mainCategoryId=${categoryId}&moneySourceId=${incomeSourceFilter}`
+                    : `${BACKEND_BASE_URL}expenseAndBankrouter/exportPdfForSubcategoryData?mainCategoryId=${categoryId}&moneySourceId=${incomeSourceFilter}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = 'SubCategory_List_for_' + categoryName + '_' + new Date().toLocaleDateString() + '.pdf'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
     }
     const submit = () => {
         if (loading || success) {
@@ -174,7 +243,7 @@ function SubCategoryTable() {
     }
     const getDataOnPageChange = async (pageNum, rowPerPageNum) => {
         console.log("page get", page, rowsPerPage)
-        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getSubCategoryListById?page=${pageNum}&numPerPage=${rowPerPageNum}&mainCategoryId=${categoryId}`, config)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getSubCategoryListById?page=${pageNum}&numPerPage=${rowPerPageNum}&mainCategoryId=${categoryId}&moneySourceId=${incomeSourceFilter}`, config)
             .then((res) => {
                 setData(res.data.rows);
                 setTotalRows(res.data.numRows);
@@ -185,7 +254,7 @@ function SubCategoryTable() {
     }
     const getDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
         console.log("page get", page, rowsPerPage)
-        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getSubCategoryListById?page=${pageNum}&numPerPage=${rowPerPageNum}&startDate=${state[0].startDate}&endDate=${state[0].endDate}&mainCategoryId=${categoryId}`, config)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getSubCategoryListById?page=${pageNum}&numPerPage=${rowPerPageNum}&startDate=${state[0].startDate}&endDate=${state[0].endDate}&mainCategoryId=${categoryId}&moneySourceId=${incomeSourceFilter}`, config)
             .then((res) => {
                 setData(res.data.rows);
                 setTotalRows(res.data.numRows);
@@ -217,7 +286,7 @@ function SubCategoryTable() {
     };
     const getDataByFilter = async () => {
         console.log("page get", page, rowsPerPage)
-        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getSubCategoryListById?page=${page + 1}&numPerPage=${rowsPerPage}&startDate=${state[0].startDate}&endDate=${state[0].endDate}&mainCategoryId=${categoryId}`, config)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getSubCategoryListById?page=${1}&numPerPage=${5}&startDate=${state[0].startDate}&endDate=${state[0].endDate}&mainCategoryId=${categoryId}&moneySourceId=${incomeSourceFilter}`, config)
             .then((res) => {
                 setData(res.data.rows);
                 setTotalRows(res.data.numRows);
@@ -228,10 +297,22 @@ function SubCategoryTable() {
     }
     const getData = async () => {
         console.log("page get", page, rowsPerPage)
-        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getSubCategoryListById?page=${page + 1}&numPerPage=${rowsPerPage}&mainCategoryId=${categoryId}`, config)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getSubCategoryListById?page=${1}&numPerPage=${5}&mainCategoryId=${categoryId}&moneySourceId=${incomeSourceFilter}`, config)
             .then((res) => {
                 setData(res.data.rows);
                 setTotalRows(res.data.numRows);
+                setTotalExpense(res.data.totalExpense)
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getDataByIncomeSource = async (id) => {
+        await axios.get(filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/getSubCategoryListById?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${1}&numPerPage=${5}&mainCategoryId=${categoryId}&moneySourceId=${id}` : `${BACKEND_BASE_URL}expenseAndBankrouter/getSubCategoryListById?page=${1}&numPerPage=${5}&mainCategoryId=${categoryId}&moneySourceId=${id}`, config)
+            .then((res) => {
+                setData(res.data.rows);
+                setTotalRows(res.data.numRows);
+                setTotalExpense(res.data.totalExpense)
             })
             .catch((error) => {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
@@ -269,10 +350,11 @@ function SubCategoryTable() {
         setOpen(true)
     }
     useEffect(() => {
+        getSourceDDL();
         getData();
     }, [])
-    const navigateToDetail = (name, id) => {
-        navigate(`/stockOutByCategory/${name}/${id}`);
+    const navigateToDetail = (name, subName, id, subId) => {
+        navigate(`/expense/subCategory/${name}/${subName}/expenses/${id}/${subId}`);
     }
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
@@ -333,7 +415,7 @@ function SubCategoryTable() {
                         <div className='h-full grid grid-cols-12'>
                             <div className='h-full mobile:col-span-10  tablet1:col-span-10  tablet:col-span-7  laptop:col-span-7  desktop1:col-span-7  desktop2:col-span-7  desktop2:col-span-7 '>
                                 <div className='grid grid-cols-12 pl-6 gap-3 h-full'>
-                                    <div className={`flex col-span-3 justify-center ${tab === 1 || tab === '1' ? 'productTabAll' : 'productTab'}`} onClick={() => {
+                                    <div className={`flex col-span-7 justify-center ${tab === 1 || tab === '1' ? 'productTabAll' : 'productTab'}`} onClick={() => {
                                         setTab(1);
                                         // setPage(0); setRowsPerPage(5); getStockInData(); setFilter(false);
                                         // resetStockOutEdit();
@@ -345,7 +427,7 @@ function SubCategoryTable() {
                                         //     }
                                         // ])
                                     }}>
-                                        <div className='statusTabtext'>Sub Catagories</div>
+                                        <div className='statusTabtext'>Sub Catagories for {categoryName}</div>
                                     </div>
                                     {/* <div className={`flex col-span-3 justify-center ${tab === 2 || tab === '2' ? 'productTabOut' : 'productTab'}`} onClick={() => {
                                         setTab(2);
@@ -378,6 +460,9 @@ function SubCategoryTable() {
                                     </div> */}
                                 </div>
                             </div>
+                            <div className='col-span-5 text-end statusTabtext productTabAlignEnd'>
+                                Total Expense : {parseFloat(totalExpense ? totalExpense : 0).toLocaleString('en-IN')}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -394,7 +479,9 @@ function SubCategoryTable() {
                                     <div className='resetBtnWrap col-span-3'>
                                         <button className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`} onClick={() => {
                                             setFilter(false);
-                                            // getData();
+                                            setPage(0);
+                                            setRowsPerPage(5)
+                                            getData();
                                             setState([
                                                 {
                                                     startDate: new Date(),
@@ -427,8 +514,7 @@ function SubCategoryTable() {
                                         />
                                         <div className='mt-8 grid gap-4 grid-cols-12'>
                                             <div className='col-span-3 col-start-7'>
-                                                <button className='stockInBtn' onClick={() => { }
-                                                    // { getDataByFilter(); setFilter(true); setPage(0); handleClose() }
+                                                <button className='stockInBtn' onClick={() => { getDataByFilter(); setFilter(true); setPage(0); setRowsPerPage(5); handleClose() }
                                                 }>Apply</button>
                                             </div>
                                             <div className='col-span-3'>
@@ -439,14 +525,31 @@ function SubCategoryTable() {
                                 </Popover>
                             </div>
                             <div className='col-span-2  pr-5 flex justify-end'>
-                                <button className='exportExcelBtn' onClick={() => { }
-                                    // excelExportProductWise()
-                                }><FileDownloadIcon />&nbsp;&nbsp;Product Wise</button>
+                                <FormControl fullWidth>
+                                    <InputLabel id="demo-simple-select-label">Income Source</InputLabel>
+                                    <Select
+                                        id="Seah"
+                                        name='incomeSourceFilter'
+                                        value={incomeSourceFilter}
+                                        label="Income Source"
+                                        onChange={(e) => { setIncomeSourceFilter(e.target.value); setPage(0); setRowsPerPage(5); getDataByIncomeSource(e.target.value) }}
+                                        MenuProps={{
+                                            style: { zIndex: 35001 }
+                                        }}
+                                    >
+                                        <MenuItem value={''}>Clear</MenuItem>
+                                        {
+                                            source?.map((data, index) => (
+                                                <MenuItem value={data.toId} key={data.toId}>{data.toName}</MenuItem>
+                                            ))
+                                        }
+                                        {/* <MenuItem value={'Debit'}>Debit</MenuItem>
+                                                <MenuItem value={'Credit'}>Credit</MenuItem> */}
+                                    </Select>
+                                </FormControl>
                             </div>
                             <div className='col-span-2 pr-5 flex justify-end'>
-                                <button className='exportExcelBtn' onClick={() => { }
-                                    // pdfExportCategoryWise()
-                                }><FileDownloadIcon />&nbsp;&nbsp;Category Wise</button>
+                                <ExportMenu exportExcel={excelExport} exportPdf={pdfExport} />
                             </div>
                             <div className='col-span-2 col-start-11 mr-6'>
                                 <div className='flex justify-end'>
@@ -461,8 +564,8 @@ function SubCategoryTable() {
                                         <TableRow>
                                             <TableCell>No.</TableCell>
                                             <TableCell>Category Name</TableCell>
-                                            {/* <TableCell align="right">Used Cost</TableCell>
-                                            <TableCell align="right">Percentage</TableCell> */}
+                                            <TableCell align="right">Expense Amount</TableCell>
+                                            <TableCell align="right">Percentage</TableCell>
                                             <TableCell align="right"></TableCell>
                                             <TableCell align="right"></TableCell>
                                         </TableRow>
@@ -478,11 +581,11 @@ function SubCategoryTable() {
                                                     className='tableRow'
                                                 >
                                                     <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
-                                                    <TableCell component="th" scope="row" >
+                                                    <TableCell component="th" scope="row" onClick={() => { navigateToDetail(categoryName, row.subCategoryName, categoryId, row.subCategoryId) }}>
                                                         {row.subCategoryName}
                                                     </TableCell>
-                                                    {/* <TableCell align="right" >{parseFloat(row.outPrice ? row.outPrice : 0).toLocaleString('en-IN')}</TableCell>
-                                                    <TableCell align="right" >{row.percentage}</TableCell> */}
+                                                    <TableCell align="right" onClick={() => { navigateToDetail(categoryName, row.subCategoryName, categoryId, row.subCategoryId) }}>{parseFloat(row.expenseAmt ? row.expenseAmt : 0).toLocaleString('en-IN')}</TableCell>
+                                                    <TableCell align="right" onClick={() => { navigateToDetail(categoryName, row.subCategoryName, categoryId, row.subCategoryId) }}>{row.expPercentage}</TableCell>
                                                     <TableCell align="right" ><div className=''><button className='editCategoryBtn mr-6' onClick={() => handleEdit(row.subCategoryId, row.subCategoryName)}>Edit</button><button className='deleteCategoryBtn' onClick={() => handleDelete(row.subCategoryId)}>Delete</button></div></TableCell>
                                                     <TableCell align="right">
                                                     </TableCell>
@@ -576,7 +679,7 @@ function SubCategoryTable() {
                 </Modal>
                 <ToastContainer />
             </div >
-        </div>
+        </div >
     )
 }
 

@@ -37,6 +37,10 @@ import ExpenseDashboard from './pages/expense/dashboard/dashboard';
 import SubCategoryTable from './pages/expense/subCategory/subCategory';
 import SubCategoryDetail from './pages/expense/subCategoryDetail/subCategoryDetail';
 import BankDashboard from './pages/bank/dashboard/dashboard';
+import BankDetail from './pages/bank/bankDetail/bankDetail';
+import ExpenseTable from './pages/expense/expenseTable/expenseTable';
+import ExpenseTableSubCategory from './pages/expense/subCategoryExpenseTable/expenseTable';
+import BusinessReport from './pages/businessReport/businessReport';
 // import SetPrinter from './setPrinter';
 function App() {
   return (
@@ -61,9 +65,12 @@ function App() {
                   <Route path="/staff/employeeDetail/:id" element={<EmployeeDetails/>}/>
                 </Route>
                  <Route path="/" element={<ProtectedAdminRoutes />}>
+                  <Route path="/businessReport" element={<BusinessReport/>}/>
                   <Route path="/expense/dashboard" element={<ExpenseDashboard/>}/>
-                  <Route path="/expense/subCategories/:categoryId" element={<SubCategoryTable/>}/>
-                  <Route path="/expense/subCategory/:categoryId" element={<SubCategoryDetail/>}/>
+                  {/* <Route path="/expense/subCategories/:categoryId" element={<SubCategoryTable/>}/> */}
+                  <Route path="/expense/subCategory/:categoryName/:subCategoryName/expenses/:categoryId/:subCategoryId" element={<ExpenseTableSubCategory/>}/>
+                  <Route path="/expense/mainCategory/:categoryName/expenses/:categoryId" element={<ExpenseTable/>}/>
+                  <Route path="/expense/mainCategory/:categoryName/:categoryId" element={<SubCategoryTable/>}/>
                   {/* <Route path="/staff/addStaff" element={<AddEditStaff/>}/>
                   <Route path="/staff/staffList" element={<StaffList/>}/>
                   <Route path="/staff/staffCategory" element={<StaffCategoryTable/>}/>
@@ -74,6 +81,7 @@ function App() {
                 </Route>
                 <Route path="/" element={<ProtectedAdminRoutes />}>
                   <Route path="/bank/dashboard" element={<BankDashboard/>}/>
+                  <Route path="/bank/detail/:id" element={<BankDetail/>}/>
                   {/* <Route path="/expense/subCategories/:categoryId" element={<SubCategoryTable/>}/>
                   <Route path="/expense/subCategory/:categoryId" element={<SubCategoryDetail/>}/> */}
                   {/* <Route path="/staff/addStaff" element={<AddEditStaff/>}/>

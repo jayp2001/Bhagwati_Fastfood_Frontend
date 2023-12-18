@@ -49,6 +49,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import BankMenu from '../../bank/dashboard/menu/menuBank';
 import dayjs from 'dayjs';
 import ExpenseMenu from "./menu/menuExpense";
+import ExportMenu from '../exportMenu/exportMenu';
 const style = {
     position: 'absolute',
     top: '50%',
@@ -103,6 +104,7 @@ function ExpenseDashboard() {
         comment: '',
     });
     const [data, setData] = React.useState();
+    const [dashboardCategory, setDashboardCategory] = React.useState();
     const [expenseData, setExpenseData] = React.useState();
     const [totalRowsExpense, setTotalRowsExpense] = React.useState();
     const [formDataError, setFormDataError] = useState({
@@ -160,6 +162,7 @@ function ExpenseDashboard() {
     useEffect(() => {
         getCategoryDDL();
         getSourceDDL();
+        getMainCategoies();
     }, [])
     const user = JSON.parse(localStorage.getItem('userInfo'))
     let location = useLocation();
@@ -202,7 +205,7 @@ function ExpenseDashboard() {
         }))
     }
     const navigateToDetail = (name, id) => {
-        navigate(`/stockOutByCategory/${name}/${id}`);
+        navigate(`/expense/mainCategory/${name}/${id}`);
     }
     const handleDelete = (id) => {
         if (window.confirm("Are you sure you want to delete Category?")) {
@@ -252,7 +255,7 @@ function ExpenseDashboard() {
     const handleEditExpense = async (data) => {
         await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/fillExpenseDataById?transactionId=${data.transactionId}`, config)
             .then((res) => {
-                getCategoryDDL(res.data.mainCategory.categoryId);
+                getSubCategoryDDL(res.data.mainCategory.categoryId);
                 setFormDataError({
                     moneySourceId: false,
                     categoryId: false,
@@ -282,6 +285,34 @@ function ExpenseDashboard() {
     }
     const getData = async () => {
         await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getMainCategoryList?page=${page + 1}&numPerPage=${rowsPerPage}`, config)
+            .then((res) => {
+                setData(res.data.rows);
+                setTotalRows(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getMainCategoies = async () => {
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getMainCategoryDashboard`, config)
+            .then((res) => {
+                setDashboardCategory(res.data);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getMainCategoiesByFilter = async () => {
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getMainCategoryDashboard?startDate=${state[0].startDate}&endDate=${state[0].endDate}`, config)
+            .then((res) => {
+                setDashboardCategory(res.data);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getDataByFilter = async () => {
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getMainCategoryList?page=${1}&numPerPage=${5}&startDate=${state[0].startDate}&endDate=${state[0].endDate}`, config)
             .then((res) => {
                 setData(res.data.rows);
                 setTotalRows(res.data.numRows);
@@ -352,6 +383,56 @@ function ExpenseDashboard() {
         // });
         // setIsEdit(false);
         setOpen(false)
+    }
+    const excelExport = async () => {
+        if (window.confirm('Are you sure you want to export Excel ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/exportExcelSheetForExpenseData?startDate=${state[0].startDate}&endDate=${state[0].endDate}`
+                    : `${BACKEND_BASE_URL}expenseAndBankrouter/exportExcelSheetForExpenseData`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = 'Expense_List_' + new Date().toLocaleDateString() + '.xlsx'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+    const pdfExport = async () => {
+        if (window.confirm('Are you sure you want to export Pdf ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/exportPdfForExpenseData?startDate=${state[0].startDate}&endDate=${state[0].endDate}`
+                    : `${BACKEND_BASE_URL}expenseAndBankrouter/exportPdfForExpenseData`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = 'Expense_List_' + new Date().toLocaleDateString() + '.pdf'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
     }
     const handleExpenseDate = (date) => {
         setFormData((prevState) => ({
@@ -765,23 +846,74 @@ function ExpenseDashboard() {
                                         </div>
                                     </div>
                                 </div>
+                                <div className='col-span-4 col-start-9 flex justify-end pr-4'>
+                                    <div className='dateRange text-center self-center' aria-describedby={id} onClick={handleClick}>
+                                        <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
+                                    </div>
+                                    <div className='resetBtnWrap col-span-3 self-center'>
+                                        <button className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`} onClick={() => {
+                                            setFilter(false);
+                                            getMainCategoies();
+                                            setState([
+                                                {
+                                                    startDate: new Date(),
+                                                    endDate: new Date(),
+                                                    key: 'selection'
+                                                }
+                                            ])
+                                        }}><CloseIcon /></button>
+                                    </div>
+
+                                    <Popover
+                                        id={id}
+                                        open={open}
+                                        style={{ zIndex: 10000, borderRadius: '10px', boxShadow: 'rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem' }}
+                                        anchorEl={anchorEl}
+                                        onClose={handleClose}
+                                        anchorOrigin={{
+                                            vertical: 'bottom',
+                                            horizontal: 'right',
+                                        }}
+                                    >
+                                        <Box sx={{ bgcolor: 'background.paper', padding: '20px', width: 'auto', height: 'auto', borderRadius: '10px' }}>
+                                            <DateRangePicker
+                                                ranges={state}
+                                                onChange={item => { setState([item.selection]); console.log([item.selection]) }}
+                                                direction="horizontal"
+                                                months={2}
+                                                showSelectionPreview={true}
+                                                moveRangeOnFirstSelection={false}
+                                            />
+                                            <div className='mt-8 grid gap-4 grid-cols-12'>
+                                                <div className='col-span-3 col-start-7'>
+                                                    <button className='stockInBtn' onClick={() => {
+                                                        getMainCategoiesByFilter();
+                                                        setFilter(true); handleClose()
+                                                    }}>Apply</button>
+                                                </div>
+                                                <div className='col-span-3'>
+                                                    <button className='stockOutBtn' onClick={handleClose}>cancle</button>
+                                                </div>
+                                            </div>
+                                        </Box>
+                                    </Popover>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
             {
                 (tab === 1 || tab === '1') &&
                 <div className="cardWrp">
                     <div className="grid lg:grid-cols-3 mobile:grid-cols-2 tablet1:grid-cols-3 tablet:grid-cols-4 laptop:grid-cols-4 desktop1:grid-cols-4 desktop2:grid-cols-4 desktop2:grid-cols-4 gap-6">
-                        <CategoryCard goToAddUSer={goToProductList} name={"Home"} imgName={'img11'} />
+                        {dashboardCategory ? dashboardCategory.map((data, index) => (
+                            <CategoryCard goToAddUSer={goToProductList} expense={data.expenseAmt} name={data.categoryName} imgName={data.categoryIconName} />
+                        )) : null}
+                        {/* <CategoryCard goToAddUSer={goToProductList} name={"Home"} imgName={'img11'} />
                         <CategoryCard goToAddUSer={goToStaff} name={"Restaurant"} imgName={'img11'} />
                         <CategoryCard goToAddUSer={goToProductList} name={"Other"} imgName={'img11'} />
-                        <CategoryCard goToAddUSer={goToStaff} name={"Debit"} imgName={'img11'} />
-                        {/* <ConsoleCard goToAddUSer={goToAddUSer} name={"Add User"} imgName={'userAdd'} />
-                        <ConsoleCard goToAddUSer={goToUserList} name={"User List"} imgName={'userList'} />
-                        <ConsoleCard goToAddUSer={goToExpense} name={"Expense"} imgName={'expense'} /> */}
+                        <CategoryCard goToAddUSer={goToStaff} name={"Debit"} imgName={'img11'} /> */}
                     </div>
                 </div>
             }
@@ -797,7 +929,7 @@ function ExpenseDashboard() {
                                 id="panel1a-header"
                                 onClick={() => { setExpanded(!expanded); resetAddExpense(); }}
                             >
-                                <div className='stockAccordinHeader'>Add Expenses</div>
+                                <div className='stockAccordinHeader'>{isEdit ? 'Edit Expenses' : 'Add Expenses'}</div>
                             </AccordionSummary>
                             <AccordionDetails>
                                 <div className="stockInOutContainer">
@@ -819,7 +951,7 @@ function ExpenseDashboard() {
                                                             renderInput={(params) => <TextField inputRef={textFieldRef}
                                                                 {...params}
                                                                 error={formDataError.source}
-                                                                helperText={formDataError.source ? "Please Select" : ''}
+                                                                helperText={formDataError.source ? "Please Select" : formData.source ? `Availabel Balance is ${formData.source ? formData.source.availableBalance : 0}` : ''}
                                                                 label="Money Source" />}
                                                         />
                                                     </FormControl>
@@ -928,7 +1060,7 @@ function ExpenseDashboard() {
                                                             <button onClick={() => { isEdit ? submitEditExpense() : submitAddExpense() }} className='saveBtn' >Save</button>
                                                         </div>
                                                         <div className='col-span-6'>
-                                                            <button onClick={() => { resetAddExpense() }} className='resetBtn'>reset</button>
+                                                            <button onClick={() => { resetAddExpense(); isEdit ? setExpanded(false) : resetAddExpense(); }} className='resetBtn'>{isEdit ? "Cancle" : "Reset"}</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1001,12 +1133,11 @@ function ExpenseDashboard() {
                                             </Popover>
                                         </div>
                                         <div className='col-start-9 col-span-2  pr-5 flex justify-end'>
-                                            <button className='exportExcelBtn' onClick={() => { }
-                                            }><FileDownloadIcon />&nbsp;&nbsp;Product Wise</button>
+                                            {/* <button className='exportExcelBtn' onClick={() => { }
+                                            }><FileDownloadIcon />&nbsp;&nbsp;Product Wise</button> */}
                                         </div>
                                         <div className='col-span-2 pr-5 flex justify-end'>
-                                            <button className='exportExcelBtn' onClick={() => { }
-                                            }><FileDownloadIcon />&nbsp;&nbsp;Bank Wise</button>
+                                            <ExportMenu exportExcel={excelExport} exportPdf={pdfExport} />
                                         </div>
                                     </div>
                                     <div className='tableContainerWrapper'>
@@ -1128,8 +1259,7 @@ function ExpenseDashboard() {
                                             />
                                             <div className='mt-8 grid gap-4 grid-cols-12'>
                                                 <div className='col-span-3 col-start-7'>
-                                                    <button className='stockInBtn' onClick={() => { }
-                                                        // { getDataByFilter(); setFilter(true); setPage(0); handleClose() }
+                                                    <button className='stockInBtn' onClick={() => { getDataByFilter(); setFilter(true); setPage(0); setRowsPerPage(5); handleClose() }
                                                     }>Apply</button>
                                                 </div>
                                                 <div className='col-span-3'>
@@ -1183,7 +1313,7 @@ function ExpenseDashboard() {
                                                             {row.categoryName}
                                                         </TableCell>
                                                         {/* <TableCell align="right" onClick={() => navigateToDetail(row.categoryName, row.categoryId)}>{parseFloat(row.outPrice ? row.outPrice : 0).toLocaleString('en-IN')}</TableCell> */}
-                                                        <TableCell align="left" >{row.categoryIconName}</TableCell>
+                                                        <TableCell align="left" onClick={() => navigateToDetail(row.categoryName, row.categoryId)} >{row.categoryIconName}</TableCell>
                                                         <TableCell align="right" ><div className=''><button className='editCategoryBtn mr-6' onClick={() => handleEdit(row.categoryId, row.categoryName, row.categoryIconName)}>Edit</button><button className='deleteCategoryBtn' onClick={() => handleDelete(row.categoryId)}>Delete</button></div></TableCell>
                                                     </TableRow> :
                                                     <TableRow

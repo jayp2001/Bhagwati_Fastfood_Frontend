@@ -32,7 +32,7 @@ function CategoryCard(props) {
                         Today's Expense
                     </div>
                     <div className='statacticsDisplayDisplay'>
-                        {parseFloat(10000000).toLocaleString('en-IN')}
+                        {parseFloat(props.expense ? props.expense : 0).toLocaleString('en-IN')}
                     </div>
                 </div>
             </div>

@@ -60,6 +60,26 @@ function Dashboard() {
             }
         }
     }
+    const goToBank = () => {
+        const auth = new Date(expirationTime) > new Date() && (role == 1 || role == 2) ? true : false
+        if (auth) {
+            navigate('/bank/dashboard')
+        } else {
+            if (window.confirm("You are not Authorised. You want to Login again ?")) {
+                navigate('/login')
+            }
+        }
+    }
+    const goToReport = () => {
+        const auth = new Date(expirationTime) > new Date() && (role == 1 || role == 2) ? true : false
+        if (auth) {
+            navigate('/businessReport')
+        } else {
+            if (window.confirm("You are not Authorised. You want to Login again ?")) {
+                navigate('/login')
+            }
+        }
+    }
     const goToStaff = () => {
         const auth = new Date(expirationTime) > new Date() && (role == 1 || role == 2) ? true : false
         if (auth) {
@@ -79,9 +99,11 @@ function Dashboard() {
                 <div className="grid lg:grid-cols-3 mobile:grid-cols-2 tablet1:grid-cols-3 tablet:grid-cols-4 laptop:grid-cols-5 desktop1:grid-cols-6 desktop2:grid-cols-7 desktop2:grid-cols-8' gap-6">
                     <ConsoleCard goToAddUSer={goToProductList} name={"Inventory"} imgName={'img11'} />
                     <ConsoleCard goToAddUSer={goToStaff} name={"Staff Salary"} imgName={'staff'} />
+                    <ConsoleCard goToAddUSer={goToExpense} name={"Expense"} imgName={'expense'} />
+                    <ConsoleCard goToAddUSer={goToBank} name={"Banks"} imgName={'bank'} />
+                    <ConsoleCard goToAddUSer={goToReport} name={"Business Report"} imgName={'report'} />
                     <ConsoleCard goToAddUSer={goToAddUSer} name={"Add User"} imgName={'userAdd'} />
                     <ConsoleCard goToAddUSer={goToUserList} name={"User List"} imgName={'userList'} />
-                    <ConsoleCard goToAddUSer={goToExpense} name={"Expense"} imgName={'expense'} />
                 </div>
             </div>
         </div>
