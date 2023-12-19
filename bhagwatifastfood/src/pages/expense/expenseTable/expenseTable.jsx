@@ -49,6 +49,7 @@ import BankMenu from '../../bank/dashboard/menu/menuBank';
 import dayjs from 'dayjs';
 import ExpenseMenu from "./menu/menuExpense";
 import { useParams } from 'react-router-dom';
+import ExportMenu from '../exportMenu/exportMenu';
 
 const style = {
     position: 'absolute',
@@ -85,7 +86,8 @@ function ExpenseTable() {
     const [filter, setFilter] = React.useState(false);
     const id = open ? 'simple-popover' : undefined;
     const [categories, setCategories] = React.useState();
-    const [source, setSource] = React.useState()
+    const [source, setSource] = React.useState();
+    const [incomeSourceFilter, setIncomeSourceFilter] = React.useState('');
     const [formDataError, setFormDataError] = useState({
         source: false,
         subCategory: false,
@@ -122,6 +124,64 @@ function ExpenseTable() {
 
 
 
+    const excelExport = async () => {
+        if (window.confirm('Are you sure you want to export Excel ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/exportExcelSheetForExpenseData?startDate=${state[0].startDate}&endDate=${state[0].endDate}&mainCategoryId=${categoryId}&moneySourceId=${incomeSourceFilter}`
+                    : `${BACKEND_BASE_URL}expenseAndBankrouter/exportExcelSheetForExpenseData?mainCategoryId=${categoryId}&moneySourceId=${incomeSourceFilter}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = 'Common_Expense_for_' + categoryName + '_' + new Date().toLocaleDateString() + '.xlsx'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+                window.alert('>>')
+            }).catch((error) => {
+                window.alert('>>')
+                // console.error('>>>', error)
+                // setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+        }
+    }
+    const pdfExport = async () => {
+        if (window.confirm('Are you sure you want to export Pdf ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/exportPdfForExpenseData?startDate=${state[0].startDate}&endDate=${state[0].endDate}&categoryId=${categoryId}&moneySourceId=${incomeSourceFilter}`
+                    : `${BACKEND_BASE_URL}expenseAndBankrouter/exportPdfForExpenseData?categoryId=${categoryId}&moneySourceId=${incomeSourceFilter}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = 'Common_Expense_for_' + categoryName + '_' + new Date().toLocaleDateString() + '.pdf'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            })
+                .catch((error) => {
+                    setError(error.response ? error.response.data : "Network Error ...!!!")
+                })
+        }
+    }
 
 
     const handleClick = (event) => {
@@ -131,7 +191,17 @@ function ExpenseTable() {
         setAnchorEl(null);
     };
     const getExpenseData = async () => {
-        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getExpenseTransactionData?page=${1}&numPerPage=${5}&categoryId=${categoryId}`, config)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getExpenseTransactionData?page=${1}&numPerPage=${5}&categoryId=${categoryId}&moneySourceId=${incomeSourceFilter}`, config)
+            .then((res) => {
+                setExpenseData(res.data.rows);
+                setTotalRowsExpense(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getExpenseDataByIncome = async (source) => {
+        await axios.get(filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/getExpenseTransactionData?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${1}&numPerPage=${5}&categoryId=${categoryId}&moneySourceId=${source}` : `${BACKEND_BASE_URL}expenseAndBankrouter/getExpenseTransactionData?page=${1}&numPerPage=${5}&categoryId=${categoryId}&moneySourceId=${source}`, config)
             .then((res) => {
                 setExpenseData(res.data.rows);
                 setTotalRowsExpense(res.data.numRows);
@@ -230,7 +300,7 @@ function ExpenseTable() {
         }
     };
     const getExpenseDataByFilter = async () => {
-        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getExpenseTransactionData?page=${1}&numPerPage=${5}&startDate=${state[0].startDate}&endDate=${state[0].endDate}&categoryId=${categoryId}`, config)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getExpenseTransactionData?page=${1}&numPerPage=${5}&startDate=${state[0].startDate}&endDate=${state[0].endDate}&categoryId=${categoryId}&moneySourceId=${incomeSourceFilter}`, config)
             .then((res) => {
                 setExpenseData(res.data.rows);
                 setTotalRowsExpense(res.data.numRows);
@@ -241,7 +311,7 @@ function ExpenseTable() {
     }
     const getExpenseDataOnPageChange = async (pageNum, rowPerPageNum) => {
         console.log("page get", page, rowsPerPage)
-        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getExpenseTransactionData?page=${pageNum}&numPerPage=${rowPerPageNum}&categoryId=${categoryId}`, config)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getExpenseTransactionData?page=${pageNum}&numPerPage=${rowPerPageNum}&categoryId=${categoryId}&moneySourceId=${incomeSourceFilter}`, config)
             .then((res) => {
                 setExpenseData(res.data.rows);
                 setTotalRowsExpense(res.data.numRows);
@@ -252,7 +322,7 @@ function ExpenseTable() {
     }
     const getExpenseDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
         console.log("page get", page, rowsPerPage)
-        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getExpenseTransactionData?page=${pageNum}&numPerPage=${rowPerPageNum}&startDate=${state[0].startDate}&endDate=${state[0].endDate}&categoryId=${categoryId}`, config)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getExpenseTransactionData?page=${pageNum}&numPerPage=${rowPerPageNum}&startDate=${state[0].startDate}&endDate=${state[0].endDate}&categoryId=${categoryId}&moneySourceId=${incomeSourceFilter}`, config)
             .then((res) => {
                 setExpenseData(res.data.rows);
                 setTotalRowsExpense(res.data.numRows);
@@ -339,6 +409,17 @@ function ExpenseTable() {
             }
         }
     }
+    // const getDataByIncomeSource = async (id) => {
+    //     await axios.get(filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/getSubCategoryListById?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${1}&numPerPage=${5}&mainCategoryId=${categoryId}&moneySourceId=${id}` : `${BACKEND_BASE_URL}expenseAndBankrouter/getSubCategoryListById?page=${1}&numPerPage=${5}&mainCategoryId=${categoryId}&moneySourceId=${id}`, config)
+    //         .then((res) => {
+    //             setData(res.data.rows);
+    //             setTotalRows(res.data.numRows);
+    //             setTotalExpense(res.data.totalExpense)
+    //         })
+    //         .catch((error) => {
+    //             setError(error.response ? error.response.data : "Network Error ...!!!")
+    //         })
+    // }
     const submitEditExpense = () => {
         if (loading || success) {
 
@@ -632,7 +713,7 @@ function ExpenseTable() {
                         <div className='col-span-12'>
                             <div className='userTableSubContainer pt-4'>
                                 <div className='grid grid-cols-12'>
-                                    <div className='ml-4 col-span-6' >
+                                    <div className='ml-4 mt-2 col-span-6' >
                                         <div className='flex'>
                                             <div className='dateRange text-center' aria-describedby={id} onClick={handleClick}>
                                                 <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
@@ -689,12 +770,31 @@ function ExpenseTable() {
                                         </Popover>
                                     </div>
                                     <div className='col-start-9 col-span-2  pr-5 flex justify-end'>
-                                        <button className='exportExcelBtn' onClick={() => { }
-                                        }><FileDownloadIcon />&nbsp;&nbsp;Product Wise</button>
+                                        <FormControl fullWidth>
+                                            <InputLabel id="demo-simple-select-label">Income Source</InputLabel>
+                                            <Select
+                                                id="Seah"
+                                                name='incomeSourceFilter'
+                                                value={incomeSourceFilter}
+                                                label="Income Source"
+                                                onChange={(e) => { setIncomeSourceFilter(e.target.value); setPage(0); setRowsPerPage(5); getExpenseDataByIncome(e.target.value) }}
+                                                MenuProps={{
+                                                    style: { zIndex: 35001 }
+                                                }}
+                                            >
+                                                <MenuItem value={''}>Clear</MenuItem>
+                                                {
+                                                    source?.map((data, index) => (
+                                                        <MenuItem value={data.toId} key={data.toId}>{data.toName}</MenuItem>
+                                                    ))
+                                                }
+                                                {/* <MenuItem value={'Debit'}>Debit</MenuItem>
+                                                <MenuItem value={'Credit'}>Credit</MenuItem> */}
+                                            </Select>
+                                        </FormControl>
                                     </div>
-                                    <div className='col-span-2 pr-5 flex justify-end'>
-                                        <button className='exportExcelBtn' onClick={() => { }
-                                        }><FileDownloadIcon />&nbsp;&nbsp;Bank Wise</button>
+                                    <div className='col-span-2 pr-5 mt-2 flex justify-end'>
+                                        <ExportMenu exportExcel={excelExport} exportPdf={pdfExport} />
                                     </div>
                                 </div>
                                 <div className='tableContainerWrapper'>

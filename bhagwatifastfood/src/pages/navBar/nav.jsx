@@ -35,6 +35,7 @@ import SavingsIcon from '@mui/icons-material/Savings';
 import CryptoJS from 'crypto-js';
 import { ToastContainer, toast } from 'react-toastify';
 import MoneyOffIcon from '@mui/icons-material/MoneyOff';
+import AllInboxIcon from '@mui/icons-material/AllInbox';
 import { BACKEND_BASE_URL } from '../../url';
 import axios from 'axios';
 function NavBar() {
@@ -105,7 +106,7 @@ function NavBar() {
 
         setState({ ...state, [anchor]: open });
     };
-    console.log("location", location.pathname.split('/'))
+    console.log("location", location.pathname, location.pathname.split('/').length)
     const list = (anchor) => (
         <Box
             sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 300, color: 'gray' }}
@@ -312,6 +313,24 @@ function NavBar() {
                                                     <ListItemText primary={'Expense'} />
                                                 </ListItemButton>
                                             </ListItem>
+                                                {location.pathname.split('/').length == 8 ?
+                                                    <ListItem key={'common'}>
+                                                        <ListItemButton to={`/expense/mainCategory/${location.pathname.split('/')[3]}/expenses/${location.pathname.split('/')[6]}`}>
+                                                            <ListItemIcon>
+                                                                <AllInboxIcon />
+                                                            </ListItemIcon>
+                                                            <ListItemText primary={`${location.pathname.split('/')[3] + ' ' + 'Expense'}`} />
+                                                        </ListItemButton>
+                                                    </ListItem> :
+                                                    <ListItem key={'common'}>
+                                                        <ListItemButton to={`/expense/mainCategory/${location.pathname.split('/')[3]}/expenses/${location.pathname.split('/')[4]}`}>
+                                                            <ListItemIcon>
+                                                                <AllInboxIcon />
+                                                            </ListItemIcon>
+                                                            <ListItemText primary={`${location.pathname.split('/')[3] + ' ' + 'Expense'}`} />
+                                                        </ListItemButton>
+                                                    </ListItem>
+                                                }
                                                 {dashboardCategory?.map((data, index) => (
                                                     <ListItem key={data.categoryId}>
                                                         <ListItemButton to={`/expense/mainCategory/${data.categoryName}/${data.categoryId}`}>

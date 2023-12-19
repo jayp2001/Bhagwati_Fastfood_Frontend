@@ -496,7 +496,7 @@ function ExpenseTableSubCategory() {
                             <div className='h-full grid grid-cols-12'>
                                 <div className='h-full mobile:col-span-10  tablet1:col-span-10  tablet:col-span-7  laptop:col-span-7  desktop1:col-span-7  desktop2:col-span-7  desktop2:col-span-7 '>
                                     <div className='grid grid-cols-12 pl-6 gap-3 h-full'>
-                                        <div className={`flex col-span-3 justify-center ${tab === 1 || tab === '1' ? 'productTabAll' : 'productTab'}`} onClick={() => {
+                                        <div className={`flex col-span-6 justify-center ${tab === 1 || tab === '1' ? 'productTabAll' : 'productTab'}`} onClick={() => {
                                             setTab(1)
                                         }}>
                                             <div className='statusTabtext'>Expenses for {subCategoryName}</div>

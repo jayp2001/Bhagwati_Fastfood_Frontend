@@ -180,6 +180,7 @@ function ExpenseDashboard() {
         setAnchorEl(null);
     };
     const resetAddExpense = () => {
+        getSourceDDL();
         setFormData({
             moneySourceId: '',
             categoryId: '',

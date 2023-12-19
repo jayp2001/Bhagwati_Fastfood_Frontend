@@ -35,6 +35,8 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import CloseIcon from '@mui/icons-material/Close';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import ExportMenu from '../exportMenu/exportMenu';
+import InputAdornment from '@mui/material/InputAdornment';
+import SearchIcon from '@mui/icons-material/Search';
 
 const style = {
     position: 'absolute',
@@ -59,6 +61,7 @@ function SubCategoryTable() {
     const [filter, setFilter] = React.useState(false);
     const id = open ? 'simple-popover' : undefined;
     const navigate = useNavigate();
+    const [searchWord, setSearchWord] = React.useState('');
     const [incomeSourceFilter, setIncomeSourceFilter] = React.useState('');
     const [isEdit, setIsEdit] = React.useState(false);
     const [page, setPage] = React.useState(0);
@@ -115,6 +118,30 @@ function SubCategoryTable() {
         // setIsEdit(false);
         setOpen(false)
     }
+    const debounce = (func) => {
+        let timer;
+        return function (...args) {
+            const context = this;
+            if (timer) clearTimeout(timer);
+            timer = setTimeout(() => {
+                timer = null;
+                func.apply(context, args)
+            }, 700)
+        }
+
+    }
+    const search = async (searchWord) => {
+        await axios.get(filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/getSubCategoryListById?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${1}&numPerPage=${5}&mainCategoryId=${categoryId}&moneySourceId=${incomeSourceFilter}&searchWord=${searchWord}` : `${BACKEND_BASE_URL}expenseAndBankrouter/getSubCategoryListById?page=${1}&numPerPage=${5}&mainCategoryId=${categoryId}&moneySourceId=${incomeSourceFilter}&searchWord=${searchWord}`, config)
+            .then((res) => {
+                setData(res.data.rows);
+                setTotalRows(res.data.numRows);
+                setTotalExpense(res.data.totalExpense)
+            })
+            .catch((error) => {
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+                // setAllData(null)
+            })
+    }
     const handleReset = () => {
         setCategory('');
         setCategoryError(false);
@@ -124,6 +151,12 @@ function SubCategoryTable() {
         });
         setIsEdit(false);
     }
+    const handleSearch = () => {
+        console.log(':::???:::', document.getElementById('searchWord').value)
+        search(document.getElementById('searchWord').value)
+    }
+
+    const debounceFunction = React.useCallback(debounce(handleSearch), [])
     const getSourceDDL = async () => {
         await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/ddlToData`, config)
             .then((res) => {
@@ -247,6 +280,7 @@ function SubCategoryTable() {
             .then((res) => {
                 setData(res.data.rows);
                 setTotalRows(res.data.numRows);
+                setTotalExpense(res.data.totalExpense)
             })
             .catch((error) => {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
@@ -258,10 +292,14 @@ function SubCategoryTable() {
             .then((res) => {
                 setData(res.data.rows);
                 setTotalRows(res.data.numRows);
+                setTotalExpense(res.data.totalExpense)
             })
             .catch((error) => {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
             })
+    }
+    const onSearchChange = (e) => {
+        setSearchWord(e.target.value);
     }
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
@@ -290,6 +328,7 @@ function SubCategoryTable() {
             .then((res) => {
                 setData(res.data.rows);
                 setTotalRows(res.data.numRows);
+                setTotalExpense(res.data.totalExpense)
             })
             .catch((error) => {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
@@ -415,7 +454,7 @@ function SubCategoryTable() {
                         <div className='h-full grid grid-cols-12'>
                             <div className='h-full mobile:col-span-10  tablet1:col-span-10  tablet:col-span-7  laptop:col-span-7  desktop1:col-span-7  desktop2:col-span-7  desktop2:col-span-7 '>
                                 <div className='grid grid-cols-12 pl-6 gap-3 h-full'>
-                                    <div className={`flex col-span-7 justify-center ${tab === 1 || tab === '1' ? 'productTabAll' : 'productTab'}`} onClick={() => {
+                                    <div className={`flex col-span-10 justify-center ${tab === 1 || tab === '1' ? 'productTabAll' : 'productTab'}`} onClick={() => {
                                         setTab(1);
                                         // setPage(0); setRowsPerPage(5); getStockInData(); setFilter(false);
                                         // resetStockOutEdit();
@@ -427,7 +466,7 @@ function SubCategoryTable() {
                                         //     }
                                         // ])
                                     }}>
-                                        <div className='statusTabtext'>Sub Catagories for {categoryName}</div>
+                                        <div className='statusTabtext'>Sub Catagories for {categoryName}&nbsp;&nbsp; ||&nbsp;&nbsp;&nbsp;Total Expense : {parseFloat(totalExpense ? totalExpense : 0).toLocaleString('en-IN')}</div>
                                     </div>
                                     {/* <div className={`flex col-span-3 justify-center ${tab === 2 || tab === '2' ? 'productTabOut' : 'productTab'}`} onClick={() => {
                                         setTab(2);
@@ -460,37 +499,24 @@ function SubCategoryTable() {
                                     </div> */}
                                 </div>
                             </div>
-                            <div className='col-span-5 text-end statusTabtext productTabAlignEnd'>
-                                Total Expense : {parseFloat(totalExpense ? totalExpense : 0).toLocaleString('en-IN')}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div className='grid grid-cols-12 mt-6'>
-                <div className='col-span-12'>
-                    <div className='userTableSubContainer pt-4'>
-                        <div className='grid grid-cols-12'>
-                            <div className='ml-4 col-span-6' >
-                                <div className='flex'>
-                                    <div className='dateRange text-center' aria-describedby={id} onClick={handleClick}>
-                                        <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
-                                    </div>
-                                    <div className='resetBtnWrap col-span-3'>
-                                        <button className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`} onClick={() => {
-                                            setFilter(false);
-                                            setPage(0);
-                                            setRowsPerPage(5)
-                                            getData();
-                                            setState([
-                                                {
-                                                    startDate: new Date(),
-                                                    endDate: new Date(),
-                                                    key: 'selection'
-                                                }
-                                            ])
-                                        }}><CloseIcon /></button>
-                                    </div>
+                            <div className='col-span-4 col-start-9 flex justify-end pr-4'>
+                                <div className='dateRange text-center self-center' aria-describedby={id} onClick={handleClick}>
+                                    <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
+                                </div>
+                                <div className='resetBtnWrap col-span-3 self-center'>
+                                    <button className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`} onClick={() => {
+                                        setFilter(false);
+                                        setPage(0);
+                                        setRowsPerPage(5)
+                                        getData();
+                                        setState([
+                                            {
+                                                startDate: new Date(),
+                                                endDate: new Date(),
+                                                key: 'selection'
+                                            }
+                                        ])
+                                    }}><CloseIcon /></button>
                                 </div>
                                 <Popover
                                     id={id}
@@ -524,7 +550,32 @@ function SubCategoryTable() {
                                     </Box>
                                 </Popover>
                             </div>
-                            <div className='col-span-2  pr-5 flex justify-end'>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className='grid grid-cols-12 mt-6'>
+                <div className='col-span-12'>
+                    <div className='userTableSubContainer pt-4'>
+                        <div className='grid grid-cols-12'>
+                            <div className='ml-10 mt-2 col-span-3' >
+                                <TextField
+                                    className='sarchText'
+                                    onChange={(e) => { onSearchChange(e); debounceFunction() }}
+                                    value={searchWord}
+                                    name="searchWord"
+                                    id="searchWord"
+                                    variant="standard"
+                                    label="Search"
+                                    InputProps={{
+                                        endAdornment: <InputAdornment position="end"><SearchIcon /></InputAdornment>,
+                                        style: { fontSize: 14 }
+                                    }}
+                                    InputLabelProps={{ style: { fontSize: 14 } }}
+                                    fullWidth
+                                />
+                            </div>
+                            <div className='col-start-6 col-span-2  pr-5 flex justify-end'>
                                 <FormControl fullWidth>
                                     <InputLabel id="demo-simple-select-label">Income Source</InputLabel>
                                     <Select
@@ -548,10 +599,10 @@ function SubCategoryTable() {
                                     </Select>
                                 </FormControl>
                             </div>
-                            <div className='col-span-2 pr-5 flex justify-end'>
+                            <div className='col-span-2 col-start-9 mt-2 pr-5 flex justify-end'>
                                 <ExportMenu exportExcel={excelExport} exportPdf={pdfExport} />
                             </div>
-                            <div className='col-span-2 col-start-11 mr-6'>
+                            <div className='col-span-2 mt-2 col-start-11 mr-6'>
                                 <div className='flex justify-end'>
                                     <button className='addCategoryBtn' onClick={handleOpen}>Add Category</button>
                                 </div>

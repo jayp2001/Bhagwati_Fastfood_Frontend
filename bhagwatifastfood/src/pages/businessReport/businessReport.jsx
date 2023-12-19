@@ -16,10 +16,12 @@ import 'react-date-range/dist/styles.css';
 import 'react-date-range/dist/theme/default.css';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
+import EditIcon from '@mui/icons-material/Edit';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import TextField from '@mui/material/TextField';
 import InputAdornment from '@mui/material/InputAdornment';
 import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
@@ -192,6 +194,11 @@ function BusinessReport() {
                 })
         }
     }
+    const cancle = async () => {
+        setTab(1);
+        setIsEdit(false);
+        filter ? getReportByFilter() : getReport();
+    }
     const editReport = async () => {
         if (window.confirm('Are you sure you want to edit report')) {
             setLoading(true);
@@ -327,6 +334,19 @@ function BusinessReport() {
             .catch((error) => {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
             })
+    }
+    const deleteReport = async (date) => {
+        if (window.confirm("Are you sure you want to delete Report ...?")) {
+            setLoading(true)
+            await axios.delete(`${BACKEND_BASE_URL}expenseAndBankrouter/removeBusinessReport?brDate=${date}`, config)
+                .then((res) => {
+                    setLoading(false);
+                    setSuccess(true)
+                })
+                .catch((error) => {
+                    setError(error.response ? error.response.data : "Network Error ...!!!")
+                })
+        }
     }
     const getDataOnPageChange = async (pageNum, rowPerPageNum) => {
         console.log("page get", page, rowsPerPage)
@@ -544,7 +564,7 @@ function BusinessReport() {
                                                         setTab(1);
                                                         getReport();
                                                     }} >
-                                                    <div className='statusTabtext'>Business Report</div>
+                                                    <div className='statusTabtext'>{isEdit ? 'Edit Report' : 'Business Report'}</div>
                                                 </div>
                                                 <div className={`flex col-span-3 justify-center ${tab === 2 || tab === '2' ? 'productTabIn' : 'productTab'}`}
                                                     onClick={() => {
@@ -615,7 +635,7 @@ function BusinessReport() {
                                                     />
                                                     <div className='mt-8 grid gap-4 grid-cols-12'>
                                                         <div className='col-span-3 col-start-7'>
-                                                            <button className='stockInBtn' onClick={() => {
+                                                            <button className='editBtnReport' onClick={() => {
                                                                 // setFilter(true); handleClose(); getStatisticsByFilter(); setTabStockIn(''); setPage(0); setRowsPerPage(5); getStockInDataByTabByFilter(''); getProductCountByFilter();
                                                                 // setFilter(true); handleClose(); setPage(0); setRowsPerPage(5); getTransactionDataByDateFilter(); getStatisticsByFilter(id);
                                                                 (tab === '1' || tab === 1) && getReportByFilter(); handleClose();
@@ -636,6 +656,34 @@ function BusinessReport() {
                     </div>
                     {(tab === 2 || tab === '2' || tab === 1 || tab === '1') &&
                         <div className='reportCard'>
+                            {state[0].startDate.toDateString() == state[0].endDate.toDateString() ?
+                                !formDataOther.isData ?
+                                    tab == 1 ?
+                                        <div className='grid grid-cols-12 gap-6 pr-4'>
+                                            <div className='mt-3 incomeSourceHeader col-span-4' style={{ color: "red" }}>No Data for : {state[0].startDate.toDateString()} </div>
+                                        </div> : <></>
+                                    :
+                                    !isEdit ?
+                                        <>
+                                            <div className='grid grid-cols-12 mb-5 gap-6 pr-4'>
+                                                <div className='mt-3 col-start-9 col-span-2'>
+                                                    <button className='editBtnReport' onClick={() => {
+                                                        handleEditReport();
+                                                    }}><EditIcon /> edit</button>
+                                                </div>
+                                                <div className='mt-3 col-span-2'>
+                                                    <button className='deleteBtnReport' onClick={() => {
+                                                        deleteReport(state[0].startDate);
+                                                    }}><DeleteOutlineIcon /> Delete</button>
+                                                </div>
+                                            </div>
+                                            <hr />
+                                        </> : <></> :
+                                tab == 1 ?
+                                    <div className='grid grid-cols-12 gap-6 pr-4'>
+                                        <div className='mt-3 incomeSourceHeader col-span-6' >Data for Date Range : {state[0].startDate.toDateString() + ' to ' + state[0].endDate.toDateString()} </div>
+                                    </div> : <></>
+                            }
                             <div className='grid grid-cols-12 gap-6 pr-4'>
                                 <div className='mt-3 incomeSourceHeader col-span-4'>Income Source </div>
                                 <div className='mt-3 incomeSourceHeader col-span-4'>Expense </div>
@@ -651,24 +699,24 @@ function BusinessReport() {
                                                 </div>
                                                 <div className='col-span-7'>
                                                     {
-                                                        (tab === 2 || tab === '2') &&
-                                                        <FormControl fullWidth sx={{ m: 1 }} variant="standard">
-                                                            <Input
-                                                                value={formData && formData[data.businessCategoryId] ? formData[data.businessCategoryId] : null}
-                                                                onChange={onChange}
-                                                                name={data && data.businessCategoryId ? data.businessCategoryId : ''}
-                                                                InputProps={{ style: { fontSize: 14 } }}
-                                                                InputLabelProps={{ style: { fontSize: 14 } }}
-                                                                fullWidth
-                                                                startAdornment={<InputAdornment position="start"><CurrencyRupeeIcon /></InputAdornment>}
-                                                            />
-                                                        </FormControl>
-                                                    }
-                                                    {
-                                                        (tab === 1 || tab === '1') &&
-                                                        <div className='amountDisplay mt-2'>
-                                                            <CurrencyRupeeIcon /> {parseFloat(data.businessAmt ? data.businessAmt : 0).toLocaleString('en-IN')}
-                                                        </div>
+                                                        (tab === 2 || tab === '2') || isEdit ?
+                                                            <FormControl fullWidth sx={{ m: 1 }} variant="standard">
+                                                                <Input
+                                                                    value={formData && formData[data.businessCategoryId] ? formData[data.businessCategoryId] : null}
+                                                                    onChange={onChange}
+                                                                    name={data && data.businessCategoryId ? data.businessCategoryId : ''}
+                                                                    InputProps={{ style: { fontSize: 14 } }}
+                                                                    InputLabelProps={{ style: { fontSize: 14 } }}
+                                                                    fullWidth
+                                                                    startAdornment={<InputAdornment position="start"><CurrencyRupeeIcon /></InputAdornment>}
+                                                                />
+                                                            </FormControl>
+
+                                                            :
+                                                            (tab === 1 || tab === '1') &&
+                                                            <div className='amountDisplay mt-2'>
+                                                                <CurrencyRupeeIcon /> {parseFloat(data.businessAmt ? data.businessAmt : 0).toLocaleString('en-IN')}
+                                                            </div>
                                                     }
                                                 </div>
                                             </div>
@@ -695,7 +743,7 @@ function BusinessReport() {
                                     {
                                         // categoryList?.map((data, index) => (
                                         <>
-                                            {(tab === 2 || tab === '2') &&
+                                            {((tab === 2 || tab === '2') || isEdit) &&
                                                 <div className='grid grid-cols-12 gap-3 soureceHeader '>
                                                     <div className='col-span-5 mt-2 suppilerDetailFeildHeader'>
                                                         Report Date :
@@ -725,7 +773,7 @@ function BusinessReport() {
                                                     Opening Balance :
                                                 </div>
                                                 <div className='col-span-7'>
-                                                    {(tab === 2 || tab === '2') &&
+                                                    {(tab === 2 || tab === '2') || isEdit ?
                                                         <FormControl fullWidth sx={{ m: 1 }} variant="standard">
                                                             <Input
                                                                 value={formDataOther && formDataOther.openingBalanceAmt ? formDataOther.openingBalanceAmt : null}
@@ -737,8 +785,7 @@ function BusinessReport() {
                                                                 startAdornment={<InputAdornment position="start"><CurrencyRupeeIcon /></InputAdornment>}
                                                             />
                                                         </FormControl>
-                                                    }
-                                                    {
+                                                        :
                                                         (tab === 1 || tab === '1') &&
                                                         <div className='amountDisplay mt-2'>
                                                             <CurrencyRupeeIcon /> {parseFloat(formDataOther && formDataOther.openingBalanceAmt ? formDataOther.openingBalanceAmt : 0).toLocaleString('en-IN')}
@@ -751,7 +798,7 @@ function BusinessReport() {
                                                     Comment :
                                                 </div>
                                                 <div className='col-span-7'>
-                                                    {(tab === 2 || tab === '2') &&
+                                                    {(tab === 2 || tab === '2') || isEdit ?
                                                         <TextField
                                                             value={formDataOther && formDataOther.openingBalanceComment ? formDataOther.openingBalanceComment : null}
                                                             onChange={onChangeOther}
@@ -764,8 +811,7 @@ function BusinessReport() {
                                                             multiline
                                                             rows={4}
                                                         />
-                                                    }
-                                                    {
+                                                        :
                                                         (tab === 1 || tab === '1') &&
                                                         <div className='commentDisplay mt-2'>
                                                             {formDataOther && formDataOther.openingBalanceComment ? formDataOther.openingBalanceComment : 'No Comment'}
@@ -834,7 +880,7 @@ function BusinessReport() {
                                                     Closing Balance :
                                                 </div>
                                                 <div className='col-span-7'>
-                                                    {(tab === 2 || tab === '2') &&
+                                                    {(tab === 2 || tab === '2') || isEdit ?
                                                         <FormControl fullWidth sx={{ m: 1 }} variant="standard">
                                                             <Input
                                                                 value={formDataOther && formDataOther.closingBalance ? formDataOther.closingBalance : null}
@@ -846,8 +892,7 @@ function BusinessReport() {
                                                                 startAdornment={<InputAdornment position="start"><CurrencyRupeeIcon /></InputAdornment>}
                                                             />
                                                         </FormControl>
-                                                    }
-                                                    {
+                                                        :
                                                         (tab === 1 || tab === '1') &&
                                                         <div className='amountDisplay mt-2'>
                                                             <CurrencyRupeeIcon /> {parseFloat(formDataOther && formDataOther.closingBalance ? formDataOther.closingBalance : 0).toLocaleString('en-IN')}
@@ -950,20 +995,21 @@ function BusinessReport() {
                                     </div>
                                 </div> */}
                             </div>
-                            <div className='mt-6 grid grid-cols-12'>
-                                <div>
-                                    <button className='stockInBtn' onClick={() => {
-                                        isEdit ? editReport() : addReport();
-                                    }}>Apply</button>
+                            {((tab === 2 || tab === '2') || isEdit) &&
+                                <div className='mt-6 grid grid-cols-12 gap-6'>
+                                    <div className='col-start-10'>
+                                        <button className='editBtnReport' onClick={() => {
+                                            isEdit ? editReport() : addReport();
+                                        }}>{isEdit ? 'Save' : 'Apply'}</button>
+                                    </div>
+                                    <div className=''>
+                                        <button className='cancleBtnReport' onClick={() => {
+                                            // isEdit ? { setIsEdit(false) } : {};
+                                            cancle()
+                                        }}>Cancle</button>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className='mt-6 grid grid-cols-12'>
-                                <div>
-                                    <button className='stockInBtn' onClick={() => {
-                                        setTab(2); handleEditReport();
-                                    }}>edit</button>
-                                </div>
-                            </div>
+                            }
                         </div>
                     }
                     {
