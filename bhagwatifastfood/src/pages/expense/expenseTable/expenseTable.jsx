@@ -126,32 +126,32 @@ function ExpenseTable() {
 
     const excelExport = async () => {
         if (window.confirm('Are you sure you want to export Excel ... ?')) {
-            await axios({
-                url: filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/exportExcelSheetForExpenseData?startDate=${state[0].startDate}&endDate=${state[0].endDate}&mainCategoryId=${categoryId}&moneySourceId=${incomeSourceFilter}`
-                    : `${BACKEND_BASE_URL}expenseAndBankrouter/exportExcelSheetForExpenseData?mainCategoryId=${categoryId}&moneySourceId=${incomeSourceFilter}`,
-                method: 'GET',
-                headers: { Authorization: `Bearer ${userInfo.token}` },
-                responseType: 'blob', // important
-            }).then((response) => {
-                // create file link in browser's memory
-                const href = URL.createObjectURL(response.data);
-                // create "a" HTML element with href to file & click
-                const link = document.createElement('a');
-                const name = 'Common_Expense_for_' + categoryName + '_' + new Date().toLocaleDateString() + '.xlsx'
-                link.href = href;
-                link.setAttribute('download', name); //or any other extension
-                document.body.appendChild(link);
-                link.click();
+            try {
+                await axios({
+                    url: filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/exportExcelSheetForExpenseData?startDate=${state[0].startDate}&endDate=${state[0].endDate}&mainCategoryId=${categoryId}&moneySourceId=${incomeSourceFilter}`
+                        : `${BACKEND_BASE_URL}expenseAndBankrouter/exportExcelSheetForExpenseData?mainCategoryId=${categoryId}&moneySourceId=${incomeSourceFilter}`,
+                    method: 'GET',
+                    headers: { Authorization: `Bearer ${userInfo.token}` },
+                    responseType: 'blob', // important
+                }).then((response) => {
+                    // create file link in browser's memory
+                    const href = URL.createObjectURL(response.data);
+                    // create "a" HTML element with href to file & click
+                    const link = document.createElement('a');
+                    const name = 'Common_Expense_for_' + categoryName + '_' + new Date().toLocaleDateString() + '.xlsx'
+                    link.href = href;
+                    link.setAttribute('download', name); //or any other extension
+                    document.body.appendChild(link);
+                    link.click();
 
-                // clean up "a" element & remove ObjectURL
-                document.body.removeChild(link);
-                URL.revokeObjectURL(href);
-                window.alert('>>')
-            }).catch((error) => {
-                window.alert('>>')
+                    // clean up "a" element & remove ObjectURL
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(href);
+                })
+            } catch (error) {
                 // console.error('>>>', error)
-                // setError(error.response ? error.response.data : "Network Error ...!!!")
-            })
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            }
         }
     }
     const pdfExport = async () => {

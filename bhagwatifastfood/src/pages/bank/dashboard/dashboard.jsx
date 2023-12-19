@@ -48,6 +48,7 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import dayjs from 'dayjs';
+import ExportMenu from '../exportMenu/exportMenu';
 import BankTransactionMenu from "./menu/bankTransactionMenu";
 const style = {
     position: 'absolute',
@@ -250,7 +251,7 @@ function BankDashboard() {
                 setSuccess(true)
                 setPage(0);
                 setRowsPerPage(5);
-                getBankTransaction();
+                filter ? getBankTransactionByFilter() : getBankTransaction();
             })
             .catch((error) => {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
@@ -412,6 +413,106 @@ function BankDashboard() {
             .catch((error) => {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
             })
+    }
+    const excelExport = async () => {
+        if (window.confirm('Are you sure you want to export Excel ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/exportExcelForFundTransfer?page=${1}&numPerPage=${5}&startDate=${state[0].startDate}&endDate=${state[0].endDate}`
+                    : `${BACKEND_BASE_URL}expenseAndBankrouter/exportExcelForFundTransfer?page=${1}&numPerPage=${5}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = 'Expense_List_' + new Date().toLocaleDateString() + '.xlsx'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+    const pdfExport = async () => {
+        if (window.confirm('Are you sure you want to export Pdf ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/exportPdfForFundTransfer?page=${1}&numPerPage=${5}&startDate=${state[0].startDate}&endDate=${state[0].endDate}`
+                    : `${BACKEND_BASE_URL}expenseAndBankrouter/exportPdfForFundTransfer?page=${1}&numPerPage=${5}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = 'Expense_List_' + new Date().toLocaleDateString() + '.pdf'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+    const excelExportIncome = async () => {
+        if (window.confirm('Are you sure you want to export Excel ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/exportExcelForIncomeData?page=${1}&numPerPage=${5}&startDate=${state[0].startDate}&endDate=${state[0].endDate}`
+                    : `${BACKEND_BASE_URL}expenseAndBankrouter/exportExcelForIncomeData?page=${1}&numPerPage=${5}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = 'IncomeCategory_List_' + new Date().toLocaleDateString() + '.xlsx'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+    const pdfExportIncome = async () => {
+        if (window.confirm('Are you sure you want to export Pdf ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/exportPdfForIncomeData?page=${1}&numPerPage=${5}&startDate=${state[0].startDate}&endDate=${state[0].endDate}`
+                    : `${BACKEND_BASE_URL}expenseAndBankrouter/exportPdfForIncomeData?page=${1}&numPerPage=${5}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = 'IncomeCategory_List_' + new Date().toLocaleDateString() + '.pdf'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
     }
     const handleCloseModal = () => {
         // setOpen(false);
@@ -1261,13 +1362,8 @@ function BankDashboard() {
                                                 </Box>
                                             </Popover>
                                         </div>
-                                        <div className='col-start-9 col-span-2  pr-5 flex justify-end'>
-                                            <button className='exportExcelBtn' onClick={() => { }
-                                            }><FileDownloadIcon />&nbsp;&nbsp;Product Wise</button>
-                                        </div>
-                                        <div className='col-span-2 pr-5 flex justify-end'>
-                                            <button className='exportExcelBtn' onClick={() => { }
-                                            }><FileDownloadIcon />&nbsp;&nbsp;Bank Wise</button>
+                                        <div className='col-span-2 col-start-11 pr-5 flex justify-end'>
+                                            <ExportMenu exportExcel={excelExport} exportPdf={pdfExport} />
                                         </div>
                                     </div>
                                     <div className='tableContainerWrapper'>
@@ -1397,16 +1493,6 @@ function BankDashboard() {
                                             </div>
                                         </Box>
                                     </Popover>
-                                </div>
-                                <div className='col-span-2  pr-5 flex justify-end'>
-                                    <button className='exportExcelBtn' onClick={() => { }
-                                        // excelExportProductWise()
-                                    }><FileDownloadIcon />&nbsp;&nbsp;Product Wise</button>
-                                </div>
-                                <div className='col-span-2 pr-5 flex justify-end'>
-                                    <button className='exportExcelBtn' onClick={() => { }
-                                        // pdfExportBankWise()
-                                    }><FileDownloadIcon />&nbsp;&nbsp;Bank Wise</button>
                                 </div>
                                 <div className='col-span-2 col-start-11 mr-6'>
                                     <div className='flex justify-end'>
@@ -1720,7 +1806,9 @@ function BankDashboard() {
                                         <div className='resetBtnWrap col-span-3'>
                                             <button className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`} onClick={() => {
                                                 setFilter(false);
-                                                // getData();
+                                                getIncomeSourceData();
+                                                setPage(0);
+                                                setRowsPerPage(5);
                                                 setState([
                                                     {
                                                         startDate: new Date(),
@@ -1753,8 +1841,7 @@ function BankDashboard() {
                                             />
                                             <div className='mt-8 grid gap-4 grid-cols-12'>
                                                 <div className='col-span-3 col-start-7'>
-                                                    <button className='stockInBtn' onClick={() => { }
-                                                        // { getDataByFilter(); setFilter(true); setPage(0); handleClose() }
+                                                    <button className='stockInBtn' onClick={() => { getIncomeSourceDataByFilter(); setFilter(true); setPage(0); setRowsPerPage(5); handleClose() }
                                                     }>Apply</button>
                                                 </div>
                                                 <div className='col-span-3'>
@@ -1764,19 +1851,12 @@ function BankDashboard() {
                                         </Box>
                                     </Popover>
                                 </div>
-                                <div className='col-span-2  pr-5 flex justify-end'>
-                                    <button className='exportExcelBtn' onClick={() => { }
-                                        // excelExportProductWise()
-                                    }><FileDownloadIcon />&nbsp;&nbsp;Product Wise</button>
-                                </div>
-                                <div className='col-span-2 pr-5 flex justify-end'>
-                                    <button className='exportExcelBtn' onClick={() => { }
-                                        // pdfExportBankWise()
-                                    }><FileDownloadIcon />&nbsp;&nbsp;Bank Wise</button>
+                                <div className='col-span-2 col-start-9 pr-5 flex justify-end'>
+                                    <ExportMenu exportExcel={excelExportIncome} exportPdf={pdfExportIncome} />
                                 </div>
                                 <div className='col-span-2 col-start-11 mr-6'>
                                     <div className='flex justify-end'>
-                                        <button className='addCategoryBtn' onClick={handleOpen}>Add Bank</button>
+                                        <button className='addCategoryBtn' onClick={handleOpen}>Add Source</button>
                                     </div>
                                 </div>
                             </div>
@@ -1787,6 +1867,7 @@ function BankDashboard() {
                                             <TableRow>
                                                 <TableCell>No.</TableCell>
                                                 <TableCell>Income Source</TableCell>
+                                                <TableCell align="right">Income</TableCell>
                                                 {/* <TableCell align="right">Percentage</TableCell> */}
                                                 <TableCell align="right"></TableCell>
                                                 {/* <TableCell align="right"></TableCell> */}
@@ -1805,6 +1886,9 @@ function BankDashboard() {
                                                         <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
                                                         <TableCell component="th" scope="row" >
                                                             {row.sourceName}
+                                                        </TableCell>
+                                                        <TableCell align="right" scope="row" >
+                                                            {parseFloat(row.creditAmt ? row.creditAmt : 0).toLocaleString('en-IN')}
                                                         </TableCell>
                                                         <TableCell align="right" ><div className=''><button className='editCategoryBtn mr-6' onClick={() => handleEditSource(row)}>Edit</button><button className='deleteCategoryBtn' onClick={() => handleDeleteSource(row.sourceId)}>Delete</button></div></TableCell>
                                                         {/* <TableCell align="left" ><BankMenu data={row} handleDelete={handleDelete} handleEdit={handleEdit} setError={setError} /></TableCell> */}

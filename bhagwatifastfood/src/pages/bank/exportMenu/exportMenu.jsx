@@ -41,7 +41,7 @@ function ExportMenu(props) {
                 aria-expanded={open ? 'true' : undefined}
                 aria-haspopup="true"
                 onClick={props.isDisable ? () => { } : handleClick}
-            ><FileDownloadIcon />&nbsp;&nbsp;Export Excle</button>
+            ><FileDownloadIcon />&nbsp;&nbsp;Export</button>
             <Menu
                 id="long-menu"
                 MenuListProps={{

@@ -55,13 +55,16 @@ function BankTransactionMenu(props) {
                     }}>
                     Delete
                 </MenuItem>
-                <MenuItem key={'InVoice'}
-                    onClick={() => {
-                        handleClose();
-                        props.handleEditTransaction(props.data)
-                    }}>
-                    Edit
-                </MenuItem>
+                {
+                    props.data.status == 0 ? <></> : <MenuItem key={'InVoice'}
+                        onClick={() => {
+                            handleClose();
+                            props.handleEditTransaction(props.data)
+                        }}>
+                        Edit
+                    </MenuItem>
+                }
+
             </Menu>
         </div >
     );

@@ -95,6 +95,7 @@ function ExpenseDashboard() {
     const [success, setSuccess] = React.useState(false);
     const [rights, setRights] = useState();
     const [isEdit, setIsEdit] = React.useState(false);
+    const [incomeSourceFilter, setIncomeSourceFilter] = React.useState('');
     const [formData, setFormData] = useState({
         moneySourceId: '',
         categoryId: '',
@@ -285,7 +286,17 @@ function ExpenseDashboard() {
 
     }
     const getData = async () => {
-        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getMainCategoryList?page=${page + 1}&numPerPage=${rowsPerPage}`, config)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getMainCategoryList?page=${page + 1}&numPerPage=${rowsPerPage}&moneySourceId=${incomeSourceFilter}`, config)
+            .then((res) => {
+                setData(res.data.rows);
+                setTotalRows(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getDataOnIncome = async (id) => {
+        await axios.get(filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/getMainCategoryList?page=${1}&numPerPage=${5}&startDate=${state[0].startDate}&endDate=${state[0].endDate}&moneySourceId=${incomeSourceFilter}` : `${BACKEND_BASE_URL}expenseAndBankrouter/getMainCategoryList?page=${page + 1}&numPerPage=${rowsPerPage}&moneySourceId=${id}`, config)
             .then((res) => {
                 setData(res.data.rows);
                 setTotalRows(res.data.numRows);
@@ -313,7 +324,7 @@ function ExpenseDashboard() {
             })
     }
     const getDataByFilter = async () => {
-        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getMainCategoryList?page=${1}&numPerPage=${5}&startDate=${state[0].startDate}&endDate=${state[0].endDate}`, config)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getMainCategoryList?page=${1}&numPerPage=${5}&startDate=${state[0].startDate}&endDate=${state[0].endDate}&moneySourceId=${incomeSourceFilter}`, config)
             .then((res) => {
                 setData(res.data.rows);
                 setTotalRows(res.data.numRows);
@@ -435,6 +446,56 @@ function ExpenseDashboard() {
             });
         }
     }
+    const excelExportCategory = async () => {
+        if (window.confirm('Are you sure you want to export Excel ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/exportExcelForMainCategoryData?startDate=${state[0].startDate}&endDate=${state[0].endDate}&moneySourceId=${incomeSourceFilter}`
+                    : `${BACKEND_BASE_URL}expenseAndBankrouter/exportExcelForMainCategoryData?moneySourceId=${incomeSourceFilter}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = 'MainCategory_List_' + new Date().toLocaleDateString() + '.xlsx'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+    const pdfExportCategory = async () => {
+        if (window.confirm('Are you sure you want to export Pdf ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/exportPdfForMainCategoryData?startDate=${state[0].startDate}&endDate=${state[0].endDate}&moneySourceId=${incomeSourceFilter}`
+                    : `${BACKEND_BASE_URL}expenseAndBankrouter/exportPdfForMainCategoryData?moneySourceId=${incomeSourceFilter}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = 'MainCategory_List_' + new Date().toLocaleDateString() + '.pdf'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
     const handleExpenseDate = (date) => {
         setFormData((prevState) => ({
             ...prevState,
@@ -524,7 +585,7 @@ function ExpenseDashboard() {
     };
     const getDataOnPageChange = async (pageNum, rowPerPageNum) => {
         console.log("page get", page, rowsPerPage)
-        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getMainCategoryList?page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getMainCategoryList?page=${pageNum}&numPerPage=${rowPerPageNum}&moneySourceId=${incomeSourceFilter}`, config)
             .then((res) => {
                 setData(res.data.rows);
                 setTotalRows(res.data.numRows);
@@ -535,7 +596,7 @@ function ExpenseDashboard() {
     }
     const getDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
         console.log("page get", page, rowsPerPage)
-        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getMainCategoryList?page=${pageNum}&numPerPage=${rowPerPageNum}&startDate=${state[0].startDate}&endDate=${state[0].endDate}`, config)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getMainCategoryList?page=${pageNum}&numPerPage=${rowPerPageNum}&startDate=${state[0].startDate}&endDate=${state[0].endDate}&moneySourceId=${incomeSourceFilter}`, config)
             .then((res) => {
                 setData(res.data.rows);
                 setTotalRows(res.data.numRows);
@@ -820,7 +881,8 @@ function ExpenseDashboard() {
                                 <div className='h-full mobile:col-span-10  tablet1:col-span-10  tablet:col-span-7  laptop:col-span-7  desktop1:col-span-7  desktop2:col-span-7  desktop2:col-span-7 '>
                                     <div className='grid grid-cols-12 pl-6 gap-3 h-full'>
                                         <div className={`flex col-span-3 justify-center ${tab === 1 || tab === '1' ? 'productTabAll' : 'productTab'}`} onClick={() => {
-                                            setTab(1)
+                                            setTab(1);
+                                            filter ? getMainCategoiesByFilter() : getMainCategoies();
                                         }}>
                                             <div className='statusTabtext'>Dashboard</div>
                                         </div>
@@ -841,13 +903,19 @@ function ExpenseDashboard() {
                                             <div className='statusTabtext'>Add Expenses</div>
                                         </div>
                                         <div className={`flex col-span-3 justify-center ${tab === 4 || tab === '4' ? 'products' : 'productTab'}`} onClick={() => {
-                                            setTab(4); setPage(0); setRowsPerPage(5); getData();
+                                            setTab(4); setState([
+                                                {
+                                                    startDate: new Date(),
+                                                    endDate: new Date(),
+                                                    key: 'selection'
+                                                }
+                                            ]); setPage(0); setFilter(false); setRowsPerPage(5); getData();
                                         }}>
                                             <div className='statusTabtext'>Category Table</div>
                                         </div>
                                     </div>
                                 </div>
-                                <div className='col-span-4 col-start-9 flex justify-end pr-4'>
+                                {/* <div className='col-span-4 col-start-9 flex justify-end pr-4'>
                                     <div className='dateRange text-center self-center' aria-describedby={id} onClick={handleClick}>
                                         <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
                                     </div>
@@ -898,7 +966,7 @@ function ExpenseDashboard() {
                                             </div>
                                         </Box>
                                     </Popover>
-                                </div>
+                                </div> */}
                             </div>
                         </div>
                     </div>
@@ -909,7 +977,7 @@ function ExpenseDashboard() {
                 <div className="cardWrp">
                     <div className="grid lg:grid-cols-3 mobile:grid-cols-2 tablet1:grid-cols-3 tablet:grid-cols-4 laptop:grid-cols-4 desktop1:grid-cols-4 desktop2:grid-cols-4 desktop2:grid-cols-4 gap-6">
                         {dashboardCategory ? dashboardCategory.map((data, index) => (
-                            <CategoryCard goToAddUSer={goToProductList} expense={data.expenseAmt} name={data.categoryName} imgName={data.categoryIconName} />
+                            <CategoryCard goToAddUSer={navigateToDetail} data={data} expense={data.expenseAmt} name={data.categoryName} imgName={data.categoryIconName} />
                         )) : null}
                         {/* <CategoryCard goToAddUSer={goToProductList} name={"Home"} imgName={'img11'} />
                         <CategoryCard goToAddUSer={goToStaff} name={"Restaurant"} imgName={'img11'} />
@@ -1219,7 +1287,7 @@ function ExpenseDashboard() {
                     <div className='col-span-12 tableCardMargin'>
                         <div className='userTableSubContainer pt-4'>
                             <div className='grid grid-cols-12'>
-                                <div className='ml-4 col-span-6' >
+                                <div className='ml-4 col-span-6 mt-2' >
                                     <div className='flex'>
                                         <div className='dateRange text-center' aria-describedby={id} onClick={handleClick}>
                                             <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
@@ -1227,7 +1295,9 @@ function ExpenseDashboard() {
                                         <div className='resetBtnWrap col-span-3'>
                                             <button className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`} onClick={() => {
                                                 setFilter(false);
-                                                // getData();
+                                                getData();
+                                                setPage(0);
+                                                setRowsPerPage(5);
                                                 setState([
                                                     {
                                                         startDate: new Date(),
@@ -1270,17 +1340,34 @@ function ExpenseDashboard() {
                                         </Box>
                                     </Popover>
                                 </div>
-                                <div className='col-span-2  pr-5 flex justify-end'>
-                                    <button className='exportExcelBtn' onClick={() => { }
-                                        // excelExportProductWise()
-                                    }><FileDownloadIcon />&nbsp;&nbsp;Product Wise</button>
+                                <div className=' col-span-2  pr-5 flex justify-end'>
+                                    <FormControl fullWidth>
+                                        <InputLabel id="demo-simple-select-label">Income Source</InputLabel>
+                                        <Select
+                                            id="Seah"
+                                            name='incomeSourceFilter'
+                                            value={incomeSourceFilter}
+                                            label="Income Source"
+                                            onChange={(e) => { setIncomeSourceFilter(e.target.value); setPage(0); setRowsPerPage(5); getDataOnIncome(e.target.value) }}
+                                            MenuProps={{
+                                                style: { zIndex: 35001 }
+                                            }}
+                                        >
+                                            <MenuItem value={''}>Clear</MenuItem>
+                                            {
+                                                source?.map((data, index) => (
+                                                    <MenuItem value={data.toId} key={data.toId}>{data.toName}</MenuItem>
+                                                ))
+                                            }
+                                            {/* <MenuItem value={'Debit'}>Debit</MenuItem>
+                                                <MenuItem value={'Credit'}>Credit</MenuItem> */}
+                                        </Select>
+                                    </FormControl>
                                 </div>
-                                <div className='col-span-2 pr-5 flex justify-end'>
-                                    <button className='exportExcelBtn' onClick={() => { }
-                                        // pdfExportCategoryWise()
-                                    }><FileDownloadIcon />&nbsp;&nbsp;Category Wise</button>
+                                <div className='col-span-2 col-start-9 pr-5 mt-2 flex justify-end'>
+                                    <ExportMenu exportExcel={excelExportCategory} exportPdf={pdfExportCategory} />
                                 </div>
-                                <div className='col-span-2 col-start-11 mr-6'>
+                                <div className='col-span-2 col-start-11 mt-2 mr-6'>
                                     <div className='flex justify-end'>
                                         <button className='addCategoryBtn' onClick={handleOpen}>Add Category</button>
                                     </div>
@@ -1294,7 +1381,8 @@ function ExpenseDashboard() {
                                                 <TableCell>No.</TableCell>
                                                 <TableCell>Category Name</TableCell>
                                                 <TableCell align="left">Icon Name</TableCell>
-                                                {/* <TableCell align="right">Percentage</TableCell> */}
+                                                <TableCell align="right">Expense Amount</TableCell>
+                                                <TableCell align="right">Percentage</TableCell>
                                                 <TableCell align="right"></TableCell>
                                                 {/* <TableCell align="right"></TableCell> */}
                                             </TableRow>
@@ -1315,6 +1403,12 @@ function ExpenseDashboard() {
                                                         </TableCell>
                                                         {/* <TableCell align="right" onClick={() => navigateToDetail(row.categoryName, row.categoryId)}>{parseFloat(row.outPrice ? row.outPrice : 0).toLocaleString('en-IN')}</TableCell> */}
                                                         <TableCell align="left" onClick={() => navigateToDetail(row.categoryName, row.categoryId)} >{row.categoryIconName}</TableCell>
+                                                        <TableCell align="right" scope="row" onClick={() => navigateToDetail(row.categoryName, row.categoryId)}>
+                                                            {parseFloat(row.expenseAmt ? row.expenseAmt : 0).toLocaleString('en-IN')}
+                                                        </TableCell>
+                                                        <TableCell align="right" scope="row" onClick={() => navigateToDetail(row.categoryName, row.categoryId)}>
+                                                            {row.categoryPercentage}
+                                                        </TableCell>
                                                         <TableCell align="right" ><div className=''><button className='editCategoryBtn mr-6' onClick={() => handleEdit(row.categoryId, row.categoryName, row.categoryIconName)}>Edit</button><button className='deleteCategoryBtn' onClick={() => handleDelete(row.categoryId)}>Delete</button></div></TableCell>
                                                     </TableRow> :
                                                     <TableRow
@@ -1420,8 +1514,17 @@ function ExpenseDashboard() {
                                                 categoryIconName: e.target.value
                                             }))}
                                         >
-                                            <MenuItem key={'cash'} value={'cash'}>{'Cash'}</MenuItem>
-                                            <MenuItem key={'debit'} value={'debit'}>{'Debit'}</MenuItem>
+                                            <MenuItem key={'caterers'} value={'caterers'}>{'caterers'}</MenuItem>
+                                            <MenuItem key={'house'} value={'house'}>{'house'}</MenuItem>
+                                            <MenuItem key={'other1'} value={'other1'}>{'other1'}</MenuItem>
+                                            <MenuItem key={'other2'} value={'other2'}>{'other2'}</MenuItem>
+                                            <MenuItem key={'debt'} value={'debt'}>{'debt'}</MenuItem>
+                                            <MenuItem key={'employee'} value={'employee'}>{'employee'}</MenuItem>
+                                            <MenuItem key={'inventory'} value={'inventory'}>{'inventory'}</MenuItem>
+                                            <MenuItem key={'renovate'} value={'renovate'}>{'renovate'}</MenuItem>
+                                            <MenuItem key={'mistake'} value={'mistake'}>{'mistake'}</MenuItem>
+                                            <MenuItem key={'restaurant'} value={'restaurant'}>{'restaurant'}</MenuItem>
+                                            <MenuItem key={'tag'} value={'tag'}>{'tag'}</MenuItem>
                                         </Select>
                                     </FormControl>
                                 </div>

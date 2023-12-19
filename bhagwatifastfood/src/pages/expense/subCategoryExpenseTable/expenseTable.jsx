@@ -50,7 +50,7 @@ import dayjs from 'dayjs';
 import ExpenseMenu from "./menu/menuExpense";
 import { useParams } from 'react-router-dom';
 import ExportMenu from '../exportMenu/exportMenu';
-
+import CountCard from '../countCard/countCard';
 const style = {
     position: 'absolute',
     top: '50%',
@@ -70,7 +70,25 @@ function ExpenseTableSubCategory() {
     const { categoryName, categoryId, subCategoryId, subCategoryName } = useParams()
     const [tab, setTab] = React.useState(1);
     const [expanded, setExpanded] = React.useState(false);
-
+    const [statisticsCount, setStatisticsCounts] = useState();
+    const [cardColor, setCardColor] = useState([
+        {
+            color: 'black',
+            desc: '1'
+        },
+        {
+            color: 'pink',
+            desc: '2'
+        },
+        {
+            color: 'blue',
+            desc: '3'
+        },
+        {
+            color: 'blue',
+            desc: '4'
+        },
+    ]);
     const [isEdit, setIsEdit] = React.useState(false);
     const [formData, setFormData] = useState({
         moneySourceId: '',
@@ -211,6 +229,7 @@ function ExpenseTableSubCategory() {
             .then((res) => {
                 setSuccess(true)
                 setPage(0);
+                filter ? getStatisticsByFilter() : getStatistics();
                 setRowsPerPage(5);
                 getExpenseData();
             })
@@ -227,7 +246,35 @@ function ExpenseTableSubCategory() {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
+    const getStatistics = async () => {
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getStaticsForSubCategoryById?subCategoryId=${subCategoryId}&moneySourceId=${incomeSourceFilter}`, config)
+            .then((res) => {
+                setStatisticsCounts(res.data);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getStatisticsByIncome = async (id) => {
+        await axios.get(filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/getStaticsForSubCategoryById?startDate=${state[0].startDate}&endDate=${state[0].endDate}&subCategoryId=${subCategoryId}&moneySourceId=${id}` : `${BACKEND_BASE_URL}expenseAndBankrouter/getStaticsForSubCategoryById?subCategoryId=${subCategoryId}&moneySourceId=${id}`, config)
+            .then((res) => {
+                setStatisticsCounts(res.data);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getStatisticsByFilter = async () => {
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getStaticsForSubCategoryById?subCategoryId=${subCategoryId}&startDate=${state[0].startDate}&endDate=${state[0].endDate}&moneySourceId=${incomeSourceFilter}`, config)
+            .then((res) => {
+                setStatisticsCounts(res.data);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
     useEffect(() => {
+        getStatistics();
         getSourceDDL();
         getExpenseData();
     }, [])
@@ -358,6 +405,7 @@ function ExpenseTableSubCategory() {
                 resetAddExpense();
                 setPage(0);
                 setRowsPerPage(5)
+                filter ? getStatisticsByFilter() : getStatistics();
                 getExpenseData();
                 setExpanded(false);
                 focus();
@@ -506,6 +554,26 @@ function ExpenseTableSubCategory() {
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div className='grid gap-4 mt-6 pl-8 pr-8'>
+                <div className='grid grid-cols-12 gap-6'>
+                    {statisticsCount ? statisticsCount?.map((data, index) => (
+                        <div className='col-span-3'>
+                            <CountCard color={cardColor[index].color} count={data && data.expenseAmt ? data.expenseAmt : 0} desc={cardColor[index].desc} label={data && data.label ? data.label : ''} productDetail={true} unitDesc={0} />
+                        </div>
+                    )) : <></>
+                    }
+
+                    {/* <div className='col-span-3'>
+                        <CountCard color={'pink'} count={statisticsCount && statisticsCount[index].totalRs ? statisticsCount[index].totalRs : 0} desc={'Total Cost'} productDetail={true} unitDesc={0} />
+                    </div>
+                    <div className='col-span-3'>
+                        <CountCard color={'blue'} count={statisticsCount && statisticsCount[index].totalUsed ? statisticsCount[index].totalUsed : 0} desc={'Total Used'} productDetail={true} unitDesc={0} />
+                    </div>
+                    <div className='col-span-3'>
+                        <CountCard color={'blue'} count={statisticsCount && statisticsCount[index].totalUsedPrice ? statisticsCount[index].totalUsedPrice : 0} desc={'Used Value'} productDetail={true} unitDesc={0} />
+                    </div> */}
                 </div>
             </div>
             <div className="grid grid-cols-12 productListContainer">
@@ -685,7 +753,7 @@ function ExpenseTableSubCategory() {
                         <div className='col-span-12'>
                             <div className='userTableSubContainer pt-4'>
                                 <div className='grid grid-cols-12'>
-                                    <div className='ml-4 col-span-6' >
+                                    <div className='ml-4 col-span-6 mt-2' >
                                         <div className='flex'>
                                             <div className='dateRange text-center' aria-describedby={id} onClick={handleClick}>
                                                 <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
@@ -694,6 +762,7 @@ function ExpenseTableSubCategory() {
                                                 <button className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`} onClick={() => {
                                                     setFilter(false);
                                                     // getData();
+                                                    getStatistics();
                                                     setPage(0);
                                                     setRowsPerPage(5)
                                                     getExpenseData()
@@ -730,7 +799,7 @@ function ExpenseTableSubCategory() {
                                                 <div className='mt-8 grid gap-4 grid-cols-12'>
                                                     <div className='col-span-3 col-start-7'>
                                                         <button className='stockInBtn' onClick={() => {
-                                                            getExpenseDataByFilter(); setFilter(true); setPage(0); setRowsPerPage(5); handleClose()
+                                                            getExpenseDataByFilter(); setFilter(true); setPage(0); setRowsPerPage(5); handleClose(); getStatisticsByFilter();
                                                         }
                                                         }>Apply</button>
                                                     </div>
@@ -749,7 +818,7 @@ function ExpenseTableSubCategory() {
                                                 name='incomeSourceFilter'
                                                 value={incomeSourceFilter}
                                                 label="Income Source"
-                                                onChange={(e) => { setIncomeSourceFilter(e.target.value); setPage(0); setRowsPerPage(5); getExpenseDataByIncomeSource(e.target.value) }}
+                                                onChange={(e) => { setIncomeSourceFilter(e.target.value); setPage(0); setRowsPerPage(5); getExpenseDataByIncomeSource(e.target.value); getStatisticsByIncome(e.target.value) }}
                                                 MenuProps={{
                                                     style: { zIndex: 35001 }
                                                 }}
@@ -765,7 +834,7 @@ function ExpenseTableSubCategory() {
                                             </Select>
                                         </FormControl>
                                     </div>
-                                    <div className='col-start-10 col-span-2  pr-5 flex justify-end'>
+                                    <div className='col-start-11 mt-2 col-span-2  pr-5 flex justify-end'>
                                         <ExportMenu exportExcel={excelExport} exportPdf={pdfExport} />
                                     </div>
                                 </div>

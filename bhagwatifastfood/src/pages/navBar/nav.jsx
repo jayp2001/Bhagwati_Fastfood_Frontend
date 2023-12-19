@@ -115,7 +115,7 @@ function NavBar() {
             onKeyDown={toggleDrawer(anchor, false)}
         >
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', backgroundColor: '#333', color: '#fff' }}>
-                <div style={{ fontSize: 35 }}><InventoryIcon fontSize='large' />&nbsp;&nbsp;{role == 6 ? 'Manager' : location.pathname.split('/')[1] == 'staff' ? 'Employes' : 'Inventory'}</div>
+                <div style={{ fontSize: 35 }}><InventoryIcon fontSize='large' />&nbsp;&nbsp;{role == 6 ? 'Manager' : location.pathname.split('/')[1] == 'staff' ? 'Employes' : location.pathname.split('/')[1] == 'expense' ? 'Expense' : location.pathname.split('/')[1] == 'bank' ? 'Banks' : location.pathname.split('/')[1] == 'businessReport' ? 'Business' : 'Inventory'}</div>
                 <Button onClick={toggleDrawer(anchor, false)} color="inherit">
                     <ArrowBackIcon fontSize='small' />
                 </Button>

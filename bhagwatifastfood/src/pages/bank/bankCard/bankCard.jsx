@@ -52,7 +52,7 @@ function BankCard(props) {
                     <div className='statacticsDisplayHeader'>
                         Available Balance
                     </div>
-                    <div className='statacticsDisplayDisplay'>
+                    <div className={`statacticsDisplayDisplay ${props.data.availableBalance ? props.data.availableBalance < 0 ? 'redText' : props.data.availableBalance > 0 ? 'greenText' : '' : ''}`} >
                         {parseFloat(props.data.availableBalance).toLocaleString('en-IN')}
                     </div>
                 </div>
@@ -60,7 +60,7 @@ function BankCard(props) {
             <div className='consoleName'>
                 {props.name}
             </div>
-        </div>
+        </div >
     )
 }
 

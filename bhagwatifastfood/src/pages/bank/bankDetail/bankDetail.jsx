@@ -385,7 +385,7 @@ function BankDetail() {
                 setSuccess(true)
                 setPage(0);
                 setRowsPerPage(5);
-                getStatistics()
+                filter ? getStatisticsByFilter() : getStatistics()
                 console.log('>>>', id)
                 getTransactionData();
             })
@@ -405,6 +405,7 @@ function BankDetail() {
                     setSuccess(true)
                     setPage(0);
                     setRowsPerPage(5);
+                    filter ? getStatisticsByFilter() : getStatistics()
                     getTransactionData();
                 })
                 .catch((error) => {
@@ -838,7 +839,7 @@ function BankDetail() {
                                                 </Tooltip>
                                                 <TableCell align="left" >{row.fromId}</TableCell>
                                                 <TableCell align="left" >{row.toId}</TableCell>
-                                                <TableCell align="center" >₹ {parseFloat(row.amount ? row.amount : 0).toLocaleString('en-IN')}</TableCell>
+                                                <TableCell align="center" className={row.transactionType == 'CREDIT' ? 'greenText' : 'redText'} >₹ {parseFloat(row.amount ? row.amount : 0).toLocaleString('en-IN')}</TableCell>
                                                 <Tooltip title={row.comment} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.comment}</div></TableCell></Tooltip>
                                                 <TableCell align="left" >{row.displayTransactionDate}</TableCell>
                                                 <TableCell align="left" >{row.displayTransactionDateTime}</TableCell>

@@ -52,6 +52,7 @@ import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import Collapse from '@mui/material/Collapse';
 import Tune from '@mui/icons-material/Tune';
+import ExportMenu from '../bank/exportMenu/exportMenu.jsx';
 
 
 const style = {
@@ -161,7 +162,7 @@ function BusinessReport() {
         })
         setFormDataOther((perv) => ({
             ...perv,
-            reportDate: dayjs(state[0].startDate),
+            reportDate: state[0].startDate.toDateString() == state[0].startDate.toDateString() ? dayjs().hour() < 4 ? dayjs().subtract(1, 'day') : dayjs() : dayjs(state[0].startDate),
         }))
     }
     const addReport = async () => {
@@ -186,6 +187,7 @@ function BusinessReport() {
                     setRowsPerPage(5);
                     setFilter(false);
                     setLoading(false);
+                    filter ? getReportByFilter() : getReport()
                     resetReport();
                     setTab(1)
                 })
@@ -222,6 +224,7 @@ function BusinessReport() {
                     setRowsPerPage(5);
                     setFilter(false);
                     setLoading(false);
+                    filter ? getReportByFilter() : getReport();
                     resetReport();
                     setTab(1)
                 })
@@ -341,7 +344,8 @@ function BusinessReport() {
             await axios.delete(`${BACKEND_BASE_URL}expenseAndBankrouter/removeBusinessReport?brDate=${date}`, config)
                 .then((res) => {
                     setLoading(false);
-                    setSuccess(true)
+                    setSuccess(true);
+                    filter ? getReportByFilter() : getReport()
                 })
                 .catch((error) => {
                     setError(error.response ? error.response.data : "Network Error ...!!!")
@@ -401,6 +405,56 @@ function BusinessReport() {
             .catch((error) => {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
             })
+    }
+    const excelExport = async () => {
+        if (window.confirm('Are you sure you want to export Excel ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/exportExcelForBusinessReport?startDate=${state[0].startDate}&endDate=${state[0].endDate}`
+                    : `${BACKEND_BASE_URL}expenseAndBankrouter/exportExcelForBusinessReport`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = 'Report_' + new Date().toLocaleDateString() + '.xlsx'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+    const pdfExport = async () => {
+        if (window.confirm('Are you sure you want to export Pdf ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/exportPdfForBusinessReport?startDate=${state[0].startDate}&endDate=${state[0].endDate}`
+                    : `${BACKEND_BASE_URL}expenseAndBankrouter/exportPdfForBusinessReport`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = 'Report_' + new Date().toLocaleDateString() + '.pdf'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
     }
     const getData = async () => {
         console.log("page get", page, rowsPerPage)
@@ -562,7 +616,7 @@ function BusinessReport() {
                                                 <div className={`flex col-span-3 justify-center ${tab === 1 || tab === '1' || !tab ? 'productTabAll' : 'productTab'}`}
                                                     onClick={() => {
                                                         setTab(1);
-                                                        getReport();
+                                                        filter ? getReportByFilter() : getReport();
                                                     }} >
                                                     <div className='statusTabtext'>{isEdit ? 'Edit Report' : 'Business Report'}</div>
                                                 </div>
@@ -666,6 +720,9 @@ function BusinessReport() {
                                     !isEdit ?
                                         <>
                                             <div className='grid grid-cols-12 mb-5 gap-6 pr-4'>
+                                                <div className='col-span-2 mt-3 flex justify-end'>
+                                                    <ExportMenu exportExcel={excelExport} exportPdf={pdfExport} />
+                                                </div>
                                                 <div className='mt-3 col-start-9 col-span-2'>
                                                     <button className='editBtnReport' onClick={() => {
                                                         handleEditReport();
@@ -673,16 +730,23 @@ function BusinessReport() {
                                                 </div>
                                                 <div className='mt-3 col-span-2'>
                                                     <button className='deleteBtnReport' onClick={() => {
-                                                        deleteReport(state[0].startDate);
+                                                        deleteReport(filter ? state[0].startDate : dayjs());
                                                     }}><DeleteOutlineIcon /> Delete</button>
                                                 </div>
                                             </div>
                                             <hr />
                                         </> : <></> :
                                 tab == 1 ?
-                                    <div className='grid grid-cols-12 gap-6 pr-4'>
-                                        <div className='mt-3 incomeSourceHeader col-span-6' >Data for Date Range : {state[0].startDate.toDateString() + ' to ' + state[0].endDate.toDateString()} </div>
-                                    </div> : <></>
+                                    <>
+                                        <div className='grid grid-cols-12 gap-6 pr-4 mb-5'>
+                                            <div className='mt-3 incomeSourceHeader col-span-6' >Data for Date Range : {state[0].startDate.toDateString() + ' to ' + state[0].endDate.toDateString()} </div>
+                                            <div className='col-span-2 col-start-11 mt-3 flex justify-end'>
+                                                <ExportMenu exportExcel={excelExport} exportPdf={pdfExport} />
+                                            </div>
+                                        </div>
+                                        <hr />
+                                    </>
+                                    : <></>
                             }
                             <div className='grid grid-cols-12 gap-6 pr-4'>
                                 <div className='mt-3 incomeSourceHeader col-span-4'>Income Source </div>
@@ -721,6 +785,18 @@ function BusinessReport() {
                                                 </div>
                                             </div>
                                         ))
+                                    }
+                                    {((tab === 1 && tab === '1') || !isEdit) &&
+                                        <div className={`grid grid-cols-12 gap-3 soureceHeader mt-8`}>
+                                            <div className='col-span-5 mt-2 suppilerDetailFeildHeader'>
+                                                Mistake Income:
+                                            </div>
+                                            <div className='col-span-7'>
+                                                <div className='amountDisplay mt-2'>
+                                                    <CurrencyRupeeIcon /> {parseFloat(formDataOther.mistakeCredit ? formDataOther.mistakeCredit : 0).toLocaleString('en-IN')}
+                                                </div>
+                                            </div>
+                                        </div>
                                     }
                                 </div>
                                 <div className='mt-3 col-span-4 addIncomeContainer'>
@@ -1063,7 +1139,7 @@ function BusinessReport() {
                                                                 </TableCell>
                                                                 <TableCell align="right" >{parseFloat(row.expenseAmt ? row.expenseAmt : 0).toLocaleString('en-IN')}</TableCell>
                                                                 <TableCell align="right" >{row.businessType}</TableCell>
-                                                                <TableCell align="right" ><div className=''><button className='editCategoryBtn mr-6' onClick={() => handleEdit(row.businessCategoryId, row.businessName, row.businessType)}>Edit</button><button className='deleteCategoryBtn' onClick={() => handleDelete(row.subCategoryId)}>Delete</button></div></TableCell>
+                                                                <TableCell align="right" ><div className=''><button className='editCategoryBtn mr-6' onClick={() => handleEdit(row.businessCategoryId, row.businessName, row.businessType)}>Edit</button><button className='deleteCategoryBtn' onClick={() => handleDelete(row.businessCategoryId)}>Delete</button></div></TableCell>
                                                                 <TableCell align="right">
                                                                 </TableCell>
                                                             </TableRow> :

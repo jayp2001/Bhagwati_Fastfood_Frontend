@@ -117,3 +117,12 @@
     height: 50px;
     border-radius: 10px;
 }
+
+.redText{
+    color: red !important;
+    font-weight: 600 !important;
+}
+.greenText{
+    font-weight: 600 !important;
+    color: green !important;
+}
