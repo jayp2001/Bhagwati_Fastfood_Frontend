@@ -1021,14 +1021,13 @@ function BankDashboard() {
                     </div>
                 </div>
             </div>
-
             {
                 (tab === 1 || tab === '1') &&
                 <div className="cardWrp">
-                    <div className="grid lg:grid-cols-3 mobile:grid-cols-2 tablet1:grid-cols-3 tablet:grid-cols-4 laptop:grid-cols-4 desktop1:grid-cols-4 desktop2:grid-cols-4 desktop2:grid-cols-4 gap-6">
+                    <div className="grid lg:grid-cols-3 mobile:grid-cols-1 tablet1:grid-cols-2 tablet:grid-cols-3 laptop:grid-cols-4 desktop1:grid-cols-4 desktop2:grid-cols-5 desktop2:grid-cols-5 gap-6">
                         {
                             banks && banks.map((data, index) => (
-                                <BankCard goToAddUSer={goToBank} data={data} name={data.bankDisplayName} imgName={data.bankIconName} />
+                                <BankCard goToBank={gotToBankDetail} data={data} name={data.bankDisplayName} imgName={data.bankIconName} />
                             ))
                         }
                         {/* <ConsoleCard goToAddUSer={goToAddUSer} name={"Add User"} imgName={'userAdd'} />
@@ -1653,8 +1652,17 @@ function BankDashboard() {
                                                 bankIconName: e.target.value
                                             }))}
                                         >
-                                            <MenuItem key={'cash'} value={'cash'}>{'Cash'}</MenuItem>
-                                            <MenuItem key={'debit'} value={'debit'}>{'Debit'}</MenuItem>
+                                            <MenuItem key={'Wallet'} value={'Wallet'}>{'Wallet'}</MenuItem>
+                                            <MenuItem key={'HomeBank'} value={'HomeBank'}>{'Home Bank'}</MenuItem>
+                                            <MenuItem key={'BOB'} value={'BOB'}>{'Bank Of Baroda'}</MenuItem>
+                                            <MenuItem key={'Centrel'} value={'Centrel'}>{'Centrel Bank'}</MenuItem>
+                                            <MenuItem key={'Dena'} value={'Dena'}>{'Dena Bank'}</MenuItem>
+                                            <MenuItem key={'SBI'} value={'SBI'}>{'State Bank Of India'}</MenuItem>
+                                            <MenuItem key={'HDFC'} value={'HDFC'}>{'HDFC Bank'}</MenuItem>
+                                            <MenuItem key={'ICICI'} value={'ICICI'}>{'ICICI Bank'}</MenuItem>
+                                            <MenuItem key={'Nagrik'} value={'Nagrik'}>{'Nagrik Bank'}</MenuItem>
+                                            <MenuItem key={'POST'} value={'POST'}>{'POST Bank'}</MenuItem>
+                                            <MenuItem key={'Other'} value={'Other'}>{'Other Bank'}</MenuItem>
                                         </Select>
                                     </FormControl>
                                 </div>

@@ -1,24 +1,45 @@
 import './bankCard.css'
 import deliveryBoyLogo from '../../../assets/deliveryBoy.svg'
 import bhagwatiLogo from '../../../assets/bhagwatiLogo.png';
-import img11 from '../../../assets/img11.png';
-import userAdd from '../../../assets/userAdd.png';
-import staff from '../../../assets/staff2.png';
-import expense from '../../../assets/expense.png';
-import userList from '../../../assets/userList.png';
+import BOB from '../../../assets/bank/BOBBANK.png';
+import CentralBank from '../../../assets/bank/CENTRALBANK.png';
+import DenaBank from '../../../assets/bank/DENABANK.webp';
+import HDFCBank from '../../../assets/bank/HDFCBANK.png';
+import ICICIBank from '../../../assets/bank/ICICIBANK.jpg';
+import NagrikBank from '../../../assets/bank/NAGRIKBANK.jpg';
+import PostBank from '../../../assets/bank/POSTBANK.jpg';
+import SBI from '../../../assets/bank/SBIBANK.png';
+import Wallet from '../../../assets/bank/piggy-bank.png';
+import HomeBank from '../../../assets/bank/HOMEBANK.png';
+import OtherBank from '../../../assets/bank/OtherBank.png';
+
 function BankCard(props) {
     const getImg = (imgname) => {
         switch (imgname) {
-            case 'img11':
-                return img11;
-            case 'staff':
-                return staff;
-            case 'expense':
-                return expense;
-            case 'userList':
-                return userList;
+            case 'BOB':
+                return BOB;
+            case 'Centrel':
+                return CentralBank;
+            case 'Dena':
+                return DenaBank;
+            case 'HDFC':
+                return HDFCBank;
+            case 'ICICI':
+                return ICICIBank;
+            case 'Nagrik':
+                return NagrikBank;
+            case 'POST':
+                return PostBank;
+            case 'SBI':
+                return SBI;
+            case 'HomeBank':
+                return HomeBank;
+            case 'Wallet':
+                return Wallet;
+            case 'Other':
+                return OtherBank;
             default:
-                return userAdd;
+                return OtherBank;
         }
     }
     return (
