@@ -56,7 +56,7 @@ function NavBar() {
     const config = {
         headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${userInfo.token}`,
+            Authorization: `Bearer ${userInfo && userInfo.token ? userInfo.token : ''}`,
         },
     };
     const [banks, setBanks] = React.useState();
