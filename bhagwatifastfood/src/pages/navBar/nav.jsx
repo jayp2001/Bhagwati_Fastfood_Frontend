@@ -315,19 +315,19 @@ function NavBar() {
                                             </ListItem>
                                                 {location.pathname.split('/').length == 8 ?
                                                     <ListItem key={'common'}>
-                                                        <ListItemButton to={`/expense/mainCategory/${location.pathname.split('/')[3]}/expenses/${location.pathname.split('/')[6]}`}>
+                                                        <ListItemButton to={`/expense/mainCategory/${location.pathname.split('/')[3].replace(/20|%20/g, ' ')}/expenses/${location.pathname.split('/')[6]}`}>
                                                             <ListItemIcon>
                                                                 <AllInboxIcon />
                                                             </ListItemIcon>
-                                                            <ListItemText primary={`${location.pathname.split('/')[3] + ' ' + 'Expense'}`} />
+                                                            <ListItemText primary={`${location.pathname.split('/')[3].replace(/20|%20/g, ' ') + ' ' + 'Expense'}`} />
                                                         </ListItemButton>
                                                     </ListItem> :
                                                     <ListItem key={'common'}>
-                                                        <ListItemButton to={`/expense/mainCategory/${location.pathname.split('/')[3]}/expenses/${location.pathname.split('/')[4]}`}>
+                                                        <ListItemButton to={`/expense/mainCategory/${location.pathname.split('/')[3].replace(/20|%20/g, ' ')}/expenses/${location.pathname.split('/')[4]}`}>
                                                             <ListItemIcon>
                                                                 <AllInboxIcon />
                                                             </ListItemIcon>
-                                                            <ListItemText primary={`${location.pathname.split('/')[3] + ' ' + 'Expense'}`} />
+                                                            <ListItemText primary={`${location.pathname.split('/')[3].replace(/20|%20/g, ' ') + ' ' + 'Expense'}`} />
                                                         </ListItemButton>
                                                     </ListItem>
                                                 }
