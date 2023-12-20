@@ -12,6 +12,7 @@ import SBI from '../../../assets/bank/SBIBANK.png';
 import Wallet from '../../../assets/bank/piggy-bank.png';
 import HomeBank from '../../../assets/bank/HOMEBANK.png';
 import OtherBank from '../../../assets/bank/OtherBank.png';
+import caterers from '../../../assets/bank/caterers.png';
 
 function BankCard(props) {
     const getImg = (imgname) => {
@@ -38,6 +39,8 @@ function BankCard(props) {
                 return Wallet;
             case 'Other':
                 return OtherBank;
+            case 'caterers':
+                return caterers;
             default:
                 return OtherBank;
         }

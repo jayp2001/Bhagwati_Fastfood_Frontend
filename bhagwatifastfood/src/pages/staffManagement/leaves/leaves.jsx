@@ -889,6 +889,7 @@ function Leaves() {
                                                                 {row.employeeName}
                                                             </TableCell>
                                                         </Tooltip>
+                                                        <TableCell align="left" >{row.employeeCategory} Day</TableCell>
                                                         <TableCell align="left" >{row.numLeave} Day</TableCell>
                                                         <Tooltip title={row.leaveReason} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.leaveReason}</div></TableCell></Tooltip>
                                                         <TableCell align="left" >{row.leaveDate}</TableCell>
@@ -1051,8 +1052,8 @@ function Leaves() {
                                     format="DD/MM/YYYY"
                                     required
                                     disabled={addLeaveFormData.employeeId == '' || !addLeaveFormData.employeeId}
-                                    maxDate={dayjs(addLeaveFormData.maxDate)}
-                                    minDate={dayjs(addLeaveFormData.minDate)}
+                                    // maxDate={dayjs(addLeaveFormData.maxDate)}
+                                    // minDate={dayjs(addLeaveFormData.minDate)}
                                     error={addLeaveFormDataError.leaveDate}
                                     value={dayjs(addLeaveFormData.leaveDate)}
                                     onChange={handleLeaveDate}

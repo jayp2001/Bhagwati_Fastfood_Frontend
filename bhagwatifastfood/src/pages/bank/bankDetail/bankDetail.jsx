@@ -661,16 +661,18 @@ function BankDetail() {
                             <div className='col-span-3'>
                                 <CountCard color={'black'} count={statisticsCount && statisticsCount.availableBalance ? statisticsCount.availableBalance : 0} desc={'Available Balance'} />
                             </div>
+
                             <div className='col-span-3'>
-                                <CountCard color={'pink'} count={statisticsCount && statisticsCount.creditAmt ? statisticsCount.creditAmt : 0} desc={'Credit Amount'} />
+                                <CountCard color={'green'} count={statisticsCount && statisticsCount.creditAmt ? statisticsCount.creditAmt : 0} desc={'Credit Amount'} />
                             </div>
                         </div>
                         <div className='grid grid-cols-6 gap-6'>
                             <div className='col-span-3'>
-                                <CountCard color={'blue'} count={statisticsCount && statisticsCount.debitAmt ? statisticsCount.debitAmt : 0} desc={'Debit Amount'} />
-                            </div>
-                            <div className='col-span-3'>
                                 <CountCard color={'orange'} count={statisticsCount && statisticsCount.expenseAmt ? statisticsCount.expenseAmt : 0} desc={'Expense Amount'} />
+                            </div>
+
+                            <div className='col-span-3'>
+                                <CountCard color={'pink'} count={statisticsCount && statisticsCount.debitAmt ? statisticsCount.debitAmt : 0} desc={'Debit Amount'} />
                             </div>
                         </div>
                         {/* <div className='grid grid-cols-6 gap-6'>

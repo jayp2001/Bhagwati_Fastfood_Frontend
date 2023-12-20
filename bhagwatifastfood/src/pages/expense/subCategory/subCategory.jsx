@@ -143,7 +143,7 @@ function SubCategoryTable() {
             })
     }
     const handleReset = () => {
-        setCategory('');
+        setCategory({ categoryId: categoryId });
         setCategoryError(false);
         setEditCategory({
             subCategoryName: '',

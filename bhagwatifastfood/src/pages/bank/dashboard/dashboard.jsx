@@ -64,6 +64,20 @@ const style = {
     paddingBottom: '20px',
     borderRadius: '10px'
 };
+const styleIncome = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 600,
+    bgcolor: 'background.paper',
+    boxShadow: 24,
+    paddingLeft: '20px',
+    paddingRight: '20px',
+    paddingTop: '15px',
+    paddingBottom: '20px',
+    borderRadius: '10px'
+};
 function BankDashboard() {
     const regex = /^[0-9\b]+$/;
     const emailRegx = /^[a-zA-Z0-9_\.\+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-\.]+$/;
@@ -1749,10 +1763,11 @@ function BankDashboard() {
                                             <MenuItem key={'Nagrik'} value={'Nagrik'}>{'Nagrik Bank'}</MenuItem>
                                             <MenuItem key={'POST'} value={'POST'}>{'POST Bank'}</MenuItem>
                                             <MenuItem key={'Other'} value={'Other'}>{'Other Bank'}</MenuItem>
+                                            <MenuItem key={'caterers'} value={'caterers'}>{'Caterers'}</MenuItem>
                                         </Select>
                                     </FormControl>
                                 </div>
-                                <div className='col-span-2'>
+                                <div className='col-start-9 col-span-2'>
                                     <button className='addCategorySaveBtn' onClick={() => {
                                         isEdit ? editBankFnc() : submit()
                                     }}>{isEdit ? 'Save' : 'Add'}</button>
@@ -1922,12 +1937,12 @@ function BankDashboard() {
                         aria-labelledby="modal-modal-title"
                         aria-describedby="modal-modal-description"
                     >
-                        <Box sx={style}>
+                        <Box sx={styleIncome}>
                             <Typography id="modal-modal-title" variant="h6" component="h2">
                                 {isEdit ? 'Edit Income Source' : 'Add Income Source'}
                             </Typography>
                             <div className='mt-6 grid grid-cols-12 gap-6'>
-                                <div className='col-span-4'>
+                                <div className='col-span-6'>
                                     <TextField
                                         onBlur={(e) => {
                                             if (e.target.value.length < 2) {
@@ -1961,12 +1976,12 @@ function BankDashboard() {
                                         fullWidth
                                     />
                                 </div>
-                                <div className='col-span-2'>
+                                <div className='col-span-3'>
                                     <button className='addCategorySaveBtn' onClick={() => {
                                         isEdit ? editSourceFnc() : submitSource()
                                     }}>{isEdit ? 'Save' : 'Add'}</button>
                                 </div>
-                                <div className='col-span-2'>
+                                <div className='col-span-3'>
                                     <button className='addCategoryCancleBtn' onClick={() => {
                                         handleCloseModal();
                                         setSourceFormData({

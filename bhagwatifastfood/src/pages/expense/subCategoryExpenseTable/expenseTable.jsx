@@ -77,15 +77,15 @@ function ExpenseTableSubCategory() {
             desc: '1'
         },
         {
-            color: 'pink',
+            color: 'blue',
             desc: '2'
         },
         {
-            color: 'blue',
+            color: 'pink',
             desc: '3'
         },
         {
-            color: 'blue',
+            color: 'orange',
             desc: '4'
         },
     ]);
@@ -232,6 +232,7 @@ function ExpenseTableSubCategory() {
                 filter ? getStatisticsByFilter() : getStatistics();
                 setRowsPerPage(5);
                 getExpenseData();
+                getSourceDDL();
             })
             .catch((error) => {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
@@ -389,6 +390,7 @@ function ExpenseTableSubCategory() {
                 resetAddExpense();
                 setPage(0);
                 setRowsPerPage(5)
+                getSourceDDL();
                 getExpenseData();
                 focus();
             })
@@ -407,6 +409,7 @@ function ExpenseTableSubCategory() {
                 setRowsPerPage(5)
                 filter ? getStatisticsByFilter() : getStatistics();
                 getExpenseData();
+                getSourceDDL();
                 setExpanded(false);
                 focus();
             })
@@ -544,7 +547,7 @@ function ExpenseTableSubCategory() {
                             <div className='h-full grid grid-cols-12'>
                                 <div className='h-full mobile:col-span-10  tablet1:col-span-10  tablet:col-span-7  laptop:col-span-7  desktop1:col-span-7  desktop2:col-span-7  desktop2:col-span-7 '>
                                     <div className='grid grid-cols-12 pl-6 gap-3 h-full'>
-                                        <div className={`flex col-span-6 justify-center ${tab === 1 || tab === '1' ? 'productTabAll' : 'productTab'}`} onClick={() => {
+                                        <div className={`flex col-span-8 justify-center ${tab === 1 || tab === '1' ? 'productTabAll' : 'productTab'}`} onClick={() => {
                                             setTab(1)
                                         }}>
                                             <div className='statusTabtext'>Expenses for {subCategoryName}</div>

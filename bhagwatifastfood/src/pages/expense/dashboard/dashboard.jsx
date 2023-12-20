@@ -238,6 +238,7 @@ function ExpenseDashboard() {
                 setPage(0);
                 setRowsPerPage(5);
                 getExpenseData();
+                getSourceDDL();
             })
             .catch((error) => {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
@@ -266,6 +267,7 @@ function ExpenseDashboard() {
                     transactionDate: false
                 })
                 setIsEdit(true);
+                getSourceDDL();
                 setExpanded(true);
                 setFormData({
                     transactionId: data.transactionId,

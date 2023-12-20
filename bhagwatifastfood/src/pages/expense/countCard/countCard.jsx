@@ -12,17 +12,18 @@ import CardGiftcardOutlinedIcon from '@mui/icons-material/CardGiftcardOutlined';
 import RequestQuoteOutlinedIcon from '@mui/icons-material/RequestQuoteOutlined';
 import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import CreditScoreOutlinedIcon from '@mui/icons-material/CreditScoreOutlined';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 function CountCard(props) {
     const getImg = (imgname) => {
         switch (imgname) {
             case '1':
-                return <AddShoppingCartIcon fontSize='large' />;
+                return <CalendarMonthIcon fontSize='large' />;
             case '2':
-                return <CurrencyExchangeIcon fontSize='large' />;
+                return <CalendarMonthIcon fontSize='large' />;
             case '3':
-                return <ShoppingCartCheckoutIcon fontSize='large' />;
+                return <CalendarMonthIcon fontSize='large' />;
             case '4':
-                return <LocalMallOutlinedIcon fontSize='large' />;
+                return <CalendarMonthIcon fontSize='large' />;
             case 'Last Purchase Price':
                 return <AttachMoneyOutlinedIcon fontSize='large' />;
             case 'Min Product Qty':

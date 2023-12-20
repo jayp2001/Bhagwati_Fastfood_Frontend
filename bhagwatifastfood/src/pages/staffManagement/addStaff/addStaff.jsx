@@ -348,26 +348,34 @@ function AddEditStaff() {
                 setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
+    const goToDetail = (id) => {
+        navigate(`/staff/employeeDetail/${id}`);
+    }
     const editEmployee = async () => {
-        console.log("edit")
-        setLoading(true);
-        console.log(file[0]);
-        var data = {
-            ...formData,
-            files: file
+        if (window.confirm('Are you sure you want to edit...?')) {
+            console.log("edit")
+            setLoading(true);
+            console.log(file[0]);
+            var data = {
+                ...formData,
+                files: file
+            }
+            console.log('data', data)
+            await axios.post(`${BACKEND_BASE_URL}staffrouter/updateEmployeeDetails`, data, config)
+                .then((res) => {
+                    setLoading(false);
+                    setSuccess(true);
+                    reset();
+                    setTimeout(() => {
+                        goToDetail(data.employeeId)
+                    }, 1000)
+                })
+                .catch((error) => {
+                    setLoading(false);
+                    console.log('>>', error)
+                    setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+                })
         }
-        console.log('data', data)
-        await axios.post(`${BACKEND_BASE_URL}staffrouter/updateEmployeeDetails`, data, config)
-            .then((res) => {
-                setLoading(false);
-                setSuccess(true);
-                reset();
-            })
-            .catch((error) => {
-                setLoading(false);
-                console.log('>>', error)
-                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
-            })
     }
     const submit = () => {
         if (loading || success) {

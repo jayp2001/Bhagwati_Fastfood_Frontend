@@ -3424,8 +3424,8 @@ function EmployeeDetails() {
                                 fullWidth
                                 onChange={onChangeLeave}
                                 value={addLeaveFormData.numLeave}
-                                error={addLeaveFormDataError.numLeave || (addLeaveFormData.numLeave > addLeaveFormData.maxLeave)}
-                                helperText={addLeaveFormData.numLeave && addLeaveFormData.numLeave > addLeaveFormData.maxLeave ? `Leaves can not be greater than ${addLeaveFormData.maxLeave}` : addLeaveFormDataError.numLeave ? 'Please enter leave' : `Max Leave is ${addLeaveFormData.maxLeave}`}
+                                error={addLeaveFormDataError.numLeave}
+                                helperText={addLeaveFormDataError.numLeave ? 'Please enter leave' : ''}
                                 name="numLeave"
                             />
                         </div>

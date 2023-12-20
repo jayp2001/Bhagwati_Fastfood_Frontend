@@ -12,6 +12,9 @@ import CardGiftcardOutlinedIcon from '@mui/icons-material/CardGiftcardOutlined';
 import RequestQuoteOutlinedIcon from '@mui/icons-material/RequestQuoteOutlined';
 import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import CreditScoreOutlinedIcon from '@mui/icons-material/CreditScoreOutlined';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
+import BalanceIcon from '@mui/icons-material/Balance';
 function CountCard(props) {
     const getImg = (imgname) => {
         switch (imgname) {
@@ -35,14 +38,14 @@ function CountCard(props) {
                 return <CardGiftcardOutlinedIcon fontSize='large' />;
             case 'Paid Debit':
                 return <CreditScoreOutlinedIcon fontSize='large' />;
-            case 'Total Debit':
-                return <PaymentOutlinedIcon fontSize='large' />;
+            case 'Debit Amount':
+                return <RemoveCircleOutlineIcon fontSize='large' />;
             case 'Paid':
-                return <PriceCheckOutlinedIcon fontSize='large' />;
-            case 'Total Cash':
-                return <RequestQuoteOutlinedIcon fontSize='large' />;
-            case 'Total Product':
-                return <ReceiptLongOutlinedIcon fontSize='large' />;
+                return <RemoveCircleOutlineIcon fontSize='large' />;
+            case 'Credit Amount':
+                return <AddCircleOutlineIcon fontSize='large' />;
+            case 'Available Balance':
+                return <BalanceIcon fontSize='large' />;
             default:
                 return <CurrencyExchangeIcon fontSize='large' />;
         }
