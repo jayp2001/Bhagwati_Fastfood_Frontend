@@ -298,7 +298,7 @@ function ExpenseDashboard() {
             })
     }
     const getDataOnIncome = async (id) => {
-        await axios.get(filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/getMainCategoryList?page=${1}&numPerPage=${5}&startDate=${state[0].startDate}&endDate=${state[0].endDate}&moneySourceId=${incomeSourceFilter}` : `${BACKEND_BASE_URL}expenseAndBankrouter/getMainCategoryList?page=${page + 1}&numPerPage=${rowsPerPage}&moneySourceId=${id}`, config)
+        await axios.get(filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/getMainCategoryList?page=${1}&numPerPage=${5}&startDate=${state[0].startDate}&endDate=${state[0].endDate}&moneySourceId=${id}` : `${BACKEND_BASE_URL}expenseAndBankrouter/getMainCategoryList?page=${page + 1}&numPerPage=${rowsPerPage}&moneySourceId=${id}`, config)
             .then((res) => {
                 setData(res.data.rows);
                 setTotalRows(res.data.numRows);
@@ -917,58 +917,60 @@ function ExpenseDashboard() {
                                         </div>
                                     </div>
                                 </div>
-                                {/* <div className='col-span-4 col-start-9 flex justify-end pr-4'>
-                                    <div className='dateRange text-center self-center' aria-describedby={id} onClick={handleClick}>
-                                        <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
-                                    </div>
-                                    <div className='resetBtnWrap col-span-3 self-center'>
-                                        <button className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`} onClick={() => {
-                                            setFilter(false);
-                                            getMainCategoies();
-                                            setState([
-                                                {
-                                                    startDate: new Date(),
-                                                    endDate: new Date(),
-                                                    key: 'selection'
-                                                }
-                                            ])
-                                        }}><CloseIcon /></button>
-                                    </div>
+                                {(tab === 1 || tab === '1') &&
+                                    <div className='col-span-4 col-start-9 flex justify-end pr-4'>
+                                        <div className='dateRange text-center self-center' aria-describedby={id} onClick={handleClick}>
+                                            <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
+                                        </div>
+                                        <div className='resetBtnWrap col-span-3 self-center'>
+                                            <button className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`} onClick={() => {
+                                                setFilter(false);
+                                                getMainCategoies();
+                                                setState([
+                                                    {
+                                                        startDate: new Date(),
+                                                        endDate: new Date(),
+                                                        key: 'selection'
+                                                    }
+                                                ])
+                                            }}><CloseIcon /></button>
+                                        </div>
 
-                                    <Popover
-                                        id={id}
-                                        open={open}
-                                        style={{ zIndex: 10000, borderRadius: '10px', boxShadow: 'rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem' }}
-                                        anchorEl={anchorEl}
-                                        onClose={handleClose}
-                                        anchorOrigin={{
-                                            vertical: 'bottom',
-                                            horizontal: 'right',
-                                        }}
-                                    >
-                                        <Box sx={{ bgcolor: 'background.paper', padding: '20px', width: 'auto', height: 'auto', borderRadius: '10px' }}>
-                                            <DateRangePicker
-                                                ranges={state}
-                                                onChange={item => { setState([item.selection]); console.log([item.selection]) }}
-                                                direction="horizontal"
-                                                months={2}
-                                                showSelectionPreview={true}
-                                                moveRangeOnFirstSelection={false}
-                                            />
-                                            <div className='mt-8 grid gap-4 grid-cols-12'>
-                                                <div className='col-span-3 col-start-7'>
-                                                    <button className='stockInBtn' onClick={() => {
-                                                        getMainCategoiesByFilter();
-                                                        setFilter(true); handleClose()
-                                                    }}>Apply</button>
+                                        <Popover
+                                            id={id}
+                                            open={open}
+                                            style={{ zIndex: 10000, borderRadius: '10px', boxShadow: 'rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem' }}
+                                            anchorEl={anchorEl}
+                                            onClose={handleClose}
+                                            anchorOrigin={{
+                                                vertical: 'bottom',
+                                                horizontal: 'right',
+                                            }}
+                                        >
+                                            <Box sx={{ bgcolor: 'background.paper', padding: '20px', width: 'auto', height: 'auto', borderRadius: '10px' }}>
+                                                <DateRangePicker
+                                                    ranges={state}
+                                                    onChange={item => { setState([item.selection]); console.log([item.selection]) }}
+                                                    direction="horizontal"
+                                                    months={2}
+                                                    showSelectionPreview={true}
+                                                    moveRangeOnFirstSelection={false}
+                                                />
+                                                <div className='mt-8 grid gap-4 grid-cols-12'>
+                                                    <div className='col-span-3 col-start-7'>
+                                                        <button className='stockInBtn' onClick={() => {
+                                                            getMainCategoiesByFilter();
+                                                            setFilter(true); handleClose()
+                                                        }}>Apply</button>
+                                                    </div>
+                                                    <div className='col-span-3'>
+                                                        <button className='stockOutBtn' onClick={handleClose}>cancle</button>
+                                                    </div>
                                                 </div>
-                                                <div className='col-span-3'>
-                                                    <button className='stockOutBtn' onClick={handleClose}>cancle</button>
-                                                </div>
-                                            </div>
-                                        </Box>
-                                    </Popover>
-                                </div> */}
+                                            </Box>
+                                        </Popover>
+                                    </div>
+                                }
                             </div>
                         </div>
                     </div>
@@ -979,7 +981,7 @@ function ExpenseDashboard() {
                 <div className="cardWrp">
                     <div className="grid lg:grid-cols-3 mobile:grid-cols-2 tablet1:grid-cols-3 tablet:grid-cols-4 laptop:grid-cols-4 desktop1:grid-cols-4 desktop2:grid-cols-4 desktop2:grid-cols-4 gap-6">
                         {dashboardCategory ? dashboardCategory.map((data, index) => (
-                            <CategoryCard goToAddUSer={navigateToDetail} data={data} expense={data.expenseAmt} name={data.categoryName} imgName={data.categoryIconName} />
+                            <CategoryCard goToAddUSer={navigateToDetail} data={data} filter={filter} expense={data.expenseAmt} name={data.categoryName} imgName={data.categoryIconName} />
                         )) : null}
                         {/* <CategoryCard goToAddUSer={goToProductList} name={"Home"} imgName={'img11'} />
                         <CategoryCard goToAddUSer={goToStaff} name={"Restaurant"} imgName={'img11'} />

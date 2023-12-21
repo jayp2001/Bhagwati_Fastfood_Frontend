@@ -47,7 +47,7 @@ function CategoryCard(props) {
                 </div>
                 <div className='statacticsDisplayBlock'>
                     <div className='statacticsDisplayHeader'>
-                        Today's Expense
+                        {props.filter ? "Expense" : "Today's Expense"}
                     </div>
                     <div className='statacticsDisplayDisplay'>
                         {parseFloat(props.expense ? props.expense : 0).toLocaleString('en-IN')}
