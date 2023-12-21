@@ -1233,6 +1233,7 @@ function BusinessReport() {
                                                     <MenuItem value={'CASH'}>CASH</MenuItem>
                                                     <MenuItem value={'DEBIT'}>DEBIT</MenuItem>
                                                     <MenuItem value={'ONLINE'}>ONLINE</MenuItem>
+                                                    <MenuItem value={'DUE'}>DUE</MenuItem>
                                                 </Select>
                                             </FormControl>
                                         </div>
