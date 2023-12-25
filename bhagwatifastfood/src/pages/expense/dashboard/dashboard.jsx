@@ -979,7 +979,7 @@ function ExpenseDashboard() {
             {
                 (tab === 1 || tab === '1') &&
                 <div className="cardWrp">
-                    <div className="grid lg:grid-cols-3 mobile:grid-cols-2 tablet1:grid-cols-3 tablet:grid-cols-4 laptop:grid-cols-4 desktop1:grid-cols-4 desktop2:grid-cols-4 desktop2:grid-cols-4 gap-6">
+                    <div className="grid lg:grid-cols-3 mobile:grid-cols-1 tablet1:grid-cols-2 tablet:grid-cols-2 cardTablet:grid-cols-3 laptop:grid-cols-3 laptopDesk:grid-cols-4 desktop1:grid-cols-4 desktop2:grid-cols-5 desktop2:grid-cols-5 gap-6">
                         {dashboardCategory ? dashboardCategory.map((data, index) => (
                             <CategoryCard goToAddUSer={navigateToDetail} data={data} filter={filter} expense={data.expenseAmt} name={data.categoryName} imgName={data.categoryIconName} />
                         )) : null}

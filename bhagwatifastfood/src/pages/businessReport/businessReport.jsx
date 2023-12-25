@@ -162,7 +162,7 @@ function BusinessReport() {
         })
         setFormDataOther((perv) => ({
             ...perv,
-            reportDate: state[0].startDate.toDateString() == state[0].startDate.toDateString() ? dayjs().hour() < 4 ? dayjs().subtract(1, 'day') : dayjs() : dayjs(state[0].startDate),
+            reportDate: state[0].startDate.toDateString() == state[0].startDate.toDateString() ? dayjs(state[0].startDate) : dayjs().hour() < 4 ? dayjs().subtract(1, 'day') : dayjs(),
         }))
     }
     const addReport = async () => {
@@ -212,17 +212,8 @@ function BusinessReport() {
             await axios.post(`${BACKEND_BASE_URL}expenseAndBankrouter/updateBusinessReport`, finalData, config)
                 .then((res) => {
                     setSuccess(true)
-                    setState([
-                        {
-                            startDate: new Date(),
-                            endDate: new Date(),
-                            key: 'selection'
-                        }
-                    ])
-                    setPage(0);
                     setIsEdit(false)
                     setRowsPerPage(5);
-                    setFilter(false);
                     setLoading(false);
                     filter ? getReportByFilter() : getReport();
                     resetReport();
@@ -616,93 +607,101 @@ function BusinessReport() {
                                                 <div className={`flex col-span-3 justify-center ${tab === 1 || tab === '1' || !tab ? 'productTabAll' : 'productTab'}`}
                                                     onClick={() => {
                                                         setTab(1);
-                                                        filter ? getReportByFilter() : getReport();
+                                                        !isEdit && (filter ? getReportByFilter() : getReport());
                                                     }} >
                                                     <div className='statusTabtext'>{isEdit ? 'Edit Report' : 'Business Report'}</div>
                                                 </div>
                                                 <div className={`flex col-span-3 justify-center ${tab === 2 || tab === '2' ? 'productTabIn' : 'productTab'}`}
                                                     onClick={() => {
-                                                        setTab(2);
-                                                        getIncomeSource();
-                                                        setFormDataOther({
-                                                            openingBalanceAmt: '',
-                                                            openingBalanceComment: "",
-                                                            closingBalance: '',
-                                                            reportDate: dayjs().hour() < 4 ? dayjs().subtract(1, 'day') : dayjs(),
-                                                        })
-                                                        getExpenseList(dayjs().hour() < 4 ? dayjs().subtract(1, 'day') : dayjs())
+                                                        if (!isEdit) {
+                                                            setTab(2);
+                                                            getIncomeSource();
+                                                            setFormDataOther({
+                                                                openingBalanceAmt: '',
+                                                                openingBalanceComment: "",
+                                                                closingBalance: '',
+                                                                reportDate: dayjs().hour() < 4 ? dayjs().subtract(1, 'day') : dayjs(),
+                                                            })
+                                                            getExpenseList(dayjs().hour() < 4 ? dayjs().subtract(1, 'day') : dayjs())
+                                                        }
                                                     }}>
                                                     <div className='statusTabtext'>Add Business Report</div>
                                                 </div>
                                                 <div className={`flex col-span-3 justify-center ${tab === 3 || tab === '3' ? 'tabDebit' : 'productTab'}`}
                                                     onClick={() => {
-                                                        setTab(3);
-                                                        setPage(0);
-                                                        setRowsPerPage(5);
-                                                        filter ? getDataByFilter() : getData()
+                                                        if (!isEdit) {
+                                                            setTab(3);
+                                                            setPage(0);
+                                                            setRowsPerPage(5);
+                                                            filter ? getDataByFilter() : getData();
+                                                        }
                                                     }}>
                                                     <div className='statusTabtext'>Add Income Category</div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div className='col-span-4 flex justify-end pr-4'>
-                                            <div className='dateRange text-center self-center' aria-describedby={ids} onClick={handleClick}>
-                                                <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
-                                            </div>
-                                            <div className='resetBtnWrap col-span-3 self-center'>
-                                                <button
-                                                    className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`}
-                                                    onClick={() => {
-                                                        setFilter(false);
-                                                        setState([
-                                                            {
-                                                                startDate: new Date(),
-                                                                endDate: new Date(),
-                                                                key: 'selection'
+                                        {(tab === 1 || tab === '1') &&
+                                            <div className='col-span-4 flex justify-end pr-4'>
+                                                <div className='dateRange text-center self-center' aria-describedby={ids} onClick={(e) => { if (!isEdit) { handleClick(e) } }}>
+                                                    <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
+                                                </div>
+                                                <div className='resetBtnWrap col-span-3 self-center'>
+                                                    <button
+                                                        className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`}
+                                                        onClick={() => {
+                                                            if (!isEdit) {
+                                                                setFilter(false);
+                                                                setState([
+                                                                    {
+                                                                        startDate: new Date(),
+                                                                        endDate: new Date(),
+                                                                        key: 'selection'
+                                                                    }
+                                                                ]);
+                                                                // setPage(0); setRowsPerPage(5);
+                                                                // getStatistics(id);
+                                                                // getTransactionDataByDateFilterOnReset();
+                                                                (tab === '1' || tab === 1) && getReport();
                                                             }
-                                                        ]);
-                                                        // setPage(0); setRowsPerPage(5);
-                                                        // getStatistics(id);
-                                                        // getTransactionDataByDateFilterOnReset();
-                                                        (tab === '1' || tab === 1) && getReport();
-                                                    }}><CloseIcon /></button>
+                                                        }}><CloseIcon /></button>
+                                                </div>
+                                                <Popover
+                                                    id={ids}
+                                                    open={open}
+                                                    style={{ zIndex: 10000, borderRadius: '10px', boxShadow: 'rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem' }}
+                                                    anchorEl={anchorEl}
+                                                    onClose={handleClose}
+                                                    anchorOrigin={{
+                                                        vertical: 'bottom',
+                                                        horizontal: 'right',
+                                                    }}
+                                                >
+                                                    <Box sx={{ bgcolor: 'background.paper', padding: '20px', width: 'auto', height: 'auto', borderRadius: '10px' }}>
+                                                        <DateRangePicker
+                                                            ranges={state}
+                                                            onChange={item => { setState([item.selection]); console.log([item.selection]) }}
+                                                            direction="horizontal"
+                                                            months={2}
+                                                            showSelectionPreview={true}
+                                                            moveRangeOnFirstSelection={false}
+                                                        />
+                                                        <div className='mt-8 grid gap-4 grid-cols-12'>
+                                                            <div className='col-span-3 col-start-7'>
+                                                                <button className='editBtnReport' onClick={() => {
+                                                                    // setFilter(true); handleClose(); getStatisticsByFilter(); setTabStockIn(''); setPage(0); setRowsPerPage(5); getStockInDataByTabByFilter(''); getProductCountByFilter();
+                                                                    // setFilter(true); handleClose(); setPage(0); setRowsPerPage(5); getTransactionDataByDateFilter(); getStatisticsByFilter(id);
+                                                                    (tab === '1' || tab === 1) && getReportByFilter(); handleClose();
+                                                                    setFilter(true);
+                                                                }}>Apply</button>
+                                                            </div>
+                                                            <div className='col-span-3'>
+                                                                <button className='stockOutBtn' onClick={handleClose}>cancle</button>
+                                                            </div>
+                                                        </div>
+                                                    </Box>
+                                                </Popover>
                                             </div>
-                                            <Popover
-                                                id={ids}
-                                                open={open}
-                                                style={{ zIndex: 10000, borderRadius: '10px', boxShadow: 'rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem' }}
-                                                anchorEl={anchorEl}
-                                                onClose={handleClose}
-                                                anchorOrigin={{
-                                                    vertical: 'bottom',
-                                                    horizontal: 'right',
-                                                }}
-                                            >
-                                                <Box sx={{ bgcolor: 'background.paper', padding: '20px', width: 'auto', height: 'auto', borderRadius: '10px' }}>
-                                                    <DateRangePicker
-                                                        ranges={state}
-                                                        onChange={item => { setState([item.selection]); console.log([item.selection]) }}
-                                                        direction="horizontal"
-                                                        months={2}
-                                                        showSelectionPreview={true}
-                                                        moveRangeOnFirstSelection={false}
-                                                    />
-                                                    <div className='mt-8 grid gap-4 grid-cols-12'>
-                                                        <div className='col-span-3 col-start-7'>
-                                                            <button className='editBtnReport' onClick={() => {
-                                                                // setFilter(true); handleClose(); getStatisticsByFilter(); setTabStockIn(''); setPage(0); setRowsPerPage(5); getStockInDataByTabByFilter(''); getProductCountByFilter();
-                                                                // setFilter(true); handleClose(); setPage(0); setRowsPerPage(5); getTransactionDataByDateFilter(); getStatisticsByFilter(id);
-                                                                (tab === '1' || tab === 1) && getReportByFilter(); handleClose();
-                                                                setFilter(true);
-                                                            }}>Apply</button>
-                                                        </div>
-                                                        <div className='col-span-3'>
-                                                            <button className='stockOutBtn' onClick={handleClose}>cancle</button>
-                                                        </div>
-                                                    </div>
-                                                </Box>
-                                            </Popover>
-                                        </div>
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -844,7 +843,7 @@ function BusinessReport() {
                                                     </div>
                                                 </div>
                                             }
-                                            <div className={`grid grid-cols-12 gap-3 soureceHeader ${(tab === 2 || tab === '2') ? 'mt-8' : ''}`}>
+                                            <div className={`grid grid-cols-12 gap-3 soureceHeader ${(tab === 2 || tab === '2') ? 'mt-8' : (tab === 1 || tab === '1') && isEdit ? 'mt-8' : ''}`}>
                                                 <div className='col-span-5 mt-2 suppilerDetailFeildHeader'>
                                                     Opening Balance :
                                                 </div>
@@ -852,7 +851,7 @@ function BusinessReport() {
                                                     {(tab === 2 || tab === '2') || isEdit ?
                                                         <FormControl fullWidth sx={{ m: 1 }} variant="standard">
                                                             <Input
-                                                                value={formDataOther && formDataOther.openingBalanceAmt ? formDataOther.openingBalanceAmt : null}
+                                                                value={formDataOther && formDataOther.openingBalanceAmt ? formDataOther.openingBalanceAmt : 0}
                                                                 onChange={onChangeOther}
                                                                 name='openingBalanceAmt'
                                                                 InputProps={{ style: { fontSize: 14 } }}
@@ -1117,7 +1116,6 @@ function BusinessReport() {
                                                     <TableRow>
                                                         <TableCell>No.</TableCell>
                                                         <TableCell>Category Name</TableCell>
-                                                        <TableCell align="right">Expense Amount</TableCell>
                                                         <TableCell align="right">Type</TableCell>
                                                         <TableCell align="right"></TableCell>
                                                         <TableCell align="right"></TableCell>
@@ -1137,7 +1135,6 @@ function BusinessReport() {
                                                                 <TableCell component="th" scope="row" >
                                                                     {row.businessName}
                                                                 </TableCell>
-                                                                <TableCell align="right" >{parseFloat(row.expenseAmt ? row.expenseAmt : 0).toLocaleString('en-IN')}</TableCell>
                                                                 <TableCell align="right" >{row.businessType}</TableCell>
                                                                 <TableCell align="right" ><div className=''><button className='editCategoryBtn mr-6' onClick={() => handleEdit(row.businessCategoryId, row.businessName, row.businessType)}>Edit</button><button className='deleteCategoryBtn' onClick={() => handleDelete(row.businessCategoryId)}>Delete</button></div></TableCell>
                                                                 <TableCell align="right">
