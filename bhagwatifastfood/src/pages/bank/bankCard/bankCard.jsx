@@ -13,6 +13,9 @@ import Wallet from '../../../assets/bank/piggy-bank.png';
 import HomeBank from '../../../assets/bank/HOMEBANK.png';
 import OtherBank from '../../../assets/bank/OtherBank.png';
 import caterers from '../../../assets/bank/caterers.png';
+import school from '../../../assets/bank/school.png';
+import spareBalnce from '../../../assets/bank/balanceSheep.png';
+import exchange from '../../../assets/bank/exchange.png';
 
 function BankCard(props) {
     const getImg = (imgname) => {
@@ -35,12 +38,18 @@ function BankCard(props) {
                 return SBI;
             case 'HomeBank':
                 return HomeBank;
-            case 'Wallet':
-                return Wallet;
             case 'Other':
                 return OtherBank;
             case 'caterers':
                 return caterers;
+            case 'School':
+                return school;
+            case 'spareBalnce':
+                return spareBalnce;
+            case 'exchange':
+                return exchange;
+            case 'Wallet':
+                return Wallet;
             default:
                 return OtherBank;
         }

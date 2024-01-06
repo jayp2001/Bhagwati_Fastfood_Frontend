@@ -72,6 +72,7 @@ const style = {
 
 
 function BusinessReport() {
+    const regex = /^-?\d*(?:\.\d*)?$/;
     const [tab, setTab] = React.useState(1);
     const [categoryList, setCategoryList] = React.useState([
     ]);
@@ -162,7 +163,7 @@ function BusinessReport() {
         })
         setFormDataOther((perv) => ({
             ...perv,
-            reportDate: state[0].startDate.toDateString() == state[0].startDate.toDateString() ? dayjs(state[0].startDate) : dayjs().hour() < 4 ? dayjs().subtract(1, 'day') : dayjs(),
+            reportDate: filter && (state[0].startDate.toDateString() == state[0].startDate.toDateString()) ? dayjs(state[0].startDate) : dayjs().hour() < 4 ? dayjs().subtract(1, 'day') : dayjs(),
         }))
     }
     const addReport = async () => {
@@ -765,8 +766,13 @@ function BusinessReport() {
                                                         (tab === 2 || tab === '2') || isEdit ?
                                                             <FormControl fullWidth sx={{ m: 1 }} variant="standard">
                                                                 <Input
-                                                                    value={formData && formData[data.businessCategoryId] ? formData[data.businessCategoryId] : null}
-                                                                    onChange={onChange}
+                                                                    value={formData && formData[data.businessCategoryId] ? formData[data.businessCategoryId] : ''}
+                                                                    onChange={(e) => {
+                                                                        if ((regex.test(e.target.value) || e.target.value === '') && e.target.value.length < 11) {
+                                                                            onChange(e)
+                                                                        }
+                                                                    }}
+                                                                    id={data.businessCategoryId}
                                                                     name={data && data.businessCategoryId ? data.businessCategoryId : ''}
                                                                     InputProps={{ style: { fontSize: 14 } }}
                                                                     InputLabelProps={{ style: { fontSize: 14 } }}
@@ -802,10 +808,10 @@ function BusinessReport() {
                                     {
                                         expenseList?.map((data, index) => (
                                             <div className={`grid grid-cols-12 gap-3 soureceHeader ${index == 0 ? '' : 'mt-8'}`}>
-                                                <div className='col-span-5 mt-2 suppilerDetailFeildHeader'>
+                                                <div className='col-span-6 mt-2 suppilerDetailFeildHeader'>
                                                     {data.categoryName} :
                                                 </div>
-                                                <div className='col-span-7'>
+                                                <div className='col-span-6'>
                                                     <div className='amountDisplay mt-2'>
                                                         <CurrencyRupeeIcon /> {parseFloat(data.expenseAmt ? data.expenseAmt : 0).toLocaleString('en-IN')}
                                                     </div>
@@ -852,7 +858,11 @@ function BusinessReport() {
                                                         <FormControl fullWidth sx={{ m: 1 }} variant="standard">
                                                             <Input
                                                                 value={formDataOther && formDataOther.openingBalanceAmt ? formDataOther.openingBalanceAmt : 0}
-                                                                onChange={onChangeOther}
+                                                                onChange={(e) => {
+                                                                    if ((regex.test(e.target.value) || e.target.value === '') && e.target.value.length < 11) {
+                                                                        onChangeOther(e)
+                                                                    }
+                                                                }}
                                                                 name='openingBalanceAmt'
                                                                 InputProps={{ style: { fontSize: 14 } }}
                                                                 InputLabelProps={{ style: { fontSize: 14 } }}
@@ -958,8 +968,12 @@ function BusinessReport() {
                                                     {(tab === 2 || tab === '2') || isEdit ?
                                                         <FormControl fullWidth sx={{ m: 1 }} variant="standard">
                                                             <Input
-                                                                value={formDataOther && formDataOther.closingBalance ? formDataOther.closingBalance : null}
-                                                                onChange={onChangeOther}
+                                                                value={formDataOther && formDataOther.closingBalance ? formDataOther.closingBalance : ''}
+                                                                onChange={(e) => {
+                                                                    if ((regex.test(e.target.value) || e.target.value === '') && e.target.value.length < 11) {
+                                                                        onChangeOther(e)
+                                                                    }
+                                                                }}
                                                                 name='closingBalance'
                                                                 InputProps={{ style: { fontSize: 14 } }}
                                                                 InputLabelProps={{ style: { fontSize: 14 } }}

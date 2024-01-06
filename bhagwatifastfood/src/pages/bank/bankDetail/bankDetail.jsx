@@ -75,6 +75,7 @@ function BankDetail() {
     const [tab, setTab] = React.useState(1);
     const [statisticsCount, setStatisticsCounts] = useState();
     const [bankList, setBankList] = useState();
+    const [subCategories, setSubCategories] = React.useState();
     const [expenseCategoryList, setExpenseCategoryList] = useState();
     const [filter, setFilter] = React.useState(false);
     const [filterNoDate, setFilterNoDate] = React.useState(false);
@@ -82,12 +83,15 @@ function BankDetail() {
     const [error, setError] = React.useState(false);
     const [success, setSuccess] = React.useState(false);
     const [page, setPage] = React.useState(0);
+    const [categories, setCategories] = React.useState();
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [totalRows, setTotalRows] = React.useState(0);
     const [data, setData] = React.useState();
+    const [isEdit, setIsEdit] = React.useState();
     const [bankDetails, setBankDetails] = React.useState();
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const [anchorEl, setAnchorEl] = React.useState(null);
+    const [openExpense, setOpenExpense] = React.useState(false);
     const [anchorElFilter, setAnchorElFilter] = React.useState(null);
     const [openModal, setOpen] = React.useState(false);
     const config = {
@@ -103,6 +107,13 @@ function BankDetail() {
             key: 'selection'
         }
     ]);
+    const textFieldRef = React.useRef(null);
+    const focus = () => {
+        if (textFieldRef.current) {
+            textFieldRef.current.focus();
+        }
+    };
+    const [source, setSource] = React.useState();
     const open = Boolean(anchorEl);
     const openFilter = Boolean(anchorElFilter);
     const ids = open ? 'simple-popover' : undefined;
@@ -126,9 +137,139 @@ function BankDetail() {
         "transactionDate",
     ])
 
+    const [formDataExpense, setFormDataExpense] = useState({
+        moneySourceId: '',
+        categoryId: '',
+        subcategoryId: '',
+        transactionDate: dayjs().hour() < 4 ? dayjs().subtract(1, 'day') : dayjs(),
+        transactionAmount: '',
+        comment: '',
+    });
+    const [formDataErrorExpense, setFormDataErrorExpense] = useState({
+        source: false,
+        categories: false,
+        subCategory: false,
+        transactionAmount: false,
+        transactionDate: false
+    })
+    const [formDataErrorFieldsExpense, setFormDataErrorFieldsExpense] = useState([
+        "source",
+        "categories",
+        "subCategory",
+        "transactionAmount",
+        "transactionDate",
+    ])
 
+    const submitAddExpense = () => {
+        if (loading || success) {
 
+        } else {
+            const isValidate = formDataErrorFieldsExpense.filter(element => {
+                if (formDataErrorExpense[element] === true || formDataExpense[element] === '' || formDataExpense[element] === 0) {
+                    setFormDataErrorExpense((perv) => ({
+                        ...perv,
+                        [element]: true
+                    }))
+                    return element;
+                }
+            })
+            if (isValidate.length > 0) {
+                console.log('error fields', isValidate)
+                setError(
+                    "Please Fill All Field"
+                )
+            } else {
+                // console.log(">>", stockInFormData, stockInFormData.stockInDate, stockInFormData.stockInDate != 'Invalid Date' ? 'ue' : 'false')
+                // addBank()
+                addExpense();
+                // console.log('submit add funds')
+            }
+        }
+    }
+    const handleSubCategoryAutoComplete = (event, value) => {
+        setFormDataExpense((prevState) => ({
+            ...prevState,
+            ['subCategory']: value,
+            subcategoryId: value && value.subCategoryId ? value.subCategoryId : '',
+        }))
+        // if (value && value.subcategoryId ? true : false)
+        //     getSubCategoryDDL(value.subcategoryId)
+        // getSuppilerList(value && value.productId ? value.productId : '')
+        // console.log('formddds', stockInFormData)
+    }
+    const getCategoryDDL = async () => {
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/ddlMainCategoryData`, config)
+            .then((res) => {
+                setCategories(res.data);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const editExpense = async () => {
+        setLoading(true);
+        await axios.post(`${BACKEND_BASE_URL}expenseAndBankrouter/updateExpenseData`, formDataExpense, config)
+            .then((res) => {
+                setSuccess(true)
+                setLoading(false);
+                resetAddExpense();
+                setPage(0);
+                setRowsPerPage(5)
+                filter ? getTransactionDataByDateFilter() : getTransactionData();
+                filter ? getStatisticsByFilter(id) : getStatistics();
+                setOpenExpense(false)
+            })
+            .catch((error) => {
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+            })
+    }
+    const handleSourceNameAutoComplete = (event, value) => {
+        setFormDataExpense((prevState) => ({
+            ...prevState,
+            ['source']: value,
+            moneySourceId: value && value.toId ? value.toId : '',
+        }))
+        // getSuppilerList(value && value.productId ? value.productId : '')
+        // console.log('formddds', stockInFormData)
+    }
+    const submitEditExpense = () => {
+        if (loading || success) {
 
+        } else {
+            const isValidate = formDataErrorFieldsExpense.filter(element => {
+                if (formDataErrorExpense[element] === true || formDataExpense[element] === '' || formDataExpense[element] === 0) {
+                    setFormDataError((perv) => ({
+                        ...perv,
+                        [element]: true
+                    }))
+                    return element;
+                }
+            })
+            if (isValidate.length > 0) {
+                setError(
+                    "Please Fill All Field"
+                )
+            } else {
+                editExpense();
+            }
+        }
+    }
+    const addExpense = async () => {
+        setLoading(true);
+        await axios.post(`${BACKEND_BASE_URL}expenseAndBankrouter/addExpenseData`, formDataExpense, config)
+            .then((res) => {
+                setSuccess(true)
+                setLoading(false);
+                resetAddExpense();
+                setPage(0);
+                setRowsPerPage(5);
+                getTransactionData();
+                focus();
+            })
+            .catch((error) => {
+                setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
+            })
+    }
     const handleClickFilter = (event) => {
         setAnchorElFilter(event.currentTarget);
     };
@@ -141,8 +282,20 @@ function BankDetail() {
             ["transactionDate"]: date && date['$d'] ? date['$d'] : null,
         }))
     };
+    const handleTransactionDateExpense = (date) => {
+        setFormDataExpense((prevState) => ({
+            ...prevState,
+            ["transactionDate"]: date && date['$d'] ? date['$d'] : null,
+        }))
+    };
     const onChange = (e) => {
         setFormData((prevState) => ({
+            ...prevState,
+            [e.target.name]: e.target.value,
+        }))
+    }
+    const onChangeExpense = (e) => {
+        setFormDataExpense((prevState) => ({
             ...prevState,
             [e.target.name]: e.target.value,
         }))
@@ -170,6 +323,10 @@ function BankDetail() {
         resetAddFund();
         setOpen(false)
     }
+    const handleCloseModalExpense = () => {
+        resetAddExpense();
+        setOpenExpense(false)
+    }
     const handleBankAutoComplete = (event, value) => {
         setFilterFormData((prevState) => ({
             ...prevState,
@@ -189,11 +346,13 @@ function BankDetail() {
         // console.log('formddds', stockInFormData)
     }
     useEffect(() => {
-        getTransactionData(id);
+        getTransactionData();
         getBankList(id);
         getExpenseCategoryList(id)
         getBankDetails(id);
         getStatistics(id);
+        getCategoryDDL();
+        getSourceDDL();
     }, [])
     const getTransactionDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
         await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getBankTransactionById?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${pageNum}&transactionType=${filterFormData.transactionType}&bankId2=${filterFormData.bankId2}&numPerPage=${rowPerPageNum}&bankId=${id}&expenseId=${filterFormData.expenseId}`, config)
@@ -243,6 +402,27 @@ function BankDetail() {
             .catch((error) => {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
             })
+    }
+    const getSubCategoryDDL = async (id) => {
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/ddlSubCategoryData?categoryId=${id}`, config)
+            .then((res) => {
+                setSubCategories(res.data);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const handleCategoryAutoComplete = (event, value) => {
+        setFormDataExpense((prevState) => ({
+            ...prevState,
+            ['category']: value,
+            subcategoryId: '',
+            subCategory: null,
+            categoryId: value && value.categoryId ? value.categoryId : '',
+        }));
+        (value && value.categoryId) && getSubCategoryDDL(value.categoryId);
+        // getSuppilerList(value && value.productId ? value.productId : '')
+        // console.log('formddds', stockInFormData)
     }
     const getBankDetails = async (id) => {
         await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getBankDetailsById?bankId=${id}`, config)
@@ -385,8 +565,8 @@ function BankDetail() {
                 setSuccess(true)
                 setPage(0);
                 setRowsPerPage(5);
-                filter ? getStatisticsByFilter() : getStatistics()
-                console.log('>>>', id)
+                filter ? getStatisticsByFilter(id) : getStatistics()
+                filter ? getTransactionDataByDateFilter() : getTransactionData();
                 getTransactionData();
             })
             .catch((error) => {
@@ -405,8 +585,8 @@ function BankDetail() {
                     setSuccess(true)
                     setPage(0);
                     setRowsPerPage(5);
-                    filter ? getStatisticsByFilter() : getStatistics()
-                    getTransactionData();
+                    filter ? getStatisticsByFilter(id) : getStatistics();
+                    filter ? getTransactionDataByDateFilter() : getTransactionData();
                 })
                 .catch((error) => {
                     setError(error.response ? error.response.data : "Network Error ...!!!")
@@ -424,6 +604,34 @@ function BankDetail() {
             transactionDate: false,
         })
     }
+    const getSourceDDL = async () => {
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/ddlToData`, config)
+            .then((res) => {
+                setSource(res.data);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const resetAddExpense = () => {
+        getSourceDDL();
+        setFormDataExpense({
+            moneySourceId: '',
+            categoryId: '',
+            subcategoryId: '',
+            transactionAmount: '',
+            comment: '',
+            transactionDate: dayjs().hour() < 4 ? dayjs().subtract(1, 'day') : dayjs(),
+        })
+        setFormDataErrorExpense({
+            moneySourceId: false,
+            categoryId: false,
+            subcategoryId: false,
+            transactionAmount: false,
+            transactionDate: false
+        })
+        setIsEdit(false)
+    }
     const handleEditTransaction = (data) => {
         setFormDataError({
             transactionAmount: false,
@@ -435,9 +643,40 @@ function BankDetail() {
             comment: data.comment,
             transactionDate: dayjs(data.transactionDate),
             fromId: data.fromId,
-            toID: data.toID
+            toID: data.toId
         })
         setOpen(true);
+    }
+    const handleEditExpense = async (data) => {
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/fillExpenseDataById?transactionId=${data.transactionId}`, config)
+            .then((res) => {
+                getSubCategoryDDL(res.data.mainCategory.categoryId);
+                setFormDataErrorExpense({
+                    moneySourceId: false,
+                    categoryId: false,
+                    subcategoryId: false,
+                    transactionAmount: false,
+                    transactionDate: false
+                })
+                setOpenExpense(true);
+                setIsEdit(true);
+                getSourceDDL();
+                setFormDataExpense({
+                    transactionId: data.transactionId,
+                    moneySourceId: res.data && res.data.moneySource ? res.data.moneySource.toId : '',
+                    categoryId: res.data && res.data.mainCategory ? res.data.mainCategory.categoryId : '',
+                    subcategoryId: res.data && res.data.subCategory ? res.data.subCategory.subcategoryId : '',
+                    source: res.data && res.data.moneySource ? res.data.moneySource : null,
+                    category: res.data && res.data.mainCategory ? res.data.mainCategory : null,
+                    subCategory: res.data && res.data.subCategory ? res.data.subCategory : null,
+                    transactionAmount: res.data && res.data.mainCategory ? res.data.expenseAmount : null,
+                    comment: res.data && res.data.mainCategory ? res.data.expenseComment : null,
+                    transactionDate: dayjs(res.data && res.data.moneySource ? res.data.expenseDate : null),
+                })
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
     }
     const editFund = async () => {
         setLoading(true);
@@ -450,7 +689,7 @@ function BankDetail() {
                 resetAddFund();
                 setOpen(false);
                 filter ? getTransactionDataByDateFilter() : getTransactionData(id);
-                filter ? getStatisticsByFilter(id) : getStatistics(id);
+                filter ? getStatisticsByFilter(id) : getStatistics();
             })
             .catch((error) => {
                 setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
@@ -696,6 +935,11 @@ function BankDetail() {
                                     }}>
                                         <div className='statusTabtext'>Transactions</div>
                                     </div>
+                                    <div className='col-span-2 col-start-11 flex justify-end pr-4'>
+                                        <button className='addSalary self-center'
+                                            onClick={() => setOpenExpense(true)}
+                                        >Add Expenses</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -850,7 +1094,7 @@ function BankDetail() {
                                                 </Tooltip>
                                                 {/* {row.transactionType} */}
                                                 <TableCell align="right">
-                                                    <BankTransactionMenu data={row} handleDeleteBank={handleDeleteBank} handleEditTransaction={handleEditTransaction} handleDeleteExpense={handleDeleteExpense} />
+                                                    <BankTransactionMenu data={row} handleEditExpense={handleEditExpense} handleDeleteBank={handleDeleteBank} handleEditTransaction={handleEditTransaction} handleDeleteExpense={handleDeleteExpense} />
                                                 </TableCell>
                                             </TableRow> :
                                             <TableRow
@@ -886,7 +1130,7 @@ function BankDetail() {
                     <Typography id="modal-modal-title" variant="h6" component="h2">
                         Edit Bank
                     </Typography>
-                    <div className='grid grid-rows-2 gap-6'>
+                    <div className='grid grid-rows-2 mt-4 gap-6'>
                         <div className='grid grid-cols-12 gap-6'>
                             <div className="col-span-3">
                                 <TextField
@@ -983,6 +1227,150 @@ function BankDetail() {
                                 </div>
                             </div>
 
+                        </div>
+                    </div>
+                </Box>
+            </Modal>
+            <Modal
+                open={openExpense}
+                onClose={handleCloseModalExpense}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={style}>
+                    <Typography id="modal-modal-title" variant="h6" component="h2">
+                        {isEdit ? 'Edit Expense' : 'Add Expense'}
+                    </Typography>
+                    <div className='grid grid-rows-2 mt-4 gap-6'>
+                        <div className='grid grid-cols-12 gap-6'>
+                            <div className="col-span-3">
+                                <FormControl fullWidth>
+                                    <Autocomplete
+                                        defaultValue={null}
+                                        id='source'
+                                        disablePortal
+                                        sx={{ width: '100%' }}
+                                        // disabled={isEdit}
+                                        value={formDataExpense.source ? formDataExpense.source : null}
+                                        onChange={handleSourceNameAutoComplete}
+                                        options={source ? source : []}
+                                        getOptionLabel={(options) => options.toName}
+                                        renderInput={(params) => <TextField inputRef={textFieldRef}
+                                            {...params}
+                                            error={formDataErrorExpense.source}
+                                            helperText={formDataErrorExpense.source ? "Please Select" : formDataExpense.source ? `Availabel Balance is ${formDataExpense.source ? formDataExpense.source.availableBalance : 0}` : ''}
+                                            label="Money Source" />}
+                                    />
+                                </FormControl>
+                            </div>
+                            <div className="col-span-3">
+                                <FormControl fullWidth>
+                                    <Autocomplete
+                                        defaultValue={null}
+                                        id='category'
+                                        disablePortal
+                                        sx={{ width: '100%' }}
+                                        // disabled={isEdit}
+                                        value={formDataExpense.category ? formDataExpense.category : null}
+                                        onChange={handleCategoryAutoComplete}
+                                        options={categories ? categories : []}
+                                        getOptionLabel={(options) => options.categoryName}
+                                        renderInput={(params) => <TextField {...params}
+                                            error={formDataErrorExpense.categories}
+                                            helperText={formDataErrorExpense.categories ? "Please Select" : ''}
+                                            label="Category" />}
+                                    />
+                                </FormControl>
+                            </div>
+                            <div className="col-span-3">
+                                <FormControl fullWidth>
+                                    <Autocomplete
+                                        defaultValue={null}
+                                        id='subCategory'
+                                        disablePortal
+                                        sx={{ width: '100%' }}
+                                        disabled={!formDataExpense.category}
+                                        value={formDataExpense.subCategory ? formDataExpense.subCategory : null}
+                                        onChange={handleSubCategoryAutoComplete}
+                                        options={subCategories ? subCategories : []}
+                                        getOptionLabel={(options) => options.subCategoryName}
+                                        renderInput={(params) => <TextField {...params}
+                                            error={formDataErrorExpense.subCategory}
+                                            helperText={formDataErrorExpense.subCategory ? "Please Select" : ''}
+                                            label="Sub Category" />}
+                                    />
+                                </FormControl>
+                            </div>
+                            <div className="col-span-3">
+                                <TextField
+                                    onBlur={(e) => {
+                                        if (!e.target.value || e.target.value < 1) {
+                                            setFormDataErrorExpense((perv) => ({
+                                                ...perv,
+                                                transactionAmount: true
+                                            }))
+                                        }
+                                        else {
+                                            setFormDataErrorExpense((perv) => ({
+                                                ...perv,
+                                                transactionAmount: false
+                                            }))
+                                        }
+                                    }}
+                                    error={formDataErrorExpense.transactionAmount}
+                                    helperText={formDataErrorExpense.transactionAmount ? "Please Enter Amount" : ''}
+                                    onChange={onChangeExpense}
+                                    value={formDataExpense.transactionAmount}
+                                    name="transactionAmount"
+                                    id="outlined-required"
+                                    label="Amount"
+                                    InputProps={{ style: { fontSize: 14 } }}
+                                    InputLabelProps={{ style: { fontSize: 14 } }}
+                                    fullWidth
+                                />
+                            </div>
+                        </div>
+                        <div className='grid grid-cols-12 gap-6'>
+                            <div className="col-span-3">
+                                <TextField
+                                    onChange={onChangeExpense}
+                                    value={formDataExpense.comment}
+                                    name="comment"
+                                    id="outlined-required"
+                                    label="Comment"
+                                    InputProps={{ style: { fontSize: 14 } }}
+                                    InputLabelProps={{ style: { fontSize: 14 } }}
+                                    fullWidth
+                                />
+                            </div>
+                            <div className="col-span-3">
+                                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                    <DesktopDatePicker
+                                        textFieldStyle={{ width: '100%' }}
+                                        InputProps={{ style: { fontSize: 14, width: '100%' } }}
+                                        InputLabelProps={{ style: { fontSize: 14 } }}
+                                        label="Transaction Date"
+                                        format="DD/MM/YYYY"
+                                        required
+                                        error={formDataErrorExpense.transactionDate}
+                                        value={formDataExpense.transactionDate}
+                                        onChange={handleTransactionDateExpense}
+                                        name="transactionDate"
+                                        slotProps={{ textField: { fullWidth: true } }}
+                                        renderInput={(params) => <TextField {...params} sx={{ width: '100%' }} />}
+                                    />
+                                </LocalizationProvider>
+                            </div>
+                            <div className="col-span-6">
+                                <div className='grid grid-cols-12 gap-6'>
+                                    <div className='col-span-6'>
+                                        <button onClick={() => { isEdit ? submitEditExpense() : submitAddExpense() }} className='saveBtn' >Save</button>
+                                    </div>
+                                    <div className='col-span-6'>
+                                        <button onClick={() => { handleCloseModalExpense() }} className='resetBtn'>Cancle</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </Box>

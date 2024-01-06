@@ -78,22 +78,26 @@ function NavBar() {
         }
     }
     const getMainCategoies = async () => {
-        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getMainCategoryDashboard`, config)
-            .then((res) => {
-                setDashboardCategory(res.data);
-            })
-            .catch((error) => {
-                setError(error.response ? error.response.data : "Network Error ...!!!")
-            })
+        if (userInfo && userInfo.token) {
+            await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getMainCategoryDashboard`, config)
+                .then((res) => {
+                    setDashboardCategory(res.data);
+                })
+                .catch((error) => {
+                    setError(error.response ? error.response.data : "Network Error ...!!!")
+                })
+        }
     }
     const getBanks = async () => {
-        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getBankDashboardData`, config)
-            .then((res) => {
-                setBanks(res.data);
-            })
-            .catch((error) => {
-                setError(error.response ? error.response.data : "Network Error ...!!!")
-            })
+        if (userInfo && userInfo.token) {
+            await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getBankDashboardData`, config)
+                .then((res) => {
+                    setBanks(res.data);
+                })
+                .catch((error) => {
+                    setError(error.response ? error.response.data : "Network Error ...!!!")
+                })
+        }
     }
     useEffect(() => {
         getMainCategoies();
