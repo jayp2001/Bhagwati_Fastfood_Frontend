@@ -263,15 +263,14 @@ function BankDetail() {
                 setLoading(false);
                 resetAddExpense();
                 setPage(0);
-                [
+                setState([
                     {
                         startDate: new Date(),
                         endDate: new Date(),
                         key: 'selection'
                     }
-                ]
+                ])
                 setFilter(false);
-                setState()
                 setRowsPerPage(5);
                 getTransactionData();
                 getStatistics()

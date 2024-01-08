@@ -7,4 +7,4 @@ export const BACKEND_BASE_URL = "http://192.168.1.10:8000/";
 // export const BACKEND_BASE_URL = "http://192.168.1.76:8000/";
 // export const BACKEND_BASE_URL = "http://192.168.195.171:8000/";
 // export const BACKEND_BASE_URL = "https://admin.bhagwatifastfood.com/api/";
-export const BACKEND_BASE_URL = "http://localhost:8000/";
+// export const BACKEND_BASE_URL = "http://localhost:8000/";
