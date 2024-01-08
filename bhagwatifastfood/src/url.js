@@ -1,7 +1,7 @@
 // export const BACKEND_BASE_URL = "http://192.168.1.206:8000/";
 // export const BACKEND_BASE_URL = "http://192.168.1.223:8000/";
 // export const BACKEND_BASE_URL = "http://192.168.1.224:8000/";
-// export const BACKEND_BASE_URL = "http://192.168.1.10:8000/";
+export const BACKEND_BASE_URL = "http://192.168.1.10:8000/";
 // export const BACKEND_BASE_URL = "http://192.168.1.51:8000/";
 // export const BACKEND_BASE_URL = "http://192.168.1.59:8000/";
 // export const BACKEND_BASE_URL = "http://192.168.1.76:8000/";

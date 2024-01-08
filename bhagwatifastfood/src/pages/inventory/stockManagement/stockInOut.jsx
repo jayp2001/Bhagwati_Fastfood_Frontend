@@ -464,7 +464,11 @@ function StockInOut() {
             supplierId: '',
             productUnit: value && value.productUnit ? value.productUnit : ''
         }))
-        getSuppilerList(value && value.productId ? value.productId : '')
+        setStockInFormDataError((prevState) => ({
+            ...prevState,
+            productName: value && value.productUnit ? false : true
+        }))
+        value && value.productId && getSuppilerList(value.productId)
         // console.log('formddds', stockInFormData)
     }
     const handleProductNameAutoCompleteOut = (event, value) => {
@@ -475,7 +479,10 @@ function StockInOut() {
             productUnit: value && value.productUnit ? value.productUnit : '',
             remainingStock: value && value.remainingStock ? value.remainingStock : 0
         }))
-        console.log('formddds', stockInFormData)
+        setStockOutFormDataError((prevState) => ({
+            ...prevState,
+            productName: value && value.productUnit ? false : true
+        }))
     }
     const handleResetStockIn = () => {
         setStockInFormData({
