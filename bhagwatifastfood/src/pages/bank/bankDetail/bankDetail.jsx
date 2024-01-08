@@ -139,6 +139,7 @@ function BankDetail() {
 
     const [formDataExpense, setFormDataExpense] = useState({
         moneySourceId: '',
+        sourceName: '',
         categoryId: '',
         subcategoryId: '',
         transactionDate: dayjs().hour() < 4 ? dayjs().subtract(1, 'day') : dayjs(),
@@ -216,7 +217,7 @@ function BankDetail() {
                 setPage(0);
                 setRowsPerPage(5)
                 filter ? getTransactionDataByDateFilter() : getTransactionData();
-                filter ? getStatisticsByFilter(id) : getStatistics();
+                filter ? getStatisticsByFilter() : getStatistics();
                 setOpenExpense(false)
             })
             .catch((error) => {
@@ -262,8 +263,18 @@ function BankDetail() {
                 setLoading(false);
                 resetAddExpense();
                 setPage(0);
+                [
+                    {
+                        startDate: new Date(),
+                        endDate: new Date(),
+                        key: 'selection'
+                    }
+                ]
+                setFilter(false);
+                setState()
                 setRowsPerPage(5);
                 getTransactionData();
+                getStatistics()
                 focus();
             })
             .catch((error) => {
@@ -424,10 +435,15 @@ function BankDetail() {
         // getSuppilerList(value && value.productId ? value.productId : '')
         // console.log('formddds', stockInFormData)
     }
-    const getBankDetails = async (id) => {
-        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getBankDetailsById?bankId=${id}`, config)
+    const getBankDetails = async (ids) => {
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getBankDetailsById?bankId=${ids}`, config)
             .then((res) => {
                 setBankDetails(res.data);
+                setFormDataExpense((perv) => ({
+                    ...perv,
+                    sourceName: res.data.bankName,
+                    moneySourceId: id
+                }))
             })
             .catch((error) => {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
@@ -492,7 +508,7 @@ function BankDetail() {
             });
         }
     }
-    const getStatisticsByFilter = async (id) => {
+    const getStatisticsByFilter = async () => {
         await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getBankStaticsById?bankId=${id}&startDate=${state[0].startDate}&endDate=${state[0].endDate}`, config)
             .then((res) => {
                 setStatisticsCounts(res.data);
@@ -565,7 +581,7 @@ function BankDetail() {
                 setSuccess(true)
                 setPage(0);
                 setRowsPerPage(5);
-                filter ? getStatisticsByFilter(id) : getStatistics()
+                filter ? getStatisticsByFilter() : getStatistics()
                 filter ? getTransactionDataByDateFilter() : getTransactionData();
                 getTransactionData();
             })
@@ -585,7 +601,7 @@ function BankDetail() {
                     setSuccess(true)
                     setPage(0);
                     setRowsPerPage(5);
-                    filter ? getStatisticsByFilter(id) : getStatistics();
+                    filter ? getStatisticsByFilter() : getStatistics();
                     filter ? getTransactionDataByDateFilter() : getTransactionData();
                 })
                 .catch((error) => {
@@ -616,8 +632,9 @@ function BankDetail() {
     const resetAddExpense = () => {
         getSourceDDL();
         setFormDataExpense({
-            moneySourceId: '',
             categoryId: '',
+            moneySourceId: id,
+            sourceName: bankDetails.bankName,
             subcategoryId: '',
             transactionAmount: '',
             comment: '',
@@ -689,7 +706,7 @@ function BankDetail() {
                 resetAddFund();
                 setOpen(false);
                 filter ? getTransactionDataByDateFilter() : getTransactionData(id);
-                filter ? getStatisticsByFilter(id) : getStatistics();
+                filter ? getStatisticsByFilter() : getStatistics();
             })
             .catch((error) => {
                 setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
@@ -880,7 +897,7 @@ function BankDetail() {
                                                         <div className='col-span-3 col-start-7'>
                                                             <button className='stockInBtn' onClick={() => {
                                                                 // setFilter(true); handleClose(); getStatisticsByFilter(); setTabStockIn(''); setPage(0); setRowsPerPage(5); getStockInDataByTabByFilter(''); getProductCountByFilter();
-                                                                setFilter(true); handleClose(); setPage(0); setRowsPerPage(5); getTransactionDataByDateFilter(); getStatisticsByFilter(id);
+                                                                setFilter(true); handleClose(); setPage(0); setRowsPerPage(5); getTransactionDataByDateFilter(); getStatisticsByFilter();
                                                             }}>Apply</button>
                                                         </div>
                                                         <div className='col-span-3'>
@@ -1244,24 +1261,32 @@ function BankDetail() {
                     <div className='grid grid-rows-2 mt-4 gap-6'>
                         <div className='grid grid-cols-12 gap-6'>
                             <div className="col-span-3">
-                                <FormControl fullWidth>
-                                    <Autocomplete
-                                        defaultValue={null}
-                                        id='source'
-                                        disablePortal
-                                        sx={{ width: '100%' }}
-                                        // disabled={isEdit}
-                                        value={formDataExpense.source ? formDataExpense.source : null}
-                                        onChange={handleSourceNameAutoComplete}
-                                        options={source ? source : []}
-                                        getOptionLabel={(options) => options.toName}
-                                        renderInput={(params) => <TextField inputRef={textFieldRef}
-                                            {...params}
-                                            error={formDataErrorExpense.source}
-                                            helperText={formDataErrorExpense.source ? "Please Select" : formDataExpense.source ? `Availabel Balance is ${formDataExpense.source ? formDataExpense.source.availableBalance : 0}` : ''}
-                                            label="Money Source" />}
-                                    />
-                                </FormControl>
+                                {isEdit ?
+                                    <FormControl fullWidth>
+                                        <Autocomplete
+                                            defaultValue={null}
+                                            id='source'
+                                            disablePortal
+                                            sx={{ width: '100%' }}
+                                            // disabled={isEdit}
+                                            value={formDataExpense.source ? formDataExpense.source : null}
+                                            onChange={handleSourceNameAutoComplete}
+                                            options={source ? source : []}
+                                            getOptionLabel={(options) => options.toName}
+                                            renderInput={(params) => <TextField inputRef={textFieldRef}
+                                                {...params}
+                                                error={formDataErrorExpense.source}
+                                                helperText={formDataErrorExpense.source ? "Please Select" : formDataExpense.source ? `Availabel Balance is ${formDataExpense.source ? formDataExpense.source.availableBalance : 0}` : ''}
+                                                label="Money Source" />}
+                                        />
+                                    </FormControl>
+                                    : <TextField
+                                        label="Product Name"
+                                        fullWidth
+                                        disabled
+                                        value={formDataExpense.sourceName ? formDataExpense.sourceName : ''}
+                                        name="productName"
+                                    />}
                             </div>
                             <div className="col-span-3">
                                 <FormControl fullWidth>
