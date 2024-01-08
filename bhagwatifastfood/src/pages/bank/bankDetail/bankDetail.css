@@ -118,11 +118,28 @@
     border-radius: 10px;
 }
 
-.redText{
+.redText {
     color: red !important;
     font-weight: 600 !important;
 }
-.greenText{
+
+.greenText {
     font-weight: 600 !important;
     color: green !important;
+}
+
+.addExpense {
+    width: 100%;
+    height: 40px;
+    background: linear-gradient(90deg, rgba(2, 0, 36, 1) 0%, rgba(0, 122, 255, 1) 0%, rgba(0, 156, 255, 1) 78%);
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #fff;
+}
+
+.addExpense:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 9px 0 rgba(0, 0, 0, 0.15);
+    /* background: linear-gradient(195deg, rgb(102, 187, 106), rgb(67, 160, 71)); */
 }
