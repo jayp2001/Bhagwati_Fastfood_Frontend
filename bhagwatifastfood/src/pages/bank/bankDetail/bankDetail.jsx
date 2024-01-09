@@ -53,13 +53,12 @@ import BankTransactionMenu from './bankTransactionMenu';
 import { getDate } from 'date-fns';
 import ExportMenu from '../exportMenu/exportMenu';
 
-
 const style = {
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 900,
+    width: 1200,
     bgcolor: 'background.paper',
     boxShadow: 24,
     paddingLeft: '20px',
@@ -71,6 +70,8 @@ const style = {
 
 
 function BankDetail() {
+    const regex = /^-?\d*(?:\.\d*)?$/;
+
     let { id } = useParams();
     const [tab, setTab] = React.useState(1);
     const [statisticsCount, setStatisticsCounts] = useState();
@@ -355,6 +356,20 @@ function BankDetail() {
         // getSuppilerList(value && value.productId ? value.productId : '')
         // console.log('formddds', stockInFormData)
     }
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            if (event.key === 'F5') {
+                setOpenExpense(true);
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [setOpenExpense]);
+
     useEffect(() => {
         getTransactionData();
         getBankList(id);
@@ -952,7 +967,7 @@ function BankDetail() {
                                         <div className='statusTabtext'>Transactions</div>
                                     </div>
                                     <div className='col-span-2 col-start-11 flex justify-end pr-4'>
-                                        <button className='addSalary self-center'
+                                        <button className='addExpense self-center'
                                             onClick={() => setOpenExpense(true)}
                                         >Add Expenses</button>
                                     </div>
@@ -1254,9 +1269,14 @@ function BankDetail() {
                 aria-describedby="modal-modal-description"
             >
                 <Box sx={style}>
-                    <Typography id="modal-modal-title" variant="h6" component="h2">
-                        {isEdit ? 'Edit Expense' : 'Add Expense'}
-                    </Typography>
+                    <div className='flex justify-between'>
+                        <Typography id="modal-modal-title" variant="h6" component="h2">
+                            {isEdit ? 'Edit Expense' : 'Add Expense'}
+                        </Typography>
+                        <Typography id="modal-modal-title" variant="h6" component="h2">
+                            {isEdit ? '' : `Available Balance : ₹ ${parseFloat(statisticsCount.availableBalance).toLocaleString('en-IN')}`}
+                        </Typography>
+                    </div>
                     <div className='grid grid-rows-2 mt-4 gap-6'>
                         <div className='grid grid-cols-12 gap-6'>
                             <div className="col-span-3">
@@ -1272,7 +1292,7 @@ function BankDetail() {
                                             onChange={handleSourceNameAutoComplete}
                                             options={source ? source : []}
                                             getOptionLabel={(options) => options.toName}
-                                            renderInput={(params) => <TextField inputRef={textFieldRef}
+                                            renderInput={(params) => <TextField
                                                 {...params}
                                                 error={formDataErrorExpense.source}
                                                 helperText={formDataErrorExpense.source ? "Please Select" : formDataExpense.source ? `Availabel Balance is ${formDataExpense.source ? formDataExpense.source.availableBalance : 0}` : ''}
@@ -1299,7 +1319,8 @@ function BankDetail() {
                                         onChange={handleCategoryAutoComplete}
                                         options={categories ? categories : []}
                                         getOptionLabel={(options) => options.categoryName}
-                                        renderInput={(params) => <TextField {...params}
+                                        renderInput={(params) => <TextField inputRef={textFieldRef}
+                                            {...params}
                                             error={formDataErrorExpense.categories}
                                             helperText={formDataErrorExpense.categories ? "Please Select" : ''}
                                             label="Category" />}
@@ -1343,7 +1364,11 @@ function BankDetail() {
                                     }}
                                     error={formDataErrorExpense.transactionAmount}
                                     helperText={formDataErrorExpense.transactionAmount ? "Please Enter Amount" : ''}
-                                    onChange={onChangeExpense}
+                                    onChange={(e) => {
+                                        if ((regex.test(e.target.value) || e.target.value === '') && e.target.value.length < 11) {
+                                            onChangeExpense(e)
+                                        }
+                                    }}
                                     value={formDataExpense.transactionAmount}
                                     name="transactionAmount"
                                     id="outlined-required"

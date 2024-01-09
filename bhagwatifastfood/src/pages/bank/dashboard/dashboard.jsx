@@ -79,7 +79,7 @@ const styleIncome = {
     borderRadius: '10px'
 };
 function BankDashboard() {
-    const regex = /^[0-9\b]+$/;
+    const regex = /^-?\d*(?:\.\d*)?$/;
     const emailRegx = /^[a-zA-Z0-9_\.\+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-\.]+$/;
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const config = {
@@ -1089,6 +1089,7 @@ function BankDashboard() {
                                             getDestinationDDL();
                                             getBankTransaction();
                                             setPage(0);
+                                            resetAddFund();
                                             setFilter(false);
                                             setRowsPerPage(5);
                                             setState([
@@ -1251,7 +1252,11 @@ function BankDashboard() {
                                                         }}
                                                         error={formDataError.transactionAmount}
                                                         helperText={formDataError.transactionAmount ? "Please Enter Amount" : ''}
-                                                        onChange={onChange}
+                                                        onChange={(e) => {
+                                                            if ((regex.test(e.target.value) || e.target.value === '') && e.target.value.length < 11) {
+                                                                onChange(e)
+                                                            }
+                                                        }}
                                                         value={formData.transactionAmount}
                                                         name="transactionAmount"
                                                         id="outlined-required"

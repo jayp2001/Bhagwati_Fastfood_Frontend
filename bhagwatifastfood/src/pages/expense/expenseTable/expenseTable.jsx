@@ -67,6 +67,8 @@ const style = {
 };
 
 function ExpenseTable() {
+    const regex = /^-?\d*(?:\.\d*)?$/;
+
     const { categoryName, categoryId } = useParams()
     const [tab, setTab] = React.useState(1);
     const [expanded, setExpanded] = React.useState(false);
@@ -652,7 +654,11 @@ function ExpenseTable() {
                                                     }}
                                                     error={formDataError.transactionAmount}
                                                     helperText={formDataError.transactionAmount ? "Please Enter Amount" : ''}
-                                                    onChange={onChange}
+                                                    onChange={(e) => {
+                                                        if ((regex.test(e.target.value) || e.target.value === '') && e.target.value.length < 11) {
+                                                            onChange(e)
+                                                        }
+                                                    }}
                                                     value={formData.transactionAmount}
                                                     name="transactionAmount"
                                                     id="outlined-required"

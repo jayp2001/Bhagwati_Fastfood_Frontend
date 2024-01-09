@@ -726,7 +726,7 @@ function BusinessReport() {
                                                 <div className='mt-3 col-start-9 col-span-2'>
                                                     <button className='editBtnReport' onClick={() => {
                                                         handleEditReport();
-                                                    }}><EditIcon /> edit</button>
+                                                    }}><EditIcon /> Edit</button>
                                                 </div>
                                                 <div className='mt-3 col-span-2'>
                                                     <button className='deleteBtnReport' onClick={() => {
