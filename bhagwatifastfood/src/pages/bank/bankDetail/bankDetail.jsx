@@ -1274,7 +1274,7 @@ function BankDetail() {
                             {isEdit ? 'Edit Expense' : 'Add Expense'}
                         </Typography>
                         <Typography id="modal-modal-title" variant="h6" component="h2">
-                            {isEdit ? '' : `Available Balance : ₹ ${parseFloat(statisticsCount.availableBalance).toLocaleString('en-IN')}`}
+                            {isEdit ? '' : `Available Balance : ₹ ${parseFloat(statisticsCount && statisticsCount.availableBalance ? statisticsCount.availableBalance : 0).toLocaleString('en-IN')}`}
                         </Typography>
                     </div>
                     <div className='grid grid-rows-2 mt-4 gap-6'>
