@@ -243,7 +243,7 @@ const PrintButton = () => {
     return (
         <div>
             <button onClick={getDeviceandConnect} >
-                select Printer
+                ભગવતી ફાસ્ટ ફૂડ
             </button>
             <hr />
             <button onClick={handlePrint} >

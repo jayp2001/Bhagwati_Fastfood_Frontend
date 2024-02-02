@@ -966,6 +966,14 @@ function BankDetail() {
                                     }}>
                                         <div className='statusTabtext'>Transactions</div>
                                     </div>
+                                    {(((state[0].startDate.toLocaleDateString() == state[0].endDate.toLocaleDateString()) && state[0].startDate.toLocaleDateString() == new Date().toLocaleDateString()) || (state[0].startDate.toLocaleDateString() == new Date().toLocaleDateString() && state[0].endDate > new Date()) || state[0].startDate > new Date()) && (statisticsCount && statisticsCount.futureDebitAmt > 0) ?
+                                        <div className='flex justify-center col-span-6 futureDue col-start-4'>
+                                            <div className='statusTabtext'>{`₹ ${parseFloat(statisticsCount && statisticsCount.availableBalance ? statisticsCount.availableBalance : 0).toLocaleString('en-IN')}`} - {`₹ ${parseFloat(statisticsCount && statisticsCount.futureDebitAmt ? statisticsCount.futureDebitAmt : 0).toLocaleString('en-IN')}`} = &nbsp;&nbsp;&nbsp;&nbsp; </div> <div className={statisticsCount && (statisticsCount.availableBalance - statisticsCount.futureDebitAmt) >= 0 ? 'futureDueTxtG' : 'futureDueTxt'}>
+                                                {`₹ ${parseFloat(statisticsCount ? statisticsCount.availableBalance - statisticsCount.futureDebitAmt : 0).toLocaleString('en-IN')}`}
+                                            </div>
+                                        </div> : <></>
+                                    }
+
                                     <div className='col-span-2 col-start-11 flex justify-end pr-4'>
                                         <button className='addExpense self-center'
                                             onClick={() => setOpenExpense(true)}
@@ -1274,7 +1282,7 @@ function BankDetail() {
                             {isEdit ? 'Edit Expense' : 'Add Expense'}
                         </Typography>
                         <Typography id="modal-modal-title" variant="h6" component="h2">
-                            {isEdit ? '' : `Available Balance : ₹ ${parseFloat(statisticsCount.availableBalance).toLocaleString('en-IN')}`}
+                            {isEdit ? '' : `Available Balance : ₹ ${parseFloat(statisticsCount && statisticsCount.availableBalance ? statisticsCount.availableBalance : 0).toLocaleString('en-IN')}`}
                         </Typography>
                     </div>
                     <div className='grid grid-rows-2 mt-4 gap-6'>

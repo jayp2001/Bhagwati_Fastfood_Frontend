@@ -448,6 +448,56 @@ function BusinessReport() {
             });
         }
     }
+    const excelExportNet = async () => {
+        if (window.confirm('Are you sure you want to export Excel ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/exportExcelForBusinessReportNet?startDate=${state[0].startDate}&endDate=${state[0].endDate}`
+                    : `${BACKEND_BASE_URL}expenseAndBankrouter/exportExcelForBusinessReportNet`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = 'Net_Report_' + new Date().toLocaleDateString() + '.xlsx'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
+    const pdfExportNet = async () => {
+        if (window.confirm('Are you sure you want to export Pdf ... ?')) {
+            await axios({
+                url: filter ? `${BACKEND_BASE_URL}expenseAndBankrouter/exportPdfForBusinessReportNet?startDate=${state[0].startDate}&endDate=${state[0].endDate}`
+                    : `${BACKEND_BASE_URL}expenseAndBankrouter/exportPdfForBusinessReportNet`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob', // important
+            }).then((response) => {
+                // create file link in browser's memory
+                const href = URL.createObjectURL(response.data);
+                // create "a" HTML element with href to file & click
+                const link = document.createElement('a');
+                const name = 'Net_Report_' + new Date().toLocaleDateString() + '.pdf'
+                link.href = href;
+                link.setAttribute('download', name); //or any other extension
+                document.body.appendChild(link);
+                link.click();
+
+                // clean up "a" element & remove ObjectURL
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            });
+        }
+    }
     const getData = async () => {
         console.log("page get", page, rowsPerPage)
         await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getBusinessCategoryList?page=${1}&numPerPage=${5}`, config)
@@ -474,6 +524,29 @@ function BusinessReport() {
     }
     const getReportByFilter = async () => {
         await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getBusinessReportDashBoard?startDate=${state[0].startDate}&endDate=${state[0].endDate}`, config)
+            .then((res) => {
+                setCategoryList(res.data.incomeSourceData);
+                setExpenseList(res.data.expenseData);
+                setFormDataOther(res.data)
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getReportNet = async () => {
+        console.log("page get", page, rowsPerPage)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getBusinessReportDashBoardwithNetProfit?startDate=${''}&endDate=${''}`, config)
+            .then((res) => {
+                setCategoryList(res.data.incomeSourceData);
+                setExpenseList(res.data.expenseData);
+                setFormDataOther(res.data)
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getReportNetByFilter = async () => {
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getBusinessReportDashBoardwithNetProfit?startDate=${state[0].startDate}&endDate=${state[0].endDate}`, config)
             .then((res) => {
                 setCategoryList(res.data.incomeSourceData);
                 setExpenseList(res.data.expenseData);
@@ -628,7 +701,7 @@ function BusinessReport() {
                                                     }}>
                                                     <div className='statusTabtext'>Add Business Report</div>
                                                 </div>
-                                                <div className={`flex col-span-3 justify-center ${tab === 3 || tab === '3' ? 'tabDebit' : 'productTab'}`}
+                                                <div className={`flex col-span-3 justify-center ${tab === 3 || tab === '3' ? 'productTabUnder' : 'productTab'}`}
                                                     onClick={() => {
                                                         if (!isEdit) {
                                                             setTab(3);
@@ -639,9 +712,19 @@ function BusinessReport() {
                                                     }}>
                                                     <div className='statusTabtext'>Add Income Category</div>
                                                 </div>
+                                                <div className={`flex col-span-3 justify-center ${tab === 4 || tab === '4' ? 'tabDebit' : 'productTab'}`}
+                                                    onClick={() => {
+                                                        if (!isEdit) {
+                                                            setTab(4);
+                                                            filter ? getReportNetByFilter() : getReportNet()
+                                                            // filter ? getDataByFilter() : getData();
+                                                        }
+                                                    }}>
+                                                    <div className='statusTabtext'>Net Business</div>
+                                                </div>
                                             </div>
                                         </div>
-                                        {(tab === 1 || tab === '1') &&
+                                        {(tab === 1 || tab === '1' || tab === '4' || tab === 4) &&
                                             <div className='col-span-4 flex justify-end pr-4'>
                                                 <div className='dateRange text-center self-center' aria-describedby={ids} onClick={(e) => { if (!isEdit) { handleClick(e) } }}>
                                                     <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
@@ -663,6 +746,7 @@ function BusinessReport() {
                                                                 // getStatistics(id);
                                                                 // getTransactionDataByDateFilterOnReset();
                                                                 (tab === '1' || tab === 1) && getReport();
+                                                                (tab === '4' || tab === 4) && getReportNet();
                                                             }
                                                         }}><CloseIcon /></button>
                                                 </div>
@@ -692,6 +776,7 @@ function BusinessReport() {
                                                                     // setFilter(true); handleClose(); getStatisticsByFilter(); setTabStockIn(''); setPage(0); setRowsPerPage(5); getStockInDataByTabByFilter(''); getProductCountByFilter();
                                                                     // setFilter(true); handleClose(); setPage(0); setRowsPerPage(5); getTransactionDataByDateFilter(); getStatisticsByFilter(id);
                                                                     (tab === '1' || tab === 1) && getReportByFilter(); handleClose();
+                                                                    (tab === '4' || tab === 4) && getReportNetByFilter(); handleClose();
                                                                     setFilter(true);
                                                                 }}>Apply</button>
                                                             </div>
@@ -708,11 +793,11 @@ function BusinessReport() {
                             </div>
                         </div>
                     </div>
-                    {(tab === 2 || tab === '2' || tab === 1 || tab === '1') &&
+                    {(tab === 2 || tab === '2' || tab === 1 || tab === '1' || tab === 4 || tab === '4') &&
                         <div className='reportCard'>
                             {state[0].startDate.toDateString() == state[0].endDate.toDateString() ?
                                 !formDataOther.isData ?
-                                    tab == 1 ?
+                                    tab == 1 || tab == 4 ?
                                         <div className='grid grid-cols-12 gap-6 pr-4'>
                                             <div className='mt-3 incomeSourceHeader col-span-4' style={{ color: "red" }}>No Data for : {state[0].startDate.toDateString()} </div>
                                         </div> : <></>
@@ -721,22 +806,25 @@ function BusinessReport() {
                                         <>
                                             <div className='grid grid-cols-12 mb-5 gap-6 pr-4'>
                                                 <div className='col-span-2 mt-3 flex justify-end'>
-                                                    <ExportMenu exportExcel={excelExport} exportPdf={pdfExport} />
+                                                    {(tab === '1' || tab === 1) ? <ExportMenu exportExcel={excelExport} exportPdf={pdfExport} /> : <ExportMenu exportExcel={excelExportNet} exportPdf={pdfExportNet} />}
                                                 </div>
-                                                <div className='mt-3 col-start-9 col-span-2'>
-                                                    <button className='editBtnReport' onClick={() => {
-                                                        handleEditReport();
-                                                    }}><EditIcon /> Edit</button>
-                                                </div>
-                                                <div className='mt-3 col-span-2'>
-                                                    <button className='deleteBtnReport' onClick={() => {
-                                                        deleteReport(filter ? state[0].startDate : dayjs());
-                                                    }}><DeleteOutlineIcon /> Delete</button>
-                                                </div>
+                                                {(tab === 4 || tab === '4') ? <></> : <>
+                                                    <div className='mt-3 col-start-9 col-span-2'>
+                                                        <button className='editBtnReport' onClick={() => {
+                                                            handleEditReport();
+                                                        }}><EditIcon /> Edit</button>
+                                                    </div>
+                                                    <div className='mt-3 col-span-2'>
+                                                        <button className='deleteBtnReport' onClick={() => {
+                                                            deleteReport(filter ? state[0].startDate : dayjs());
+                                                        }}><DeleteOutlineIcon /> Delete</button>
+                                                    </div>
+                                                </>
+                                                }
                                             </div>
                                             <hr />
                                         </> : <></> :
-                                tab == 1 ?
+                                tab == 1 || tab == 4 ?
                                     <>
                                         <div className='grid grid-cols-12 gap-6 pr-4 mb-5'>
                                             <div className='mt-3 incomeSourceHeader col-span-6' >Data for Date Range : {state[0].startDate.toDateString() + ' to ' + state[0].endDate.toDateString()} </div>
@@ -751,7 +839,7 @@ function BusinessReport() {
                             <div className='grid grid-cols-12 gap-6 pr-4'>
                                 <div className='mt-3 incomeSourceHeader col-span-4'>Income Source </div>
                                 <div className='mt-3 incomeSourceHeader col-span-4'>Expense </div>
-                                <div className='mt-3 incomeSourceHeader col-span-4'>Opening/Closing </div>
+                                {(tab === 4 || tab === '4') ? <div className='mt-3 incomeSourceHeader col-span-4'>Net Business </div> : <div className='mt-3 incomeSourceHeader col-span-4'>Opening/Closing </div>}
                             </div>
                             <div className='grid grid-cols-12 gap-6 pr-4'>
                                 <div className='mt-3 col-span-4 addIncomeContainer'>
@@ -782,7 +870,7 @@ function BusinessReport() {
                                                             </FormControl>
 
                                                             :
-                                                            (tab === 1 || tab === '1') &&
+                                                            (tab === 1 || tab === '1' || tab === 4 || tab === '4') &&
                                                             <div className='amountDisplay mt-2'>
                                                                 <CurrencyRupeeIcon /> {parseFloat(data.businessAmt ? data.businessAmt : 0).toLocaleString('en-IN')}
                                                             </div>
@@ -791,7 +879,7 @@ function BusinessReport() {
                                             </div>
                                         ))
                                     }
-                                    {((tab === 1 && tab === '1') || !isEdit) &&
+                                    {((tab === 1 && tab === '1' || tab === 4 && tab === '4') || !isEdit) &&
                                         <div className={`grid grid-cols-12 gap-3 soureceHeader mt-8`}>
                                             <div className='col-span-5 mt-2 suppilerDetailFeildHeader'>
                                                 Mistake Income:
@@ -849,61 +937,65 @@ function BusinessReport() {
                                                     </div>
                                                 </div>
                                             }
-                                            <div className={`grid grid-cols-12 gap-3 soureceHeader ${(tab === 2 || tab === '2') ? 'mt-8' : (tab === 1 || tab === '1') && isEdit ? 'mt-8' : ''}`}>
-                                                <div className='col-span-5 mt-2 suppilerDetailFeildHeader'>
-                                                    Opening Balance :
+                                            {(tab === 4 || tab === '4') ? <></> : <>
+                                                <div className={`grid grid-cols-12 gap-3 soureceHeader ${(tab === 2 || tab === '2') ? 'mt-8' : (tab === 1 || tab === '1') && isEdit ? 'mt-8' : ''}`}>
+                                                    <div className='col-span-5 mt-2 suppilerDetailFeildHeader'>
+                                                        Opening Balance :
+                                                    </div>
+                                                    <div className='col-span-7'>
+                                                        {(tab === 2 || tab === '2') || isEdit ?
+                                                            <FormControl fullWidth sx={{ m: 1 }} variant="standard">
+                                                                <Input
+                                                                    value={formDataOther && formDataOther.openingBalanceAmt ? formDataOther.openingBalanceAmt : 0}
+                                                                    onChange={(e) => {
+                                                                        if ((regex.test(e.target.value) || e.target.value === '') && e.target.value.length < 11) {
+                                                                            onChangeOther(e)
+                                                                        }
+                                                                    }}
+                                                                    name='openingBalanceAmt'
+                                                                    InputProps={{ style: { fontSize: 14 } }}
+                                                                    InputLabelProps={{ style: { fontSize: 14 } }}
+                                                                    fullWidth
+                                                                    startAdornment={<InputAdornment position="start"><CurrencyRupeeIcon /></InputAdornment>}
+                                                                />
+                                                            </FormControl>
+                                                            :
+                                                            (tab === 1 || tab === '1') &&
+                                                            <div className='amountDisplay mt-2'>
+                                                                <CurrencyRupeeIcon /> {parseFloat(formDataOther && formDataOther.openingBalanceAmt ? formDataOther.openingBalanceAmt : 0).toLocaleString('en-IN')}
+                                                            </div>
+                                                        }
+                                                    </div>
                                                 </div>
-                                                <div className='col-span-7'>
-                                                    {(tab === 2 || tab === '2') || isEdit ?
-                                                        <FormControl fullWidth sx={{ m: 1 }} variant="standard">
-                                                            <Input
-                                                                value={formDataOther && formDataOther.openingBalanceAmt ? formDataOther.openingBalanceAmt : 0}
-                                                                onChange={(e) => {
-                                                                    if ((regex.test(e.target.value) || e.target.value === '') && e.target.value.length < 11) {
-                                                                        onChangeOther(e)
-                                                                    }
-                                                                }}
-                                                                name='openingBalanceAmt'
+
+                                                <div className={`grid grid-cols-12 gap-3 soureceHeader ${(tab === 2 || tab === '2') ? 'mt-12' : 'mt-6'}`}>
+                                                    <div className='col-span-5 mt-2 suppilerDetailFeildHeader'>
+                                                        Comment :
+                                                    </div>
+                                                    <div className='col-span-7'>
+                                                        {(tab === 2 || tab === '2') || isEdit ?
+                                                            <TextField
+                                                                value={formDataOther && formDataOther.openingBalanceComment ? formDataOther.openingBalanceComment : null}
+                                                                onChange={onChangeOther}
+                                                                name='openingBalanceComment'
+                                                                fullWidth
                                                                 InputProps={{ style: { fontSize: 14 } }}
                                                                 InputLabelProps={{ style: { fontSize: 14 } }}
-                                                                fullWidth
-                                                                startAdornment={<InputAdornment position="start"><CurrencyRupeeIcon /></InputAdornment>}
+                                                                id="outlined-multiline-static"
+                                                                // label="Multiline"
+                                                                multiline
+                                                                rows={4}
                                                             />
-                                                        </FormControl>
-                                                        :
-                                                        (tab === 1 || tab === '1') &&
-                                                        <div className='amountDisplay mt-2'>
-                                                            <CurrencyRupeeIcon /> {parseFloat(formDataOther && formDataOther.openingBalanceAmt ? formDataOther.openingBalanceAmt : 0).toLocaleString('en-IN')}
-                                                        </div>
-                                                    }
+                                                            :
+                                                            (tab === 1 || tab === '1') &&
+                                                            <div className='commentDisplay mt-2'>
+                                                                {formDataOther && formDataOther.openingBalanceComment ? formDataOther.openingBalanceComment : 'No Comment'}
+                                                            </div>
+                                                        }
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <div className={`grid grid-cols-12 gap-3 soureceHeader ${(tab === 2 || tab === '2') ? 'mt-12' : 'mt-6'}`}>
-                                                <div className='col-span-5 mt-2 suppilerDetailFeildHeader'>
-                                                    Comment :
-                                                </div>
-                                                <div className='col-span-7'>
-                                                    {(tab === 2 || tab === '2') || isEdit ?
-                                                        <TextField
-                                                            value={formDataOther && formDataOther.openingBalanceComment ? formDataOther.openingBalanceComment : null}
-                                                            onChange={onChangeOther}
-                                                            name='openingBalanceComment'
-                                                            fullWidth
-                                                            InputProps={{ style: { fontSize: 14 } }}
-                                                            InputLabelProps={{ style: { fontSize: 14 } }}
-                                                            id="outlined-multiline-static"
-                                                            // label="Multiline"
-                                                            multiline
-                                                            rows={4}
-                                                        />
-                                                        :
-                                                        (tab === 1 || tab === '1') &&
-                                                        <div className='commentDisplay mt-2'>
-                                                            {formDataOther && formDataOther.openingBalanceComment ? formDataOther.openingBalanceComment : 'No Comment'}
-                                                        </div>
-                                                    }
-                                                </div>
-                                            </div>
+                                            </>
+                                            }
                                             {(tab === 1 || tab === '1') &&
                                                 <div className='grid grid-cols-12 gap-3 soureceHeader mt-8'>
                                                     <div className='col-span-5 mt-2 suppilerDetailFeildHeader'>
@@ -918,7 +1010,7 @@ function BusinessReport() {
                                                     </div>
                                                 </div>
                                             }
-                                            {(tab === 1 || tab === '1') &&
+                                            {(tab === 1 || tab === '1' || tab === 4 || tab === '4') &&
                                                 <div className='grid grid-cols-12 gap-3 soureceHeader mt-8'>
                                                     <div className='col-span-5 mt-2 suppilerDetailFeildHeader'>
                                                         Cash Business :
@@ -932,7 +1024,7 @@ function BusinessReport() {
                                                     </div>
                                                 </div>
                                             }
-                                            {(tab === 1 || tab === '1') &&
+                                            {(tab === 1 || tab === '1' || tab === 4 || tab === '4') &&
                                                 <div className='grid grid-cols-12 gap-3 soureceHeader mt-8'>
                                                     <div className='col-span-5 mt-2 suppilerDetailFeildHeader'>
                                                         Online Business :
@@ -946,7 +1038,7 @@ function BusinessReport() {
                                                     </div>
                                                 </div>
                                             }
-                                            {(tab === 1 || tab === '1') &&
+                                            {(tab === 1 || tab === '1' || tab === 4 || tab === '4') &&
                                                 <div className='grid grid-cols-12 gap-3 soureceHeader mt-8'>
                                                     <div className='col-span-5 mt-2 suppilerDetailFeildHeader'>
                                                         Debit Business :
@@ -960,35 +1052,77 @@ function BusinessReport() {
                                                     </div>
                                                 </div>
                                             }
-                                            <div className='grid grid-cols-12 gap-3 soureceHeader mt-8'>
-                                                <div className='col-span-5 mt-2 suppilerDetailFeildHeader'>
-                                                    Closing Balance :
-                                                </div>
-                                                <div className='col-span-7'>
-                                                    {(tab === 2 || tab === '2') || isEdit ?
-                                                        <FormControl fullWidth sx={{ m: 1 }} variant="standard">
-                                                            <Input
-                                                                value={formDataOther && formDataOther.closingBalance ? formDataOther.closingBalance : ''}
-                                                                onChange={(e) => {
-                                                                    if ((regex.test(e.target.value) || e.target.value === '') && e.target.value.length < 11) {
-                                                                        onChangeOther(e)
-                                                                    }
-                                                                }}
-                                                                name='closingBalance'
-                                                                InputProps={{ style: { fontSize: 14 } }}
-                                                                InputLabelProps={{ style: { fontSize: 14 } }}
-                                                                fullWidth
-                                                                startAdornment={<InputAdornment position="start"><CurrencyRupeeIcon /></InputAdornment>}
-                                                            />
-                                                        </FormControl>
-                                                        :
-                                                        (tab === 1 || tab === '1') &&
-                                                        <div className='amountDisplay mt-2'>
-                                                            <CurrencyRupeeIcon /> {parseFloat(formDataOther && formDataOther.closingBalance ? formDataOther.closingBalance : 0).toLocaleString('en-IN')}
+                                            {(tab === 4 || tab === '4') &&
+                                                <>
+                                                    <div className='grid grid-cols-12 gap-3 soureceHeader mt-8'>
+                                                        <div className='col-span-5 mt-2 suppilerDetailFeildHeader'>
+                                                            Total Business :
                                                         </div>
-                                                    }
-                                                </div>
-                                            </div>
+                                                        <div className='col-span-7'>
+                                                            {
+                                                                <div className='amountDisplay mt-2'>
+                                                                    <CurrencyRupeeIcon /> {parseFloat(formDataOther && formDataOther.totalBusiness ? formDataOther.totalBusiness : 0).toLocaleString('en-IN')}
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                    <div className='grid grid-cols-12 gap-3 soureceHeader mt-8'>
+                                                        <div className='col-span-5 mt-2 suppilerDetailFeildHeader'>
+                                                            Total Expense :
+                                                        </div>
+                                                        <div className='col-span-7'>
+                                                            {
+                                                                <div className='amountDisplay mt-2'>
+                                                                    <CurrencyRupeeIcon /> {parseFloat(formDataOther && formDataOther.totalExpense ? formDataOther.totalExpense : 0).toLocaleString('en-IN')}
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                    <hr className='mt-5' style={{ border: '1px solid' }} />
+                                                    <div className='grid grid-cols-12 gap-3 soureceHeader mt-3'>
+                                                        <div className='col-span-5 mt-2 suppilerDetailFeildHeader'>
+                                                            Net Profit :
+                                                        </div>
+                                                        <div className='col-span-7'>
+                                                            {
+                                                                <div className='amountDisplay mt-2'>
+                                                                    <CurrencyRupeeIcon /> {parseFloat(formDataOther && formDataOther.NetProfit ? formDataOther.NetProfit : 0).toLocaleString('en-IN')}
+                                                                </div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </>
+                                            }
+                                            {(tab === 4 || tab === '4') ? <></> :
+                                                <div className='grid grid-cols-12 gap-3 soureceHeader mt-8'>
+                                                    <div className='col-span-5 mt-2 suppilerDetailFeildHeader'>
+                                                        Closing Balance :
+                                                    </div>
+                                                    <div className='col-span-7'>
+                                                        {(tab === 2 || tab === '2') || isEdit ?
+                                                            <FormControl fullWidth sx={{ m: 1 }} variant="standard">
+                                                                <Input
+                                                                    value={formDataOther && formDataOther.closingBalance ? formDataOther.closingBalance : ''}
+                                                                    onChange={(e) => {
+                                                                        if ((regex.test(e.target.value) || e.target.value === '') && e.target.value.length < 11) {
+                                                                            onChangeOther(e)
+                                                                        }
+                                                                    }}
+                                                                    name='closingBalance'
+                                                                    InputProps={{ style: { fontSize: 14 } }}
+                                                                    InputLabelProps={{ style: { fontSize: 14 } }}
+                                                                    fullWidth
+                                                                    startAdornment={<InputAdornment position="start"><CurrencyRupeeIcon /></InputAdornment>}
+                                                                />
+                                                            </FormControl>
+                                                            :
+                                                            (tab === 1 || tab === '1') &&
+                                                            <div className='amountDisplay mt-2'>
+                                                                <CurrencyRupeeIcon /> {parseFloat(formDataOther && formDataOther.closingBalance ? formDataOther.closingBalance : 0).toLocaleString('en-IN')}
+                                                            </div>
+                                                        }
+                                                    </div>
+                                                </div>}
                                         </>
                                         // ))
                                     }
