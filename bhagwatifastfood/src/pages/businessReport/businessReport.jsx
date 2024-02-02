@@ -1054,7 +1054,8 @@ function BusinessReport() {
                                             }
                                             {(tab === 4 || tab === '4') &&
                                                 <>
-                                                    <div className='grid grid-cols-12 gap-3 soureceHeader mt-8'>
+                                                    <hr className='mt-5' style={{ border: '1px solid' }} />
+                                                    <div className='grid grid-cols-12 gap-3 soureceHeader mt-3'>
                                                         <div className='col-span-5 mt-2 suppilerDetailFeildHeader'>
                                                             Total Business :
                                                         </div>
@@ -1085,7 +1086,7 @@ function BusinessReport() {
                                                         </div>
                                                         <div className='col-span-7'>
                                                             {
-                                                                <div className='amountDisplay mt-2'>
+                                                                <div className={`amountDisplay mt-2 ${formDataOther && formDataOther.NetProfit > 0 ? 'futureDueTxtG' : 'futureDueTxt'}`}>
                                                                     <CurrencyRupeeIcon /> {parseFloat(formDataOther && formDataOther.NetProfit ? formDataOther.NetProfit : 0).toLocaleString('en-IN')}
                                                                 </div>
                                                             }
