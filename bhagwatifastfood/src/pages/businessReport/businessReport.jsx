@@ -155,16 +155,17 @@ function BusinessReport() {
     const handleEditReport = () => {
         setFormData({});
         setIsEdit(true);
-        categoryList?.map((data) => {
-            setFormData((perv) => ({
-                ...perv,
-                [data.businessCategoryId]: data.businessAmt
-            }))
-        })
-        setFormDataOther((perv) => ({
-            ...perv,
-            reportDate: filter && (state[0].startDate.toDateString() == state[0].startDate.toDateString()) ? dayjs(state[0].startDate) : dayjs().hour() < 4 ? dayjs().subtract(1, 'day') : dayjs(),
-        }))
+        filter ? getReportByFilterOnEdit() : getReportOnEdit();
+        // categoryList?.map((data) => {
+        //     setFormData((perv) => ({
+        //         ...perv,
+        //         [data.businessCategoryId]: data.businessAmt
+        //     }))
+        // })
+        // setFormDataOther((perv) => ({
+        //     ...perv,
+        //     reportDate: filter && (state[0].startDate.toDateString() == state[0].startDate.toDateString()) ? dayjs(state[0].startDate) : dayjs().hour() < 4 ? dayjs().subtract(1, 'day') : dayjs(),
+        // }))
     }
     const addReport = async () => {
         if (window.confirm('Are you sure you want to submit report')) {
@@ -533,6 +534,49 @@ function BusinessReport() {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
+    const getReportOnEdit = async () => {
+        console.log("page get", page, rowsPerPage)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getBusinessReportDashBoard?startDate=${''}&endDate=${''}`, config)
+            .then((res) => {
+                setCategoryList(res.data.incomeSourceData);
+                setExpenseList(res.data.expenseData);
+                setFormDataOther(res.data);
+                res.data && res.data.incomeSourceData?.map((data) => {
+                    setFormData((perv) => ({
+                        ...perv,
+                        [data.businessCategoryId]: data.businessAmt
+                    }))
+                })
+                setFormDataOther((perv) => ({
+                    ...perv,
+                    reportDate: filter && (state[0].startDate.toDateString() == state[0].startDate.toDateString()) ? dayjs(state[0].startDate) : dayjs().hour() < 4 ? dayjs().subtract(1, 'day') : dayjs(),
+                }))
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getReportByFilterOnEdit = async () => {
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getBusinessReportDashBoard?startDate=${state[0].startDate}&endDate=${state[0].endDate}`, config)
+            .then((res) => {
+                setCategoryList(res.data.incomeSourceData);
+                setExpenseList(res.data.expenseData);
+                setFormDataOther(res.data)
+                res.data && res.data.incomeSourceData?.map((data) => {
+                    setFormData((perv) => ({
+                        ...perv,
+                        [data.businessCategoryId]: data.businessAmt
+                    }))
+                })
+                setFormDataOther((perv) => ({
+                    ...perv,
+                    reportDate: filter && (state[0].startDate.toDateString() == state[0].startDate.toDateString()) ? dayjs(state[0].startDate) : dayjs().hour() < 4 ? dayjs().subtract(1, 'day') : dayjs(),
+                }))
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
     const getReportNet = async () => {
         console.log("page get", page, rowsPerPage)
         await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getBusinessReportDashBoardwithNetProfit?startDate=${''}&endDate=${''}`, config)
@@ -829,7 +873,7 @@ function BusinessReport() {
                                         <div className='grid grid-cols-12 gap-6 pr-4 mb-5'>
                                             <div className='mt-3 incomeSourceHeader col-span-6' >Data for Date Range : {state[0].startDate.toDateString() + ' to ' + state[0].endDate.toDateString()} </div>
                                             <div className='col-span-2 col-start-11 mt-3 flex justify-end'>
-                                                <ExportMenu exportExcel={excelExport} exportPdf={pdfExport} />
+                                                {(tab === '1' || tab === 1) ? <ExportMenu exportExcel={excelExport} exportPdf={pdfExport} /> : <ExportMenu exportExcel={excelExportNet} exportPdf={pdfExportNet} />}
                                             </div>
                                         </div>
                                         <hr />
