@@ -904,6 +904,7 @@ function BusinessReport() {
                                                                             onChange(e)
                                                                         }
                                                                     }}
+                                                                    autoComplete='off'
                                                                     id={data.businessCategoryId}
                                                                     name={data && data.businessCategoryId ? data.businessCategoryId : ''}
                                                                     InputProps={{ style: { fontSize: 14 } }}
@@ -996,6 +997,7 @@ function BusinessReport() {
                                                                             onChangeOther(e)
                                                                         }
                                                                     }}
+                                                                    autoComplete='off'
                                                                     name='openingBalanceAmt'
                                                                     InputProps={{ style: { fontSize: 14 } }}
                                                                     InputLabelProps={{ style: { fontSize: 14 } }}
@@ -1157,6 +1159,7 @@ function BusinessReport() {
                                                                     InputProps={{ style: { fontSize: 14 } }}
                                                                     InputLabelProps={{ style: { fontSize: 14 } }}
                                                                     fullWidth
+                                                                    disabled
                                                                     startAdornment={<InputAdornment position="start"><CurrencyRupeeIcon /></InputAdornment>}
                                                                 />
                                                             </FormControl>

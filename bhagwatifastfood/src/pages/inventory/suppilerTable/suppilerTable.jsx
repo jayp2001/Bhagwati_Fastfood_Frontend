@@ -21,6 +21,10 @@ import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from 'react-toastify';
 import SearchIcon from '@mui/icons-material/Search';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import dayjs from 'dayjs';
 
 const styleStockIn = {
     position: 'absolute',
@@ -58,7 +62,8 @@ function SuppilerTable() {
         paidAmount: '',
         transactionNote: '',
         remainingAmount: '',
-        supplierName: ''
+        supplierName: '',
+        transactionDate: dayjs()
     });
     const [formDataError, setFormDataError] = React.useState({
         receivedBy: false,
@@ -90,7 +95,8 @@ function SuppilerTable() {
             paidAmount: '',
             transactionNote: '',
             remainingAmount: '',
-            supplierName: ''
+            supplierName: '',
+            transactionDate: dayjs()
         })
         setFormDataError({
             receivedBy: false,
@@ -195,6 +201,12 @@ function SuppilerTable() {
                 setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }
+    const handlTransactionDate = (date) => {
+        setFormData((prevState) => ({
+            ...prevState,
+            ["transactionDate"]: date && date['$d'] ? date['$d'] : null,
+        }))
+    };
     const getDebitCounts = async () => {
         await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getDebitTransactionCounter?`, config)
             .then((res) => {
@@ -415,7 +427,7 @@ function SuppilerTable() {
                         <span className='makePaymentHeader'>Make Payment to : </span><span className='makePaymentName'>{formData.supplierFirmName}</span>
                     </Typography>
                     <div className='mt-6 grid grid-cols-12 gap-6'>
-                        <div className='col-span-6'>
+                        <div className='col-span-4'>
                             <TextField
                                 onBlur={(e) => {
                                     if (e.target.value < 2) {
@@ -444,7 +456,7 @@ function SuppilerTable() {
                                 fullWidth
                             />
                         </div>
-                        <div className='col-span-6'>
+                        <div className='col-span-4'>
                             <TextField
                                 onBlur={(e) => {
                                     if (e.target.value < 0) {
@@ -474,6 +486,23 @@ function SuppilerTable() {
                                     startAdornment: <InputAdornment position="start"><CurrencyRupeeIcon /></InputAdornment>,
                                 }}
                             />
+                        </div>
+                        <div className='col-span-4'>
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DesktopDatePicker
+                                    textFieldStyle={{ width: '100%' }}
+                                    InputProps={{ style: { fontSize: 14, width: '100%' } }}
+                                    InputLabelProps={{ style: { fontSize: 14 } }}
+                                    label="Transaction Date"
+                                    format="DD/MM/YYYY"
+                                    required
+                                    error={formDataError.transactionDate}
+                                    value={formData.transactionDate}
+                                    onChange={handlTransactionDate}
+                                    name="transactionDate"
+                                    renderInput={(params) => <TextField {...params} sx={{ width: '100%' }} />}
+                                />
+                            </LocalizationProvider>
                         </div>
                     </div>
                     <div className='mt-4 grid grid-cols-12 gap-6'>

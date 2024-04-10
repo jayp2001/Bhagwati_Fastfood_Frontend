@@ -34,6 +34,10 @@ import Menutemp from '../transactionTable/menu';
 import MenuStockInOut from './menu';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import dayjs from 'dayjs';
 
 function SuppilerDetail() {
     let { id } = useParams();
@@ -45,6 +49,7 @@ function SuppilerDetail() {
         transactionNote: '',
         remainingAmount: '',
         supplierName: '',
+        transactionDate: dayjs()
     });
     const [formDataError, setFormDataError] = React.useState({
         receivedBy: false,
@@ -85,6 +90,12 @@ function SuppilerDetail() {
             key: 'selection'
         }
     ]);
+    const handlTransactionDate = (date) => {
+        setFormData((prevState) => ({
+            ...prevState,
+            ["transactionDate"]: date && date['$d'] ? date['$d'] : null,
+        }))
+    };
     const getSuppilerDetails = async () => {
         await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getSupplierDetailsById?supplierId=${id}`, config)
             .then((res) => {
@@ -94,7 +105,8 @@ function SuppilerDetail() {
                     ...perv,
                     supplierName: res.data.firmName,
                     receivedBy: res.data.nickName,
-                    supplierId: id
+                    supplierId: id,
+                    transactionDate: dayjs()
                 }))
             })
             .catch((error) => {
@@ -399,6 +411,7 @@ function SuppilerDetail() {
                     receivedBy: '',
                     paidAmount: '',
                     transactionNote: '',
+                    transactionDate: dayjs()
                 }))
                 getStatistics();
                 getDebitData();
@@ -817,7 +830,7 @@ function SuppilerDetail() {
                     <AccordionDetails>
                         <div className='stockInOutContainer'>
                             <div className='mt-6 grid grid-cols-12 gap-6'>
-                                <div className='col-span-4'>
+                                <div className='col-span-3'>
                                     <TextField
                                         disabled={formData.remainingAmount === 0 ? true : false}
                                         onBlur={(e) => {
@@ -846,7 +859,7 @@ function SuppilerDetail() {
                                         fullWidth
                                     />
                                 </div>
-                                <div className='col-span-4'>
+                                <div className='col-span-3'>
                                     <TextField
                                         disabled={formData.remainingAmount === 0 ? true : false}
                                         onBlur={(e) => {
@@ -877,6 +890,23 @@ function SuppilerDetail() {
                                         }}
                                     />
                                 </div>
+                                <div className='col-span-2'>
+                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                        <DesktopDatePicker
+                                            textFieldStyle={{ width: '100%' }}
+                                            InputProps={{ style: { fontSize: 14, width: '100%' } }}
+                                            InputLabelProps={{ style: { fontSize: 14 } }}
+                                            label="Transaction Date"
+                                            format="DD/MM/YYYY"
+                                            required
+                                            error={formDataError.transactionDate}
+                                            value={formData.transactionDate}
+                                            onChange={handlTransactionDate}
+                                            name="transactionDate"
+                                            renderInput={(params) => <TextField {...params} sx={{ width: '100%' }} />}
+                                        />
+                                    </LocalizationProvider>
+                                </div>
                                 <div className='col-span-4'>
                                     <TextField
                                         disabled={formData.remainingAmount === 0 ? true : false}
@@ -892,7 +922,7 @@ function SuppilerDetail() {
                                 </div>
                             </div>
                             <div className='mt-4 grid grid-cols-12 gap-6'>
-                                <div className='col-span-3'>
+                                <div className='col-start-7 col-span-3'>
                                     <button className='addCategorySaveBtn' onClick={() => {
                                         !formData.remainingAmount == 0 && submitPayment();
                                     }}>Make Payment</button>
@@ -903,6 +933,7 @@ function SuppilerDetail() {
                                             ...perv,
                                             paidAmount: '',
                                             transactionNote: '',
+                                            transactionDate: dayjs()
                                         }))
                                         setFormDataError((perv) => ({
                                             ...perv,
