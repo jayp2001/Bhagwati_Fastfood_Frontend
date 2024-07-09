@@ -789,6 +789,7 @@ function ProductList() {
                             <FormControl style={{ minWidth: '100%' }}>
                                 <InputLabel id="demo-simple-select-label" required error={formDataError.minProductUnit}>Units</InputLabel>
                                 <Select
+                                    // native
                                     labelId="demo-simple-select-label"
                                     id="demo-simple-select"
                                     value={formData.minProductUnit}

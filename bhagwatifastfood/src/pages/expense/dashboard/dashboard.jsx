@@ -505,6 +505,7 @@ function ExpenseDashboard() {
         }))
     };
     const handleSourceNameAutoComplete = (event, value) => {
+        console.log('source>>', value)
         setFormData((prevState) => ({
             ...prevState,
             ['source']: value,

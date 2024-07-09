@@ -634,11 +634,11 @@ function SuppilerDetail() {
             <div className='grid grid-cols-12 gap-8'>
                 <div className='col-span-5 mt-6 grid gap-2 suppilerDetailContainer'>
                     <div className='suppilerHeader'>
-                        Suppiler Details
+                        Supplier Details
                     </div>
                     <div className='grid grid-cols-12 gap-3 hrLine'>
                         <div className='col-span-5 suppilerDetailFeildHeader'>
-                            Suppluer Name :
+                            Supplier Name :
                         </div>
                         <div className='col-span-7 suppilerDetailFeild'>
                             {suppilerDetails.supplierName}

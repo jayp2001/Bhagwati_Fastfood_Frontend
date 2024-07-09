@@ -1,7 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
 import PageNotFoundRedirect from "./pageNotFound";
-import { BrowserRouter ,Route,Routes } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import LoginPage from './pages/login/login';
 import Dashboard from './pages/inventory/dashboard/dashboard';
 import ProtectedUserRoutes from './protectedUserRoutes';
@@ -41,75 +41,82 @@ import BankDetail from './pages/bank/bankDetail/bankDetail';
 import ExpenseTable from './pages/expense/expenseTable/expenseTable';
 import ExpenseTableSubCategory from './pages/expense/subCategoryExpenseTable/expenseTable';
 import BusinessReport from './pages/businessReport/businessReport';
+import HotelTable from './billingPages/hotelTable/hotelTable';
+import CommentTable from './billingPages/commentAdd/comments';
+import HotelDetails from './billingPages/hotelDetals/hotelDetail';
+import DeliveryDashboard from './deliveryManagement/Dashboard/Dashboard';
+import SaveAndSettel from './billingPages/saveAndSettel/saveAndSettel';
+import TokenView from './biling/TokenView/TokenView';
+import TokenViewForMobile from './tokenView/TokenViewForMobile';
 // import SetPrinter from './setPrinter';
 function App() {
   return (
     <div className="">
       <BrowserRouter>
-       <NavBar/>
-            <div className='mainBody'>
-              <Routes>
-                <Route path="/" element={<ProtectedStockManagerRoutes/>}>
-                  <Route path="/stockOut" element={<StockOut />}/>
-                  <Route path="/stockManager/productDetail/:id/:name/:unit/:remainingQty" element={<ProductDetailsManager />}/>
-                  {/* <Route path='list' exact element={<AgentList />}/> */}
-                  <Route path='*' element={<PageNotFoundRedirect/>}/>
-                </Route>
-                 <Route path="/" element={<ProtectedAdminRoutes />}>
-                  <Route path="/staff/addStaff" element={<AddEditStaff/>}/>
-                  <Route path="/staff/staffList" element={<StaffList/>}/>
-                  <Route path="/staff/staffCategory" element={<StaffCategoryTable/>}/>
-                  <Route path="/staff/allPayments" element={<AllPayments/>}/>
-                  <Route path="/staff/leaves" element={<Leaves/>}/>
-                  <Route path="/staff/editStaff/:id" element={<AddEditStaff/>}/>
-                  <Route path="/staff/employeeDetail/:id" element={<EmployeeDetails/>}/>
-                </Route>
-                 <Route path="/" element={<ProtectedAdminRoutes />}>
-                  <Route path="/businessReport" element={<BusinessReport/>}/>
-                  <Route path="/expense/dashboard" element={<ExpenseDashboard/>}/>
-                  {/* <Route path="/expense/subCategories/:categoryId" element={<SubCategoryTable/>}/> */}
-                  <Route path="/expense/subCategory/:categoryName/:subCategoryName/expenses/:categoryId/:subCategoryId" element={<ExpenseTableSubCategory/>}/>
-                  <Route path="/expense/mainCategory/:categoryName/expenses/:categoryId" element={<ExpenseTable/>}/>
-                  <Route path="/expense/mainCategory/:categoryName/:categoryId" element={<SubCategoryTable/>}/>
-                  {/* <Route path="/staff/addStaff" element={<AddEditStaff/>}/>
+        <NavBar />
+        <div className='mainBody'>
+          <Routes>
+            <Route path="/" element={<ProtectedStockManagerRoutes />}>
+              <Route path="/stockOut" element={<StockOut />} />
+              <Route path="/stockManager/productDetail/:id/:name/:unit/:remainingQty" element={<ProductDetailsManager />} />
+              {/* <Route path='list' exact element={<AgentList />}/> */}
+              <Route path='*' element={<PageNotFoundRedirect />} />
+            </Route>
+            <Route path="/" element={<ProtectedAdminRoutes />}>
+              <Route path="/staff/addStaff" element={<AddEditStaff />} />
+              <Route path="/staff/staffList" element={<StaffList />} />
+              <Route path="/staff/staffCategory" element={<StaffCategoryTable />} />
+              <Route path="/staff/allPayments" element={<AllPayments />} />
+              <Route path="/staff/leaves" element={<Leaves />} />
+              <Route path="/staff/editStaff/:id" element={<AddEditStaff />} />
+              <Route path="/staff/employeeDetail/:id" element={<EmployeeDetails />} />
+            </Route>
+            <Route path="/" element={<ProtectedAdminRoutes />}>
+              <Route path="/businessReport" element={<BusinessReport />} />
+              <Route path="/expense/dashboard" element={<ExpenseDashboard />} />
+              {/* <Route path="/expense/subCategories/:categoryId" element={<SubCategoryTable/>}/> */}
+              <Route path="/expense/subCategory/:categoryName/:subCategoryName/expenses/:categoryId/:subCategoryId" element={<ExpenseTableSubCategory />} />
+              <Route path="/expense/mainCategory/:categoryName/expenses/:categoryId" element={<ExpenseTable />} />
+              <Route path="/expense/mainCategory/:categoryName/:categoryId" element={<SubCategoryTable />} />
+              {/* <Route path="/staff/addStaff" element={<AddEditStaff/>}/>
                   <Route path="/staff/staffList" element={<StaffList/>}/>
                   <Route path="/staff/staffCategory" element={<StaffCategoryTable/>}/>
                   <Route path="/staff/allPayments" element={<AllPayments/>}/>
                   <Route path="/staff/leaves" element={<Leaves/>}/>
                   <Route path="/staff/editStaff/:id" element={<AddEditStaff/>}/>
                   <Route path="/staff/employeeDetail/:id" element={<EmployeeDetails/>}/> */}
-                </Route>
-                <Route path="/" element={<ProtectedAdminRoutes />}>
-                  <Route path="/bank/dashboard" element={<BankDashboard/>}/>
-                  <Route path="/bank/detail/:id" element={<BankDetail/>}/>
-                  {/* <Route path="/expense/subCategories/:categoryId" element={<SubCategoryTable/>}/>
+            </Route>
+            <Route path="/" element={<ProtectedAdminRoutes />}>
+              <Route path="/bank/dashboard" element={<BankDashboard />} />
+              <Route path="/bank/detail/:id" element={<BankDetail />} />
+              {/* <Route path="/expense/subCategories/:categoryId" element={<SubCategoryTable/>}/>
                   <Route path="/expense/subCategory/:categoryId" element={<SubCategoryDetail/>}/> */}
-                  {/* <Route path="/staff/addStaff" element={<AddEditStaff/>}/>
+              {/* <Route path="/staff/addStaff" element={<AddEditStaff/>}/>
                   <Route path="/staff/staffList" element={<StaffList/>}/>
                   <Route path="/staff/staffCategory" element={<StaffCategoryTable/>}/>
                   <Route path="/staff/allPayments" element={<AllPayments/>}/>
                   <Route path="/staff/leaves" element={<Leaves/>}/>
                   <Route path="/staff/editStaff/:id" element={<AddEditStaff/>}/>
                   <Route path="/staff/employeeDetail/:id" element={<EmployeeDetails/>}/> */}
-                </Route>
-                <Route path="/" element={<ProtectedUserRoutes/>}>
-                  <Route path="/dashboard" element={<Dashboard/>}/>
-                  <Route path="/addUser" element={<AddUser />}/>
-                  <Route path="/addSuppiler" element={<AddSuppiler />}/>
-                  <Route path="/userTable" element={<UserTable />}/>
-                  <Route path="/productList" element={<ProductList />}/>
-                  <Route path="/productTable" element={<ProductListTable />}/>
-                  <Route path="/stockInOut" element={<StockInOut />}/>
-                  <Route path="/transactionTable" element={<TransactionTable />}/>
-                  <Route path="/suppilerTable" element={<SuppilerTable />}/>
-                  <Route path="/categories" element={<CategoriesTable />}/>
-                  <Route path="/editUser/:id" element={<EditUser/>}/>
-                  <Route path="/editHistory/:id" element={<EditHistory/>}/>
-                  <Route path="/editSuppiler/:id" element={<EditSuppiler/>}/>
-                  <Route path="/suppilerDetails/:id" element={<SuppilerDetail/>}/>
-                  <Route path="/stockOutByCategory/:category/:categoryId" element={<StockOutByCategory/>}/>
-                  <Route path="/productDetails/:id/:name/:unit/:remainingQty" element={<ProductDetails/>}/>
-                  {/* <Route path="/dashboard" element={<Dashboard/>}/>
+            </Route>
+            <Route path="/" element={<ProtectedUserRoutes />}>
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/addUser" element={<AddUser />} />
+              <Route path="/addSuppiler" element={<AddSuppiler />} />
+              <Route path="/userTable" element={<UserTable />} />
+              <Route path="/productList" element={<ProductList />} />
+              <Route path="/productTable" element={<ProductListTable />} />
+              <Route path="/stockInOut" element={<StockInOut />} />
+              <Route path="/transactionTable" element={<TransactionTable />} />
+              <Route path="/suppilerTable" element={<SuppilerTable />} />
+              <Route path="/categories" element={<CategoriesTable />} />
+              <Route path="/editUser/:id" element={<EditUser />} />
+              <Route path="/editHistory/:id" element={<EditHistory />} />
+              <Route path="/editSuppiler/:id" element={<EditSuppiler />} />
+              <Route path="/suppilerDetails/:id" element={<SuppilerDetail />} />
+              <Route path="/stockOutByCategory/:category/:categoryId" element={<StockOutByCategory />} />
+              <Route path="/productDetails/:id/:name/:unit/:remainingQty" element={<ProductDetails />} />
+              {/* <Route path="/dashboard" element={<Dashboard/>}/>
                   <Route path="/dealer/:id" element={<DealerDetail/>}/>
                   <Route path="/editDealer/:id" element={<EditDealer/>}/>
                   <Route path="/vehicleDetail/:id" element={<VehicleDetail/>}/>
@@ -118,14 +125,20 @@ function App() {
                   <Route path="/RRF" element={<RrfBookList/>}/>
                   <Route path="/OTHER" element={<OtherBookList/>}/>
                   <Route path="/bookList" element={<AllBookList/>}/> */}
-                </Route>
-                <Route path='/thermal' exact element={<PrintButton />}/>
-                {/* <Route path='/setPrinter' exact element={<SetPrinter />}/> */}
-                <Route path='/login' exact element={<LoginPage />}/>
-                <Route path='*' element={<PageNotFoundRedirect/>}/>
-              </Routes>
-            </div>
-    </BrowserRouter>
+              <Route path="/billing/hotelTable" element={<HotelTable />} />
+              <Route path="/billing/comments" element={<CommentTable />} />
+              <Route path="/saveAndSettel" element={<SaveAndSettel />} />
+            </Route>
+            <Route path='/thermal' exact element={<PrintButton />} />
+            {/* <Route path='/setPrinter' exact element={<SetPrinter />}/> */}
+            <Route path='/login' exact element={<LoginPage />} />
+            <Route path='*' element={<PageNotFoundRedirect />} />
+            <Route path='/deliveryManagement/Dashboard' element={<DeliveryDashboard />} />
+            <Route path='/deliveryManagement/tokenView' element={<TokenView />} />
+            <Route path='/deliveryManagement/tokenViewForMobile' element={<TokenViewForMobile />} />
+          </Routes>
+        </div>
+      </BrowserRouter>
     </div>
   );
 }

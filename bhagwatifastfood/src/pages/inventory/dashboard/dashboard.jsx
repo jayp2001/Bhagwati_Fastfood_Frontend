@@ -50,6 +50,16 @@ function Dashboard() {
             }
         }
     }
+    const goToHotel = () => {
+        const auth = new Date(expirationTime) > new Date() && (role == 1) ? true : false
+        if (auth) {
+            navigate('/billing/hotelTable')
+        } else {
+            if (window.confirm("You are not Authorised. You want to Login again ?")) {
+                navigate('/login')
+            }
+        }
+    }
     const goToExpense = () => {
         const auth = new Date(expirationTime) > new Date() && (role == 1 || role == 2) ? true : false
         if (auth) {
@@ -90,6 +100,36 @@ function Dashboard() {
             }
         }
     }
+    const goToDelivery = () => {
+        const auth = new Date(expirationTime) > new Date() && (role == 1 || role == 2) ? true : false
+        if (auth) {
+            navigate('/deliveryManagement/Dashboard')
+        } else {
+            if (window.confirm("You are not Authorised. You want to Login again ?")) {
+                navigate('/login')
+            }
+        }
+    }
+    const goToTokenView = () => {
+        const auth = new Date(expirationTime) > new Date() && (role == 1 || role == 2) ? true : false
+        if (auth) {
+            navigate('/deliveryManagement/tokenView')
+        } else {
+            if (window.confirm("You are not Authorised. You want to Login again ?")) {
+                navigate('/login')
+            }
+        }
+    }
+    const goToTokenMobileView = () => {
+        const auth = new Date(expirationTime) > new Date() && (role == 1 || role == 2) ? true : false
+        if (auth) {
+            navigate('/deliveryManagement/tokenViewForMobile')
+        } else {
+            if (window.confirm("You are not Authorised. You want to Login again ?")) {
+                navigate('/login')
+            }
+        }
+    }
     const goToProductList = () => {
         navigate('/productList')
     }
@@ -104,6 +144,10 @@ function Dashboard() {
                     <ConsoleCard goToAddUSer={goToReport} name={"Business Report"} imgName={'report'} />
                     <ConsoleCard goToAddUSer={goToAddUSer} name={"Add User"} imgName={'userAdd'} />
                     <ConsoleCard goToAddUSer={goToUserList} name={"User List"} imgName={'userList'} />
+                    <ConsoleCard goToAddUSer={goToHotel} name={"Hotel List"} imgName={'hotel'} />
+                    <ConsoleCard goToAddUSer={goToDelivery} name={"Delivery Console"} imgName={'hotel'} />
+                    <ConsoleCard goToAddUSer={goToTokenView} name={"Token Display"} imgName={'hotel'} />
+                    <ConsoleCard goToAddUSer={goToTokenMobileView} name={"Token Mobile Display"} imgName={'hotel'} />
                 </div>
             </div>
         </div>

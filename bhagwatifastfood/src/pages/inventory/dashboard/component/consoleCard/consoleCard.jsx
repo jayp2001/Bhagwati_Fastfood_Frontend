@@ -8,6 +8,7 @@ import expense from '../../../../../assets/expense.png';
 import userList from '../../../../../assets/userList.png';
 import bank from '../../../../../assets/bank.png';
 import report from '../../../../../assets/report.png';
+import hotel from '../../../../../assets/billing/hotel.png'
 function ConsoleCard(props) {
     const getImg = (imgname) => {
         switch (imgname) {
@@ -23,6 +24,8 @@ function ConsoleCard(props) {
                 return bank;
             case 'report':
                 return report;
+            case 'hotel':
+                return hotel;
             default:
                 return userAdd;
         }
