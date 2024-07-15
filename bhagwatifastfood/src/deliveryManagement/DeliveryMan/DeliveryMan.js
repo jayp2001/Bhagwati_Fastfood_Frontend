@@ -89,11 +89,6 @@ function DeliveryMan() {
             Authorization: `Bearer ${userInfo.token}`,
         },
     };
-
-    useEffect(() => {
-        getDeliveryMenDetails(page, rowsPerPage);
-    }, []);
-
     const getDeliveryMenDetails = async (page, rowsPerPage) => {
         try {
             await axios.get(`${BACKEND_BASE_URL}deliveryAndPickUprouter/getDeliveryPersonList?page=${page + 1}&numPerPage=${rowsPerPage}`, config)
@@ -110,6 +105,10 @@ function DeliveryMan() {
             setError(error.response?.data || 'Network Error!!..');
         }
     };
+
+    useEffect(() => {
+        getDeliveryMenDetails(page, rowsPerPage);
+    }, []);
 
     const handleCreateDeliveryManData = async () => {
         try {
@@ -155,7 +154,6 @@ function DeliveryMan() {
                 .then((res) => {
                     setLoading(false);
                     setSuccess(true);
-                    console.log('Response', res.data);
                     setDeliveryManData({ name: '', shortName: '' });
                     setEditDeliveryManId('');
                     setIsEdit(false);

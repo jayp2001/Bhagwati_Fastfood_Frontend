@@ -110,7 +110,7 @@ function NavBar() {
 
         setState({ ...state, [anchor]: open });
     };
-    console.log("location", location.pathname, location.pathname.split('/').length)
+    console.log("location", location.pathname, location.pathname.split('/')[1])
     const list = (anchor) => (
         <Box
             sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 300, color: 'gray' }}
@@ -433,6 +433,41 @@ function NavBar() {
         </Box>
     );
 
+    const hotel = (anchor) => (
+        <Box
+            sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 300, color: 'gray' }}
+            role="presentation"
+            onClick={toggleDrawer(anchor, false)}
+            onKeyDown={toggleDrawer(anchor, false)}
+        >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', backgroundColor: '#333', color: '#fff' }}>
+                <div style={{ fontSize: 35 }}><InventoryIcon fontSize='large' />&nbsp;&nbsp;Hotel</div>
+                <Button onClick={toggleDrawer(anchor, false)} color="inherit">
+                    <ArrowBackIcon fontSize='small' />
+                </Button>
+            </Box>
+            <Divider />
+            <List>
+                <ListItem key={'staff1'}>
+                    <ListItemButton to="/dashboard">
+                        <ListItemIcon>
+                            <DashboardIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={'Dashboard'} />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem key={'staff2'}>
+                    <ListItemButton to="/hotel/hotelTable">
+                        <ListItemIcon>
+                            <StyleOutlinedIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={'Hotel List'} />
+                    </ListItemButton>
+                </ListItem>
+            </List>
+        </Box>
+    );
+
     const navigate = useNavigate();
     const logout = () => {
         if (window.confirm("Are you sure !,you want to logout")) {
@@ -492,7 +527,57 @@ function NavBar() {
         });
         setError(false);
     }
+
+    const navbar = () => {
+        if (location.pathname != '/deliveryManagement/tokenView') {
+            return (<div className="navBar grid content-center">
+                <div className='flex justify-between h-full'>
+                    <div className='logoWrp flex h-full'>
+                        {
+                            location.pathname.split('/')[1] != 'dashboard' ?
+                                <div className='h-full grid content-center'>
+                                    <div>
+                                        {['left'].map((anchor) => (
+                                            <React.Fragment key={anchor}>
+                                                <Button onClick={toggleDrawer(anchor, true)}><MenuIcon fontSize='large' style={{ color: 'black' }} /></Button>
+                                                <Drawer
+                                                    anchor={anchor}
+                                                    open={state[anchor]}
+                                                    onClose={toggleDrawer(anchor, false)}
+                                                >
+                                                    {list(anchor)}
+                                                </Drawer>
+                                            </React.Fragment>
+                                        ))}
+                                    </div>
+                                </div>
+                                : null
+                        }
+                        <div>
+                            <img className='headerImg' src={bhagwatiHeaderLogo} alt='No Image Found' />
+                        </div>
+                    </div>
+                    <div className='logoutWrp flex justify-end'>
+                        {
+                            <div className='greeting h-full grid content-center mr-24'>
+                                {role != 6 ? greetMsg + ', ' + user?.userName : ''}
+                            </div>
+                        }
+                        <button className='h-full grid content-center' onClick={logout}>
+                            <LogoutIcon fontSize='medium' />
+                        </button>
+                    </div>
+                </div>
+                <ToastContainer />
+            </div>)
+        }
+        else {
+            <></>
+        }
+    }
+
     return (
+        // navbar()
         <div className="navBar grid content-center">
             <div className='flex justify-between h-full'>
                 <div className='logoWrp flex h-full'>
@@ -508,7 +593,7 @@ function NavBar() {
                                                 open={state[anchor]}
                                                 onClose={toggleDrawer(anchor, false)}
                                             >
-                                                {list(anchor)}
+                                                {location.pathname.split('/')[1] == 'hotel' ? hotel(anchor) : list(anchor)}
                                             </Drawer>
                                         </React.Fragment>
                                     ))}
@@ -521,9 +606,12 @@ function NavBar() {
                     </div>
                 </div>
                 <div className='logoutWrp flex justify-end'>
-                    <div className='greeting h-full grid content-center mr-24'>
-                        {role != 6 ? greetMsg + ', ' + user?.userName : ''}
-                    </div>
+                    {(location.pathname.split('/')[2] == 'tokenView' || location.pathname.split('/')[2] == 'tokenViewForMobile') ?
+                        <></> :
+                        <div className='greeting h-full grid content-center mr-24'>
+                            {role != 6 ? greetMsg + ', ' + user?.userName : ''}
+                        </div>
+                    }
                     <button className='h-full grid content-center' onClick={logout}>
                         <LogoutIcon fontSize='medium' />
                     </button>

@@ -20,8 +20,8 @@ const Dashboard = () => {
     const [deliveryManData, setDeliveryManData] = useState([]);
     const [formData, setFormData] = useState({
         token: '',
-        change: 0,
-        desiredAmount: 0,
+        change: '',
+        desiredAmount: '',
         price: ''
     });
     const [itemList, setItemList] = useState([]);
@@ -136,14 +136,14 @@ const Dashboard = () => {
 
 
     const handleDesiredAmountChange = (e) => {
-        const changeValue = parseInt(e.target.value);
+        const changeValue = e.target.value;
         if (regex.test(changeValue)) {
             const billAmountValue = parseInt(formData.price);
 
             if (isOther) {
                 setFormData((prev) => ({
                     ...prev,
-                    desiredAmount: e.target.value
+                    price: e.target.value
                 }))
             }
             else {
@@ -159,7 +159,6 @@ const Dashboard = () => {
     const handleBillNoChange = (e) => {
         const token = e.target.value.toUpperCase();
         setFormData((prev) => ({
-            ...prev,
             token: token
         }));
         setIsTokenError(false)
@@ -252,57 +251,52 @@ const Dashboard = () => {
         }
     };
     const handleDirectAdd = (resData) => {
-        const tokenExisted = itemList.some(item => item.tokenNo === formData.token);
-        if (tokenExisted) {
-            alert(`Token number ${formData.token} is already added.`);
-            handleClose();
+        const newItemData = {
+            billId: resData.billId,
+            token: resData.tokenNo,
+            price: resData.settledAmount,
+            address: resData.billAddress,
+            billPayType: resData.billPayType,
+            billType: resData.billType,
+            deliveryType: resData.billType,
+            desiredAmount: 0,
+            tokenNo: resData.tokenNo,
+            change: 0
+        };
+        const tokenExists = itemList.some(item => item.token === newItemData.token);
+        const tokenNoExists = itemList.some(item => item.tokenNo === newItemData.tokenNo);
+    
+        if (tokenExists || tokenNoExists) {
+            alert(`Token number ${newItemData.token} is already added.`);
             setFormData({
-                change: '',
-                desiredAmount: '',
-                price: '',
-                token: ''
-            });
-            tokenRef.current.focus();
+                token:'',
+                price:'',
+                desiredAmount:'',
+                change:''
+            })
+            return;
         }
-        else {
-            const newItemData = {
-                billId: resData.billId,
-                token: resData.tokenNo,
-                price: resData.settledAmount,
-                address: resData.billAddress,
-                billPayType: resData.billPayType,
-                billType: resData.billType,
-                deliveryType: resData.billType,
-                desiredAmount: 0,
-                tokenNo: resData.tokenNo,
-                change: 0
-            };
+        setItemList(prevItems => [...prevItems, newItemData]);
+        console.log('NewItem Data >>>>>>>>>', newItemData);
+        setIsOther(false);
+        setFormData({
+            change: 0,
+            desiredAmount: 0,
+            price: '',
+            token: ''
+        });
 
-            setItemList(prevItems => [...prevItems, newItemData]);
-            console.log('NewItem Data >>>>>>>>>', newItemData);
+        setTotalValues((prev) => ({
+            ...prev,
+            amount: parseFloat(prev.amount || 0) + parseFloat(resData.settledAmount || 0),
+            change: parseFloat(prev.change || 0) + parseFloat(resData.change || 0),
+            desiredAmount: parseFloat(prev.desiredAmount || 0) + parseFloat(resData.desiredAmount || 0)
+        }));
 
-            setIsOther(false);
-            setFormData({
-                change: 0,
-                desiredAmount: 0,
-                price: '',
-                token: ''
-            });
-
-            setTotalValues((prev) => ({
-                ...prev,
-                amount: parseFloat(prev.amount || 0) + parseFloat(resData.settledAmount || 0),
-                change: parseFloat(prev.change || 0) + parseFloat(resData.change || 0),
-                desiredAmount: parseFloat(prev.desiredAmount || 0) + parseFloat(resData.desiredAmount || 0)
-            }));
-
-            handleClose();
-            setIsBill(false);
-            setIsTokenError(false);
-        }
+        handleClose();
+        setIsBill(false);
+        setIsTokenError(false);
     };
-
-
 
     const getDeliveryManData = async () => {
         try {
@@ -352,7 +346,7 @@ const Dashboard = () => {
             }
 
             const tokenExists = itemList.some(item => item.token === formData.token);
-            const tokenExisted = itemList.some(item => item.tokenNo === formData.tokenNo);
+            const tokenExisted = itemList.some(item => item.tokenNo === formData.token);
             if (tokenExists || tokenExisted) {
                 alert(`Token number ${formData.tokenNo} is already added.`);
                 handleClose();
@@ -554,6 +548,7 @@ const Dashboard = () => {
         }
         const filteredData = itemList.filter((_, index) => index !== selectedToken)
         setItemList(filteredData);
+        handleClose();
     };
     const style = {
         position: 'absolute',
@@ -706,7 +701,7 @@ const Dashboard = () => {
                                                                         placeholder="Desired Amt."
                                                                         className="popoverSearch w-full p-1 rounded-md border border-black"
                                                                         ref={desiredAmountRef}
-                                                                        value={formData.desiredAmount}
+                                                                        value={formData.price || ''}
                                                                         onChange={handleDesiredAmountChange}
                                                                         onKeyDown={(e) => {
                                                                             if (e.key === 'Enter') {
@@ -789,8 +784,9 @@ const Dashboard = () => {
                                                                             placeholder="Change"
                                                                             className="popoverSearch w-full p-1 rounded-md border border-black"
                                                                             ref={changeRef}
-                                                                            value={formData.change}
+                                                                            value={formData.change || ''}
                                                                             onChange={(e) => {
+                                                                                console.log('Price',e.target.value)
                                                                                 if (regex.test(e.target.value)) {
                                                                                     setFormData((prev) => ({
                                                                                         ...prev,
@@ -848,7 +844,7 @@ const Dashboard = () => {
                                                                                 placeholder="Change"
                                                                                 className="popoverSearch w-full p-1 rounded-md border border-black"
                                                                                 ref={changeRef}
-                                                                                value={formData.change}
+                                                                                value={formData.change || ''}
                                                                                 onChange={(e) => {
                                                                                     const value = e.target.value;
                                                                                     const regex = /^\d*\.?\d*$/;
@@ -878,7 +874,7 @@ const Dashboard = () => {
                                                                                 placeholder="Desired Amt."
                                                                                 className="popoverSearch w-full p-1 rounded-md border border-black"
                                                                                 ref={desiredAmountRef}
-                                                                                value={formData.desiredAmount}
+                                                                                value={formData.desiredAmount || ''}
                                                                                 onChange={handleDesiredAmountChange}
                                                                                 onKeyDown={(e) => {
                                                                                     if (e.key === 'Enter') {
@@ -917,7 +913,7 @@ const Dashboard = () => {
                                                 </div>
                                                 <div className="overflow-y-auto" style={{ height: '180px' }}>
                                                     {itemList && itemList.map((bill, index) => (
-                                                        <div key={index} className={`flex items-center px-2 border-b border-gray-300 ${bill.billPayType === 'cancel' ? 'bg-red-100' : bill.billPayType === 'online' ? 'bg-green-100' : bill.billPayType === 'due' ? 'bg-blue-100' : bill.billPayType === 'debit' ? 'bg-indigo-200' : ''}`}>
+                                                        <div key={index} className={`flex items-center px-2 borderb border-gray-300 ${bill.billPayType === 'cancel' ? 'bg-red-100' : bill.billPayType === 'online' ? 'bg-green-100' : bill.billPayType === 'due' ? 'bg-blue-100' : bill.billPayType === 'debit' ? 'bg-indigo-200' : ''}`}>
                                                             <div className="w-1/12 font-semibold text-start text-sm p-1 px-0">{bill.tokenNo}</div>
                                                             {/* <Tooltip title={bill.address ? bill.address : bill.Comment} arrow={true}> */}
                                                             <Tooltip title={bill.address ? bill.address : bill.Comment} arrow>

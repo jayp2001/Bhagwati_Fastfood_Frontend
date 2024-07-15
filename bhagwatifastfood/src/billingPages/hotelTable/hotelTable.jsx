@@ -879,18 +879,18 @@ function HotelTable() {
                                                 >
                                                     <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
                                                     {/* <Tooltip title={row.userName} placement="top-start" arrow> */}
-                                                    <TableCell component="th" scope="row" onClick={() => navigate(`/hotelDetails/${row.hotelId}`)}>
+                                                    <TableCell component="th" scope="row" onClick={() => navigate(`/hotel/hotelDetails/${row.hotelId}`)}>
                                                         {row.hotelName}
                                                     </TableCell>
                                                     {/* </Tooltip> */}
-                                                    <TableCell align="left" onClick={() => navigate(`/hotelDetails/${row.hotelId}`)}>{row.hotelAddress}</TableCell>
-                                                    <TableCell align="left" onClick={() => navigate(`/hotelDetails/${row.hotelId}`)}>{row.hotelLocality}</TableCell>
-                                                    <TableCell align="left" onClick={() => navigate(`/hotelDetails/${row.hotelId}`)}>{row.hotelPincode}</TableCell>
-                                                    <TableCell align="left" onClick={() => navigate(`/hotelDetails/${row.hotelId}`)}>{row.hotelMobileNo}</TableCell>
-                                                    <TableCell align="left" onClick={() => navigate(`/hotelDetails/${row.hotelId}`)}>{row.otherMobileNo}</TableCell>
-                                                    <TableCell align="left" onClick={() => navigate(`/hotelDetails/${row.hotelId}`)}>{row.payType}</TableCell>
-                                                    <TableCell align="left" onClick={() => navigate(`/hotelDetails/${row.hotelId}`)}>{row.discountType}</TableCell>
-                                                    <TableCell align="left" onClick={() => navigate(`/hotelDetails/${row.hotelId}`)}>{row.discountView}</TableCell>
+                                                    <TableCell align="left" onClick={() => navigate(`/hotel/hotelDetails/${row.hotelId}`)}>{row.hotelAddress}</TableCell>
+                                                    <TableCell align="left" onClick={() => navigate(`/hotel/hotelDetails/${row.hotelId}`)}>{row.hotelLocality}</TableCell>
+                                                    <TableCell align="left" onClick={() => navigate(`/hotel/hotelDetails/${row.hotelId}`)}>{row.hotelPincode}</TableCell>
+                                                    <TableCell align="left" onClick={() => navigate(`/hotel/hotelDetails/${row.hotelId}`)}>{row.hotelMobileNo}</TableCell>
+                                                    <TableCell align="left" onClick={() => navigate(`/hotel/hotelDetails/${row.hotelId}`)}>{row.otherMobileNo}</TableCell>
+                                                    <TableCell align="left" onClick={() => navigate(`/hotel/hotelDetails/${row.hotelId}`)}>{row.payType}</TableCell>
+                                                    <TableCell align="left" onClick={() => navigate(`/hotel/hotelDetails/${row.hotelId}`)}>{row.discountType}</TableCell>
+                                                    <TableCell align="left" onClick={() => navigate(`/hotel/hotelDetails/${row.hotelId}`)}>{row.discountView}</TableCell>
                                                     <TableCell align="right">
                                                         <Menutemp productId={row.productId} data={row} handleDeleteProduct={handleDeleteProduct} handleEditClick={handleEditClick} />
                                                     </TableCell>

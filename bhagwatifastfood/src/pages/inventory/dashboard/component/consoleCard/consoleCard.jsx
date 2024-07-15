@@ -9,6 +9,10 @@ import userList from '../../../../../assets/userList.png';
 import bank from '../../../../../assets/bank.png';
 import report from '../../../../../assets/report.png';
 import hotel from '../../../../../assets/billing/hotel.png'
+import scoreboard from '../../../../../assets/billing/scoreboard.png';
+import delivery from '../../../../../assets/billing/delivery.png';
+import mobileView from '../../../../../assets/billing/smartphone.png'
+import deliveryMen from '../../../../../assets/billing/express.png'
 function ConsoleCard(props) {
     const getImg = (imgname) => {
         switch (imgname) {
@@ -24,8 +28,16 @@ function ConsoleCard(props) {
                 return bank;
             case 'report':
                 return report;
+            case 'scoreboard':
+                return scoreboard;
+            case 'delivery':
+                return delivery;
             case 'hotel':
                 return hotel;
+            case 'mobileView':
+                return mobileView;
+            case 'deliveryMen':
+                return deliveryMen;
             default:
                 return userAdd;
         }

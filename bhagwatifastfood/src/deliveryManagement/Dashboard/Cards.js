@@ -277,7 +277,8 @@ const Cards = ({ data, getDeliverCardData }) => {
         console.log('jsonData:', jsonData);
         await axios.post(`${BACKEND_BASE_URL}deliveryAndPickUprouter/updateDeliveryData`, jsonData, config)
             .then((res) => {
-                getDeliverCardData();
+                // getDeliverCardData();
+                fetchCardData()
                 console.log('res', res.data)
                 setItemList(res.data.deliveryData)
                 setTotalValues({
@@ -427,7 +428,6 @@ const Cards = ({ data, getDeliverCardData }) => {
     const handleBillNoChange = (e) => {
         const token = e.target.value.toUpperCase();
         setFormData(prev => ({
-            ...prev,
             token: token
         }));
         setIsTokenError(false)
@@ -487,6 +487,14 @@ const Cards = ({ data, getDeliverCardData }) => {
             }));
             console.log('ItemList', itemList[indexDelete])
         }
+        else if (itemList[indexDelete].billPayType === 'other') {
+            setTotalValues((prev) => ({
+                ...prev,
+                desiredAmount: prev.desiredAmount,
+                amount: prev.amount,
+                change: prev.change
+            }))
+        }
         else {
             console.log('ItemList', itemList[indexDelete])
             console.log('Cash He')
@@ -499,6 +507,7 @@ const Cards = ({ data, getDeliverCardData }) => {
                 change: parseFloat(totalValues.change || 0) - parseFloat(itemList[indexDelete].billChange || 0),
             }))
         }
+
 
         const filteredData = itemList.filter((_, index) => index !== indexDelete);
         setItemList(filteredData);
@@ -516,11 +525,13 @@ const Cards = ({ data, getDeliverCardData }) => {
         try {
             const res = await axios.post(`${BACKEND_BASE_URL}deliveryAndPickUprouter/updateDeliveryData`, jsonData, config);
             setItemList(res.data.deliveryData);
-            getDeliverCardData();
+            // getDeliverCardData();
+            fetchCardData();
         } catch (error) {
             console.error('API Error:', error);
             setError(error?.response?.data || 'Network Error!!!');
-            getDeliverCardData();
+            // getDeliverCardData();
+            fetchCardData();
         }
     };
     const ITEM_HEIGHT = 48;
@@ -600,6 +611,7 @@ const Cards = ({ data, getDeliverCardData }) => {
                     .then((res) => {
                         console.log('Remove', res.data)
                         getDeliverCardData();
+                        // fetchCardData();
                     })
                     .catch((error) => {
                         console.log('Error', error)
@@ -610,6 +622,193 @@ const Cards = ({ data, getDeliverCardData }) => {
             }
         }
     }
+    // const updateMarkingOfDelivery = async (deliveryData, type) => {
+    //     const password = window.prompt("Please enter the password:");
+    //     if (password === "123") {
+    //         console.log('data', deliveryData, 'Type', type);
+    //         let totalChange;
+    //         let totalDesiredAmount;
+    //         let totalAmount;
+    //         if (type === 'due' && deliveryData.billPayType === 'cash') {
+    //             const anotherTotalAmount = parseFloat(totalValues.desiredAmount || 0) - parseFloat(deliveryData.desiredAmt || 0);
+    //             totalDesiredAmount = anotherTotalAmount + deliveryData.billChange
+    //             totalChange = parseFloat(totalValues.change|| 0)
+    //             totalAmount = parseFloat(totalValues.amount|| 0)
+    //             console.log('DeliveryData', deliveryData);
+    //             console.log('Total Amount', anotherTotalAmount);
+    //             console.log('Total change', totalChange);
+    //             setTotalValues({
+    //                 ...totalValues,
+    //                 desiredAmount: totalDesiredAmount,
+    //                 amount:totalAmount,
+    //                 change:totalChange
+    //             });
+    //             setItemList(prevList => {
+    //                 const updatedList = prevList.map((item, index) => {
+    //                     if (index === indexDelete) {
+    //                         return {
+    //                             ...item,
+    //                             desiredAmt: item.billChange,
+    //                             billChange: 0
+    //                         };
+    //                     }
+    //                     return item;
+    //                 });
+    //                 return updatedList;
+    //             });
+    //         }
+    //         else if (type === 'online' && deliveryData.billPayType === 'cash') {
+    //             const anotherTotalAmount = parseFloat(totalValues.desiredAmount || 0) - parseFloat(deliveryData.desiredAmt || 0);
+    //             totalDesiredAmount = anotherTotalAmount + deliveryData.billChange
+    //             totalChange = parseFloat(totalValues.change|| 0)
+    //             totalAmount = parseFloat(totalValues.amount|| 0)
+    //             console.log('DeliveryData', deliveryData);
+    //             console.log('Total Amount', anotherTotalAmount);
+    //             console.log('Total change', totalChange);
+    //             setTotalValues({
+    //                 ...totalValues,
+    //                 desiredAmount: totalDesiredAmount,
+    //                 amount:totalAmount,
+    //                 change:totalChange
+    //             });
+    //             setItemList(prevList => {
+    //                 const updatedList = prevList.map((item, index) => {
+    //                     if (index === indexDelete) {
+    //                         return {
+    //                             ...item,
+    //                             desiredAmt: item.billChange,
+    //                             billChange: 0
+    //                         };
+    //                     }
+    //                     return item;
+    //                 });
+    //                 return updatedList;
+    //             });
+    //         }
+    //         else if (type === 'debit' && deliveryData.billPayType === 'cash') {
+    //             const anotherTotalAmount = parseFloat(totalValues.desiredAmount || 0) - parseFloat(deliveryData.desiredAmt || 0);
+    //             totalDesiredAmount = anotherTotalAmount + deliveryData.billChange
+    //             console.log('DeliveryData', deliveryData);
+    //             console.log('Total Amount', anotherTotalAmount);
+    //             console.log('Total change', totalChange);
+    //             totalChange = parseFloat(totalValues.change|| 0)
+    //             totalAmount = parseFloat(totalValues.amount|| 0)
+    //             setTotalValues({
+    //                 ...totalValues,
+    //                 desiredAmount: totalDesiredAmount,
+    //                 amount:totalAmount,
+    //                 change:totalChange
+    //             });
+    //             setItemList(prevList => {
+    //                 const updatedList = prevList.map((item, index) => {
+    //                     if (index === indexDelete) {
+    //                         return {
+    //                             ...item,
+    //                             desiredAmt: item.billChange,
+    //                             billChange: 0
+    //                         };
+    //                     }
+    //                     return item;
+    //                 });
+    //                 return updatedList;
+    //             });
+    //         }
+    //         else if (type === 'cash') {
+    //             totalDesiredAmount = parseFloat(totalValues.desiredAmount || 0) + parseFloat(deliveryData.billAmt || 0);
+    //             // totalDesiredAmount = anotherTotalAmount - deliveryData.billChange
+    //             console.log('Cashe Data', totalDesiredAmount)
+    //             totalChange = parseFloat(totalValues.change|| 0)
+    //             totalAmount = parseFloat(totalValues.amount|| 0)
+    //             setTotalValues({
+    //                 ...totalValues,
+    //                 desiredAmount: totalDesiredAmount,
+    //                 amount:totalAmount,
+    //                 change:totalChange
+    //             });
+    //         }
+    //         else if (type === 'cancel') {
+    //             if (deliveryData.billPayType === 'online') {
+    //                 totalDesiredAmount = totalValues.desiredAmount
+    //                 totalAmount = parseFloat(totalValues.amount || 0) - parseFloat(deliveryData.billAmt || 0)
+    //                 totalChange = parseFloat(totalValues.change || 0) - parseFloat(deliveryData.billChange || 0)
+    //                 console.log('Change', totalChange);
+    //                 console.log('Total Amount', totalAmount);
+    //                 console.log('Total Desired', totalChange);
+    //                 setTotalValues((prev) => ({
+    //                     ...prev,
+    //                     amount: totalAmount,
+    //                     change: totalChange,
+    //                     desiredAmount: totalDesiredAmount
+    //                 }))
+    //                 setItemList(prevList => {
+    //                     const updatedList = prevList.map((item, index) => {
+    //                         if (index === indexDelete) {
+    //                             return {
+    //                                 ...item,
+    //                                 desiredAmt: 0,
+    //                                 billChange: 0
+    //                             };
+    //                         }
+    //                         return item;
+    //                     });
+    //                     return updatedList;
+    //                 });
+    //             }
+    //             if (deliveryData.billPayType === 'due') {
+    //                 totalDesiredAmount = totalValues.desiredAmount
+    //                 totalAmount = parseFloat(totalValues.amount || 0) - parseFloat(deliveryData.billAmt || 0)
+    //                 totalChange = parseFloat(totalValues.change || 0) - parseFloat(deliveryData.billChange || 0)
+    //                 console.log('Change', totalChange);
+    //                 console.log('Total Amount', totalAmount);
+    //                 console.log('Total Desired', totalChange);
+    //                 setTotalValues((prev) => ({
+    //                     ...prev,
+    //                     amount: totalAmount,
+    //                     change: totalChange,
+    //                     desiredAmount: totalDesiredAmount
+    //                 }))
+    //                 setItemList(prevList => {
+    //                     const updatedList = prevList.map((item, index) => {
+    //                         if (index === indexDelete) {
+    //                             return {
+    //                                 ...item,
+    //                                 desiredAmt: item.billChange,
+    //                                 billChange: 0
+    //                             };
+    //                         }
+    //                         return item;
+    //                     });
+    //                     return updatedList;
+    //                 });
+    //             }
+    //             if (deliveryData.billPayType === 'debit') {
+    //                 totalDesiredAmount = totalValues.desiredAmount
+    //                 totalAmount = parseFloat(totalValues.amount || 0) - parseFloat(deliveryData.billAmt || 0)
+    //                 totalChange = parseFloat(totalValues.change || 0) - parseFloat(deliveryData.billChange || 0)
+    //                 console.log('Change', totalChange);
+    //                 console.log('Total Amount', totalAmount);
+    //                 console.log('Total Desired', totalChange);
+    //                 setTotalValues((prev) => ({
+    //                     ...prev,
+    //                     amount: totalAmount,
+    //                     change: totalChange,
+    //                     desiredAmount: totalDesiredAmount
+    //                 }))
+    //             }
+    //             else if (deliveryData.billPayType === 'cash') {
+    //                 totalDesiredAmount = parseFloat(deliveryData.desiredAmt) + parseFloat(deliveryData.billAmt)
+    //                 console.log('Change', totalChange);
+    //                 console.log('Total Amount', totalAmount);
+    //                 console.log('Total Desired', totalChange);
+    //                 setTotalValues((prev) => ({
+    //                     ...prev,
+    //                     desiredAmount: totalDesiredAmount
+    //                 }))
+    //             }
+    //         }
+    //         handleUpdatePayType(deliveryData, type, totalDesiredAmount, totalAmount, totalChange)
+    //     }
+    // }
     const updateMarkingOfDelivery = async (deliveryData, type) => {
         const password = window.prompt("Please enter the password:");
         if (password === "123") {
@@ -617,186 +816,62 @@ const Cards = ({ data, getDeliverCardData }) => {
             let totalChange;
             let totalDesiredAmount;
             let totalAmount;
-            if (type === 'due' && deliveryData.billPayType === 'cash') {
-                const anotherTotalAmount = parseFloat(totalValues.desiredAmount || 0) - parseFloat(deliveryData.desiredAmt || 0);
-                totalDesiredAmount = anotherTotalAmount + deliveryData.billChange
-                totalChange = parseFloat(totalValues.change || 0)
-                totalAmount = parseFloat(totalValues.amount || 0)
-                console.log('DeliveryData', deliveryData);
-                console.log('Total Amount', anotherTotalAmount);
-                console.log('Total change', totalChange);
-                setTotalValues({
-                    ...totalValues,
-                    desiredAmount: totalDesiredAmount,
-                    amount: totalAmount,
-                    change: totalChange
-                });
-                setItemList(prevList => {
-                    const updatedList = prevList.map((item, index) => {
-                        if (index === indexDelete) {
-                            return {
-                                ...item,
-                                desiredAmt: item.billChange,
-                                billChange: 0
-                            };
-                        }
-                        return item;
-                    });
-                    return updatedList;
-                });
-            }
-            else if (type === 'online' && deliveryData.billPayType === 'cash') {
-                const anotherTotalAmount = parseFloat(totalValues.desiredAmount || 0) - parseFloat(deliveryData.desiredAmt || 0);
-                totalDesiredAmount = anotherTotalAmount + deliveryData.billChange
-                totalChange = parseFloat(totalValues.change || 0)
-                totalAmount = parseFloat(totalValues.amount || 0)
-                console.log('DeliveryData', deliveryData);
-                console.log('Total Amount', anotherTotalAmount);
-                console.log('Total change', totalChange);
-                setTotalValues({
-                    ...totalValues,
-                    desiredAmount: totalDesiredAmount,
-                    amount: totalAmount,
-                    change: totalChange
-                });
-                setItemList(prevList => {
-                    const updatedList = prevList.map((item, index) => {
-                        if (index === indexDelete) {
-                            return {
-                                ...item,
-                                desiredAmt: item.billChange,
-                                billChange: 0
-                            };
-                        }
-                        return item;
-                    });
-                    return updatedList;
-                });
-            }
-            else if (type === 'debit' && deliveryData.billPayType === 'cash') {
-                const anotherTotalAmount = parseFloat(totalValues.desiredAmount || 0) - parseFloat(deliveryData.desiredAmt || 0);
-                totalDesiredAmount = anotherTotalAmount + deliveryData.billChange
-                console.log('DeliveryData', deliveryData);
-                console.log('Total Amount', anotherTotalAmount);
-                console.log('Total change', totalChange);
-                totalChange = parseFloat(totalValues.change || 0)
-                totalAmount = parseFloat(totalValues.amount || 0)
-                setTotalValues({
-                    ...totalValues,
-                    desiredAmount: totalDesiredAmount,
-                    amount: totalAmount,
-                    change: totalChange
-                });
-                setItemList(prevList => {
-                    const updatedList = prevList.map((item, index) => {
-                        if (index === indexDelete) {
-                            return {
-                                ...item,
-                                desiredAmt: item.billChange,
-                                billChange: 0
-                            };
-                        }
-                        return item;
-                    });
-                    return updatedList;
-                });
-            }
-            else if (type === 'cash') {
+
+            const calculateAmounts = (desiredAmt, billChange, billAmt) => {
+                totalDesiredAmount = parseFloat(totalValues.desiredAmount || 0) - parseFloat(desiredAmt || 0) + billChange;
+                totalChange = parseFloat(totalValues.change || 0);
+                totalAmount = parseFloat(totalValues.amount || 0);
+            };
+
+            if ((type === 'due' && deliveryData.billPayType === 'cash') ||
+                (type === 'online' && deliveryData.billPayType === 'cash') ||
+                (type === 'debit' && deliveryData.billPayType === 'cash') ||
+                (type === 'online' && deliveryData.billPayType === 'due') ||
+                (type === 'due' && deliveryData.billPayType === 'online')) {
+                calculateAmounts(deliveryData.desiredAmt, deliveryData.billChange, deliveryData.billAmt);
+            } else if (type === 'cash') {
                 totalDesiredAmount = parseFloat(totalValues.desiredAmount || 0) + parseFloat(deliveryData.billAmt || 0);
-                // totalDesiredAmount = anotherTotalAmount - deliveryData.billChange
-                console.log('Cashe Data', totalDesiredAmount)
-                totalChange = parseFloat(totalValues.change || 0)
-                totalAmount = parseFloat(totalValues.amount || 0)
-                setTotalValues({
-                    ...totalValues,
-                    desiredAmount: totalDesiredAmount,
-                    amount: totalAmount,
-                    change: totalChange
+                totalChange = parseFloat(totalValues.change || 0);
+                totalAmount = parseFloat(totalValues.amount || 0);
+            } else if (type === 'Cancel') {
+                if (deliveryData.billPayType === 'online' || deliveryData.billPayType === 'due' || deliveryData.billPayType === 'debit') {
+                    totalDesiredAmount = totalValues.desiredAmount;
+                    totalAmount = parseFloat(totalValues.amount || 0) - parseFloat(deliveryData.billAmt || 0);
+                    totalChange = parseFloat(totalValues.change || 0) - parseFloat(deliveryData.billChange || 0);
+                } else if (deliveryData.billPayType === 'cash') {
+                    totalDesiredAmount = parseFloat(totalValues.desiredAmount || 0) - parseFloat(deliveryData.desiredAmt || 0) + parseFloat(deliveryData.billChange || 0);
+                    totalChange = parseFloat(totalValues.change || 0);
+                    totalAmount = parseFloat(totalValues.amount || 0);
+                }
+            }
+
+            console.log('Total Amount', totalAmount);
+            console.log('Total Change', totalChange);
+            console.log('Total Desired Amount', totalDesiredAmount);
+
+            setTotalValues({
+                desiredAmount: totalDesiredAmount,
+                amount: totalAmount,
+                change: totalChange
+            });
+
+            setItemList(prevList => {
+                const updatedList = prevList.map((item, index) => {
+                    if (index === indexDelete) {
+                        return {
+                            ...item,
+                            desiredAmt: item.billChange,
+                            billChange: 0
+                        };
+                    }
+                    return item;
                 });
-            }
-            else if (type === 'cancel') {
-                if (deliveryData.billPayType === 'online') {
-                    totalDesiredAmount = totalValues.desiredAmount
-                    totalAmount = parseFloat(totalValues.amount || 0) - parseFloat(deliveryData.billAmt || 0)
-                    totalChange = parseFloat(totalValues.change || 0) - parseFloat(deliveryData.billChange || 0)
-                    console.log('Change', totalChange);
-                    console.log('Total Amount', totalAmount);
-                    console.log('Total Desired', totalChange);
-                    setTotalValues((prev) => ({
-                        ...prev,
-                        amount: totalAmount,
-                        change: totalChange,
-                        desiredAmount: totalDesiredAmount
-                    }))
-                    setItemList(prevList => {
-                        const updatedList = prevList.map((item, index) => {
-                            if (index === indexDelete) {
-                                return {
-                                    ...item,
-                                    desiredAmt: 0,
-                                    billChange: 0
-                                };
-                            }
-                            return item;
-                        });
-                        return updatedList;
-                    });
-                }
-                if (deliveryData.billPayType === 'due') {
-                    totalDesiredAmount = totalValues.desiredAmount
-                    totalAmount = parseFloat(totalValues.amount || 0) - parseFloat(deliveryData.billAmt || 0)
-                    totalChange = parseFloat(totalValues.change || 0) - parseFloat(deliveryData.billChange || 0)
-                    console.log('Change', totalChange);
-                    console.log('Total Amount', totalAmount);
-                    console.log('Total Desired', totalChange);
-                    setTotalValues((prev) => ({
-                        ...prev,
-                        amount: totalAmount,
-                        change: totalChange,
-                        desiredAmount: totalDesiredAmount
-                    }))
-                    setItemList(prevList => {
-                        const updatedList = prevList.map((item, index) => {
-                            if (index === indexDelete) {
-                                return {
-                                    ...item,
-                                    desiredAmt: item.billChange,
-                                    billChange: 0
-                                };
-                            }
-                            return item;
-                        });
-                        return updatedList;
-                    });
-                }
-                if (deliveryData.billPayType === 'debit') {
-                    totalDesiredAmount = totalValues.desiredAmount
-                    totalAmount = parseFloat(totalValues.amount || 0) - parseFloat(deliveryData.billAmt || 0)
-                    totalChange = parseFloat(totalValues.change || 0) - parseFloat(deliveryData.billChange || 0)
-                    console.log('Change', totalChange);
-                    console.log('Total Amount', totalAmount);
-                    console.log('Total Desired', totalChange);
-                    setTotalValues((prev) => ({
-                        ...prev,
-                        amount: totalAmount,
-                        change: totalChange,
-                        desiredAmount: totalDesiredAmount
-                    }))
-                }
-                else if (deliveryData.billPayType === 'cash') {
-                    totalDesiredAmount = parseFloat(deliveryData.desiredAmt) + parseFloat(deliveryData.billAmt)
-                    console.log('Change', totalChange);
-                    console.log('Total Amount', totalAmount);
-                    console.log('Total Desired', totalChange);
-                    setTotalValues((prev) => ({
-                        ...prev,
-                        desiredAmount: totalDesiredAmount
-                    }))
-                }
-            }
-            handleUpdatePayType(deliveryData, type, totalDesiredAmount, totalAmount, totalChange)
+                return updatedList;
+            });
+
+            handleUpdatePayType(deliveryData, type, totalDesiredAmount, totalAmount, totalChange);
         }
-    }
+    };
     const handleUpdatePayType = async (deliveryData, type, totalDesiredAmount, totalAmount, totalChange) => {
         const UpiJsonData = upiId.find(val => val.upiId === selectedUpiData);
         let jsonData;
@@ -815,13 +890,21 @@ const Cards = ({ data, getDeliverCardData }) => {
                     billPayType: type,
                     billAmt: deliveryData.billAmt,
                     billChange: deliveryData.billChange,
-                    desiredAmt: (type === 'online' || type === 'due' || type === 'debit')
-                        ? deliveryData.billChange
-                        : (type === 'cash')
-                            ? parseFloat(deliveryData.billAmt) + parseFloat(deliveryData.desiredAmt)
-                            : (type === 'cancel' || type === 'complimentary')
-                                ? 0
-                                : undefined
+                    desiredAmt: (() => {
+                        switch (type) {
+                            case 'online':
+                            case 'due':
+                            case 'debit':
+                            case 'Cancel':
+                                return deliveryData.billChange;
+                            case 'cash':
+                                return parseFloat(deliveryData.billAmt) + parseFloat(deliveryData.desiredAmt);
+                            case 'complimentary':
+                                return 0;
+                            default:
+                                return undefined;
+                        }
+                    })()
                 }
             };
         } else {
@@ -837,23 +920,30 @@ const Cards = ({ data, getDeliverCardData }) => {
                     billPayType: type,
                     billAmt: deliveryData.billAmt,
                     billChange: deliveryData.billChange,
-                    desiredAmt: (type === 'online' || type === 'due' || type === 'debit')
-                        ? deliveryData.billChange
-                        : (type === 'cash')
-                            ? parseFloat(deliveryData.billAmt) + parseFloat(deliveryData.desiredAmt)
-                            : (type === 'cancel' || type === 'complimentary')
-                                ? 0
-                                : undefined
+                    desiredAmt: (() => {
+                        switch (type) {
+                            case 'online':
+                            case 'due':
+                            case 'debit':
+                            case 'Cancel':
+                                return deliveryData.billChange;
+                            case 'cash':
+                                return parseFloat(deliveryData.billAmt) + parseFloat(deliveryData.desiredAmt);
+                            case 'complimentary':
+                                return 0;
+                            default:
+                                return undefined;
+                        }
+                    })()
                 }
             };
         }
-
 
         console.log('JsonData:-', jsonData)
         await axios.post(`${BACKEND_BASE_URL}deliveryAndPickUprouter/changePayTypeByDelivery`, jsonData, config)
             .then((res) => {
                 console.log(res.data)
-                // getDeliverCardData();
+                // get  DeliverCardData();
                 fetchCardData()
                 handleClose();
                 setFormData({
@@ -991,7 +1081,7 @@ const Cards = ({ data, getDeliverCardData }) => {
                                         <div className="bottomHeaderBillNo col-span-3 mr-5">
                                             <input
                                                 type="text"
-                                                placeholder="Desired Amount"
+                                                placeholder="Desired Amt."
                                                 className="popoverSearch w-full p-1 rounded-md border border-black"
                                                 ref={desiredAmountRef}
                                                 value={formData.billAmt || ''}
@@ -1068,8 +1158,8 @@ const Cards = ({ data, getDeliverCardData }) => {
                                                         if (regex.test(e.target.value)) {
                                                             setFormData((prev) => ({
                                                                 ...prev,
-                                                                billChange: e.target.value,
-                                                                desiredAmt: parseInt(e.target.value) + parseInt(formData.price)
+                                                                billChange: e.target.value || '',
+                                                                desiredAmt: parseInt(e.target.value || 0) + parseInt(formData.billAmt || 0)
                                                             }));
                                                         }
                                                     }}
@@ -1147,7 +1237,7 @@ const Cards = ({ data, getDeliverCardData }) => {
                                                 <div className="bottomHeaderBillNo col-span-3 mr-5">
                                                     <input
                                                         type="text"
-                                                        placeholder="Desired Amount"
+                                                        placeholder="Desired Amt."
                                                         className="popoverSearch w-full p-1 rounded-md border border-black"
                                                         ref={desiredAmountRef}
                                                         value={formData.desiredAmt || ''}
@@ -1187,7 +1277,7 @@ const Cards = ({ data, getDeliverCardData }) => {
                         </div>
                         <div className="overflow-y-auto " style={{ height: '180px' }}>
                             {itemList && itemList.map((bill, index) => (
-                                <div key={index} className={`flex items-center border-b border-gray-300 px-2 ${bill.billPayType === 'cancel' ? 'bg-red-100' : bill.billPayType === 'online' ? 'bg-green-100' : bill.billPayType === 'due' ? 'bg-blue-100' : bill.billPayType === 'debit' ? 'bg-indigo-200' : ''}`}>
+                                <div key={index} className={`flex items-center border-b border-gray-300 px-2 ${bill.billPayType === 'Cancel' ? 'bg-red-100' : bill.billPayType === 'online' ? 'bg-green-100' : bill.billPayType === 'due' ? 'bg-blue-100' : bill.billPayType === 'debit' ? 'bg-indigo-200' : ''}`}>
                                     <div className="w-1/12 font-semibold text-start  text-sm p-1 px-0">{bill.token}</div>
                                     <Tooltip title={bill.billAddress} arrow>
                                         <div className="addressWidth font-semibold text-sm text-start pl-1 p-1" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -1233,9 +1323,9 @@ const Cards = ({ data, getDeliverCardData }) => {
                                                         )}
                                                         {selectedBill.deliveryType === 'Due Bill' && (
                                                             <>
-                                                                <MenuItem onClick={() => updateMarkingOfDelivery(bill, 'cancel')}>
+                                                                {/* <MenuItem onClick={() => updateMarkingOfDelivery(bill, 'cancel')}>
                                                                     Cancel
-                                                                </MenuItem>
+                                                                </MenuItem> */}
                                                                 <MenuItem onClick={handleDeleteItem}>
                                                                     Delete
                                                                 </MenuItem>
@@ -1243,7 +1333,7 @@ const Cards = ({ data, getDeliverCardData }) => {
                                                         )}
                                                         {selectedBill.deliveryType === 'Hotel' && (
                                                             <>
-                                                                <MenuItem onClick={() => updateMarkingOfDelivery(bill, 'cancel')}>
+                                                                <MenuItem onClick={() => updateMarkingOfDelivery(bill, 'Cancel')}>
                                                                     Cancel
                                                                 </MenuItem>
                                                                 <MenuItem onClick={handleDeleteItem}>
@@ -1261,7 +1351,7 @@ const Cards = ({ data, getDeliverCardData }) => {
                                                                         <MenuItem onClick={() => updateMarkingOfDelivery(selectedBill, 'due')}>
                                                                             Due
                                                                         </MenuItem>
-                                                                        <MenuItem onClick={() => updateMarkingOfDelivery(selectedBill, 'cancel')}>
+                                                                        <MenuItem onClick={() => updateMarkingOfDelivery(selectedBill, 'Cancel')}>
                                                                             Cancel
                                                                         </MenuItem>
                                                                     </div>
@@ -1274,7 +1364,7 @@ const Cards = ({ data, getDeliverCardData }) => {
                                                                         <MenuItem onClick={() => updateMarkingOfDelivery(selectedBill, 'due')}>
                                                                             Due
                                                                         </MenuItem>
-                                                                        <MenuItem onClick={() => updateMarkingOfDelivery(selectedBill, 'cancel')}>
+                                                                        <MenuItem onClick={() => updateMarkingOfDelivery(selectedBill, 'Cancel')}>
                                                                             Cancel
                                                                         </MenuItem>
                                                                     </div>
@@ -1287,7 +1377,7 @@ const Cards = ({ data, getDeliverCardData }) => {
                                                                         <MenuItem onClick={() => setUpiIdPopUp(true)}>
                                                                             Online
                                                                         </MenuItem>
-                                                                        <MenuItem onClick={() => updateMarkingOfDelivery(selectedBill, 'cancel')}>
+                                                                        <MenuItem onClick={() => updateMarkingOfDelivery(selectedBill, 'Cancel')}>
                                                                             Cancel
                                                                         </MenuItem>
                                                                     </div>
@@ -1403,7 +1493,7 @@ const Cards = ({ data, getDeliverCardData }) => {
                                     </div>
                                     <div className="overflow-y-auto " style={{ height: '180px' }}>
                                         {updateDeliveryPopUpData?.deliveryData && updateDeliveryPopUpData?.deliveryData.map((bill, index) => (
-                                            <div key={index} className={`flex items-center  border-b border-gray-300 ${bill.billPayType === 'cancel' ? 'bg-red-100' : bill.billPayType === 'online' ? 'bg-green-100' : bill.billPayType === 'due' ? 'bg-blue-100' : bill.billPayType === 'debit' ? 'bg-indigo-200' : ''}`}>
+                                            <div key={index} className={`flex items-center  border-b border-gray-300 ${bill.billPayType === 'Cancel' ? 'bg-red-100' : bill.billPayType === 'online' ? 'bg-green-100' : bill.billPayType === 'due' ? 'bg-blue-100' : bill.billPayType === 'debit' ? 'bg-indigo-200' : ''}`}>
                                                 <div className="w-1/12 font-semibold text-start  text-sm  px-2">{bill.token ? bill.token : (index + 1)}</div>
                                                 <Tooltip title={bill.billAddress} arrow >
                                                     <div className="addressWidth cursor-pointer font-semibold text-sm text-start pl-1 p-1" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>

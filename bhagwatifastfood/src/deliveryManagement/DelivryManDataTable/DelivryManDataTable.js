@@ -95,14 +95,14 @@ function DeliveryManDataTable() {
     const id = open ? 'simple-popover' : undefined;
 
     const getDebitData = async () => {
-        // await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getDebitTransactionList?&page=${1}&numPerPage=${rowsPerPage}`, config)
+        // await axios.get(`${BACKEND_BASE_URL}deliveryAndPickUprouter/getDeliveryDataByPerson?&page=${1}&numPerPage=${rowsPerPage}`, config)
         await axios.get(`${BACKEND_BASE_URL}deliveryAndPickUprouter/getDeliveryDataByPerson?personId=${deliveryManId}&page=${1}&numPerPage=${rowsPerPage}`, config)
             .then((res) => {
                 setDebitTransaction(res.data.rows);
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
-                console.log('Error =>',error)
+                setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
 
@@ -115,9 +115,18 @@ function DeliveryManDataTable() {
                 console.log('Error', error)
             })
     }
+    const getStatasticsForPersonByFilter = async () => {
+        await axios.get(`${BACKEND_BASE_URL}deliveryAndPickUprouter/getStaticsForPerson?personId=${deliveryManId}&startDate=${state[0].startDate}&endDate=${state[0].endDate}`, config)
+            .then((res) => {
+                setPersonstasticData(res.data)
+            })
+            .catch((error) => {
+                console.log('Error', error)
+            })
+    }
 
     const getDebitDataOnPageChange = async (pageNum, rowPerPageNum) => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getDebitTransactionList?page=${pageNum}&numPerPage=${rowPerPageNum}&searchInvoiceNumber=${searchWord}`, config)
+        await axios.get(`${BACKEND_BASE_URL}deliveryAndPickUprouter/getDeliveryDataByPerson?page=${pageNum}&numPerPage=${rowPerPageNum}&personId=${deliveryManId}`, config)
             .then((res) => {
                 setDebitTransaction(res.data.rows);
                 setTotalRows(res.data.numRows);
@@ -128,7 +137,7 @@ function DeliveryManDataTable() {
     }
 
     const getDebitDataOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getDebitTransactionList?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${pageNum}&numPerPage=${rowPerPageNum}`, config)
+        await axios.get(`${BACKEND_BASE_URL}deliveryAndPickUprouter/getDeliveryDataByPerson?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${pageNum}&numPerPage=${rowPerPageNum}&personId=${deliveryManId}`, config)
             .then((res) => {
                 setDebitTransaction(res.data.rows);
                 setTotalRows(res.data.numRows);
@@ -139,7 +148,7 @@ function DeliveryManDataTable() {
     }
 
     const getDebitDataByFilter = async () => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getDebitTransactionList?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${1}&numPerPage=${rowsPerPage}`, config)
+        await axios.get(`${BACKEND_BASE_URL}deliveryAndPickUprouter/getDeliveryDataByPerson?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${1}&numPerPage=${rowsPerPage}&personId=${deliveryManId}`, config)
             .then((res) => {
                 setDebitTransaction(res.data.rows);
                 setTotalRows(res.data.numRows);
@@ -209,15 +218,6 @@ function DeliveryManDataTable() {
     }
     const getDebitCounts = async () => {
         await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getDebitTransactionCounter?`, config)
-            .then((res) => {
-                setDebitCount(res.data);
-            })
-            .catch((error) => {
-                setError(error.response ? error.response.data : "Network Error ...!!!")
-            })
-    }
-    const getDebitCountsByFilter = async () => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getDebitTransactionCounter?startDate=${state[0].startDate}&endDate=${state[0].endDate}`, config)
             .then((res) => {
                 setDebitCount(res.data);
             })
@@ -486,7 +486,7 @@ function DeliveryManDataTable() {
     }
 
     const search = async (searchWord) => {
-        await axios.get(`${BACKEND_BASE_URL}inventoryrouter/getDebitTransactionList?&page=${page + 1}&numPerPage=${rowsPerPage}&searchInvoiceNumber=${searchWord}`, config)
+        await axios.get(`${BACKEND_BASE_URL}deliveryAndPickUprouter/getDeliveryDataByPerson?&page=${page + 1}&numPerPage=${rowsPerPage}`, config)
             .then((res) => {
                 setDebitTransaction(res.data.rows);
                 setTotalRows(res.data.numRows);
@@ -555,19 +555,9 @@ function DeliveryManDataTable() {
                                     </div> */}
                                     <div className={`flex col-span-3 justify-center ${tab === 2 || tab === '2' ? 'productTabAll' : 'productTab'}`}
                                         onClick={() => {
-                                            setTab(2); setSearchWord(''); setPage(0); setRowsPerPage(5); filter ? getDebitDataByFilter() : getDebitData(); filter ? getDebitCountsByFilter() : getDebitCounts();
+                                            setTab(2); setSearchWord(''); setPage(0); setRowsPerPage(5); filter ? getDebitDataByFilter() : getDebitData(); filter ? getStatasticsForPersonByFilter() : getStatasticsForPerson();
                                         }}>
-                                        <div className='statusTabtext'>Paid Debit</div>
-                                    </div>
-                                    <div className={`flex col-span-3 justify-center ${tab === 3 || tab === '3' ? 'productTabIn' : 'productTab'}`} onClick={() => {
-                                        setTab(3); setSearchWord(''); setPage(0); setRowsPerPage(5); filter ? getCashDataByFilter() : getCashData(); filter ? getCashCountsByFilter() : getCashCounts();
-                                    }}>
-                                        <div className='statusTabtext'>Cash</div>
-                                    </div>
-                                    <div className={`flex col-span-3 justify-center ${tab === 4 || tab === '4' ? 'productTabOut' : 'productTab'}`} onClick={() => {
-                                        setTab(4); setSearchWord(''); setPage(0); setRowsPerPage(5); filter ? getDebitByFilter() : getDebit(); filter ? getDebitCountsByFilter() : getDebitCounts();
-                                    }}>
-                                        <div className='statusTabtext'>Debit</div>
+                                        <div className='statusTabtext'>Deliveries</div>
                                     </div>
                                 </div>
                             </div>
@@ -578,10 +568,8 @@ function DeliveryManDataTable() {
                                 <div className='resetBtnWrap col-span-3 self-center'>
                                     <button className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`} onClick={() => {
                                         setFilter(false);
-                                        tab === 2 || tab === '2' ?
-                                            getDebitData() : tab === 3 || tab === '3' ? getCashData() : getDebit();
-                                        tab === 2 || tab === '2' ?
-                                            getDebitCounts() : tab === 3 || tab === '3' ? getCashCounts() : getDebitCounts();
+                                        getDebitData();
+                                        getStatasticsForPerson();
                                         setState([
                                             {
                                                 startDate: new Date(),
@@ -615,8 +603,8 @@ function DeliveryManDataTable() {
                                         <div className='mt-8 grid gap-4 grid-cols-12'>
                                             <div className='col-span-3 col-start-7'>
                                                 <button className='stockInBtn' onClick={() => {
-                                                    tab === 2 || tab === '2' ? getDebitDataByFilter() : tab === 3 || tab === '3' ? getCashDataByFilter() : getDebitByFilter();
-                                                    tab === 2 || tab === '2' ? getDebitCountsByFilter() : tab === 3 || tab === '3' ? getCashCountsByFilter() : getDebitCountsByFilter();
+                                                    getDebitDataByFilter();
+                                                    getStatasticsForPersonByFilter();
                                                     setSearchWord('');
                                                     setFilter(true); setPage(0); handleClose()
                                                 }}>Apply</button>

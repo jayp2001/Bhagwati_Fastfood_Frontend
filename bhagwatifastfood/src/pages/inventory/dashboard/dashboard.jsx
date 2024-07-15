@@ -53,7 +53,7 @@ function Dashboard() {
     const goToHotel = () => {
         const auth = new Date(expirationTime) > new Date() && (role == 1) ? true : false
         if (auth) {
-            navigate('/billing/hotelTable')
+            navigate('/hotel/hotelTable')
         } else {
             if (window.confirm("You are not Authorised. You want to Login again ?")) {
                 navigate('/login')
@@ -130,6 +130,16 @@ function Dashboard() {
             }
         }
     }
+    const goToDeliveryMan = () => {
+        const auth = new Date(expirationTime) > new Date() && (role == 1 || role == 2) ? true : false
+        if (auth) {
+            navigate('/deliveryManagement/DeliveryMan')
+        } else {
+            if (window.confirm("You are not Authorised. You want to Login again ?")) {
+                navigate('/login')
+            }
+        }
+    }
     const goToProductList = () => {
         navigate('/productList')
     }
@@ -145,9 +155,10 @@ function Dashboard() {
                     <ConsoleCard goToAddUSer={goToAddUSer} name={"Add User"} imgName={'userAdd'} />
                     <ConsoleCard goToAddUSer={goToUserList} name={"User List"} imgName={'userList'} />
                     <ConsoleCard goToAddUSer={goToHotel} name={"Hotel List"} imgName={'hotel'} />
-                    <ConsoleCard goToAddUSer={goToDelivery} name={"Delivery Console"} imgName={'hotel'} />
-                    <ConsoleCard goToAddUSer={goToTokenView} name={"Token Display"} imgName={'hotel'} />
-                    <ConsoleCard goToAddUSer={goToTokenMobileView} name={"Token Mobile Display"} imgName={'hotel'} />
+                    <ConsoleCard goToAddUSer={goToDelivery} name={"Delivery Console"} imgName={'delivery'} />
+                    <ConsoleCard goToAddUSer={goToTokenView} name={"Token Display"} imgName={'scoreboard'} />
+                    <ConsoleCard goToAddUSer={goToTokenMobileView} name={"Token ready"} imgName={'mobileView'} />
+                    <ConsoleCard goToAddUSer={goToDeliveryMan} name={"Delivery Man"} imgName={'deliveryMen'} />
                 </div>
             </div>
         </div>

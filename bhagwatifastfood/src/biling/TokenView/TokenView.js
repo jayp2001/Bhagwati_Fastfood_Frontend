@@ -1,8 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { BACKEND_BASE_URL, SOCKET_URL } from '../../url';
 import axios from 'axios';
 import io from 'socket.io-client';
-import Video from './with_you.mp4'
+import Video from './with_you.mp4';
+import FullScreenVideo from './videoPlayer';
+import './video.css'
 
 const TokenView = () => {
     const boxStyle = {
@@ -46,6 +48,23 @@ const TokenView = () => {
         };
     }, []);
 
+    const videoRef = useRef(null);
+
+    // useEffect(() => {
+    //     const videoElement = videoRef.current;
+    //     const enterFullScreen = async () => {
+    //         if (videoElement && document.fullscreenElement !== videoElement) {
+    //             try {
+    //                 await videoElement.requestFullscreen();
+    //             } catch (err) {
+    //                 console.error('Error attempting to enable full-screen mode:', err);
+    //             }
+    //         }
+    //     };
+
+    //     enterFullScreen();
+    // }, []);
+
     useEffect(() => {
         getTokenNumberList();
     }, []);
@@ -69,26 +88,46 @@ const TokenView = () => {
         speechSynthesis.speak(utterance);
     };
 
-
-    return (
-        <div style={{ paddingRight: '40px', paddingLeft: '40px', paddingTop: '20px', paddingBottom: '20px' }}>
-            {tokenList.length > 0 ? (
-                <div style={{ width: '100%', display: 'flex', flexWrap: 'wrap', gap: '30px' }}>
-                    {tokenList.map((val, index) => (
-                        <div key={index} style={{ width: 'fit-content', display: 'flex' }}>
-                            <div style={boxStyle} onClick={() => handleClick(val)}>
-                                <p style={{ fontSize: '78px', fontWeight: 'bold', color: 'white' }}>{val.tokenNo}</p>
+    const responce = () => {
+        if (tokenList.length) {
+            return (
+                <div style={{ paddingRight: '40px', paddingLeft: '40px', paddingTop: '20px', paddingBottom: '20px' }}>
+                    <div style={{ width: '100%', display: 'flex', flexWrap: 'wrap', gap: '30px' }}>
+                        {tokenList.map((val, index) => (
+                            <div key={index} style={{ width: 'fit-content', display: 'flex' }}>
+                                <div style={boxStyle} onClick={() => handleClick(val)}>
+                                    <p style={{ fontSize: '78px', fontWeight: 'bold', color: 'white' }}>{val.tokenNo}</p>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
-            ) : (
-                <video autoPlay playsInline style={{ width: '100%', height: 'auto' }}>
-                    <source src={Video} type="video/mp4" />
-                    Your browser does not support the video tag.
-                </video>
-            )}
-        </div>
+            )
+        } else {
+            return (
+                <div style={{ width: '100%', height: '100%' }}>
+                    <video ref={videoRef} src={Video} autoPlay loop muted style={{ width: '100%', height: '100%' }} />
+                </div>
+            )
+        }
+    }
+    return (
+        responce()
+        // <div style={{ paddingRight: '40px', paddingLeft: '40px', paddingTop: '20px', paddingBottom: '20px' }}>
+        //     {tokenList.length > 0 ? (
+        //         <div style={{ width: '100%', display: 'flex', flexWrap: 'wrap', gap: '30px' }}>
+        //             {tokenList.map((val, index) => (
+        //                 <div key={index} style={{ width: 'fit-content', display: 'flex' }}>
+        //                     <div style={boxStyle} onClick={() => handleClick(val)}>
+        //                         <p style={{ fontSize: '78px', fontWeight: 'bold', color: 'white' }}>{val.tokenNo}</p>
+        //                     </div>
+        //                 </div>
+        //             ))}
+        //         </div>
+        //     ) : (
+        //         <video ref={videoRef} src={Video} autoPlay loop muted style={{ width: '100%', height: '100%' }} />
+        //     )}
+        // </div>
     );
 }
 
