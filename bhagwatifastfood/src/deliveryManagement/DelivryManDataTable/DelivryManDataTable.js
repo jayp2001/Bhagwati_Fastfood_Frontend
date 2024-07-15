@@ -55,7 +55,7 @@ function DeliveryManDataTable() {
     const [filter, setFilter] = React.useState(false);
     const [persontstasticData, setPersonstasticData] = useState()
     const [updateDeliveryPopUp, setUpdatDeliveryPopUp] = useState(false)
-    const { deliveryManId } = useParams();
+    const { deliveryManId, name } = useParams();
 
     React.useEffect(() => {
         console.log('deliveryManId:', deliveryManId);
@@ -557,7 +557,7 @@ function DeliveryManDataTable() {
                                         onClick={() => {
                                             setTab(2); setSearchWord(''); setPage(0); setRowsPerPage(5); filter ? getDebitDataByFilter() : getDebitData(); filter ? getStatasticsForPersonByFilter() : getStatasticsForPerson();
                                         }}>
-                                        <div className='statusTabtext'>Deliveries</div>
+                                        <div className='statusTabtext'>Deliveries of {name}</div>
                                     </div>
                                 </div>
                             </div>
@@ -667,7 +667,6 @@ function DeliveryManDataTable() {
                                             <TableCell align="right">Change Ammount</TableCell>
                                             <TableCell align="right">Desired Ammount</TableCell>
                                             <TableCell align="right">Time</TableCell>
-                                            <TableCell align="left"></TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -753,7 +752,7 @@ function DeliveryManDataTable() {
                                             </div>
                                             <div className="overflow-y-auto " style={{ height: '180px' }}>
                                                 {updateDeliveryPopUpData?.deliveryData && updateDeliveryPopUpData?.deliveryData.map((bill, index) => (
-                                                    <div key={index} className="flex items-center border-t border-gray-200">
+                                                    <div key={index} className={`flex items-center border-t ${bill.billPayType === 'Cancel' ? 'bg-red-100' : bill.billPayType === 'online' ? 'bg-green-100' : bill.billPayType === 'due' ? 'bg-blue-100' : bill.billPayType === 'debit' ? 'bg-indigo-200' : ''}`}>
                                                         <div className="w-1/12 font-semibold text-center  text-sm p-1 px-0">{bill.token ? bill.token : (index + 1)}</div>
                                                         <Tooltip title={bill.billAddress}>
                                                             <div className="addressWidth cursor-pointer font-semibold text-sm text-start pl-1 p-1" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -784,56 +783,6 @@ function DeliveryManDataTable() {
                                                     {updateDeliveryPopUpData?.totalDesiredAmt}
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div className="flex items-center justify-end px-2 pb-2 gap-3 ">
-                                            {/* <div
-                                                className=" cursor-pointer  bg-blue-500 flex items-center py-3 px-3 justify-center BackArroIconDiv  w-20 gap-2 rounded-lg border"
-                                                // onClick={() => setInfoPopUpOpen(false)}
-                                                onClick={() => {
-                                                    updateDelivery();
-                                                }}
-                                            >
-                                                Yes */}
-                                            {/* </div> */}
-                                            {/* <div className="flex gap-6 mt-6 w-3/6 ">
-                                                <div className="w-full">
-                                                    <button
-                                                        className="addCategorySaveBtn CustoButtonPopUp "
-                                                        onClick={() => {
-                                                            stopDelivery();
-                                                        }}
-                                                    >Yes</button>
-                                                </div>
-                                                <div className="w-full">
-                                                    <button onClick={() => {
-                                                        setUpdatDeliveryPopUp(false);
-                                                        setUpdateDeliveryPopUpData('')
-                                                        setFormData({
-                                                            change: 0,
-                                                            desiredAmount: 0,
-                                                            price: '',
-                                                            token: ''
-                                                        });
-                                                    }} className="addCategoryCancleBtn CustoButtonPopUp bg-gray-700">Cancel</button>
-                                                </div>
-                                            </div> */}
-                                            {/* <div
-                                                className=" bg-white cursor-pointer border-black flex items-center justify-center BackArroIconDiv  w-20 gap-2 rounded-lg border"
-                                                onClick={() => {
-                                                    setUpdatDeliveryPopUp(false);
-                                                    setUpdateDeliveryPopUpData('')
-                                                    setFormData({
-                                                        change: 0,
-                                                        desiredAmount: 0,
-                                                        price: '',
-                                                        token: ''
-                                                    });
-                                                    setItemList([])
-                                                    setDeliveryManName('')
-                                                }}
-                                            >
-                                                Cancel
-                                            </div> */}
                                         </div>
                                     </div>
                                 </div>

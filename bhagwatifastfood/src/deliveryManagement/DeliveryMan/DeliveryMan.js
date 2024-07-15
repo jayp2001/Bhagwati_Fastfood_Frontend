@@ -286,22 +286,22 @@ function DeliveryMan() {
                                         <TableRow key={index} className="tableRow cursor-pointer" hover>
                                             <TableCell
                                                 onClick={() => {
-                                                    navigate(`/DeliveryManagement/DeliveryManData/${deliveryMan.personId}`)
+                                                    navigate(`/DeliveryManagement/DeliveryManData/${deliveryMan.personId}/${deliveryMan.personName}`)
                                                 }}
                                                 style={{ maxWidth: '50px', width: '15px' }}>{index + 1}</TableCell>
                                             <TableCell
                                                 onClick={() => {
-                                                    navigate(`/DeliveryManagement/DeliveryManData/${deliveryMan.personId}`)
+                                                    navigate(`/DeliveryManagement/DeliveryManData/${deliveryMan.personId}/${deliveryMan.personName}`)
                                                 }}
                                                 align="left" style={{ maxWidth: '300px', width: '170px' }}>{deliveryMan.personName}</TableCell>
                                             <TableCell
                                                 onClick={() => {
-                                                    navigate(`/DeliveryManagement/DeliveryManData/${deliveryMan.personId}`)
+                                                    navigate(`/DeliveryManagement/DeliveryManData/${deliveryMan.personId}/${deliveryMan.personName}`)
                                                 }}
                                                 align="left" style={{ maxWidth: '300px', width: '170px' }}>{deliveryMan.shortName}</TableCell>
                                             <TableCell
                                                 onClick={() => {
-                                                    navigate(`/DeliveryManagement/DeliveryManData/${deliveryMan.personId}`)
+                                                    navigate(`/DeliveryManagement/DeliveryManData/${deliveryMan.personId}/${deliveryMan.personName}`)
                                                 }}
                                                 align="left">
                                                 {deliveryMan.totalRound}
@@ -309,7 +309,7 @@ function DeliveryMan() {
                                             <TableCell
                                                 align="left"
                                                 onClick={() => {
-                                                    navigate(`/DeliveryManagement/DeliveryManData/${deliveryMan.personId}`)
+                                                    navigate(`/DeliveryManagement/DeliveryManData/${deliveryMan.personId}/${deliveryMan.personName}`)
                                                 }}
                                             >
                                                 {deliveryMan.totalTime}

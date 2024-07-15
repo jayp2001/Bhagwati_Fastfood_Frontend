@@ -139,7 +139,7 @@ function App() {
             <Route path='/deliveryManagement/Dashboard' element={<DeliveryDashboard />} />
             <Route path='/deliveryManagement/DeliveryMan' element={<DeliveryMan />} />
             <Route path='/deliveryManagement/tokenView' element={<TokenView />} />
-            <Route path='/DeliveryManagement/DeliveryManData/:deliveryManId' element={<DeliveryManDataTable />} />
+            <Route path='/DeliveryManagement/DeliveryManData/:deliveryManId/:name' element={<DeliveryManDataTable />} />
             <Route path='/deliveryManagement/tokenViewForMobile' element={<TokenViewForMobile />} />
           </Routes>
         </div>

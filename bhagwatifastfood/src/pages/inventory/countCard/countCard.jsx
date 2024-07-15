@@ -12,6 +12,11 @@ import CardGiftcardOutlinedIcon from '@mui/icons-material/CardGiftcardOutlined';
 import RequestQuoteOutlinedIcon from '@mui/icons-material/RequestQuoteOutlined';
 import ReceiptLongOutlinedIcon from '@mui/icons-material/ReceiptLongOutlined';
 import CreditScoreOutlinedIcon from '@mui/icons-material/CreditScoreOutlined';
+import DeliveryDiningIcon from '@mui/icons-material/DeliveryDining';
+import FoodBankIcon from '@mui/icons-material/FoodBank';
+import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
+import AlarmIcon from '@mui/icons-material/Alarm';
+
 function CountCard(props) {
     const getImg = (imgname) => {
         switch (imgname) {
@@ -43,6 +48,16 @@ function CountCard(props) {
                 return <RequestQuoteOutlinedIcon fontSize='large' />;
             case 'Total Product':
                 return <ReceiptLongOutlinedIcon fontSize='large' />;
+            case 'Delivery Round':
+                return <DeliveryDiningIcon fontSize='large' />;
+            case 'No. Of Other Work':
+                return <DirectionsRunIcon fontSize='large' />;
+            case 'No. Of Parcel':
+                return <FoodBankIcon fontSize='large' />;
+            case 'Work Time':
+                return <AlarmIcon fontSize='large' />;
+            case 'Parcel Ammount':
+                return <CurrencyRupeeIcon fontSize='large' />;
             default:
                 return <CurrencyExchangeIcon fontSize='large' />;
         }
