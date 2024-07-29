@@ -474,16 +474,20 @@ const Cards = ({ data, getDeliverCardData }) => {
             removerDelivery();
         }
         handleClose()
-
-
     }
     const handleDelteAPi = async () => {
+        var amount = 0;
+        var change = 0;
+        var desiredAmount = 0;
         if (itemList[indexDelete].billPayType === 'online' || itemList[indexDelete].billPayType === 'due' || itemList[indexDelete].billPayType === 'debit' || itemList[indexDelete].billPayType === 'cancel') {
+            amount = parseFloat(totalValues.amount || 0) - parseFloat(itemList[indexDelete].billAmt || 0);
+            change = parseFloat(totalValues.change || 0) - parseFloat(itemList[indexDelete].billChange || 0);
+            desiredAmount = parseFloat(totalValues.desiredAmount || 0) - parseFloat(itemList[indexDelete].billChange || 0);
             setTotalValues((prev) => ({
                 ...prev,
-                desiredAmount: parseFloat(totalValues.desiredAmount || 0) - parseFloat(itemList[indexDelete].billChange || 0),
-                amount: parseFloat(totalValues.amount || 0) - parseFloat(itemList[indexDelete].billAmt || 0),
-                change: parseFloat(totalValues.change || 0) - parseFloat(itemList[indexDelete].billChange || 0),
+                desiredAmount: desiredAmount,
+                amount: amount,
+                change: change,
             }));
             console.log('ItemList', itemList[indexDelete])
         }
@@ -496,32 +500,34 @@ const Cards = ({ data, getDeliverCardData }) => {
             }))
         }
         else {
+            amount = parseFloat(totalValues.amount || 0) - parseFloat(itemList[indexDelete].billAmt || 0);
+            change = parseFloat(totalValues.change || 0) - parseFloat(itemList[indexDelete].billChange || 0);
+            desiredAmount = parseFloat(totalValues.desiredAmount || 0) - parseFloat(itemList[indexDelete].desiredAmt || 0);
             console.log('ItemList', itemList[indexDelete])
             console.log('Cash He')
             const totalAmunt = parseFloat(totalValues.amount || 0);
             console.log('Cash', totalAmunt)
             setTotalValues((prev) => ({
                 ...prev,
-                desiredAmount: parseFloat(totalValues.desiredAmount || 0) - parseFloat(itemList[indexDelete].desiredAmt || 0),
-                amount: parseFloat(totalValues.amount || 0) - parseFloat(itemList[indexDelete].billAmt || 0),
-                change: parseFloat(totalValues.change || 0) - parseFloat(itemList[indexDelete].billChange || 0),
+                desiredAmount: desiredAmount,
+                amount: amount,
+                change: change,
             }))
         }
 
 
         const filteredData = itemList.filter((_, index) => index !== indexDelete);
         setItemList(filteredData);
-
         const jsonData = {
             deliveryId: data.deliveryId,
             personId: selectedDeliveryManName.personId,
-            totalBillAmt: totalValues.amount,
-            totalChange: totalValues.change,
-            totalDesiredAmt: totalValues.desiredAmount,
+            totalBillAmt: amount,
+            totalChange: change,
+            totalDesiredAmt: desiredAmount,
             durationTime: data.durationTime,
             deliveryBillData: filteredData,
         };
-
+        console.log('jsonTotalDaata', jsonData, totalValues)
         try {
             const res = await axios.post(`${BACKEND_BASE_URL}deliveryAndPickUprouter/updateDeliveryData`, jsonData, config);
             setItemList(res.data.deliveryData);

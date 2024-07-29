@@ -144,6 +144,9 @@ function LoginPage() {
                                             InputProps={{ style: { fontSize: 18 } }}
                                             InputLabelProps={{ style: { fontSize: 18 } }}
                                             fullWidth
+                                            onKeyDown={(e) => {
+                                                e.key === 'Enter' ? submit(e) : <></>
+                                            }}
                                             id="outlined-adornment-password"
                                             type={showPassword ? 'text' : 'password'}
                                             endAdornment={

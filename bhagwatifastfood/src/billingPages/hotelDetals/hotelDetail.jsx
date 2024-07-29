@@ -1038,7 +1038,7 @@ function HotelDetails() {
                                                     key={row.billId}
                                                     sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                                     style={{ cursor: "pointer" }}
-                                                    className='tableRow'
+                                                    className={row.billStatus == 'Cancel' ? 'bg-red-100 hover:bg-red-100 ' : ``}
                                                 >
                                                     <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
                                                     <Tooltip title={row.cashier} placement="top-start" arrow>
@@ -1157,7 +1157,7 @@ function HotelDetails() {
                                                         key={row.supplierTransactionId}
                                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                                         style={{ cursor: "pointer" }}
-                                                        className='tableRow'
+                                                        className={row.billStatus == 'Cancel' ? 'bg-red-100 hover:bg-red-100 ' : ``}
                                                     >
                                                         <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
                                                         <TableCell component="th" scope="row">

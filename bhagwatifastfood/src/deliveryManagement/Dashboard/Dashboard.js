@@ -12,6 +12,10 @@ import axios from 'axios';
 import DeliveryDiningIcon from '@mui/icons-material/DeliveryDining';
 import { BACKEND_BASE_URL } from './../../url';
 import { ToastContainer, toast } from 'react-toastify';
+import SearchIcon from '@mui/icons-material/Search';
+import {
+    InputAdornment, TextField
+} from '@mui/material';
 
 const Dashboard = () => {
     const [isEdit, setIsEdit] = useState(false);
@@ -36,7 +40,9 @@ const Dashboard = () => {
         change: '',
         desiredAmount: ''
     });
-    const [isOther, setIsOther] = useState(false)
+    const [isOther, setIsOther] = useState(false);
+    const [searchWord, setSearchWord] = useState('');
+    const [filteredTokenData, setFilteredTokenData] = useState([]);
     const [isBill, setIsBill] = useState(false);
     const [deliveryStaticCard, setDeliveyStaticCard] = useState(false)
     const changeRef = useRef(null);
@@ -46,11 +52,25 @@ const Dashboard = () => {
     const priceRef = useRef(null)
     const ITEM_HEIGHT = 48;
 
+
+    const updateBillStatus = async (tknNo) => {
+        await axios.get(`${BACKEND_BASE_URL}deliveryAndPickUprouter/updateTokenToDisplay?tokenNo=${tknNo}`, config)
+            .then((res) => {
+                setSuccess("done")
+            })
+            .catch((error) => {
+                console.log('Error =>', error);
+                setError(error?.response?.data || 'Network Error!');
+                setSearchWord('');
+            });
+    };
     useEffect(() => {
         getDeliveryManData();
         getDeliverCardData();
     }, []);
-
+    const onSearchChange = (e) => {
+        setSearchWord(e.target.value);
+    };
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const config = {
         headers: {
@@ -265,14 +285,14 @@ const Dashboard = () => {
         };
         const tokenExists = itemList.some(item => item.token === newItemData.token);
         const tokenNoExists = itemList.some(item => item.tokenNo === newItemData.tokenNo);
-    
+
         if (tokenExists || tokenNoExists) {
             alert(`Token number ${newItemData.token} is already added.`);
             setFormData({
-                token:'',
-                price:'',
-                desiredAmount:'',
-                change:''
+                token: '',
+                price: '',
+                desiredAmount: '',
+                change: ''
             })
             return;
         }
@@ -474,7 +494,7 @@ const Dashboard = () => {
                         price: '',
                         token: ''
                     });
-                    setItemList([])
+                    // setItemList([])
                     setDeliveryManId('')
                 })
                 .catch((error) => {
@@ -608,7 +628,32 @@ const Dashboard = () => {
                                     Add
                                 </button>
                             </div>
-                            <div className="w-full flex justify-end gap-4 px-4  items-center p-3 ">
+                            <div className='gap-2'>
+                                <TextField
+                                    type='text'
+                                    onChange={onSearchChange}
+                                    value={searchWord}
+                                    name="searchWord"
+                                    id="standard-basic"
+                                    variant="standard"
+                                    onKeyDown={(e) => {
+                                        if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            updateBillStatus(searchWord);
+                                            setSearchWord('');
+                                        }
+                                    }}
+                                    label="Enter Token"
+                                    className='w-2/4'
+                                    InputProps={{
+                                        endAdornment: <InputAdornment position="end"><SearchIcon /></InputAdornment>,
+                                        style: { fontSize: 14 },
+                                    }}
+                                    InputLabelProps={{ style: { fontSize: 14 } }}
+                                    fullWidth
+                                />
+                            </div>
+                            <div className="w-4/12 flex justify-end gap-4 px-4  items-center p-3 ">
                                 <div className="font-semibold dueColor flex items-center gap-2"> <div></div> Due</div>
                                 <div className="font-semibold onlineColoe flex items-center gap-2"> <div></div> Online</div>
                                 <div className="font-semibold delibtColor flex items-center gap-2"> <div></div> Debit</div>
@@ -786,7 +831,7 @@ const Dashboard = () => {
                                                                             ref={changeRef}
                                                                             value={formData.change || ''}
                                                                             onChange={(e) => {
-                                                                                console.log('Price',e.target.value)
+                                                                                console.log('Price', e.target.value)
                                                                                 if (regex.test(e.target.value)) {
                                                                                     setFormData((prev) => ({
                                                                                         ...prev,
