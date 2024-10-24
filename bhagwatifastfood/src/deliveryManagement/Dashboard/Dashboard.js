@@ -126,6 +126,22 @@ const Dashboard = () => {
         setError(false);
     }
 
+
+    const clearDispay = async () => {
+        const userConfirmed = window.confirm('Are You Sure You Want to Clear Display');
+        if (!userConfirmed) {
+            return;
+        }
+
+        await axios.get(`${BACKEND_BASE_URL}deliveryAndPickUprouter/clearAllDisplayToken`, config)
+            .then((res) => {
+                console.log('res', res.data);
+            })
+            .catch((error) => {
+                console.log('Error ==> ', error);
+            });
+    };
+
     const handleClick = (event, token, bill) => {
         setAnchorEl(event.currentTarget);
         setSelectedToken(token);
@@ -486,16 +502,15 @@ const Dashboard = () => {
         try {
             await axios.get(`${BACKEND_BASE_URL}deliveryAndPickUprouter/getOnDeliveryData`, config)
                 .then((res) => {
-                    console.log('Response Data', res.data)
                     setCardList(res.data || [])
-                    setFormData({
-                        change: 0,
-                        desiredAmount: 0,
-                        price: '',
-                        token: ''
-                    });
+                    // setFormData({
+                    //     change: 0,
+                    //     desiredAmount: 0,
+                    //     price: '',
+                    //     token: ''
+                    // });
                     // setItemList([])
-                    setDeliveryManId('')
+                    // setDeliveryManId('')
                 })
                 .catch((error) => {
                     console.log('Error', error)
@@ -628,7 +643,7 @@ const Dashboard = () => {
                                     Add
                                 </button>
                             </div>
-                            <div className='gap-2'>
+                            <div className='gap-2 flex'>
                                 <TextField
                                     type='text'
                                     onChange={onSearchChange}
@@ -643,6 +658,7 @@ const Dashboard = () => {
                                             setSearchWord('');
                                         }
                                     }}
+                                    autoComplete='off'
                                     label="Enter Token"
                                     className='w-2/4'
                                     InputProps={{
@@ -652,6 +668,15 @@ const Dashboard = () => {
                                     InputLabelProps={{ style: { fontSize: 14 } }}
                                     fullWidth
                                 />
+                                <button
+                                    // className='cursor-pointer w-2/5 CompleteDelivery py-1 px-3 rounded-md text-center text-white'
+                                    className='addProductBtn clearallbtn self-center ml-4'
+                                    onClick={() => {
+                                        clearDispay();
+                                    }}
+                                >
+                                    Clear Display
+                                </button>
                             </div>
                             <div className="w-4/12 flex justify-end gap-4 px-4  items-center p-3 ">
                                 <div className="font-semibold dueColor flex items-center gap-2"> <div></div> Due</div>

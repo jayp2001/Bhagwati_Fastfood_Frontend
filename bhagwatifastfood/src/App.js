@@ -50,6 +50,11 @@ import TokenView from './biling/TokenView/TokenView';
 import TokenViewForMobile from './tokenView/TokenViewForMobile';
 import DeliveryMan from './deliveryManagement/DeliveryMan/DeliveryMan';
 import DeliveryManDataTable from './deliveryManagement/DelivryManDataTable/DelivryManDataTable';
+import MenuDashboard from './menuItemPages/Dashboard/Dashboard';
+import AddCategory from './menuItemPages/Category/AddCategory'
+import Unit from './menuItemPages/Unit/Unit';
+import SubCategory from './menuItemPages/SubCategory/SubCategory';
+import MenuCategory from './menuItemPages/MenuCategory/MenuCategory';
 // import SetPrinter from './setPrinter';
 function App() {
   return (
@@ -127,6 +132,11 @@ function App() {
                   <Route path="/RRF" element={<RrfBookList/>}/>
                   <Route path="/OTHER" element={<OtherBookList/>}/>
                   <Route path="/bookList" element={<AllBookList/>}/> */}
+              <Route path='/deliveryManagement/Dashboard' element={<DeliveryDashboard />} />
+              <Route path='/deliveryManagement/DeliveryMan' element={<DeliveryMan />} />
+              <Route path='/deliveryManagement/tokenView' element={<TokenView />} />
+              <Route path='/DeliveryManagement/DeliveryManData/:deliveryManId/:name' element={<DeliveryManDataTable />} />
+              <Route path='/deliveryManagement/tokenViewForMobile' element={<TokenViewForMobile />} />
               <Route path="/hotel/hotelTable" element={<HotelTable />} />
               <Route path="/billing/comments" element={<CommentTable />} />
               <Route path="/hotel/hotelDetails/:id" element={<HotelDetails />} />
@@ -136,11 +146,11 @@ function App() {
             {/* <Route path='/setPrinter' exact element={<SetPrinter />}/> */}
             <Route path='/login' exact element={<LoginPage />} />
             <Route path='*' element={<PageNotFoundRedirect />} />
-            <Route path='/deliveryManagement/Dashboard' element={<DeliveryDashboard />} />
-            <Route path='/deliveryManagement/DeliveryMan' element={<DeliveryMan />} />
-            <Route path='/deliveryManagement/tokenView' element={<TokenView />} />
-            <Route path='/DeliveryManagement/DeliveryManData/:deliveryManId/:name' element={<DeliveryManDataTable />} />
-            <Route path='/deliveryManagement/tokenViewForMobile' element={<TokenViewForMobile />} />
+            <Route path='/menu/Dashboard' element={<MenuDashboard />} />
+            <Route path='/menu/Category' element={<AddCategory />} />
+            <Route path='/menu/Unit' element={<Unit />} />
+            <Route path='/menu/SubCategory' element={<SubCategory />} />
+            <Route path='/menu/MenuCategory' element={<MenuCategory />} />
           </Routes>
         </div>
       </BrowserRouter>

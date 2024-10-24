@@ -492,6 +492,9 @@ const Cards = ({ data, getDeliverCardData }) => {
             console.log('ItemList', itemList[indexDelete])
         }
         else if (itemList[indexDelete].billPayType === 'other') {
+            amount = totalValues.amount;
+            change = totalValues.change;
+            desiredAmount = totalValues.desiredAmount;
             setTotalValues((prev) => ({
                 ...prev,
                 desiredAmount: prev.desiredAmount,
@@ -515,7 +518,7 @@ const Cards = ({ data, getDeliverCardData }) => {
             }))
         }
 
-
+        console.log('Daa', amount, change, desiredAmount);
         const filteredData = itemList.filter((_, index) => index !== indexDelete);
         setItemList(filteredData);
         const jsonData = {

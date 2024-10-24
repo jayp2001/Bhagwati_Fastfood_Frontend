@@ -13,6 +13,7 @@ import scoreboard from '../../../../../assets/billing/scoreboard.png';
 import delivery from '../../../../../assets/billing/delivery.png';
 import mobileView from '../../../../../assets/billing/smartphone.png'
 import deliveryMen from '../../../../../assets/billing/express.png'
+import Menu from '../../../../../assets/menu.png'
 function ConsoleCard(props) {
     const getImg = (imgname) => {
         switch (imgname) {
@@ -38,6 +39,8 @@ function ConsoleCard(props) {
                 return mobileView;
             case 'deliveryMen':
                 return deliveryMen;
+            case 'Menu':
+                return Menu;
             default:
                 return userAdd;
         }

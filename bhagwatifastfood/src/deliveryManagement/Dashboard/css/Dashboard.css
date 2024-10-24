@@ -278,3 +278,8 @@
 .addressWidth {
     width: 36%;
 }
+
+.clearallbtn{
+    height: 35px !important;
+    width: 200px !important;
+}

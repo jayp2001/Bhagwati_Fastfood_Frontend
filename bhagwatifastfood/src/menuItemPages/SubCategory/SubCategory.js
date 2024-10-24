@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useRef } from 'react';
-import { BACKEND_BASE_URL } from '../../../url';
+import { BACKEND_BASE_URL } from '../../url';
 import { ToastContainer, toast } from 'react-toastify';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -83,6 +83,13 @@ const anotherStyle = {
     p: 4,
 };
 function SubCategory() {
+    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const config = {
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${userInfo.token}`,
+        },
+    };
     const [open, setOpen] = useState(false);
     const [tab, setTab] = React.useState(null);
     const [searchWord, setSearchWord] = React.useState();
@@ -173,11 +180,7 @@ function SubCategory() {
     const getAllCategory = async () => {
         try {
             const token = localStorage.getItem('token');
-            const response = await axios.get(`${BACKEND_BASE_URL}menuItemrouter/getMainCategory`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
+            const response = await axios.get(`${BACKEND_BASE_URL}menuItemrouter/getMainCategory`, config);
             setCategories(response.data);
         } catch (error) {
             if (error) {
@@ -189,11 +192,7 @@ function SubCategory() {
     const getSubCategory = async () => {
         try {
             const token = localStorage.getItem('token');
-            await axios.get(`${BACKEND_BASE_URL}menuItemrouter/getSubCategoryList?page=${page + 1}&numPerPage=${rowsPerPage}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
+            await axios.get(`${BACKEND_BASE_URL}menuItemrouter/getSubCategoryList?page=${page + 1}&numPerPage=${rowsPerPage}`, config)
                 .then((res) => {
                     setTotalRows(res.data.numRows)
                     setSubCategories(res.data.rows)
@@ -282,11 +281,7 @@ function SubCategory() {
                 categoryId: mainCategoryId.categoryId,
                 subCategoryName: categoryName,
                 displayRank: categoryRank
-            }, {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
+            }, config);
 
             if (response.data === 'SubCategory Added Successfully') {
                 getAllCategory();
@@ -347,11 +342,7 @@ function SubCategory() {
                     subCategoryName: data.subCategoryName,
                     displayRank: data.displayRank
                 },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
+                config
             );
             setSuccess('Category Updated Successfully')
             getAllCategory();
@@ -378,11 +369,7 @@ function SubCategory() {
             try {
                 const response = await axios.delete(
                     `${BACKEND_BASE_URL}menuItemrouter/removeSubCategoryData?subCategoryId=${id}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    }
+                    config
                 );
                 if (response.data === 'SubCategory Deleted Successfully') {
                     getAllCategory();
@@ -434,11 +421,7 @@ function SubCategory() {
                     subCategoryId: categoryId,
                     periodIntervels: [formattedTime]
                 },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
+                config
             );
             if (response.data === 'Perioad Added Successfully') {
                 setSuccess(response.data)
@@ -482,11 +465,7 @@ function SubCategory() {
             const response = await axios.post(
                 `${BACKEND_BASE_URL}menuItemrouter/updateSubCategoryPeriod`,
                 dataToSend,
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`
-                    }
-                }
+                config
             );
             if (response?.data === 'Perioad Update Successfully') {
                 setSuccess(true);

@@ -100,8 +100,8 @@ function NavBar() {
         }
     }
     useEffect(() => {
-        getMainCategoies();
-        getBanks();
+        // getMainCategoies();
+        // getBanks();
     }, [])
     const toggleDrawer = (anchor, open) => (event) => {
         if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -468,6 +468,74 @@ function NavBar() {
         </Box>
     );
 
+    const menu = (anchor) => (
+        <Box
+            sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 300, color: 'gray' }}
+            role="presentation"
+            onClick={toggleDrawer(anchor, false)}
+            onKeyDown={toggleDrawer(anchor, false)}
+        >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', backgroundColor: '#333', color: '#fff' }}>
+                <div style={{ fontSize: 35 }}><InventoryIcon fontSize='large' />&nbsp;&nbsp;Menu</div>
+                <Button onClick={toggleDrawer(anchor, false)} color="inherit">
+                    <ArrowBackIcon fontSize='small' />
+                </Button>
+            </Box>
+            <Divider />
+            <List>
+                <ListItem key={1}>
+                    <ListItemButton to="/dashboard">
+                        <ListItemIcon>
+                            <DashboardIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={'Dashboard'} />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem key={2}>
+                    <ListItemButton to="/menu/Dashboard">
+                        <ListItemIcon>
+                            <StyleOutlinedIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={'Menu Dashboard'} />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem key={3}>
+                    <ListItemButton to="/menu/Category">
+                        <ListItemIcon>
+                            <ListAltOutlinedIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={'Category'} />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem key={4}>
+                    <ListItemButton to="/menu/Unit">
+                        <ListItemIcon>
+                            <CompareArrowsIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={'Unit'} />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem key={5}>
+                    <ListItemButton to="/menu/SubCategory">
+                        <ListItemIcon>
+                            <DomainAddIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={'Sub-Category'} />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem key={6}>
+                    <ListItemButton to="/menu/MenuCategory">
+                        <ListItemIcon>
+                            <CategoryIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={'Menu-Category'} />
+                    </ListItemButton>
+                </ListItem>
+            </List>
+        </Box>
+    );
+
+
     const navigate = useNavigate();
     const logout = () => {
         if (window.confirm("Are you sure !,you want to logout")) {
@@ -593,7 +661,7 @@ function NavBar() {
                                                 open={state[anchor]}
                                                 onClose={toggleDrawer(anchor, false)}
                                             >
-                                                {location.pathname.split('/')[1] == 'hotel' ? hotel(anchor) : list(anchor)}
+                                                {location.pathname.split('/')[1] == 'hotel' ? hotel(anchor) : location.pathname.split('/')[1] == 'menu' ? menu(anchor) : list(anchor)}
                                             </Drawer>
                                         </React.Fragment>
                                     ))}
