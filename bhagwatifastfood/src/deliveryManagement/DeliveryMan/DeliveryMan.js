@@ -21,18 +21,20 @@ function DeliveryMan() {
         boxShadow: 24,
         p: 2,
     };
-
+    const regex = /^[0-9\b]+$/;
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
     const [success, setSuccess] = useState(false);
     const [addDeliveryManPopUp, setAddDeliveryManPopUp] = useState(false);
     const [deliveryManData, setDeliveryManData] = useState({
         name: '',
-        shortName: ''
+        shortName: '',
+        mobileNo: ''
     });
     const [formErrors, setFormErrors] = useState({
         name: '',
-        shortName: ''
+        shortName: '',
+        mobileNo: false
     });
     const [deliveryMenData, setDeliveryMenData] = useState([]);
     const [page, setPage] = useState(0);
@@ -60,8 +62,8 @@ function DeliveryMan() {
             progress: undefined,
             theme: "colored",
         });
+        setSuccess(false);
         setTimeout(() => {
-            setSuccess(false);
             setLoading(false);
         }, 50);
     }
@@ -105,6 +107,27 @@ function DeliveryMan() {
             setError(error.response?.data || 'Network Error!!..');
         }
     };
+    const handleDelete = async (id) => {
+        try {
+            if (window.confirm('are you sure you want to delete this delivery man?')) {
+                await axios.delete(`${BACKEND_BASE_URL}deliveryAndPickUprouter/removeDeliveryPerson?personId=${id}`, config)
+                    .then((res) => {
+                        console.log(res.data)
+                        setSuccess(true)
+                        setRowsPerPage(25);
+                        setPage(0)
+                        getDeliveryMenDetails(0, 25);
+                    })
+                    .catch((error) => {
+                        console.log('Error', error)
+                        setError(error.response.data || true)
+                    })
+            }
+        } catch (error) {
+            console.log('Error', error)
+            setError(true)
+        }
+    }
 
     useEffect(() => {
         getDeliveryMenDetails(page, rowsPerPage);
@@ -112,8 +135,8 @@ function DeliveryMan() {
 
     const handleCreateDeliveryManData = async () => {
         try {
-            setFormErrors({ name: '', shortName: '' });
-            if (!deliveryManData.name.trim() || !deliveryManData.shortName.toString().trim()) {
+
+            if ((!deliveryManData.name.trim() || !deliveryManData.shortName.toString().trim())) {
                 const errors = {};
                 if (!deliveryManData.name.trim()) {
                     errors.name = 'Name is required';
@@ -121,9 +144,12 @@ function DeliveryMan() {
                 if (!deliveryManData.shortName.toString().trim()) {
                     errors.shortName = 'Short Name is required';
                 }
+                if ((deliveryManData.mobileNo && formErrors.mobileNo)) {
+                    errors.mobileNo = true;
+                }
                 setFormErrors(prevErrors => ({
                     ...prevErrors,
-                    ...errors
+                    ...errors,
                 }));
                 return;
             }
@@ -134,6 +160,7 @@ function DeliveryMan() {
                     personId: editDeliveryManId,
                     personName: deliveryManData.name,
                     shortName: deliveryManData.shortName,
+                    mobileNo: deliveryManData.mobileNo,
                     isAvailable: true
                 }
                 url = `${BACKEND_BASE_URL}deliveryAndPickUprouter/updateDeliveryPerson`
@@ -142,32 +169,35 @@ function DeliveryMan() {
                 newData = {
                     personName: deliveryManData.name,
                     shortName: deliveryManData.shortName,
+                    mobileNo: deliveryManData.mobileNo,
                     isAvailable: true
                 };
                 url = `${BACKEND_BASE_URL}deliveryAndPickUprouter/addDeliveryPerson`
             }
 
             console.log('New Data', newData);
-            setLoading(true);
-
-            await axios.post(url, newData, config)
-                .then((res) => {
-                    setLoading(false);
-                    setSuccess(true);
-                    setDeliveryManData({ name: '', shortName: '' });
-                    setEditDeliveryManId('');
-                    setIsEdit(false);
-                    setFormErrors(false);
-                    getDeliveryMenDetails(page, rowsPerPage);
-                    if (isEdit) {
+            if (!formErrors.mobileNo) {
+                setLoading(true);
+                await axios.post(url, newData, config)
+                    .then((res) => {
+                        setFormErrors({ name: '', shortName: '', mobileNo: false });
+                        setLoading(false);
+                        setSuccess(true);
+                        setDeliveryManData({ name: '', shortName: '', mobileNo: '' });
+                        setEditDeliveryManId('');
                         setIsEdit(false);
-                        handleDeliveryManPopUpClose();
-                    }
-                })
-                .catch((error) => {
-                    console.log('Error', error);
-                    setError(error.response?.data || 'Network Error!!..');
-                });
+                        setFormErrors(false);
+                        getDeliveryMenDetails(page, rowsPerPage);
+                        if (isEdit) {
+                            setIsEdit(false);
+                            handleDeliveryManPopUpClose();
+                        }
+                    })
+                    .catch((error) => {
+                        console.log('Error', error);
+                        setError(error.response?.data || 'Network Error!!..');
+                    });
+            }
         } catch (error) {
             console.error('Error =>', error);
             setError('Error occurred while creating delivery man data.');
@@ -176,7 +206,7 @@ function DeliveryMan() {
 
     const handleDeliveryManPopUpClose = () => {
         setAddDeliveryManPopUp(false);
-        setDeliveryManData({ name: '', shortName: '' });
+        setDeliveryManData({ name: '', shortName: '', mobileNo: '' });
         setEditDeliveryManId('');
         setIsEdit(false);
         setFormErrors(false);
@@ -200,7 +230,8 @@ function DeliveryMan() {
             setIsEdit(true);
             setDeliveryManData({
                 name: data.personName,
-                shortName: data.shortName
+                shortName: data.shortName,
+                mobileNo: data.mobileNo ? data.mobileNo : ''
             });
             setAddDeliveryManPopUp(true);
         } catch (error) {
@@ -278,6 +309,7 @@ function DeliveryMan() {
                                         <TableCell align="left">Short Name</TableCell>
                                         <TableCell align="left">Delivery Rounds</TableCell>
                                         <TableCell align="left">Total Time</TableCell>
+                                        <TableCell align="left">Mobile No.</TableCell>
                                         <TableCell align="right" style={{ paddingRight: '36px' }}>Actions</TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -314,6 +346,14 @@ function DeliveryMan() {
                                             >
                                                 {deliveryMan.totalTime}
                                             </TableCell>
+                                            <TableCell
+                                                align="left"
+                                                onClick={() => {
+                                                    navigate(`/DeliveryManagement/DeliveryManData/${deliveryMan.personId}/${deliveryMan.personName}`)
+                                                }}
+                                            >
+                                                {deliveryMan.mobileNo}
+                                            </TableCell>
                                             <TableCell align='right'>
                                                 <div className="flex w-100 justify-end">
                                                     <Switch
@@ -327,7 +367,9 @@ function DeliveryMan() {
                                                         <BorderColorIcon
                                                             className='text-gray-600 table_icon2' />
                                                     </div>
-                                                    <div className='rounded-lg bg-gray-100 p-2 ml-4 cursor-pointer table_Actions_icon2 hover:bg-red-600'><DeleteOutlineOutlinedIcon className='text-gray-600 table_icon2 ' /></div>
+                                                    <div className='rounded-lg bg-gray-100 p-2 ml-4 cursor-pointer table_Actions_icon2 hover:bg-red-600' onClick={() => {
+                                                        handleDelete(deliveryMan.personId);
+                                                    }}><DeleteOutlineOutlinedIcon className='text-gray-600 table_icon2 ' /></div>
                                                 </div>
                                             </TableCell>
                                         </TableRow>
@@ -381,7 +423,7 @@ function DeliveryMan() {
                                 helperText={formErrors.name}
                             />
                         </div>
-                        <div className="col-span-3">
+                        <div className="col-span-4">
                             <TextField
                                 id="deliveryManShortName"
                                 label="Short Name"
@@ -402,7 +444,49 @@ function DeliveryMan() {
                                 helperText={formErrors.shortName}
                             />
                         </div>
-                        <div className="flex gap-4  w-full justify-start pr-4 col-span-5">
+                        <div className="col-span-4">
+                            <TextField
+                                id="deliveryManSxe"
+                                label="Mobile No"
+                                variant="outlined"
+                                className='w-full'
+                                value={deliveryManData.mobileNo}
+                                // onBlur={(e) => {
+                                //     if (!e.target.value) {
+                                //         setFormErrors(prevErrors => ({
+                                //             ...prevErrors,
+                                //             mobileNo: e.target.value.length < 11
+                                //         }));
+                                //     }
+                                // }}
+                                onChange={(e) => {
+                                    if ((regex.test(e.target.value) || e.target.value === '') && e.target.value.length < 11) {
+                                        setDeliveryManData((prev) => ({
+                                            ...prev,
+                                            mobileNo: e.target.value
+                                        }));
+                                        setFormErrors(prevErrors => ({
+                                            ...prevErrors,
+                                            mobileNo: e.target.value.length == 0 ? false : e.target.value.length > 0 && e.target.value.length < 10 ? true : false
+                                        }));
+
+                                    }
+                                    else {
+                                        setFormErrors(prevErrors => ({
+                                            ...prevErrors,
+                                            mobileNo: false
+                                        }));
+                                    }
+                                }
+                                }
+                                error={formErrors.mobileNo}
+                                helperText={formErrors.mobileNo ? 'Enter Mobile No.' : ''}
+                            />
+                        </div>
+                        <div className='col-span-7'>
+
+                        </div>
+                        <div className="flex gap-4  w-full justify-end pr-4 col-span-5">
                             <div className="w-full">
                                 <button className="addCategorySaveBtn ml-4" onClick={handleCreateDeliveryManData}>{isEdit ? 'Edit' : 'Save'}</button>
                             </div>

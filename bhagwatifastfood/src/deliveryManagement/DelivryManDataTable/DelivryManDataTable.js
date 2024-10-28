@@ -57,6 +57,7 @@ function DeliveryManDataTable() {
     const [updateDeliveryPopUp, setUpdatDeliveryPopUp] = useState(false)
     const { deliveryManId, name } = useParams();
 
+
     React.useEffect(() => {
         console.log('deliveryManId:', deliveryManId);
     }, [deliveryManId]);

@@ -17,10 +17,13 @@ const TokenView = () => {
         borderRadius: '30px',
         backgroundColor: 'red'
     };
-
+    const [voiceTest, setVoiceTest] = useState()
     const [tokenList, setTokenList] = useState([]);
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-
+    // const voices = speechSynthesis.getVoices();
+    // if (voices.length) {
+    //     setVoiceTest(voices.find(voice => voice.name.includes("Google हिन्दी")) || voices[0])
+    // }
     const config = {
         headers: {
             "Content-Type": "application/json",
@@ -42,7 +45,6 @@ const TokenView = () => {
                 speakToken(message)
             }
         });
-
         return () => {
             socket.disconnect();
         };
@@ -51,22 +53,25 @@ const TokenView = () => {
     const videoRef = useRef(null);
 
     // useEffect(() => {
-    //     const videoElement = videoRef.current;
-    //     const enterFullScreen = async () => {
-    //         if (videoElement && document.fullscreenElement !== videoElement) {
-    //             try {
-    //                 await videoElement.requestFullscreen();
-    //             } catch (err) {
-    //                 console.error('Error attempting to enable full-screen mode:', err);
-    //             }
+    //     const loadVoice = () => {
+    //         const voices = window.speechSynthesis.getVoices();
+    //         const selectedVoice = voices.find(voice => voice.name.includes("Google हिन्दी")) || voices[0]
+
+    //         if (selectedVoice) {
+    //             setVoiceTest(selectedVoice); // Set voice only once
     //         }
     //     };
-
-    //     enterFullScreen();
+    //     loadVoice();
+    //     window.speechSynthesis.onvoiceschanged = loadVoice; // Ensure voices are loaded
     // }, []);
-
     useEffect(() => {
         getTokenNumberList();
+        // const keepAliveInterval = setInterval(() => {
+        //     const silence = new SpeechSynthesisUtterance("");
+        //     window.speechSynthesis.speak(silence);
+        //     console.log('speak')
+        // }, 2000);
+        // return () => clearInterval(keepAliveInterval);
     }, []);
 
     const getTokenNumberList = async () => {
@@ -82,53 +87,50 @@ const TokenView = () => {
     const handleClick = (tokenNumber) => {
         speakToken(tokenNumber);
     };
-    function selectFemaleVoice() {
-        const voices = speechSynthesis.getVoices();
-        const femaleVoices = voices.filter(voice => voice.name.includes("Google हिन्दी") || voice.name.includes("Google हिन्दी"));
-        return femaleVoices.length ? femaleVoices[0] : voices[0];
-    }
-    const speakToken = (tokenNumber) => {
+
+    function speakToken(tokenNumber) {
+
+        // const setVoiceAndSpeak = () => {
         const utterance = new SpeechSynthesisUtterance(`Token Number ${tokenNumber}`);
-        utterance.voice = selectFemaleVoice();
-        speechSynthesis.speak(utterance);
-    };
-    // const tokenQueue = [];
-    // let isSpeaking = false;
+        // const voices = speechSynthesis.getVoices();
+        // if (voices.length) {
+        // const femaleVoice = voices.find(voice => voice.name.includes("Google हिन्दी")) || voices[0];
+        // utterance.voice = voiceTest;
+        window.speechSynthesis.speak(utterance);
+        // window.speechSynthesis.cancel();
+        console.log("Voice selected and speaking");
+        // } else {
+        //     console.log("No voices available");
+        // }
+        // };
+        // if (speechSynthesis.getVoices().length) {
+        //     // Voices already loaded
+        //     setVoiceAndSpeak();
+        // } else {
+        //     // Retry with voiceschanged event
+        //     speechSynthesis.addEventListener('voiceschanged', setVoiceAndSpeak, { once: true });
 
+        //     // Fallback in case voiceschanged event doesn’t fire
+        //     setTimeout(() => {
+        //         if (!utterance.voice) {
+        //             console.log("Retrying to fetch voices after delay");
+        //             setVoiceAndSpeak();
+        //         }
+        //     }, 500);
+        // }
+    }
+
+
+    // function selectFemaleVoice() {
+    //     const voices = speechSynthesis.getVoices();
+    //     const femaleVoices = voices.filter(voice => voice.name.includes("Google हिन्दी") || voice.name.includes("Google हिन्दी"));
+    //     return femaleVoices.length ? femaleVoices[0] : voices[0];
+    // }
     // const speakToken = (tokenNumber) => {
-    //     // Add token to the queue
-    //     tokenQueue.push(tokenNumber);
-    //     processQueue();
-    // };
-
-    // const processQueue = () => {
-    //     if (isSpeaking || !tokenQueue.length) {
-    //         return;
-    //     }
-
-    //     isSpeaking = true;
-    //     const tokenNumber = tokenQueue.shift(); // Get the next token from the queue
-    //     const utterance = new SpeechSynthesisUtterance(⁠ Token Number ${ tokenNumber } ⁠);
-
-    //     function selectFemaleVoice() {
-    //         const voices = speechSynthesis.getVoices();
-    //         const femaleVoices = voices.filter(voice => voice.name.includes("Google हिन्दी") || voice.name.includes("Google हिन्दी"));
-    //         return femaleVoices.length ? femaleVoices[0] : voices[0];
-    //     }
-
+    //     window.speechSynthesis.cancel();
+    //     const utterance = new SpeechSynthesisUtterance(`Token Number ${tokenNumber}`);
     //     utterance.voice = selectFemaleVoice();
-
-    //     utterance.onend = () => {
-    //         isSpeaking = false;
-    //         processQueue(); // Process the next token in the queue
-    //     };
-
-    //     utterance.onerror = () => {
-    //         isSpeaking = false;
-    //         processQueue(); // Process the next token in the queue even if there's an error
-    //     };
-
-    //     speechSynthesis.speak(utterance);
+    //     window.speechSynthesis.speak(utterance);
     // };
 
     const responce = () => {

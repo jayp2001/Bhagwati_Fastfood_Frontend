@@ -219,7 +219,7 @@ const TokenViewForMobile = () => {
                     {isWideScreen ? (
                         <div className="flex justify-end w-full gap-4">
                             <button
-                                className='cursor-pointer w-2/5 ResetButton py-1 px-3 rounded-md text-center text-white'
+                                className='cursor-pointer w-2/5 ResetButton py-1 px-3 rounded-md text-center text-white transform transition-transform hover:-translate-y-0.5 duration-300 ease-in-out'
                                 onClick={() => {
                                     setSearchWord('');
                                     setFilteredTokenData(tokenData);
@@ -228,7 +228,7 @@ const TokenViewForMobile = () => {
                                 Reset
                             </button>
                             <button
-                                className='cursor-pointer w-2/5 CompleteDelivery py-1 px-3 rounded-md text-center text-white'
+                                className='cursor-pointer w-2/5 CompleteDelivery py-1 px-3 rounded-md text-center text-white transform transition-transform hover:-translate-y-0.5 duration-300 ease-in-out'
                                 onClick={() => {
                                     clearDispay();
                                 }}
@@ -236,7 +236,7 @@ const TokenViewForMobile = () => {
                                 Clear Display
                             </button>
                             <button
-                                className='cursor-pointer w-2/5 ResetButton py-1 px-3 rounded-md text-center text-white'
+                                className='cursor-pointer w-2/5  bg-slate-500 py-1 px-3 rounded-md text-center text-white transform transition-transform hover:-translate-y-0.5 duration-300 ease-in-out'
                                 onClick={() => {
                                     AllTokenCompelete();
                                 }}

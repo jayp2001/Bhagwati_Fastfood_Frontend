@@ -74,6 +74,7 @@
 .name {
     position: relative;
     align-items: center;
+    /* max-height: 48px; */
 }
 
 .selected-name {
@@ -176,6 +177,12 @@
     height: 15px;
     border-radius: 50%;
     background-color: rgb(252, 139, 139);
+}
+.complimentaryColor div {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: rgb(232, 121, 249);
 }
 
 .topHeaderIcon {

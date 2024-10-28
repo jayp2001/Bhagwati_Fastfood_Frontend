@@ -581,9 +581,97 @@ const Dashboard = () => {
                 change: parseFloat(totalValues.change || 0) - parseFloat(itemList[selectedToken].change || 0),
             }))
         }
+        else if (itemList[selectedToken].billPayType === 'complimentary') {
+            setTotalValues((prev) => ({
+                ...prev,
+                desiredAmount: parseFloat(totalValues.desiredAmount || 0) - parseFloat(itemList[selectedToken].change || 0),
+                amount: parseFloat(totalValues.amount || 0) - parseFloat(itemList[selectedToken].price || 0),
+                change: parseFloat(totalValues.change || 0) - parseFloat(itemList[selectedToken].change || 0),
+            }))
+        }
+        console.log('KLIO', itemList)
         const filteredData = itemList.filter((_, index) => index !== selectedToken)
         setItemList(filteredData);
         handleClose();
+    };
+    const handleEditItem = () => {
+        if (itemList[selectedToken].billPayType === 'online') {
+            setTotalValues((prev) => ({
+                ...prev,
+                desiredAmount: parseFloat(totalValues.desiredAmount || 0) - parseFloat(itemList[selectedToken].change || 0),
+                amount: parseFloat(totalValues.amount || 0) - parseFloat(itemList[selectedToken].price || 0),
+                change: parseFloat(totalValues.change || 0) - parseFloat(itemList[selectedToken].change || 0),
+            }))
+        }
+        else if (itemList[selectedToken].billPayType === 'due') {
+            setTotalValues((prev) => ({
+                ...prev,
+                desiredAmount: parseFloat(totalValues.desiredAmount || 0) - parseFloat(itemList[selectedToken].change || 0),
+                amount: parseFloat(totalValues.amount || 0) - parseFloat(itemList[selectedToken].price || 0),
+                change: parseFloat(totalValues.change || 0) - parseFloat(itemList[selectedToken].change || 0),
+            }))
+        }
+        else if (itemList[selectedToken].billPayType === 'debit') {
+            setTotalValues((prev) => ({
+                ...prev,
+                desiredAmount: parseFloat(totalValues.desiredAmount || 0) - parseFloat(itemList[selectedToken].change || 0),
+                amount: parseFloat(totalValues.amount || 0) - parseFloat(itemList[selectedToken].price || 0),
+                change: parseFloat(totalValues.change || 0) - parseFloat(itemList[selectedToken].change || 0),
+            }))
+        }
+        else if (itemList[selectedToken].billPayType === 'Due Bill') {
+            setTotalValues((prev) => ({
+                ...prev,
+                desiredAmount: parseFloat(totalValues.desiredAmount || 0) - parseFloat(itemList[selectedToken].desiredAmount || 0),
+                amount: parseFloat(totalValues.amount || 0) - parseFloat(itemList[selectedToken].price || 0),
+                change: parseFloat(totalValues.change || 0) - parseFloat(itemList[selectedToken].change || 0),
+            }))
+        }
+        else if (itemList[selectedToken].billPayType === 'cash') {
+            console.log('Cash He')
+            const totalAmunt = parseFloat(totalValues.amount || 0) - parseFloat(itemList[selectedToken].amount || 0);
+            console.log('Cash', totalValues.amount)
+            console.log('Cash', itemList[selectedToken])
+            setTotalValues((prev) => ({
+                ...prev,
+                desiredAmount: parseFloat(totalValues.desiredAmount || 0) - parseFloat(itemList[selectedToken].desiredAmount || 0),
+                amount: parseFloat(totalValues.amount || 0) - parseFloat(itemList[selectedToken].price || 0),
+                change: parseFloat(totalValues.change || 0) - parseFloat(itemList[selectedToken].change || 0),
+            }))
+        }
+        else if (itemList[selectedToken].billPayType === 'complimentary') {
+            setTotalValues((prev) => ({
+                ...prev,
+                desiredAmount: parseFloat(totalValues.desiredAmount || 0) - parseFloat(itemList[selectedToken].change || 0),
+                amount: parseFloat(totalValues.amount || 0) - parseFloat(itemList[selectedToken].price || 0),
+                change: parseFloat(totalValues.change || 0) - parseFloat(itemList[selectedToken].change || 0),
+            }))
+        }
+        setFormData((prev) => ({
+            ...prev,
+            token: itemList[selectedToken].token,
+            change: itemList[selectedToken].change,
+            desiredAmount: itemList[selectedToken].desiredAmount,
+            price: itemList[selectedToken].price,
+            tokenNo: itemList[selectedToken].tokenNo,
+            address: itemList[selectedToken].address,
+            billPayType: itemList[selectedToken].billPayType,
+            billId: itemList[selectedToken].billId,
+            deliveryType: itemList[selectedToken].deliveryType,
+            billType: itemList[selectedToken].billType
+
+        }))
+        // formData
+        setIsOther(false);
+        setIsBill(false);
+        const filteredData = itemList.filter((_, index) => index !== selectedToken)
+        setItemList(filteredData);
+        handleClose();
+        setIsTokenError(false);
+        setTimeout(() => {
+            changeRef.current.focus()
+        }, 50)
+
     };
     const style = {
         position: 'absolute',
@@ -683,6 +771,7 @@ const Dashboard = () => {
                                 <div className="font-semibold onlineColoe flex items-center gap-2"> <div></div> Online</div>
                                 <div className="font-semibold delibtColor flex items-center gap-2"> <div></div> Debit</div>
                                 <div className="font-semibold cancelColor flex items-center gap-2"> <div></div> Cancel</div>
+                                <div className="font-semibold complimentaryColor flex items-center gap-2"> <div></div> Complimentary</div>
                             </div>
                         </div>
                     </div>
@@ -983,7 +1072,7 @@ const Dashboard = () => {
                                                 </div>
                                                 <div className="overflow-y-auto" style={{ height: '180px' }}>
                                                     {itemList && itemList.map((bill, index) => (
-                                                        <div key={index} className={`flex items-center px-2 borderb border-gray-300 ${bill.billPayType === 'cancel' ? 'bg-red-100' : bill.billPayType === 'online' ? 'bg-green-100' : bill.billPayType === 'due' ? 'bg-blue-100' : bill.billPayType === 'debit' ? 'bg-indigo-200' : ''}`}>
+                                                        <div key={index} className={`flex items-center px-2 borderb border-gray-300 ${bill.billPayType === 'cancel' ? 'bg-red-100' : bill.billPayType === 'online' ? 'bg-green-100' : bill.billPayType === 'due' ? 'bg-blue-100' : bill.billPayType === 'debit' ? 'bg-indigo-200' : bill.billPayType === 'complimentary' ? 'bg-fuchsia-200' : ''}`}>
                                                             <div className="w-1/12 font-semibold text-start text-sm p-1 px-0">{bill.tokenNo}</div>
                                                             {/* <Tooltip title={bill.address ? bill.address : bill.Comment} arrow={true}> */}
                                                             <Tooltip title={bill.address ? bill.address : bill.Comment} arrow>
@@ -1022,6 +1111,11 @@ const Dashboard = () => {
                                                                                 },
                                                                             }}
                                                                         >
+                                                                            {bill.billPayType == 'cash' &&
+                                                                                <MenuItem onClick={handleEditItem}>
+                                                                                    Edit
+                                                                                </MenuItem>
+                                                                            }
                                                                             <MenuItem onClick={handleDeleteItem}>
                                                                                 Delete
                                                                             </MenuItem>
@@ -1044,13 +1138,13 @@ const Dashboard = () => {
                                             </div>
                                             <div className="p-2 text-end w-full border-t border-gray-300">
                                                 <button
-                                                    className='p-1 px-4 text-white StartDelivery text-semibold text-lg rounded-xl'
+                                                    className='p-1 px-4 text-white bg-green-600 text-semibold text-lg rounded-xl transform hover:scale-[1.05] duration-300 ease-in-out hover:bg-green-700'
                                                     onClick={handleAddCards}
                                                 >
                                                     Start Delivery
                                                 </button>
                                                 <button
-                                                    className='p-1 px-4 text-white ResetButton ml-3 text-semibold text-lg rounded-xl'
+                                                    className='p-1 px-4 text-white bg-gray-500 ml-3 text-semibold text-lg rounded-xl transform hover:scale-[1.05] duration-300 ease-in-out hover:bg-slate-700'
                                                     onClick={() => {
                                                         setItemList([]);
                                                         setFormData({
@@ -1136,7 +1230,7 @@ const Dashboard = () => {
                                             </div>
                                             <div className="overflow-y-auto " style={{ height: '180px' }}>
                                                 {updateDeliveryPopUpData?.deliveryData && updateDeliveryPopUpData?.deliveryData.map((bill, index) => (
-                                                    <div key={index} className={`flex items-center px-2 borderb border-gray-300 ${bill.billPayType === 'cancel' ? 'bg-red-100' : bill.billPayType === 'online' ? 'bg-green-100' : bill.billPayType === 'due' ? 'bg-blue-100' : bill.billPayType === 'debit' ? 'bg-indigo-200' : ''}`}>
+                                                    <div key={index} className={`flex items-center px-2 borderb border-gray-300 ${bill.billPayType === 'cancel' ? 'bg-red-100' : bill.billPayType === 'online' ? 'bg-green-100' : bill.billPayType === 'due' ? 'bg-blue-100' : bill.billPayType === 'debit' ? 'bg-indigo-200' : bill.billPayType === 'complimentary' ? 'bg-fuchsia-200' : ''}`}>
                                                         <div className="w-1/12 font-semibold text-start  text-sm p-1 px-0">{bill.token ? bill.token : (index + 1)}</div>
                                                         <Tooltip title={bill.billAddress} arrow>
                                                             <div className="addressWidth cursor-pointer font-semibold text-sm text-start pl-1 p-1" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -1154,7 +1248,7 @@ const Dashboard = () => {
                                             </div>
                                             <div className='border-t border-gray-300 flex items-center justify-end'>
                                                 <div className="w-1/6 font-semibold text-sm p-1"></div>
-                                                <div className="w-1/6 font-semibold text-sm text-end ">Total</div>
+                                                <div className="w-1/6 font-semibold text-sm text-end ">Total {'(' + itemList.length + ')'}</div>
                                                 <div className="w-1/6 font-semibold text-end pr-2 text-sm p-1">
                                                     {parseFloat(updateDeliveryPopUpData?.totalBillAmt).toLocaleString('en-IN')}
                                                 </div>

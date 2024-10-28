@@ -14,6 +14,8 @@ import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import Dashboard from './Dashboard';
 import Timer from './Timer';
+import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
+import DoDisturbAltIcon from '@mui/icons-material/DoDisturbAlt';
 
 const style = {
     position: 'absolute',
@@ -220,7 +222,11 @@ const Cards = ({ data, getDeliverCardData }) => {
                 alert(`Token number ${formData.token} is already added.`);
                 setFormData({
                     ...formData,
-                    token: ''
+                    token: '',
+                    Comment: '',
+                    billAmt: '',
+                    desiredAmt: '',
+                    billChange: '',
                 });
                 tokenRef.current.focus();
             } else {
@@ -585,7 +591,8 @@ const Cards = ({ data, getDeliverCardData }) => {
                     const deliveryManNameData = deliveryManData.find(val => val.personId === res.data)
                     console.log('PersonObject', deliveryManNameData)
                     setSelectedDeliveryManName(deliveryManNameData)
-                    setIsEdit(false)
+                    setIsEdit(false);
+                    getDeliverCardData();
                 })
                 .catch((error) => {
                     console.log('Error', error)
@@ -1001,7 +1008,7 @@ const Cards = ({ data, getDeliverCardData }) => {
                 <div className="cardHeader">
                     <div className="topHeader">
                         <div className={`deliveryManInfo items-center ${timerClass} px-3 py-2 flex w-full justify-between pl-2`}>
-                            <div className="name flex items-center w-2/5">
+                            <div className="name flex items-center w-2/5 text-ellipsis">
                                 {isEdit ? (
                                     <select
                                         name="deliverMan"
@@ -1018,9 +1025,13 @@ const Cards = ({ data, getDeliverCardData }) => {
                                         ))}
                                     </select>
                                 ) : (
-                                    <div className="cursor-pointer text-lg" onClick={() => setIsEdit(true)}>
+                                    <div
+                                        className="cursor-pointer w-full text-ellipsis text-lg overflow-hidden whitespace-nowrap"
+                                        onClick={() => setIsEdit(true)}
+                                    >
                                         {selectedDeliveryManName?.personName}
                                     </div>
+
                                 )}
                                 {/* {!isEdit && (
                                     <div className="edit-icon ml-2" onClick={() => setIsEdit(true)}>
@@ -1052,7 +1063,7 @@ const Cards = ({ data, getDeliverCardData }) => {
                                 <div className="bottomHeaderBillNo col-span-2 mr-5">
                                     <input
                                         type="text"
-                                        placeholder="Bill No"
+                                        placeholder="Tkn No"
                                         className={`popoverSearch w-full p-1 rounded-md border ${isTokenError ? 'input-error' : 'border-black'}`}
                                         ref={tokenRef}
                                         value={formData.token || ''}
@@ -1279,14 +1290,14 @@ const Cards = ({ data, getDeliverCardData }) => {
                     <div className="w-full ">
                         <div className="flex font-semibold text-sm px-2">
                             <div className="font-bold w-1/12 text-sm p-2 px-0">Tkn</div>
-                            <div className="font-bold addressWidth text-sm text-start text-center p-2 px-0">Address</div>
+                            <div className="font-bold addressWidth text-sm p-2 px-0">Address</div>
                             <div className="font-bold w-1/6 text-sm py-2 text-end">Bill Amt.</div>
                             <div className="font-bold w-1/6 text-sm py-2 px-1 text-end">Change</div>
                             <div className="font-bold w-1/6 text-sm py-2  text-end">Desired</div>
                         </div>
-                        <div className="overflow-y-auto " style={{ height: '180px' }}>
+                        <div className="overflow-y-auto" style={{ height: '180px' }}>
                             {itemList && itemList.map((bill, index) => (
-                                <div key={index} className={`flex items-center border-b border-gray-300 px-2 ${bill.billPayType === 'Cancel' ? 'bg-red-100' : bill.billPayType === 'online' ? 'bg-green-100' : bill.billPayType === 'due' ? 'bg-blue-100' : bill.billPayType === 'debit' ? 'bg-indigo-200' : ''}`}>
+                                <div key={index} className={`flex items-center border-b border-gray-300 px-2 ${bill.billPayType === 'Cancel' ? 'bg-red-100' : bill.billPayType === 'online' ? 'bg-green-100' : bill.billPayType === 'due' ? 'bg-blue-100' : bill.billPayType === 'debit' ? 'bg-indigo-200' : bill.billPayType === 'complimentary' ? 'bg-fuchsia-200' : ''}`}>
                                     <div className="w-1/12 font-semibold text-start  text-sm p-1 px-0">{bill.token}</div>
                                     <Tooltip title={bill.billAddress} arrow>
                                         <div className="addressWidth font-semibold text-sm text-start pl-1 p-1" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -1404,20 +1415,35 @@ const Cards = ({ data, getDeliverCardData }) => {
                                 </div>
                             ))}
                         </div>
-                        <div className="flex font-semibold text-sm border-t border-black">
-                            <div className="w-1/12 customTotal p-2 font-bold ">{"Total"}</div>
+                        {/* <div className="flex font-semibold text-sm border-t border-black">
+                            <div className="w-48 customTotal p-2 font-bold ">Total {'(' + itemList.length + ')'}</div>
                             <div className="font-bold addressWidth text-sm text-start pl-3 p-2">{""}</div>
                             <div className="font-bold w-1/6 text-sm py-2 text-end p-2">{parseFloat(totalValues.amount).toLocaleString('en-IN')}</div>
                             <div className="font-bold w-1/6 text-sm py-2 px-1 text-end p-2">{parseFloat(totalValues.change).toLocaleString('en-IN')}</div>
                             <div className="font-bold w-1/6 text-sm py-2  text-end p-1">{parseFloat(totalValues.desiredAmount).toLocaleString('en-IN')}</div>
+                        </div> */}
+                        <div className="flex text-base text-gray-700 border-t border-black">
+                            {/* Left-aligned Total */}
+                            <div className="w-48 p-2 font-bold">Total ({itemList.length})</div>
+
+                            {/* Right-aligned values container */}
+                            <div className="flex w-full justify-end space-x-7 mr-6">
+                                <div className="w-1/6 p-2 text-end font-bold">{parseFloat(totalValues.amount).toLocaleString('en-IN')}</div>
+                                <div className="w-1/6 p-2 text-end font-bold">{parseFloat(totalValues.change).toLocaleString('en-IN')}</div>
+                                <div className="w-1/6 p-2 text-end font-bold">{parseFloat(totalValues.desiredAmount).toLocaleString('en-IN')}</div>
+                            </div>
                         </div>
+
                     </div>
-                    <div className="p-2 text-end w-full  border-gray-300 ">
+                    <div className="p-2 text-end w-full justify-between flex border-gray-300 ">
+                        <div className='text-lg text-green-700 pt-1 tracking-normal font-semibold cursor-pointer transform hover:scale-[1.05] duration-300 ease-in-out hover:text-gray-600'>
+                            {data?.mobileNo && <><LocalPhoneIcon className='mb-0.5' fontSize='small' /> {data?.mobileNo}</>}
+                        </div>
                         <button
-                            className='p-1 px-4 text-white StopDelivery  text-semibold text-lg rounded-xl'
+                            className='p-1 px-4 text-white bg-red-600  text-semibold text-lg rounded-xl transform transition-transform hover:-translate-y-0.5 duration-300 ease-in-out hover:bg-red-500'
                             onClick={deleteCards}
                         >
-                            Stop Delivery
+                            <DoDisturbAltIcon className='mb-0.5 mr-0.5' fontSize='small' /> Stop Delivery
                         </button>
                     </div>
                 </div>
@@ -1471,7 +1497,7 @@ const Cards = ({ data, getDeliverCardData }) => {
                     <div className="p-2">
                         <div className="flex border-b justify-between">
                             <div className=" p-2">
-                                Are You Sure You Want to Stop This Delivery Delivery??
+                                Are You Sure You Want to Stop This Delivery ?
                             </div>
                             {/* <div className="p-2">
                                 {elapsedTime}
@@ -1482,7 +1508,7 @@ const Cards = ({ data, getDeliverCardData }) => {
                                 <div className="topHeader">
                                     <div className={`deliveryManInfo items-center px-3 py-2 flex w-full justify-between pl-2`}>
                                         <div className="name flex items-center w-2/5">
-                                            <div className="cursor-pointer" onClick={() => setIsEdit(true)}>
+                                            <div className="cursor-pointer">
                                                 {/* {selectedDeliveryManName?.personName} */}
                                                 {updateDeliveryPopUpData?.personName}
                                             </div>
@@ -1502,7 +1528,7 @@ const Cards = ({ data, getDeliverCardData }) => {
                                     </div>
                                     <div className="overflow-y-auto " style={{ height: '180px' }}>
                                         {updateDeliveryPopUpData?.deliveryData && updateDeliveryPopUpData?.deliveryData.map((bill, index) => (
-                                            <div key={index} className={`flex items-center  border-b border-gray-300 ${bill.billPayType === 'Cancel' ? 'bg-red-100' : bill.billPayType === 'online' ? 'bg-green-100' : bill.billPayType === 'due' ? 'bg-blue-100' : bill.billPayType === 'debit' ? 'bg-indigo-200' : ''}`}>
+                                            <div key={index} className={`flex items-center  border-b border-gray-300 ${bill.billPayType === 'Cancel' ? 'bg-red-100' : bill.billPayType === 'online' ? 'bg-green-100' : bill.billPayType === 'due' ? 'bg-blue-100' : bill.billPayType === 'debit' ? 'bg-indigo-200' : bill.billPayType === 'complimentary' ? 'bg-fuchsia-200' : ''}`}>
                                                 <div className="w-1/12 font-semibold text-start  text-sm  px-2">{bill.token ? bill.token : (index + 1)}</div>
                                                 <Tooltip title={bill.billAddress} arrow >
                                                     <div className="addressWidth cursor-pointer font-semibold text-sm text-start pl-1 p-1" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
