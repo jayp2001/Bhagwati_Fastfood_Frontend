@@ -74,6 +74,7 @@ function BankDetail() {
 
     let { id } = useParams();
     const [tab, setTab] = React.useState(1);
+    const [tabT, setTabT] = React.useState(1);
     const [statisticsCount, setStatisticsCounts] = useState();
     const [bankList, setBankList] = useState();
     const [subCategories, setSubCategories] = React.useState();
@@ -87,6 +88,7 @@ function BankDetail() {
     const [categories, setCategories] = React.useState();
     const [rowsPerPage, setRowsPerPage] = React.useState(5);
     const [totalRows, setTotalRows] = React.useState(0);
+    const [monthlyData, setMonthlyData] = useState([]);
     const [data, setData] = React.useState();
     const [isEdit, setIsEdit] = React.useState();
     const [bankDetails, setBankDetails] = React.useState();
@@ -399,29 +401,57 @@ function BankDetail() {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
+    const getMonthlyTransactionDataOnPageChange = async (pageNum, rowPerPageNum) => {
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getMonthWiseTransactionForBankById?page=${pageNum}&numPerPage=${rowPerPageNum}&bankId=${id}`, config)
+            .then((res) => {
+                setMonthlyData(res.data.rows);
+                setTotalRows(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
-        if (filter) {
-            getTransactionDataOnPageChangeByFilter(newPage + 1, rowsPerPage)
-        }
-        else {
-            getTransactionDataOnPageChange(newPage + 1, rowsPerPage)
+        if (tabT == 2) {
+            getMonthlyTransactionDataOnPageChange(newPage + 1, rowsPerPage)
+        } else {
+            if (filter) {
+                getTransactionDataOnPageChangeByFilter(newPage + 1, rowsPerPage)
+            }
+            else {
+                getTransactionDataOnPageChange(newPage + 1, rowsPerPage)
+            }
         }
     }
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
-        if (filter) {
-            getTransactionDataOnPageChangeByFilter(1, parseInt(event.target.value, 10))
-        }
-        else {
-            getTransactionDataOnPageChange(1, parseInt(event.target.value, 10))
+        if (tabT == 2) {
+            getMonthlyTransactionDataOnPageChange(1, parseInt(event.target.value, 10))
+        } else {
+            if (filter) {
+                getTransactionDataOnPageChangeByFilter(1, parseInt(event.target.value, 10))
+            }
+            else {
+                getTransactionDataOnPageChange(1, parseInt(event.target.value, 10))
+            }
         }
     };
     const getTransactionData = async () => {
         await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getBankTransactionById?page=${page + 1}&transactionType=${filterFormData.transactionType}&bankId2=${filterFormData.bankId2}&numPerPage=${rowsPerPage}&bankId=${id}&expenseId=${filterFormData.expenseId}`, config)
             .then((res) => {
                 setData(res.data.rows);
+                setTotalRows(res.data.numRows);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+    const getMonthlyTransactionData = async () => {
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getMonthWiseTransactionForBankById?page=${1}&numPerPage=${5}&bankId=${id}`, config)
+            .then((res) => {
+                setMonthlyData(res.data.rows);
                 setTotalRows(res.data.numRows);
             })
             .catch((error) => {
@@ -962,10 +992,47 @@ function BankDetail() {
                         <div className='h-full grid grid-cols-12'>
                             <div className='h-full col-span-12'>
                                 <div className='grid grid-cols-12 pl-6 gap-3 h-full'>
-                                    <div className={`flex col-span-2 justify-center productTabAll`} onClick={() => {
+                                    <div className={`flex col-span-3 justify-center ${tabT === 1 || tabT === '1' ? 'productTabAll' : 'productTab'}`} onClick={() => {
+                                        setTabT(1);
+                                        getSourceDDL();
+                                        // getDestinationDDL();
+                                        getTransactionData();
+                                        setPage(0);
+                                        resetAddFund();
+                                        setFilter(false);
+                                        setRowsPerPage(5);
+                                        setState([
+                                            {
+                                                startDate: new Date(),
+                                                endDate: new Date(),
+                                                key: 'selection'
+                                            }
+                                        ])
                                     }}>
                                         <div className='statusTabtext'>Transactions</div>
                                     </div>
+                                    {bankDetails?.isViewMonthlyTransaction ?
+                                        <div className={`flex col-span-3 justify-center ${tabT === 2 || tabT === '2' ? 'productTabIn' : 'productTab'}`} onClick={() => {
+                                            setTabT(2);
+                                            getSourceDDL();
+                                            // getDestinationDDL();
+                                            // getBankTransaction();
+                                            getMonthlyTransactionData();
+                                            setPage(0);
+                                            resetAddFund();
+                                            setFilter(false);
+                                            setRowsPerPage(5);
+                                            setState([
+                                                {
+                                                    startDate: new Date(),
+                                                    endDate: new Date(),
+                                                    key: 'selection'
+                                                }
+                                            ])
+                                        }}>
+                                            <div className='statusTabtext'>Monthly Transaction</div>
+                                        </div> : <></>
+                                    }
                                     {(((state[0].startDate.toLocaleDateString() == state[0].endDate.toLocaleDateString()) && state[0].startDate.toLocaleDateString() == new Date().toLocaleDateString()) || (state[0].startDate.toLocaleDateString() == new Date().toLocaleDateString() && state[0].endDate > new Date()) || state[0].startDate > new Date()) && (statisticsCount && statisticsCount.futureDebitAmt > 0) ?
                                         <div className='flex justify-center col-span-6 futureDue col-start-4'>
                                             <div className='statusTabtext'>{`₹ ${parseFloat(statisticsCount && statisticsCount.availableBalance ? statisticsCount.availableBalance : 0).toLocaleString('en-IN')}`} - {`₹ ${parseFloat(statisticsCount && statisticsCount.futureDebitAmt ? statisticsCount.futureDebitAmt : 0).toLocaleString('en-IN')}`} = &nbsp;&nbsp;&nbsp;&nbsp; </div> <div className={statisticsCount && (statisticsCount.availableBalance - statisticsCount.futureDebitAmt) >= 0 ? 'futureDueTxtG' : 'futureDueTxt'}>
@@ -973,7 +1040,6 @@ function BankDetail() {
                                             </div>
                                         </div> : <></>
                                     }
-
                                     <div className='col-span-2 col-start-11 flex justify-end pr-4'>
                                         <button className='addExpense self-center'
                                             onClick={() => setOpenExpense(true)}
@@ -987,109 +1053,113 @@ function BankDetail() {
             </div>
             <div className='userTableSubContainer mt-6'>
                 <div className='grid grid-cols-12 pt-6'>
-                    <div className='col-span-3 flex justify-end pr-4'>
-                        <div className='dateRange text-center self-center' aria-describedby={ids} onClick={handleClickFilter}>
-                            &nbsp;&nbsp;<TuneIcon />&nbsp; Filters
-                        </div>
-                        <Popper id={filterId} open={openFilter} style={{ zIndex: 10000, borderRadius: '10px', boxShadow: 'rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem' }} placement={'bottom-end'} anchorEl={anchorElFilter}>
-                            <Box sx={{ bgcolor: 'background.paper', width: '700px', height: '180px', borderRadius: '10px' }}>
-                                <div className='filterWrp grid gap-6'>
-                                    <div className='grid grid-cols-12 gap-6'>
-                                        <div className='col-span-4'>
-                                            <FormControl fullWidth>
-                                                <Autocomplete
-                                                    defaultValue={null}
-                                                    id='bank'
-                                                    disablePortal
-                                                    sx={{ width: '100%' }}
-                                                    disabled={filterFormData.expenseCategory ? true : false}
-                                                    value={filterFormData.bank ? filterFormData.bank : null}
-                                                    onChange={handleBankAutoComplete}
-                                                    options={bankList ? bankList : []}
-                                                    getOptionLabel={(options) => options.Name}
-                                                    renderInput={(params) => <TextField
-                                                        {...params}
-                                                        label="Bank" />}
-                                                />
-                                            </FormControl>
-                                        </div>
-                                        <div className='col-span-4'>
-                                            <FormControl fullWidth>
-                                                <InputLabel id="demo-simple-select-label" disabled={filterFormData.expenseCategory ? true : false}>Credit/Debit</InputLabel>
-                                                <Select
-                                                    labelId="Search"
-                                                    id="Search"
-                                                    name='transactionType'
-                                                    value={filterFormData.transactionType}
-                                                    label="Credit/Debit"
-                                                    disabled={filterFormData.expenseCategory ? true : false}
-                                                    onChange={handleChangeFilter}
-                                                    MenuProps={{
-                                                        style: { zIndex: 35001 }
-                                                    }}
-                                                >
-                                                    <MenuItem value={''}>Clear</MenuItem>
-                                                    <MenuItem value={'Debit'}>Debit</MenuItem>
-                                                    <MenuItem value={'Credit'}>Credit</MenuItem>
-                                                </Select>
-                                            </FormControl>
-                                        </div>
-                                        <div className='col-span-4'>
-                                            <FormControl fullWidth>
-                                                <Autocomplete
-                                                    defaultValue={null}
-                                                    id='source'
-                                                    disablePortal
-                                                    sx={{ width: '100%' }}
-                                                    disabled={filterFormData.bank || filterFormData.transactionType ? true : false}
-                                                    value={filterFormData.expenseCategory ? filterFormData.expenseCategory : null}
-                                                    onChange={handleExpenseAutoComplete}
-                                                    options={expenseCategoryList ? expenseCategoryList : []}
-                                                    getOptionLabel={(options) => options.categoryName}
-                                                    renderInput={(params) => <TextField
-                                                        {...params}
-                                                        label="Expense Category" />}
-                                                />
-                                            </FormControl>
-                                        </div>
-                                    </div>
-                                    <div className='grid grid-cols-12 gap-6'>
-                                        <div className='col-span-4'>
-                                            <button className='btn-reset' onClick={() => resetFilter()}>
-                                                Reset All
-                                            </button>
-                                        </div>
-                                        <div className='col-span-4'>
-                                            <button className='btn-apply' onClick={() => { handleCloseFilter(); setFilterNoDate(true); setPage(0); setRowsPerPage(5); getTransactionDataByFilter(); }}>
-                                                Apply
-                                            </button>
-                                        </div>
-                                        <div className='col-span-4'>
-                                            <button className='btn-cancle' onClick={() => { handleCloseFilter(); resetFilter() }}>
-                                                Cancle
-                                            </button>
-                                        </div>
-                                    </div>
+                    {tabT == 1 ?
+                        <>
+                            <div className='col-span-3 flex justify-end pr-4'>
+                                <div className='dateRange text-center self-center' aria-describedby={ids} onClick={handleClickFilter}>
+                                    &nbsp;&nbsp;<TuneIcon />&nbsp; Filters
                                 </div>
-                            </Box>
-                        </Popper>
-                        <div className='resetBtnWrap col-span-3 self-center'>
-                            <button
-                                className={`${!filterNoDate ? 'reSetBtn' : 'reSetBtnActive'}`}
-                                onClick={() => {
-                                    resetFilter()
-                                    setFilterNoDate(false);
-                                    getTransactionDataByFilterOnReset();
-                                    setPage(0); setRowsPerPage(5);
-                                }}><CloseIcon /></button>
-                        </div>
-                    </div>
-                    <div className='col-span-6 col-start-7 pr-5 flex justify-end'>
-                        <ExportMenu exportExcel={excelExport} exportPdf={pdfExport} />
-                    </div>
+                                <Popper id={filterId} open={openFilter} style={{ zIndex: 10000, borderRadius: '10px', boxShadow: 'rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem' }} placement={'bottom-end'} anchorEl={anchorElFilter}>
+                                    <Box sx={{ bgcolor: 'background.paper', width: '700px', height: '180px', borderRadius: '10px' }}>
+                                        <div className='filterWrp grid gap-6'>
+                                            <div className='grid grid-cols-12 gap-6'>
+                                                <div className='col-span-4'>
+                                                    <FormControl fullWidth>
+                                                        <Autocomplete
+                                                            defaultValue={null}
+                                                            id='bank'
+                                                            disablePortal
+                                                            sx={{ width: '100%' }}
+                                                            disabled={filterFormData.expenseCategory ? true : false}
+                                                            value={filterFormData.bank ? filterFormData.bank : null}
+                                                            onChange={handleBankAutoComplete}
+                                                            options={bankList ? bankList : []}
+                                                            getOptionLabel={(options) => options.Name}
+                                                            renderInput={(params) => <TextField
+                                                                {...params}
+                                                                label="Bank" />}
+                                                        />
+                                                    </FormControl>
+                                                </div>
+                                                <div className='col-span-4'>
+                                                    <FormControl fullWidth>
+                                                        <InputLabel id="demo-simple-select-label" disabled={filterFormData.expenseCategory ? true : false}>Credit/Debit</InputLabel>
+                                                        <Select
+                                                            labelId="Search"
+                                                            id="Search"
+                                                            name='transactionType'
+                                                            value={filterFormData.transactionType}
+                                                            label="Credit/Debit"
+                                                            disabled={filterFormData.expenseCategory ? true : false}
+                                                            onChange={handleChangeFilter}
+                                                            MenuProps={{
+                                                                style: { zIndex: 35001 }
+                                                            }}
+                                                        >
+                                                            <MenuItem value={''}>Clear</MenuItem>
+                                                            <MenuItem value={'Debit'}>Debit</MenuItem>
+                                                            <MenuItem value={'Credit'}>Credit</MenuItem>
+                                                        </Select>
+                                                    </FormControl>
+                                                </div>
+                                                <div className='col-span-4'>
+                                                    <FormControl fullWidth>
+                                                        <Autocomplete
+                                                            defaultValue={null}
+                                                            id='source'
+                                                            disablePortal
+                                                            sx={{ width: '100%' }}
+                                                            disabled={filterFormData.bank || filterFormData.transactionType ? true : false}
+                                                            value={filterFormData.expenseCategory ? filterFormData.expenseCategory : null}
+                                                            onChange={handleExpenseAutoComplete}
+                                                            options={expenseCategoryList ? expenseCategoryList : []}
+                                                            getOptionLabel={(options) => options.categoryName}
+                                                            renderInput={(params) => <TextField
+                                                                {...params}
+                                                                label="Expense Category" />}
+                                                        />
+                                                    </FormControl>
+                                                </div>
+                                            </div>
+                                            <div className='grid grid-cols-12 gap-6'>
+                                                <div className='col-span-4'>
+                                                    <button className='btn-reset' onClick={() => resetFilter()}>
+                                                        Reset All
+                                                    </button>
+                                                </div>
+                                                <div className='col-span-4'>
+                                                    <button className='btn-apply' onClick={() => { handleCloseFilter(); setFilterNoDate(true); setPage(0); setRowsPerPage(5); getTransactionDataByFilter(); }}>
+                                                        Apply
+                                                    </button>
+                                                </div>
+                                                <div className='col-span-4'>
+                                                    <button className='btn-cancle' onClick={() => { handleCloseFilter(); resetFilter() }}>
+                                                        Cancle
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </Box>
+                                </Popper>
+                                <div className='resetBtnWrap col-span-3 self-center'>
+                                    <button
+                                        className={`${!filterNoDate ? 'reSetBtn' : 'reSetBtnActive'}`}
+                                        onClick={() => {
+                                            resetFilter()
+                                            setFilterNoDate(false);
+                                            getTransactionDataByFilterOnReset();
+                                            setPage(0); setRowsPerPage(5);
+                                        }}><CloseIcon /></button>
+                                </div>
+                            </div>
+                            <div className='col-span-6 col-start-7 pr-5 flex justify-end'>
+                                <ExportMenu exportExcel={excelExport} exportPdf={pdfExport} />
+                            </div>
+                        </> : <></>
+                    }
                 </div>
                 <div className='tableContainerWrapper'>
-                    {
+                    {tabT == 1 ?
                         <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
                             <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
                                 <TableHead>
@@ -1103,6 +1173,7 @@ function BankDetail() {
                                         <TableCell align="left">Date</TableCell>
                                         <TableCell align="left">Time</TableCell>
                                         <TableCell align="left"></TableCell>
+                                        <TableCell align="left">Balance</TableCell>
                                         <TableCell align="left"></TableCell>
                                     </TableRow>
                                 </TableHead>
@@ -1131,10 +1202,60 @@ function BankDetail() {
                                                 <Tooltip title={row.transactionType} placement="top-start" arrow>
                                                     <TableCell align="left" >{row.transactionType == 'CREDIT' ? <CreditIcon sx={{ color: 'green' }} /> : <DebitIcon sx={{ color: 'red' }} />}</TableCell>
                                                 </Tooltip>
+                                                <TableCell align="left"  >₹ {parseFloat(row.balance ? row.balance : 0).toLocaleString('en-IN')}</TableCell>
                                                 {/* {row.transactionType} */}
                                                 <TableCell align="right">
                                                     <BankTransactionMenu data={row} handleEditExpense={handleEditExpense} handleDeleteBank={handleDeleteBank} handleEditTransaction={handleEditTransaction} handleDeleteExpense={handleDeleteExpense} />
                                                 </TableCell>
+                                            </TableRow> :
+                                            <TableRow
+                                                key={row.userId}
+                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                            >
+                                                <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
+                                            </TableRow>
+
+                                    ))}
+                                </TableBody>
+                            </Table>
+                            <TablePagination
+                                rowsPerPageOptions={[5, 10, 25]}
+                                component="div"
+                                count={totalRows}
+                                rowsPerPage={rowsPerPage}
+                                page={page}
+                                onPageChange={handleChangePage}
+                                onRowsPerPageChange={handleChangeRowsPerPage}
+                            />
+                        </TableContainer> :
+                        <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
+                            <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell>No.</TableCell>
+                                        <TableCell>Month</TableCell>
+                                        <TableCell align="left">Due Ammount</TableCell>
+                                        <TableCell align="left">Remaining Amount</TableCell>
+                                        <TableCell align="left">Paid Amount</TableCell>
+                                    </TableRow>
+                                </TableHead>
+                                <TableBody>
+                                    {monthlyData?.map((row, index) => (
+                                        totalRows !== 0 ?
+                                            <TableRow
+                                                hover
+                                                key={row.supplierTransactionId}
+                                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                style={{ cursor: "pointer" }}
+                                                className='tableRow'
+                                            >
+                                                <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
+                                                <TableCell component="th" scope="row">
+                                                    {row.date}
+                                                </TableCell>
+                                                <TableCell align="left" >{parseFloat(row.amount ? row.amount : 0).toLocaleString('en-IN')}</TableCell>
+                                                <TableCell align="left" >{parseFloat(row.amt ? row.amt : 0).toLocaleString('en-IN')}</TableCell>
+                                                <TableCell align="left" >{parseFloat((row.amount ? row.amount : 0) - (row.amt ? row.amt : 0)).toLocaleString('en-IN')}</TableCell>
                                             </TableRow> :
                                             <TableRow
                                                 key={row.userId}

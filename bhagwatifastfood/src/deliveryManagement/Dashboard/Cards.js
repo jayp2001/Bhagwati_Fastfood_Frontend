@@ -7,7 +7,9 @@ import ModeEditIcon from '@mui/icons-material/ModeEdit';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import { Box, FormControl, IconButton, InputLabel, Menu, MenuItem, Modal, Select, Tooltip } from '@mui/material';
-
+import {
+    InputAdornment, TextField
+} from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { BACKEND_BASE_URL } from '../../url';
 import axios from 'axios';
@@ -16,6 +18,9 @@ import Dashboard from './Dashboard';
 import Timer from './Timer';
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 import DoDisturbAltIcon from '@mui/icons-material/DoDisturbAlt';
+import Typography from '@mui/material/Typography';
+import Close from "@mui/icons-material/Close";
+import Autocomplete from "@mui/material/Autocomplete";
 
 const style = {
     position: 'absolute',
@@ -27,7 +32,24 @@ const style = {
     boxShadow: 24,
 };
 
+const styleDue = {
+    position: 'absolute',
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    width: 400,
+    bgcolor: 'background.paper',
+    border: '2px solid #000',
+    boxShadow: 24,
+    paddingTop: '15px',
+    paddingRight: '15px',
+    paddingLeft: '15px',
+    paddingBottom: '15px'
+};
+
 const Cards = ({ data, getDeliverCardData }) => {
+    const [accountList, setAccountList] = useState([]);
+    const regexMobile = /^[0-9\b]+$/;
     const [isEdit, setIsEdit] = useState(false);
     const tokenRef = useRef(null);
     const desiredAmountRef = useRef(null);
@@ -68,6 +90,94 @@ const Cards = ({ data, getDeliverCardData }) => {
     const [upiId, setUpiId] = useState([])
     const [selectedUpiData, setSelectedUpiData] = useState();
     const [upiIdPopUp, setUpiIdPopUp] = useState(false)
+
+
+
+    const [openDue, setOpenDue] = React.useState(false);
+    const [openDueSelected, setOpenDueSelected] = React.useState('');
+    const [dueFormData, setDueFormData] = useState({
+        accountId: '',
+        dueNote: '',
+        selectedAccount: ''
+    })
+    const [addAccount, setAddAccount] = useState(false);
+    const [accountFormData, setAccountFormData] = useState({
+        customerName: "",
+        customerNumber: ""
+    })
+    const handleCloseDue = () => {
+        setOpenDue(false);
+    }
+    const saveDue = () => {
+        updateMarkingOfDeliveryDue(openDueSelected, 'due')
+        setOpenDue(false)
+    }
+    const getAccountList = async () => {
+        await axios
+            .get(`${BACKEND_BASE_URL}billingrouter/ddlDueAccountData`, config)
+            .then((res) => {
+                setAccountList(res.data);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!");
+            });
+    }
+    const handleSaveAccount = async () => {
+        if (!accountFormData.customerName) {
+            setError('Please add customer name')
+        } else if (!accountFormData.customerNumber) {
+            setError('Please add customer number')
+        }
+        else {
+            setLoading(true);
+            await axios
+                .post(
+                    `${BACKEND_BASE_URL}billingrouter/addCustomerAccount`,
+                    accountFormData,
+                    config
+                )
+                .then((res) => {
+                    setLoading(false);
+                    setSuccess(true);
+                    setAccountFormData({
+                        customerName: "",
+                        customerNumber: ""
+                    })
+                    setAddAccount(false);
+                    setDueFormData((prev) => ({
+                        ...prev,
+                        accountId: res.data.accountId,
+                        selectedAccount: res.data,
+                    }))
+                    getAccountList();
+                })
+                .catch((error) => {
+                    setError(
+                        error.response && error.response.data
+                            ? error.response.data
+                            : "Network Error ...!!!"
+                    );
+                });
+        }
+    };
+    const clickAddAccount = () => {
+        setAddAccount(true);
+    }
+    const handleAccountChange = (e, value) => {
+        if (value) {
+            setDueFormData((prevState) => ({
+                ...prevState,
+                selectedAccount: value,
+                accountId: value.accountId
+            }));
+        } else {
+            setDueFormData((prevState) => ({
+                ...prevState,
+                selectedAccount: '',
+                accountId: ''
+            }));
+        }
+    };
     if (loading) {
         toast.loading("Please wait...", {
             toastId: 'loading'
@@ -86,8 +196,8 @@ const Cards = ({ data, getDeliverCardData }) => {
             progress: undefined,
             theme: "colored",
         });
+        setSuccess(false);
         setTimeout(() => {
-            setSuccess(false);
             setLoading(false);
         }, 50);
     }
@@ -128,6 +238,7 @@ const Cards = ({ data, getDeliverCardData }) => {
         getDeliveryManData();
         getDeliverCardData();
         getAllUpiId();
+        getAccountList();
     }, []);
     const getAllUpiId = async () => {
         await axios.get(`${BACKEND_BASE_URL}billingrouter/ddlUPI`, config)
@@ -356,7 +467,7 @@ const Cards = ({ data, getDeliverCardData }) => {
                                 billId: res.data.billId,
                                 billPayType: res.data.billPayType,
                                 billType: res.data.billType,
-                                desiredAmt: res.data.settledAmount
+                                desiredAmt: formData.billChange ? res.data.settledAmount + parseFloat(formData.billChange ? formData.billChange : 0) : res.data.settledAmount,
                             }));
                             console.log('Data', res.data)
                             changeRef.current.focus();
@@ -888,6 +999,69 @@ const Cards = ({ data, getDeliverCardData }) => {
             handleUpdatePayType(deliveryData, type, totalDesiredAmount, totalAmount, totalChange);
         }
     };
+    const updateMarkingOfDeliveryDue = async (deliveryData, type) => {
+        const password = window.prompt("Please enter the password:");
+        if (password === "123") {
+            console.log('data', deliveryData, 'Type', type);
+            let totalChange;
+            let totalDesiredAmount;
+            let totalAmount;
+
+            const calculateAmounts = (desiredAmt, billChange, billAmt) => {
+                totalDesiredAmount = parseFloat(totalValues.desiredAmount || 0) - parseFloat(desiredAmt || 0) + billChange;
+                totalChange = parseFloat(totalValues.change || 0);
+                totalAmount = parseFloat(totalValues.amount || 0);
+            };
+
+            if ((type === 'due' && deliveryData.billPayType === 'cash') ||
+                (type === 'online' && deliveryData.billPayType === 'cash') ||
+                (type === 'debit' && deliveryData.billPayType === 'cash') ||
+                (type === 'online' && deliveryData.billPayType === 'due') ||
+                (type === 'due' && deliveryData.billPayType === 'online')) {
+                calculateAmounts(deliveryData.desiredAmt, deliveryData.billChange, deliveryData.billAmt);
+            } else if (type === 'cash') {
+                totalDesiredAmount = parseFloat(totalValues.desiredAmount || 0) + parseFloat(deliveryData.billAmt || 0);
+                totalChange = parseFloat(totalValues.change || 0);
+                totalAmount = parseFloat(totalValues.amount || 0);
+            } else if (type === 'Cancel') {
+                if (deliveryData.billPayType === 'online' || deliveryData.billPayType === 'due' || deliveryData.billPayType === 'debit') {
+                    totalDesiredAmount = totalValues.desiredAmount;
+                    totalAmount = parseFloat(totalValues.amount || 0) - parseFloat(deliveryData.billAmt || 0);
+                    totalChange = parseFloat(totalValues.change || 0) - parseFloat(deliveryData.billChange || 0);
+                } else if (deliveryData.billPayType === 'cash') {
+                    totalDesiredAmount = parseFloat(totalValues.desiredAmount || 0) - parseFloat(deliveryData.desiredAmt || 0) + parseFloat(deliveryData.billChange || 0);
+                    totalChange = parseFloat(totalValues.change || 0);
+                    totalAmount = parseFloat(totalValues.amount || 0);
+                }
+            }
+
+            console.log('Total Amount', totalAmount);
+            console.log('Total Change', totalChange);
+            console.log('Total Desired Amount', totalDesiredAmount);
+
+            setTotalValues({
+                desiredAmount: totalDesiredAmount,
+                amount: totalAmount,
+                change: totalChange
+            });
+
+            setItemList(prevList => {
+                const updatedList = prevList.map((item, index) => {
+                    if (index === indexDelete) {
+                        return {
+                            ...item,
+                            desiredAmt: item.billChange,
+                            billChange: 0
+                        };
+                    }
+                    return item;
+                });
+                return updatedList;
+            });
+
+            handleUpdatePayType(deliveryData, type, totalDesiredAmount, totalAmount, totalChange);
+        }
+    };
     const handleUpdatePayType = async (deliveryData, type, totalDesiredAmount, totalAmount, totalChange) => {
         const UpiJsonData = upiId.find(val => val.upiId === selectedUpiData);
         let jsonData;
@@ -923,7 +1097,40 @@ const Cards = ({ data, getDeliverCardData }) => {
                     })()
                 }
             };
-        } else {
+        } else if (type === 'due') {
+            jsonData = {
+                deliveryId: data.deliveryId,
+                totalBillAmt: totalAmount,
+                totalChange: totalChange,
+                billNote: dueFormData.dueNote,
+                accountId: dueFormData.accountId,
+                totalDesiredAmt: totalDesiredAmount,
+                payTypeData: {
+                    bwdId: deliveryData.bwdId,
+                    billId: deliveryData.billId,
+                    deliveryType: deliveryData.deliveryType,
+                    billPayType: type,
+                    billAmt: deliveryData.billAmt,
+                    billChange: deliveryData.billChange,
+                    desiredAmt: (() => {
+                        switch (type) {
+                            case 'online':
+                            case 'due':
+                            case 'debit':
+                            case 'Cancel':
+                                return deliveryData.billChange;
+                            case 'cash':
+                                return parseFloat(deliveryData.billAmt) + parseFloat(deliveryData.desiredAmt);
+                            case 'complimentary':
+                                return 0;
+                            default:
+                                return undefined;
+                        }
+                    })()
+                }
+            };
+        }
+        else {
             jsonData = {
                 deliveryId: data.deliveryId,
                 totalBillAmt: totalAmount,
@@ -962,6 +1169,12 @@ const Cards = ({ data, getDeliverCardData }) => {
                 // get  DeliverCardData();
                 fetchCardData()
                 handleClose();
+                setDueFormData({
+                    accountId: '',
+                    dueNote: '',
+                    selectedAccount: ''
+                })
+                setOpenDue(false);
                 setFormData({
                     token: ''
                 })
@@ -1002,6 +1215,12 @@ const Cards = ({ data, getDeliverCardData }) => {
         setSelectedUpiData(upiId[0].upiId)
     }
 
+    const handleDue = (DeliveryData) => {
+        handleClose();
+        setOpenDue(true);
+        setOpenDueSelected(DeliveryData)
+        // updateMarkingOfDelivery(DeliveryData, type)
+    }
     return (
         <div className='w-full'>
             <div className="overflow-hidden w-full bg-white rounded-lg shadow-md border ">
@@ -1368,7 +1587,7 @@ const Cards = ({ data, getDeliverCardData }) => {
                                                                         <MenuItem onClick={() => setUpiIdPopUp(true)}>
                                                                             Online
                                                                         </MenuItem>
-                                                                        <MenuItem onClick={() => updateMarkingOfDelivery(selectedBill, 'due')}>
+                                                                        <MenuItem onClick={() => handleDue(selectedBill, 'due')}>
                                                                             Due
                                                                         </MenuItem>
                                                                         <MenuItem onClick={() => updateMarkingOfDelivery(selectedBill, 'Cancel')}>
@@ -1381,7 +1600,7 @@ const Cards = ({ data, getDeliverCardData }) => {
                                                                         <MenuItem onClick={() => updateMarkingOfDelivery(selectedBill, 'cash')}>
                                                                             Cash
                                                                         </MenuItem>
-                                                                        <MenuItem onClick={() => updateMarkingOfDelivery(selectedBill, 'due')}>
+                                                                        <MenuItem onClick={() => handleDue(selectedBill, 'due')}>
                                                                             Due
                                                                         </MenuItem>
                                                                         <MenuItem onClick={() => updateMarkingOfDelivery(selectedBill, 'Cancel')}>
@@ -1613,6 +1832,161 @@ const Cards = ({ data, getDeliverCardData }) => {
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </Box>
+            </Modal>
+            <Modal
+                open={openDue}
+                onClose={handleCloseDue}
+                aria-labelledby="modal-modal-title"
+                aria-describedby="modal-modal-description"
+            >
+                <Box sx={styleDue}>
+                    <Typography id="modal-modal-title" className="flex justify-between" variant="h6" component="h2">
+                        <div>Select Account</div><div className="flex" style={{ marginTop: '-2px', cursor: 'pointer' }} onClick={() => handleCloseDue()}><Close className="self-center" /></div>
+                    </Typography>
+                    <div className="gap-4 grid mt-6 mb-4">
+                        {addAccount ?
+                            <>
+                                <div>
+                                    <TextField
+                                        // className="sarchTextTEST"
+                                        value={accountFormData.customerName}
+                                        name="customerName"
+                                        id="customerName"
+                                        placeholder='Enter Customer Name'
+                                        variant="outlined"
+                                        onChange={(e) => {
+                                            setAccountFormData((prev) => ({
+                                                ...prev,
+                                                customerName: e.target.value
+                                            }))
+                                        }}
+                                        fullWidth
+                                    />
+                                </div>
+                                <div>
+                                    <TextField
+                                        // className="sarchTextTEST"
+                                        value={accountFormData.customerNumber}
+                                        name="customerNumber"
+                                        id="customerNumber"
+                                        placeholder='Enter Customer Number'
+                                        variant="outlined"
+                                        onChange={(e) => {
+                                            if ((regexMobile.test(e.target.value) || e.target.value == '') && e.target.value.length < 11) {
+                                                setAccountFormData((prev) => ({
+                                                    ...prev,
+                                                    customerNumber: e.target.value
+                                                }))
+                                            }
+                                        }}
+                                        fullWidth
+                                    />
+                                </div>
+                                <div className="flex gap-4 justify-end">
+                                    <div>
+                                        <button
+                                            className="text-base button px-2 py-1 rounded-md text-white"
+                                            onClick={() => handleSaveAccount()}
+                                        >
+                                            Save
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <button
+                                            className="another_2 button text-base px-2 py-1 rounded-md text-white"
+                                            onClick={() => {
+                                                setAccountFormData({
+                                                    customerName: "",
+                                                    customerNumber: ""
+                                                });
+                                                setAddAccount(false);
+                                            }}
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            </>
+                            :
+                            <>
+                                <div className="flex gap-4 justify-end">
+                                    <div>
+                                        <button
+                                            className="text-base addAcBtn px-2 py-1 rounded-md text-white"
+                                            onClick={() => clickAddAccount()}
+                                        >
+                                            Add Account
+                                        </button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <Autocomplete
+                                        options={accountList ? accountList : []}
+                                        defaultValue={null}
+                                        getOptionLabel={(options) =>
+                                            options.customerName ? options.customerName : ""
+                                        }
+                                        value={dueFormData.selectedAccount}
+                                        onChange={handleAccountChange}
+                                        renderInput={(params) => (
+                                            <TextField
+                                                {...params}
+                                                placeholder="Accounts"
+                                                variant="outlined"
+                                            />
+                                        )}
+                                    />
+                                </div>
+                                <div>
+                                    <TextField
+                                        // className="sarchTextTEST"
+                                        value={dueFormData.dueNote}
+                                        name="dueNote"
+                                        id="dueNote"
+                                        placeholder='Enter Note'
+                                        variant="outlined"
+                                        onChange={(e) => {
+                                            setDueFormData((prev) => ({
+                                                ...prev,
+                                                dueNote: e.target.value
+                                            }))
+                                        }}
+                                        // InputLabelProps={{ style: { fontSize: 16 } }}
+                                        fullWidth
+                                    />
+                                </div>
+                                <div className="flex gap-4 justify-end">
+                                    {/* <div>
+                                        <button
+                                            className="text-base button px-2 py-1 rounded-md text-white"
+                                            onClick={() => justDue()}
+                                        >
+                                            Just Due
+                                        </button>
+                                    </div> */}
+                                    <div>
+                                        <button
+                                            className="text-base button px-2 py-1 rounded-md text-white"
+                                            onClick={() => saveDue()}
+                                        >
+                                            Save
+                                        </button>
+                                    </div>
+                                    <div>
+                                        <button
+                                            className="another_2 button text-base px-2 py-1 rounded-md text-white"
+                                            onClick={() => {
+                                                handleCloseDue();
+                                            }}
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </div>
+                            </>
+                        }
                     </div>
                 </Box>
             </Modal>

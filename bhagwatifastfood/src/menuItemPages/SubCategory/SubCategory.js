@@ -4,11 +4,17 @@ import React, { useState, useEffect, useRef } from 'react';
 import { BACKEND_BASE_URL } from '../../url';
 import { ToastContainer, toast } from 'react-toastify';
 import Table from '@mui/material/Table';
+import 'react-date-range/dist/styles.css'; // main style file
+import 'react-date-range/dist/theme/default.css';
+import { DateRangePicker } from 'react-date-range';
+import Popover from '@mui/material/Popover';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import CloseIcon from '@mui/icons-material/Close';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import Backdrop from '@mui/material/Backdrop';
 import Paper from '@mui/material/Paper';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
@@ -90,8 +96,13 @@ function SubCategory() {
             Authorization: `Bearer ${userInfo.token}`,
         },
     };
+
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const openD = Boolean(anchorEl);
+    const id = openD ? 'simple-popover' : undefined;
     const [open, setOpen] = useState(false);
     const [tab, setTab] = React.useState(null);
+    const [filter, setFilter] = React.useState(false);
     const [searchWord, setSearchWord] = React.useState();
     const [dataSearch, setDataSearch] = React.useState();
     const [editIndex, setEditIndex] = React.useState(-1);
@@ -99,6 +110,7 @@ function SubCategory() {
     const [reloadData, setReloadData] = useState(Date.now());
     const [categories, setCategories] = useState([]);
     const [subCategories, setSubCategories] = useState([]);
+
     const [categoryRank, setCategoryRank] = useState('');
     const [mainCategoryId, setMainCategoryId] = useState();
     const [mainCategoryName, setMainCategoryName] = useState('')
@@ -133,10 +145,10 @@ function SubCategory() {
     const autoFocus = useRef();
 
 
-    useEffect(() => {
-        getAllCategory();
-        getSubCategory();
-    }, []);
+    // useEffect(() => {
+    //     getAllCategory();
+    //     getSubCategory();
+    // }, []);
 
 
     const addTimeFeilds = () => {
@@ -176,6 +188,13 @@ function SubCategory() {
         }
     }
 
+    const [state, setState] = useState([
+        {
+            startDate: new Date(),
+            endDate: new Date(),
+            key: 'selection'
+        }
+    ]);
 
     const getAllCategory = async () => {
         try {
@@ -192,7 +211,7 @@ function SubCategory() {
     const getSubCategory = async () => {
         try {
             const token = localStorage.getItem('token');
-            await axios.get(`${BACKEND_BASE_URL}menuItemrouter/getSubCategoryList?page=${page + 1}&numPerPage=${rowsPerPage}`, config)
+            await axios.get(filter ? `${BACKEND_BASE_URL}menuItemrouter/getSubCategoryList?page=${page + 1}&numPerPage=${rowsPerPage}&startDate=${state[0].startDate}&endDate=${state[0].endDate}` : `${BACKEND_BASE_URL}menuItemrouter/getSubCategoryList?page=${page + 1}&numPerPage=${rowsPerPage}`, config)
                 .then((res) => {
                     setTotalRows(res.data.numRows)
                     setSubCategories(res.data.rows)
@@ -207,6 +226,30 @@ function SubCategory() {
             setError(error?.response?.data || 'Network Error !!!...')
         }
     }
+    const getSubCategoryByFilter = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            await axios.get(`${BACKEND_BASE_URL}menuItemrouter/getSubCategoryList?page=${page + 1}&numPerPage=${rowsPerPage}&startDate=${state[0].startDate}&endDate=${state[0].endDate}`, config)
+                .then((res) => {
+                    setTotalRows(res.data.numRows)
+                    setSubCategories(res.data.rows)
+                    if (res.data.rows[0].msg === "No Data Found") {
+                        setNoItem(true)
+                    }
+                    else {
+                        setNoItem(false)
+                    }
+                })
+        } catch (error) {
+            setError(error?.response?.data || 'Network Error !!!...')
+        }
+    }
+    const handleCloseD = () => {
+        setAnchorEl(null);
+    };
+    const handleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
     const handleClose = () => {
         setOpen(false);
         setOpenTime(false)
@@ -501,7 +544,7 @@ function SubCategory() {
     useEffect(() => {
         getAllCategory();
         getSubCategory();
-    }, [page, rowsPerPage]);
+    }, [page, rowsPerPage, filter]);
 
     const handleDelete = (index) => {
         const updatedFields = [...variantFields];
@@ -557,70 +600,138 @@ function SubCategory() {
                     </div>
                 </div>
             </div>
-            <ToastContainer />
-            {
-                !noItem > 0 ? (
-                    <TableContainer className='bg-white px-2 pt-6 border-none rounded-xl mt-7'>
-                        <Table aria-label="simple table">
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell className=''>No.</TableCell>
-                                    <TableCell>Name</TableCell>
-                                    <TableCell align='right' className='pr-14' style={{ paddingRight: '56px' }}>Actions</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody className='bg-white '>
-                                {subCategories?.map((category, index) => (
-                                    <TableRow
-                                        key={index}
-                                        onMouseEnter={() => handleMouseEnter(index)}
-                                        onMouseLeave={handleMouseLeave}
-                                        style={{ backgroundColor: hoveredRow === index ? '#f5f5f5' : 'transparent', cursor: 'pointer' }}
-                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                    >
-                                        <TableCell component="th" scope="row" style={{ maxWidth: '15px', width: '15px' }}>
-                                            {(index + 1) + (page * rowsPerPage)}
-                                        </TableCell>
-                                        <TableCell component="th" scope="row">
-                                            {category.subCategoryName}
-                                        </TableCell>
-                                        <TableCell>
-                                            {category.subCategoryName ? (
-                                                <div className="flex w-100 justify-end">
-                                                    <div onClick={() => { setCategoryUpdatePopUp(true); setCategoryUpdateName(category.subCategoryName); handleUpdateData(category); }} className='rounded-lg bg-gray-100 p-2 ml-4 cursor-pointer table_Actions_icon2 hover:bg-blue-600'>
-                                                        <BorderColorIcon className='text-gray-600 table_icon2' />
-                                                    </div>
-                                                    <div onClick={() => handleDeleteSubcategory(category.subCategoryId)} className='rounded-lg bg-gray-100 p-2 ml-4 cursor-pointer table_Actions_icon2 hover:bg-red-600'><DeleteOutlineOutlinedIcon className='text-gray-600 table_icon2 ' /></div>
-                                                    <div onClick={() => { setOpenTime(true); setTimeEditName(category.subCategoryName); handleCategoryId(category); }} className='rounded-lg bg-gray-100 p-2 ml-4 cursor-pointer table_Actions_icon2 hover:bg-green-600'><AlarmIcon className='text-gray-600 table_icon2 ' /></div>
-                                                </div>
-                                            ) : (<></>)}
-                                        </TableCell>
+            <div className='userTableSubContainer mt-4'>
+                <div className='grid grid-cols-12 pt-6'>
+                    <div className='ml-6 col-start-7 col-span-6' >
+                        {tab != 3 &&
+                            <>
+                                <div className='flex justify-end pr-4'>
+                                    <div className='dateRange text-center' aria-describedby={id} onClick={handleClick}>
+                                        <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
+                                    </div>
+                                    <div className='resetBtnWrap col-span-3'>
+                                        <button className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`} onClick={() => {
+                                            setFilter(false);
+                                            setState([
+                                                {
+                                                    startDate: new Date(),
+                                                    endDate: new Date(),
+                                                    key: 'selection'
+                                                }
+                                            ])
+                                        }}><CloseIcon /></button>
+                                    </div>
+                                </div>
+                                <Popover
+                                    id={id}
+                                    open={openD}
+                                    style={{ zIndex: 10000, borderRadius: '10px', boxShadow: 'rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem' }}
+                                    anchorEl={anchorEl}
+                                    onClose={handleCloseD}
+                                    anchorOrigin={{
+                                        vertical: 'bottom',
+                                        horizontal: 'left',
+                                    }}
+                                >
+                                    <Box sx={{ bgcolor: 'background.paper', padding: '20px', width: 'auto', height: 'auto', borderRadius: '10px' }}>
+                                        <DateRangePicker
+                                            ranges={state}
+                                            onChange={item => { setState([item.selection]); console.log([item.selection]) }}
+                                            direction="horizontal"
+                                            months={2}
+                                            showSelectionPreview={true}
+                                            moveRangeOnFirstSelection={false}
+                                        />
+                                        <div className='mt-8 grid gap-4 grid-cols-12'>
+                                            <div className='col-span-3 col-start-7'>
+                                                <button className='stockInBtn' onClick={() => { handleCloseD(); setFilter(true); getSubCategoryByFilter(); setPage(0); setRowsPerPage(5) }}>Apply</button>
+                                            </div>
+                                            <div className='col-span-3'>
+                                                <button className='stockOutBtn' onClick={handleCloseD}>cancle</button>
+                                            </div>
+                                        </div>
+                                    </Box>
+                                </Popover>
+                            </>
+                        }
+                    </div>
+                </div>
+                {
+                    !noItem > 0 ? (
+                        <TableContainer className='bg-white px-2 pt-6 border-none rounded-xl mt-2'>
+                            <Table aria-label="simple table">
+                                <TableHead>
+                                    <TableRow>
+                                        <TableCell className=''>No.</TableCell>
+                                        <TableCell>Name</TableCell>
+                                        <TableCell>Category Name</TableCell>
+                                        <TableCell>Display Rank</TableCell>
+                                        <TableCell>Total Business</TableCell>
+                                        <TableCell align='right' className='pr-14' style={{ paddingRight: '56px' }}>Actions</TableCell>
                                     </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                        <TablePagination
-                            rowsPerPageOptions={[5, 10, 25]}
-                            component="div"
-                            count={totalRows}
-                            rowsPerPage={rowsPerPage}
-                            page={page}
-                            onPageChange={handleChangePage}
-                            onRowsPerPageChange={handleChangeRowsPerPage}
-                        />
-                    </TableContainer>
-                ) : (
-                    <div className="w-full flex justify-center">
-                        <div className='text-center'>
-                            <RestaurantMenuIcon className='restaurantMenu' />
-                            <br />
-                            <div className="text-2xl text-gray">
-                                No Data Found
+                                </TableHead>
+                                <TableBody className='bg-white '>
+                                    {subCategories?.map((category, index) => (
+                                        <TableRow
+                                            key={index}
+                                            onMouseEnter={() => handleMouseEnter(index)}
+                                            onMouseLeave={handleMouseLeave}
+                                            style={{ backgroundColor: hoveredRow === index ? '#f5f5f5' : 'transparent', cursor: 'pointer' }}
+                                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                        >
+                                            <TableCell component="th" scope="row" style={{ maxWidth: '15px', width: '15px' }}>
+                                                {(index + 1) + (page * rowsPerPage)}
+                                            </TableCell>
+                                            <TableCell component="th" scope="row">
+                                                {category.subCategoryName}
+                                            </TableCell>
+                                            <TableCell component="th" scope="row">
+                                                {category.categoryName}
+                                            </TableCell>
+                                            <TableCell component="th" scope="row">
+                                                {category.displayRank}
+                                            </TableCell>
+                                            <TableCell component="th" scope="row">
+                                                {parseFloat(category.totalRs ? category.totalRs : 0).toLocaleString('en-IN')}
+                                            </TableCell>
+                                            <TableCell>
+                                                {category.subCategoryName ? (
+                                                    <div className="flex w-100 justify-end">
+                                                        <div onClick={() => { setCategoryUpdatePopUp(true); setCategoryUpdateName(category.subCategoryName); handleUpdateData(category); }} className='rounded-lg bg-gray-100 p-2 ml-4 cursor-pointer table_Actions_icon2 hover:bg-blue-600'>
+                                                            <BorderColorIcon className='text-gray-600 table_icon2' />
+                                                        </div>
+                                                        <div onClick={() => handleDeleteSubcategory(category.subCategoryId)} className='rounded-lg bg-gray-100 p-2 ml-4 cursor-pointer table_Actions_icon2 hover:bg-red-600'><DeleteOutlineOutlinedIcon className='text-gray-600 table_icon2 ' /></div>
+                                                        <div onClick={() => { setOpenTime(true); setTimeEditName(category.subCategoryName); handleCategoryId(category); }} className='rounded-lg bg-gray-100 p-2 ml-4 cursor-pointer table_Actions_icon2 hover:bg-green-600'><AlarmIcon className='text-gray-600 table_icon2 ' /></div>
+                                                    </div>
+                                                ) : (<></>)}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                            <TablePagination
+                                rowsPerPageOptions={[5, 10, 25]}
+                                component="div"
+                                count={totalRows}
+                                rowsPerPage={rowsPerPage}
+                                page={page}
+                                onPageChange={handleChangePage}
+                                onRowsPerPageChange={handleChangeRowsPerPage}
+                            />
+                        </TableContainer>
+                    ) : (
+                        <div className="w-full flex justify-center">
+                            <div className='text-center'>
+                                <RestaurantMenuIcon className='restaurantMenu' />
+                                <br />
+                                <div className="text-2xl text-gray">
+                                    No Data Found
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )
-            }
+                    )
+                }
+            </div>
             <Modal
                 open={open}
                 onClose={handleClose}

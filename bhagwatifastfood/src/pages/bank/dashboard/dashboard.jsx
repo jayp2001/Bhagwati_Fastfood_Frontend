@@ -8,6 +8,7 @@ import TextField from '@mui/material/TextField';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import InputLabel from '@mui/material/InputLabel';
@@ -101,7 +102,9 @@ function BankDashboard() {
         bankDisplayName: '',
         bankAccountNumber: '',
         ifscCode: '',
-        bankId: ''
+        bankId: '',
+        isViewMonthlyTransaction: false,
+        isActive: true
     })
     const [bankFields, setBankFields] = useState([
         'bankName',
@@ -177,7 +180,9 @@ function BankDashboard() {
         bankShortForm: '',
         bankDisplayName: '',
         bankAccountNumber: '',
-        ifscCode: ''
+        ifscCode: '',
+        isViewMonthlyTransaction: false,
+        isActive: true
     });
     const navigate = useNavigate();
     const [value, setValue] = useState({
@@ -282,7 +287,9 @@ function BankDashboard() {
             bankShortForm: data.bankShortForm,
             bankDisplayName: data.bankDisplayName,
             bankAccountNumber: data.bankAccountNumber,
-            ifscCode: data.ifscCode
+            ifscCode: data.ifscCode,
+            isViewMonthlyTransaction: data.isViewMonthlyTransaction ? true : false,
+            isActive: data.isActive ? true : false
         }))
         setOpen(true)
     }
@@ -335,7 +342,7 @@ function BankDashboard() {
             })
     }
     const getData = async () => {
-        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getBankList?page=${page + 1}&numPerPage=${rowsPerPage}`, config)
+        await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getBankList?page=${1}&numPerPage=${5}`, config)
             .then((res) => {
                 setData(res.data.rows);
                 setTotalRows(res.data.numRows);
@@ -818,7 +825,9 @@ function BankDashboard() {
             bankDisplayName: '',
             bankAccountNumber: '',
             ifscCode: '',
-            bankId: ''
+            bankId: '',
+            isViewMonthlyTransaction: false,
+            isActive: true
         });
         setBankError(false);
         setEditBank({
@@ -828,7 +837,9 @@ function BankDashboard() {
             bankDisplayName: '',
             bankAccountNumber: '',
             ifscCode: '',
-            bankId: ''
+            bankId: '',
+            isViewMonthlyTransaction: false,
+            isActive: true
         });
         setIsEdit(false);
     }
@@ -1531,6 +1542,7 @@ function BankDashboard() {
                                                 <TableCell>Bank Account Number</TableCell>
                                                 <TableCell>IFSC Code</TableCell>
                                                 <TableCell align="left">Icon Name</TableCell>
+                                                <TableCell align="left">Status</TableCell>
                                                 {/* <TableCell align="right">Percentage</TableCell> */}
                                                 <TableCell align="right"></TableCell>
                                             </TableRow>
@@ -1555,6 +1567,7 @@ function BankDashboard() {
                                                         <TableCell align="left" onClick={() => gotToBankDetail(row.bankId)}>{row.ifscCode}</TableCell>
                                                         {/* <TableCell align="right" onClick={() => navigateToDetail(row.bankName, row.bankId)}>{parseFloat(row.outPrice ? row.outPrice : 0).toLocaleString('en-IN')}</TableCell> */}
                                                         <TableCell align="left" onClick={() => gotToBankDetail(row.bankId)}>{row.bankIconName}</TableCell>
+                                                        <TableCell align="left" onClick={() => gotToBankDetail(row.bankId)}>{row.isActive ? <span className={'text-green-600 font-semibold'}>Active</span> : <span className="text-red-600 font-semibold">Inactive</span>}</TableCell>
                                                         {/* <TableCell align="right" ><div className=''><button className='editCategoryBtn mr-6' onClick={() => handleEdit(row.bankId, row.bankName, row.bankIconName)}>Edit</button><button className='deleteCategoryBtn' onClick={() => handleDelete(row.bankId)}>Delete</button></div></TableCell> */}
                                                         <TableCell align="left" ><BankMenu data={row} handleDelete={handleDelete} handleEdit={handleEdit} setError={setError} /></TableCell>
                                                     </TableRow> :
@@ -1775,6 +1788,30 @@ function BankDashboard() {
                                         </Select>
                                     </FormControl>
                                 </div>
+                                <div className='col-span-4'>
+                                    <FormControlLabel control={<Checkbox checked={isEdit ? editBank.isActive : bank.isActive} onChange={() => {
+                                        isEdit ? setEditBank((prev) => ({
+                                            ...prev,
+                                            isActive: !editBank.isActive
+                                        })) : setBank((prev) => ({
+                                            ...prev,
+                                            isActive: !bank.isActive
+                                        }))
+                                    }} />} label="Is Active" />
+                                </div>
+                                <div className="col-span-4">
+                                    <FormControlLabel control={<Checkbox checked={isEdit ? editBank.isViewMonthlyTransaction : bank.isViewMonthlyTransaction}
+                                        onChange={() => {
+                                            isEdit ? setEditBank((prev) => ({
+                                                ...prev,
+                                                isViewMonthlyTransaction: !editBank.isViewMonthlyTransaction
+                                            })) : setBank((prev) => ({
+                                                ...prev,
+                                                isViewMonthlyTransaction: !bank.isViewMonthlyTransaction
+                                            }))
+                                        }}
+                                    />} label="View Monthly Transaction" />
+                                </div>
                                 <div className='col-start-9 col-span-2'>
                                     <button className='addCategorySaveBtn' onClick={() => {
                                         isEdit ? editBankFnc() : submit()
@@ -1790,7 +1827,9 @@ function BankDashboard() {
                                             bankDisplayName: '',
                                             bankAccountNumber: '',
                                             ifscCode: '',
-                                            bankId: ''
+                                            bankId: '',
+                                            isViewMonthlyTransaction: false,
+                                            isActive: true
                                         }));
                                         setBank({
                                             bankName: '',
@@ -1799,7 +1838,9 @@ function BankDashboard() {
                                             bankDisplayName: '',
                                             bankAccountNumber: '',
                                             ifscCode: '',
-                                            bankId: ''
+                                            bankId: '',
+                                            isViewMonthlyTransaction: false,
+                                            isActive: true
                                         })
                                         setBankError({
                                             bankName: false,

@@ -261,7 +261,7 @@ const Dashboard = () => {
                                 billPayType: res.data.billPayType,
                                 billType: res.data.billType,
                                 deliveryType: res.data.billType,
-                                desiredAmount: res.data.settledAmount,
+                                desiredAmount: formData.change ? res.data.settledAmount + parseFloat(formData.change ? formData.change : 0) : res.data.settledAmount,
                                 tokenNo: res.data.tokenNo
                             }));
                             console.log('Data', res.data)

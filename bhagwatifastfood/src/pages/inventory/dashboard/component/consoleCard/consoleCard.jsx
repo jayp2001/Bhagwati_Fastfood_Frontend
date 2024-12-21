@@ -13,6 +13,9 @@ import scoreboard from '../../../../../assets/billing/scoreboard.png';
 import delivery from '../../../../../assets/billing/delivery.png';
 import mobileView from '../../../../../assets/billing/smartphone.png'
 import deliveryMen from '../../../../../assets/billing/express.png'
+import khatabook from '../../../../../assets/billing/account.png'
+import sales from '../../../../../assets/billing/salesReport.png'
+import analyze from '../../../../../assets/billing/analyze.png'
 import Menu from '../../../../../assets/menu.png'
 function ConsoleCard(props) {
     const getImg = (imgname) => {
@@ -39,6 +42,12 @@ function ConsoleCard(props) {
                 return mobileView;
             case 'deliveryMen':
                 return deliveryMen;
+            case 'khatabook':
+                return khatabook;
+            case 'sales':
+                return sales;
+            case 'analyze':
+                return analyze;
             case 'Menu':
                 return Menu;
             default:

@@ -55,6 +55,10 @@ import AddCategory from './menuItemPages/Category/AddCategory'
 import Unit from './menuItemPages/Unit/Unit';
 import SubCategory from './menuItemPages/SubCategory/SubCategory';
 import MenuCategory from './menuItemPages/MenuCategory/MenuCategory';
+import DueAccounts from './biling/dueAccount/dueAccount';
+import DueAccountDetail from './biling/dueAccountDetails/dueAccountDetails';
+import CategoryBusinessReport from './billingPages/categoryBusinessReport/categoryBusinssReport';
+import CategoryAnalyze from './biling/categoryAnalyze/categoryAnalyze';
 // import SetPrinter from './setPrinter';
 function App() {
   return (
@@ -123,18 +127,23 @@ function App() {
               <Route path="/suppilerDetails/:id" element={<SuppilerDetail />} />
               <Route path="/stockOutByCategory/:category/:categoryId" element={<StockOutByCategory />} />
               <Route path="/productDetails/:id/:name/:unit/:remainingQty" element={<ProductDetails />} />
-              {/* <Route path="/dashboard" element={<Dashboard/>}/>
-                  <Route path="/dealer/:id" element={<DealerDetail/>}/>
-                  <Route path="/editDealer/:id" element={<EditDealer/>}/>
-                  <Route path="/vehicleDetail/:id" element={<VehicleDetail/>}/>
-                  <Route path="/editVehicleDetail/:id" element={<EditBook/>}/>
-                  <Route path="/TTO" element={<TtoBookList/>}/>
-                  <Route path="/RRF" element={<RrfBookList/>}/>
-                  <Route path="/OTHER" element={<OtherBookList/>}/>
-                  <Route path="/bookList" element={<AllBookList/>}/> */}
+              {
+                /* <Route path="/dashboard" element={<Dashboard/>}/>
+                    <Route path="/dealer/:id" element={<DealerDetail/>}/>
+                    <Route path="/editDealer/:id" element={<EditDealer/>}/>
+                    <Route path="/vehicleDetail/:id" element={<VehicleDetail/>}/>
+                    <Route path="/editVehicleDetail/:id" element={<EditBook/>}/>
+                    <Route path="/TTO" element={<TtoBookList/>}/>
+                    <Route path="/RRF" element={<RrfBookList/>}/>
+                    <Route path="/OTHER" element={<OtherBookList/>}/>
+                    <Route path="/bookList" element={<AllBookList/>}/> */
+              }
               <Route path='/deliveryManagement/Dashboard' element={<DeliveryDashboard />} />
               <Route path='/deliveryManagement/DeliveryMan' element={<DeliveryMan />} />
               <Route path='/deliveryManagement/tokenView' element={<TokenView />} />
+              <Route path='/due/account' element={<DueAccounts />} />
+              <Route path='/category/analyze' element={<CategoryAnalyze />} />
+              <Route path="due/accountDetails/:id" element={<DueAccountDetail />} />
               <Route path='/DeliveryManagement/DeliveryManData/:deliveryManId/:name' element={<DeliveryManDataTable />} />
               <Route path='/deliveryManagement/tokenViewForMobile' element={<TokenViewForMobile />} />
               <Route path="/hotel/hotelTable" element={<HotelTable />} />
@@ -147,6 +156,7 @@ function App() {
             <Route path='/login' exact element={<LoginPage />} />
             <Route path='*' element={<PageNotFoundRedirect />} />
             <Route path='/menu/Dashboard' element={<MenuDashboard />} />
+            <Route path='/menu/salesReport' element={<CategoryBusinessReport />} />
             <Route path='/menu/Category' element={<AddCategory />} />
             <Route path='/menu/Unit' element={<Unit />} />
             <Route path='/menu/SubCategory' element={<SubCategory />} />

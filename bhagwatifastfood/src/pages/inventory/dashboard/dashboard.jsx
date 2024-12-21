@@ -150,6 +150,36 @@ function Dashboard() {
             }
         }
     }
+    const goToKhata = () => {
+        const auth = new Date(expirationTime) > new Date() && (role == 1 || role == 2) ? true : false
+        if (auth) {
+            navigate('/due/account')
+        } else {
+            if (window.confirm("You are not Authorised. You want to Login again ?")) {
+                navigate('/login')
+            }
+        }
+    }
+    const goToSales = () => {
+        const auth = new Date(expirationTime) > new Date() && (role == 1 || role == 2) ? true : false
+        if (auth) {
+            navigate('/menu/salesReport')
+        } else {
+            if (window.confirm("You are not Authorised. You want to Login again ?")) {
+                navigate('/login')
+            }
+        }
+    }
+    const goToAnalyze = () => {
+        const auth = new Date(expirationTime) > new Date() && (role == 1 || role == 2) ? true : false
+        if (auth) {
+            navigate('/category/analyze')
+        } else {
+            if (window.confirm("You are not Authorised. You want to Login again ?")) {
+                navigate('/login')
+            }
+        }
+    }
     const goToProductList = () => {
         navigate('/productList')
     }
@@ -170,6 +200,9 @@ function Dashboard() {
                     <ConsoleCard goToAddUSer={goToTokenMobileView} name={"Token ready"} imgName={'mobileView'} />
                     <ConsoleCard goToAddUSer={goToDeliveryMan} name={"Delivery Man"} imgName={'deliveryMen'} />
                     <ConsoleCard goToAddUSer={goToMenu} name={"Menu"} imgName={'Menu'} />
+                    <ConsoleCard goToAddUSer={goToKhata} name={"Khata Book"} imgName={'khatabook'} />
+                    <ConsoleCard goToAddUSer={goToSales} name={"Sales Report"} imgName={'sales'} />
+                    <ConsoleCard goToAddUSer={goToAnalyze} name={"Analyzes"} imgName={'analyze'} />
                 </div>
             </div>
         </div>

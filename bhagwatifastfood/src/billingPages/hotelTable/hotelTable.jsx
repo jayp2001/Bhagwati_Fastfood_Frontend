@@ -152,6 +152,7 @@ function HotelTable() {
     const [stockInErrorFields, setStockInErrorFields] = React.useState([
         'hotelName',
         'hotelMobileNo',
+        'discount'
     ])
     const [stockOutFormData, setStockOutFormData] = React.useState({
         productId: "",
@@ -541,11 +542,18 @@ function HotelTable() {
         } else {
             const isValidate = stockInErrorFields.filter(element => {
                 if (element === 'discount' && (addHotelFormData.discountType != 'none' && (addHotelFormData[element] === '' || addHotelFormData[element] === null))) {
-                    setStockInFormDataError((perv) => ({
-                        ...perv,
-                        [element]: true
-                    }))
-                    return element;
+                    if (addHotelFormData.discount <= 0) {
+                        setStockInFormDataError((perv) => ({
+                            ...perv,
+                            [element]: true
+                        }))
+                        return element;
+                    } else {
+                        setStockInFormDataError((perv) => ({
+                            ...perv,
+                            [element]: false
+                        }))
+                    }
                 }
                 else if (stockInFormDataError[element] === true || addHotelFormData[element] === '' || addHotelFormData[element] === 0) {
                     setStockInFormDataError((perv) => ({
@@ -1127,7 +1135,17 @@ function HotelTable() {
                                     name="discount"
                                     id="outlined-required"
                                     label="Discount"
-                                    onChange={onChangeStockIn}
+                                    onChange={(e) => {
+                                        onChangeStockIn(e);
+                                        if (e.target.value > 0) {
+                                            setStockInFormDataError((prev) => (
+                                                {
+                                                    ...prev,
+                                                    discount: false
+                                                }
+                                            ))
+                                        }
+                                    }}
                                     InputProps={{
                                         endAdornment: <InputAdornment position="end">{addHotelFormData.discountType == 'fixed' ? <CurrencyRupeeIcon /> : <PercentIcon />}</InputAdornment>,
                                         style: { fontSize: 14 }

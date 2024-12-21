@@ -80,7 +80,7 @@ function CountCard(props) {
                 </div>
             </div>
             <div className='self-center w-full'>
-                <div className='countText'>
+                <div className='countText' style={{ color: props.desc == 'You will get' ? 'red' : props.desc == 'You will give' ? 'green' : '' }}>
                     {props.desc == 'Work Time' ? <span>{props.count}</span> : <><span>{props.productDetail ? props.unitDesc === 0 ? <CurrencyRupeeIcon fontSize='large' /> : '' : ''}</span> {parseFloat(props.count ? props.count : 0).toLocaleString('en-IN')} <span className='unitDisplay'>{props.productDetail ? props.unitDesc !== 0 ? props.unitDesc : '' : ''}</span></>}
                 </div>
                 <div className='countDescription'>
