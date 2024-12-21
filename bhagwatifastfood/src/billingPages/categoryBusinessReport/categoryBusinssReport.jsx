@@ -1708,7 +1708,7 @@ function CategoryBusinessReport() {
                                                 {parseFloat(item.complimentaryRevenue ? item.complimentaryRevenue : 0).toLocaleString("en-IN")}
                                             </TableCell>
                                             <TableCell align='center'>
-                                                {item.soldQty}
+                                                {item.cancelQty}
                                             </TableCell>
                                             <TableCell align='center'>
                                                 {parseFloat(item.cancelRevenue ? item.cancelRevenue : 0).toLocaleString("en-IN")}
