@@ -376,7 +376,7 @@ function MenuDashboard() {
 
     const handleSUbmitForm = async () => {
         let formValidation;
-        if (!editData) {
+        if (!editItem) {
             formValidation = {
                 itemName: fullData.itemName.trim().length === 0,
                 itemGujaratiName: fullData.itemGujaratiName.trim().length === 0,
@@ -408,7 +408,7 @@ function MenuDashboard() {
         const token = localStorage.getItem('token');
         console.log('Full Form Data', fullData)
 
-        if (!editData) {
+        if (!editItem) {
             await axios.post(
                 `${BACKEND_BASE_URL}menuItemrouter/addItemData`,
                 fullData,
@@ -476,7 +476,7 @@ function MenuDashboard() {
                 itemGujaratiName: editData.itemGujaratiName,
                 itemShortKey: editData.itemShortKey,
                 itemSubCategory: editData.itemSubCategory,
-                variantsList: editData.variantsList
+                variantsList: variantFields
             };
             console.log('newData', newData)
 
@@ -611,7 +611,7 @@ function MenuDashboard() {
             }
         }
 
-        const newVariant = { unit: unit.unit, price: unit.price, index: variantFields.length };
+        const newVariant = { unit: unit.unit, price: unit.price, status: true, index: variantFields.length };
         if (unit.unit === 'NO') {
             setPrice(unit.price)
         }

@@ -59,6 +59,7 @@ import DueAccounts from './biling/dueAccount/dueAccount';
 import DueAccountDetail from './biling/dueAccountDetails/dueAccountDetails';
 import CategoryBusinessReport from './billingPages/categoryBusinessReport/categoryBusinssReport';
 import CategoryAnalyze from './biling/categoryAnalyze/categoryAnalyze';
+import AddOns from './menuItemPages/addOns/addOns';
 // import SetPrinter from './setPrinter';
 function App() {
   return (
@@ -160,6 +161,7 @@ function App() {
             <Route path='/menu/Category' element={<AddCategory />} />
             <Route path='/menu/Unit' element={<Unit />} />
             <Route path='/menu/SubCategory' element={<SubCategory />} />
+            <Route path='/menu/addOns' element={<AddOns />} />
             <Route path='/menu/MenuCategory' element={<MenuCategory />} />
           </Routes>
         </div>

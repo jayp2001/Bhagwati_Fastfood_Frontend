@@ -86,45 +86,7 @@ const Dashboard = () => {
     const [deliveryManName, setDeliveryManName] = useState('')
     const [isPriceError, setIsPriceError] = useState(false)
     const [openIndex, setOpenIndex] = useState(null);
-    if (loading) {
-        toast.loading("Please wait...", {
-            toastId: 'loading'
-        });
-    }
-    if (success) {
-        toast.dismiss('loading');
-        toast('Success!', {
-            type: 'success',
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
-        });
-        setTimeout(() => {
-            setSuccess(false);
-            setLoading(false);
-        }, 50);
-    }
-    if (error) {
-        setLoading(false);
-        toast.dismiss('loading');
-        toast(error, {
-            type: 'error',
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
-        });
-        setError(false);
-    }
+
 
 
     const clearDispay = async () => {
@@ -211,78 +173,85 @@ const Dashboard = () => {
     };
 
     const handleBillNoKeyDown = async (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            if (!formData.token) {
-                return setIsTokenError(true)
-            }
-            if (isOther) {
-                commentRef?.current?.focus();
-                setFormData((prev) => ({
-                    ...prev,
-                    billPayType: 'other',
-                    billType: 'other',
-                    tokenNo: 'O'
-                }))
-            }
-            else if (isBill) {
-                commentRef.current.focus();
-                setFormData((prev) => ({
-                    ...prev,
-                    billPayType: 'Due Bill',
-                    billType: 'Due Bill',
-                    tokenNo: 'B'
-                }))
-            }
-            else {
-                console.log('token Name', formData.token)
-                setIsOther(false)
-                await axios.get(`${BACKEND_BASE_URL}deliveryAndPickUprouter/getDeliveryDataByToken?tknNo=${formData.token}`, config)
-                    .then((res) => {
-                        if (res.data.billPayType === 'due') {
-                            handleDirectAdd(res.data);
-                        }
-                        else if (res.data.billPayType === 'debit') {
-                            handleDirectAdd(res.data);
+        if (!loading && !success) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (!formData.token) {
+                    return setIsTokenError(true)
+                }
+                if (isOther) {
+                    commentRef?.current?.focus();
+                    setFormData((prev) => ({
+                        ...prev,
+                        billPayType: 'other',
+                        billType: 'other',
+                        tokenNo: 'O'
+                    }))
+                }
+                else if (isBill) {
+                    commentRef.current.focus();
+                    setFormData((prev) => ({
+                        ...prev,
+                        billPayType: 'Due Bill',
+                        billType: 'Due Bill',
+                        tokenNo: 'B'
+                    }))
+                }
+                else {
+                    console.log('token Name', formData.token)
+                    setIsOther(false)
+                    setLoading(true)
+                    await axios.get(`${BACKEND_BASE_URL}deliveryAndPickUprouter/getDeliveryDataByToken?tknNo=${formData.token}`, config)
+                        .then((res) => {
+                            setLoading(false)
+                            toast.dismiss('loading');
+                            if (res.data.billPayType === 'due') {
+                                handleDirectAdd(res.data);
+                            }
+                            else if (res.data.billPayType === 'debit') {
+                                handleDirectAdd(res.data);
 
-                        }
-                        else if (res.data.billPayType === 'complimentary') {
-                            handleDirectAdd(res.data);
-                        }
-                        else if (res.data.billPayType === 'online') {
-                            handleDirectAdd(res.data);
-                        }
-                        else {
-                            setFormData((prev) => ({
-                                ...prev,
-                                price: res.data.settledAmount,
-                                address: res.data.billAddress,
-                                billId: res.data.billId,
-                                billPayType: res.data.billPayType,
-                                billType: res.data.billType,
-                                deliveryType: res.data.billType,
-                                desiredAmount: formData.change ? res.data.settledAmount + parseFloat(formData.change ? formData.change : 0) : res.data.settledAmount,
-                                tokenNo: res.data.tokenNo
-                            }));
-                            console.log('Data', res.data)
-                            changeRef.current.focus();
-                        }
-                    })
-                    .catch((error) => {
-                        console.log('Error', error);
-                        if (error.response.data === "Token Number Not Found") {
-                            tokenRef.current.focus();
-                            tokenRef.current.setSelectionRange(0, formData.token.length);
-                        }
-                        setError(error?.response?.data || 'Token Not Found!!..')
-                        setFormData({
-                            price: '',
-                            token: '',
-                            Comment: '',
-                            desiredAmount: '',
-                            change: ''
+                            }
+                            else if (res.data.billPayType === 'complimentary') {
+                                handleDirectAdd(res.data);
+                            }
+                            else if (res.data.billPayType === 'online') {
+                                handleDirectAdd(res.data);
+                            }
+                            else {
+                                setFormData((prev) => ({
+                                    ...prev,
+                                    price: res.data.settledAmount,
+                                    address: res.data.billAddress,
+                                    billId: res.data.billId,
+                                    billPayType: res.data.billPayType,
+                                    billType: res.data.billType,
+                                    deliveryType: res.data.billType,
+                                    desiredAmount: formData.change ? res.data.settledAmount + parseFloat(formData.change ? formData.change : 0) : res.data.settledAmount,
+                                    tokenNo: res.data.tokenNo
+                                }));
+                                console.log('Data', res.data)
+                                changeRef.current.focus();
+                            }
                         })
-                    });
+                        .catch((error) => {
+                            console.log('Error', error);
+                            if (error.response.data === "Token Number Not Found") {
+                                tokenRef.current.focus();
+                                tokenRef.current.setSelectionRange(0, formData.token.length);
+                            }
+                            setError(error?.response?.data || 'Token Not Found!!..')
+                            setFormData({
+                                price: '',
+                                token: '',
+                                Comment: '',
+                                desiredAmount: '',
+                                change: ''
+                            })
+                            setLoading(false)
+                            toast.dismiss('loading');
+                        });
+                }
             }
         }
     };
@@ -428,74 +397,82 @@ const Dashboard = () => {
     };
 
     const handleAddCards = async () => {
-        const data = {
-            personId: deliveryManId,
-            totalBillAmt: totalValues.amount,
-            totalChange: totalValues.change,
-            totalDesiredAmt: totalValues.desiredAmount,
-            durationTime: "00:00:00",
-            deliveryBillData: itemList.map(item => ({
-                billId: item.billId || '',
-                billAddress: item.address || item.Comment || '',
-                deliveryType: item.billType || '',
-                billPayType: item.billPayType || '',
-                billAmt: parseFloat(item.price) || 0,
-                billChange: parseFloat(item.change) || 0,
-                desiredAmt: parseFloat(item.desiredAmount) || 0
-            }))
-        };
-        // const data = {
-        //     "personId": "person_1719777904918",
-        //     "totalBillAmt": 200,
-        //     "totalChange": 0,
-        //     "totalDesiredAmt": 200,
-        //     "durationTime": "00:00:00",
-        //     "deliveryBillData": [
-        //         {
-        //             "billId": "",
-        //             "billAddress": "Cow Bill",
-        //             "deliveryType": "Other",
-        //             "billPayType": "cash",
-        //             "billAmt": 1000,
-        //             "billChange": 0,
-        //             "desiredAmt": 1000
-        //         },
-        //         {
-        //             "billId": "bill_1719757042089_2",
-        //             "billAddress": "Kevdawadi",
-        //             "deliveryType": "delivery",
-        //             "billPayType": "cash",
-        //             "billAmt": 100,
-        //             "billChange": 0,
-        //             "desiredAmt": 100
-        //         }
-        //     ]
-        // }
-        console.log('Final Data', data)
-        await axios.post(`${BACKEND_BASE_URL}deliveryAndPickUprouter/addDeliveryData`, data, config)
-            .then((res) => {
-                console.log('Response Data', res)
-                setUpdatDeliveryPopUp(false)
-                // setSuccess(true)
-                getDeliverCardData();
-                setDeliveryManName('')
-                setIsTokenError(false)
-                handleClose();
-                handleReset();
-                setDeliveyStaticCard(false)
-            })
-            .catch((error) => {
-                console.log('Error=>', error)
-                if (error.response.status === 402) {
-                    setUpdatDeliveryPopUp(true)
-                    setUpdateDeliveryPopUpData(error.response.data)
-                }
-                else {
-                    setDeliveryManName('')
-                    setError(error?.response?.data || 'Network Error!!..')
-                }
-            })
+        if (loading || success) {
 
+        } else {
+            setLoading(true)
+            const data = {
+                personId: deliveryManId,
+                totalBillAmt: totalValues.amount,
+                totalChange: totalValues.change,
+                totalDesiredAmt: totalValues.desiredAmount,
+                durationTime: "00:00:00",
+                deliveryBillData: itemList.map(item => ({
+                    billId: item.billId || '',
+                    billAddress: item.address || item.Comment || '',
+                    deliveryType: item.billType || '',
+                    billPayType: item.billPayType || '',
+                    billAmt: parseFloat(item.price) || 0,
+                    billChange: parseFloat(item.change) || 0,
+                    desiredAmt: parseFloat(item.desiredAmount) || 0
+                }))
+            };
+            // const data = {
+            //     "personId": "person_1719777904918",
+            //     "totalBillAmt": 200,
+            //     "totalChange": 0,
+            //     "totalDesiredAmt": 200,
+            //     "durationTime": "00:00:00",
+            //     "deliveryBillData": [
+            //         {
+            //             "billId": "",
+            //             "billAddress": "Cow Bill",
+            //             "deliveryType": "Other",
+            //             "billPayType": "cash",
+            //             "billAmt": 1000,
+            //             "billChange": 0,
+            //             "desiredAmt": 1000
+            //         },
+            //         {
+            //             "billId": "bill_1719757042089_2",
+            //             "billAddress": "Kevdawadi",
+            //             "deliveryType": "delivery",
+            //             "billPayType": "cash",
+            //             "billAmt": 100,
+            //             "billChange": 0,
+            //             "desiredAmt": 100
+            //         }
+            //     ]
+            // }
+            console.log('Final Data', data)
+            await axios.post(`${BACKEND_BASE_URL}deliveryAndPickUprouter/addDeliveryData`, data, config)
+                .then((res) => {
+                    console.log('Response Data', res)
+                    setUpdatDeliveryPopUp(false)
+                    // setSuccess(true)
+                    setLoading(false);
+                    toast.dismiss('loading');
+                    getDeliverCardData();
+                    setDeliveryManName('')
+                    setIsTokenError(false)
+                    handleClose();
+                    handleReset();
+                    setDeliveyStaticCard(false)
+                })
+                .catch((error) => {
+                    console.log('Error=>', error)
+                    if (error.response.status === 402) {
+                        setUpdatDeliveryPopUp(true)
+                        setUpdateDeliveryPopUpData(error.response.data)
+                    }
+                    else {
+                        setDeliveryManName('')
+                        setError(error?.response?.data || 'Network Error!!..')
+                    }
+                    setLoading(false)
+                    toast.dismiss('loading');
+                })
+        }
     };
     const numRegex = /^\d+$/;
     const getDeliverCardData = async () => {
@@ -716,7 +693,46 @@ const Dashboard = () => {
         })
     }
 
-
+    if (loading) {
+        toast.loading("Please wait...", {
+            toastId: 'loading'
+        });
+    }
+    if (success) {
+        toast.dismiss('loading');
+        toast('Success!', {
+            type: 'success',
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+        });
+        setTimeout(() => {
+            setSuccess(false);
+            setLoading(false);
+        }, 50);
+    }
+    if (error) {
+        setLoading(false);
+        toast.dismiss('loading');
+        toast(error, {
+            type: 'error',
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+        });
+        setError(false);
+    }
+    console.log({ loading })
     return (
         <div>
             <div className="dashBoardHeader py-2">

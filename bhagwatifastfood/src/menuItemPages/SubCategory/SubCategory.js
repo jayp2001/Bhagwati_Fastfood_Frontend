@@ -345,10 +345,10 @@ function SubCategory() {
     }
     const handleUpdateData = (categoryData) => {
         setCategoryupdatData(categoryData)
-        const menuCategoryId = categories.find(main => main.categoryId === categoryData.mainCategory)
-        setCategoryUpdateMenuName(menuCategoryId?.categoryName)
+        // const menuCategoryId = categories.find(main => main.categoryId === categoryData.mainCategory)
+        setCategoryUpdateMenuName(categoryData?.categoryName)
         // console.log('menuId', menuCategoryId)
-        setMenuCategoryId(menuCategoryId?.categoryId)
+        setMenuCategoryId(categoryData?.categoryId)
         // console.log('Sub CategoryId', categoryData)
         // // setMenuCategoryId(menuCategoryId.categoryId)
         setCategoryUpdateCategoryRank(categoryData.displayRank)
