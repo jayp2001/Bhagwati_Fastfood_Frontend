@@ -454,6 +454,7 @@ const Dashboard = () => {
                     toast.dismiss('loading');
                     getDeliverCardData();
                     setDeliveryManName('')
+                    setDeliveryManId("")
                     setIsTokenError(false)
                     handleClose();
                     handleReset();
@@ -1171,6 +1172,7 @@ const Dashboard = () => {
                                                             Comment: '',
                                                         })
                                                         setDeliveryManName('')
+                                                        setDeliveryManId("")
                                                         setIsTokenError(false)
                                                         setTotalValues({
                                                             desiredAmount: '0',
