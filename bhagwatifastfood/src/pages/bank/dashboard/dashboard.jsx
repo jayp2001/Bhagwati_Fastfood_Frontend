@@ -1,5 +1,7 @@
 import ConsoleCard from "./component/consoleCard/consoleCard";
 import './dashboard.css';
+import { SHOW_STATICS_RIGHTS } from "../../../userRights";
+import { getUserRole } from "../../../utils/userRole";
 import React, { useRef } from 'react';
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -83,6 +85,7 @@ function BankDashboard() {
     const regex = /^-?\d*(?:\.\d*)?$/;
     const emailRegx = /^[a-zA-Z0-9_\.\+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-\.]+$/;
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const userRole = getUserRole();
     const config = {
         headers: {
             "Content-Type": "application/json",
@@ -197,6 +200,7 @@ function BankDashboard() {
     };
     useEffect(() => {
         getBanks();
+        console.log("<>?", userRole);
     }, [])
     const user = JSON.parse(localStorage.getItem('userInfo'))
     let location = useLocation();
@@ -1952,7 +1956,7 @@ function BankDashboard() {
                                                             {row.sourceName}
                                                         </TableCell>
                                                         <TableCell align="right" scope="row" >
-                                                            {parseFloat(row.creditAmt ? row.creditAmt : 0).toLocaleString('en-IN')}
+                                                            {SHOW_STATICS_RIGHTS.includes(userRole) ? parseFloat(row.creditAmt ? row.creditAmt : 0).toLocaleString('en-IN') : "###"}
                                                         </TableCell>
                                                         <TableCell align="right" ><div className=''><button className='editCategoryBtn mr-6' onClick={() => handleEditSource(row)}>Edit</button><button className='deleteCategoryBtn' onClick={() => handleDeleteSource(row.sourceId)}>Delete</button></div></TableCell>
                                                         {/* <TableCell align="left" ><BankMenu data={row} handleDelete={handleDelete} handleEdit={handleEdit} setError={setError} /></TableCell> */}

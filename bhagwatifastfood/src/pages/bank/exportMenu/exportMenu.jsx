@@ -8,8 +8,12 @@ import { useNavigate } from "react-router-dom";
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import DescriptionIcon from '@mui/icons-material/Description';
+import { getUserRole } from '../../../utils/userRole';
+import { SHOW_EXPORT_BUTTON } from '../../../userRights';
+
 const ITEM_HEIGHT = 48;
 function ExportMenu(props) {
+    const userRole = getUserRole();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -24,24 +28,16 @@ function ExportMenu(props) {
     // }
     return (
         <div>
-            {/* <IconButton
-                aria-label="more"
-                id="long-button"
-                aria-controls={open ? 'long-menu' : undefined}
-                aria-expanded={open ? 'true' : undefined}
-                aria-haspopup="true"
-                onClick={handleClick}
-            >
-                <MoreVertIcon />
-            </IconButton> */}
-            <button className={props.isDisable ? 'disableExport' : `exportBtn`}
-                aria-label="more"
-                id="long-button"
-                aria-controls={open ? 'long-menu' : undefined}
-                aria-expanded={open ? 'true' : undefined}
-                aria-haspopup="true"
-                onClick={props.isDisable ? () => { } : handleClick}
-            ><FileDownloadIcon />&nbsp;&nbsp;Export</button>
+            {SHOW_EXPORT_BUTTON.includes(userRole) &&
+                < button className={props.isDisable ? 'disableExport' : `exportBtn`}
+                    aria-label="more"
+                    id="long-button"
+                    aria-controls={open ? 'long-menu' : undefined}
+                    aria-expanded={open ? 'true' : undefined}
+                    aria-haspopup="true"
+                    onClick={props.isDisable ? () => { } : handleClick}
+                ><FileDownloadIcon />&nbsp;&nbsp;Export</button>
+            }
             <Menu
                 id="long-menu"
                 MenuListProps={{

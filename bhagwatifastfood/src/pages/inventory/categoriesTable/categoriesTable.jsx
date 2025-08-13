@@ -28,6 +28,8 @@ import { useNavigate } from "react-router-dom";
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import CloseIcon from '@mui/icons-material/Close';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import { SHOW_STATICS_RIGHTS } from '../../../userRights';
+import { getUserRole } from '../../../utils/userRole';
 
 const style = {
     position: 'absolute',
@@ -45,6 +47,7 @@ const style = {
 };
 
 function CategoriesTable() {
+    const userRole = getUserRole();
     const [editCateory, setEditCategory] = React.useState({
         stockOutCategoryName: '',
         stockOutCategoryId: ''
@@ -400,7 +403,7 @@ function CategoriesTable() {
                                 Categories List
                             </div>
                             <div>
-                                Total StockOut Cost : {parseFloat(totalStockOutPrice).toLocaleString('en-IN')}
+                                Total StockOut Cost : {SHOW_STATICS_RIGHTS.includes(userRole) ? parseFloat(totalStockOutPrice ? totalStockOutPrice : 0).toLocaleString('en-IN') : "####"}
                             </div>
                         </div>
                     </div>
@@ -495,8 +498,8 @@ function CategoriesTable() {
                                                 <TableCell component="th" scope="row" onClick={() => navigateToDetail(row.stockOutCategoryName, row.stockOutCategoryId)}>
                                                     {row.stockOutCategoryName}
                                                 </TableCell>
-                                                <TableCell align="right" onClick={() => navigateToDetail(row.stockOutCategoryName, row.stockOutCategoryId)}>{parseFloat(row.outPrice ? row.outPrice : 0).toLocaleString('en-IN')}</TableCell>
-                                                <TableCell align="right" onClick={() => navigateToDetail(row.stockOutCategoryName, row.stockOutCategoryId)}>{row.percentage}</TableCell>
+                                                <TableCell align="right" onClick={() => navigateToDetail(row.stockOutCategoryName, row.stockOutCategoryId)}>{SHOW_STATICS_RIGHTS.includes(userRole) ? parseFloat(row.outPrice ? row.outPrice : 0).toLocaleString('en-IN') : "####"}</TableCell>
+                                                <TableCell align="right" onClick={() => navigateToDetail(row.stockOutCategoryName, row.stockOutCategoryId)}>{SHOW_STATICS_RIGHTS.includes(userRole) ? row.percentage ? row.percentage : "0%" : "#%"}</TableCell>
                                                 <TableCell align="right" ><div className=''><button className='editCategoryBtn mr-6' onClick={() => handleEdit(row.stockOutCategoryId, row.stockOutCategoryName)}>Edit</button><button className='deleteCategoryBtn' onClick={() => handleDelete(row.stockOutCategoryId)}>Delete</button></div></TableCell>
                                                 <TableCell align="right">
                                                 </TableCell>

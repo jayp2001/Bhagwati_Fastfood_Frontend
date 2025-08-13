@@ -10,7 +10,10 @@ import mistake from '../../../assets/mainCategory/mistake.png';
 import renovate from '../../../assets/mainCategory/renovate.png';
 import restaurant from '../../../assets/mainCategory/restaurant.png';
 import tag from '../../../assets/mainCategory/tag.png';
+import { SHOW_STATICS_RIGHTS } from '../../../userRights';
+import { getUserRole } from '../../../utils/userRole';
 function CategoryCard(props) {
+    const userRole = getUserRole();
     const getImg = (imgname) => {
         switch (imgname) {
             case 'other1':
@@ -50,7 +53,7 @@ function CategoryCard(props) {
                         {props.filter ? "Expense" : "Today's Expense"}
                     </div>
                     <div className='statacticsDisplayDisplay'>
-                        {parseFloat(props.expense ? props.expense : 0).toLocaleString('en-IN')}
+                        {SHOW_STATICS_RIGHTS.includes(userRole) ? parseFloat(props.expense ? props.expense : 0).toLocaleString('en-IN') : "####"}
                     </div>
                 </div>
             </div>

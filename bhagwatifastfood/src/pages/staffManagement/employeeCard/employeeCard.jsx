@@ -20,6 +20,9 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { useNavigate } from "react-router-dom";
+import { SHOW_STATICS_RIGHTS } from '../../../userRights';
+import { getUserRole } from '../../../utils/userRole';
+
 const styleStockIn = {
     position: 'absolute',
     top: '50%',
@@ -35,6 +38,7 @@ const styleStockIn = {
     borderRadius: '10px'
 };
 function EmployeeCard(props) {
+    const userRole = getUserRole();
     const navigate = useNavigate();
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const [open, setOpen] = useState(false);
@@ -230,7 +234,7 @@ function EmployeeCard(props) {
                             />
                             {/* <span>{toggel ? 'Active' : 'Inactive'}</span> */}
                         </div>
-                        <Menutemp handleDelete={handleDelete} handleEdit={handleEdit} handleViewDetail={handleViewDetail} />
+                        {SHOW_STATICS_RIGHTS.includes(userRole) ? <Menutemp handleDelete={handleDelete} handleEdit={handleEdit} handleViewDetail={handleViewDetail} /> : ""}
                     </div>
                     <div className='salaryDetailWrp grid grid-cols-3 gap-4'>
                         <div>

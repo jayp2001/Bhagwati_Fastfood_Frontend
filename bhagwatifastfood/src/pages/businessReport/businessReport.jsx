@@ -53,7 +53,8 @@ import AlertTitle from '@mui/material/AlertTitle';
 import Collapse from '@mui/material/Collapse';
 import Tune from '@mui/icons-material/Tune';
 import ExportMenu from '../bank/exportMenu/exportMenu.jsx';
-
+import { getUserRole } from '../../utils/userRole.js';
+import { SHOW_STATICS_RIGHTS } from '../../userRights.js';
 
 const style = {
     position: 'absolute',
@@ -72,6 +73,7 @@ const style = {
 
 
 function BusinessReport() {
+    const userRole = getUserRole();
     const regex = /^-?\d*(?:\.\d*)?$/;
     const [tab, setTab] = React.useState(1);
     const [categoryList, setCategoryList] = React.useState([
@@ -745,30 +747,38 @@ function BusinessReport() {
                                                     }}>
                                                     <div className='statusTabtext'>Add Business Report</div>
                                                 </div>
-                                                <div className={`flex col-span-3 justify-center ${tab === 3 || tab === '3' ? 'productTabUnder' : 'productTab'}`}
-                                                    onClick={() => {
-                                                        if (!isEdit) {
-                                                            setTab(3);
-                                                            setPage(0);
-                                                            setRowsPerPage(5);
-                                                            filter ? getDataByFilter() : getData();
-                                                        }
-                                                    }}>
-                                                    <div className='statusTabtext'>Add Income Category</div>
-                                                </div>
-                                                <div className={`flex col-span-3 justify-center ${tab === 4 || tab === '4' ? 'tabDebit' : 'productTab'}`}
-                                                    onClick={() => {
-                                                        if (!isEdit) {
-                                                            setTab(4);
-                                                            filter ? getReportNetByFilter() : getReportNet()
-                                                            // filter ? getDataByFilter() : getData();
-                                                        }
-                                                    }}>
-                                                    <div className='statusTabtext'>Net Business</div>
-                                                </div>
+                                                {SHOW_STATICS_RIGHTS.includes(userRole) ? (
+                                                    <>
+                                                        <div
+                                                            className={`flex col-span-3 justify-center ${tab === 3 || tab === '3' ? 'productTabUnder' : 'productTab'}`}
+                                                            onClick={() => {
+                                                                if (!isEdit) {
+                                                                    setTab(3);
+                                                                    setPage(0);
+                                                                    setRowsPerPage(5);
+                                                                    filter ? getDataByFilter() : getData();
+                                                                }
+                                                            }}
+                                                        >
+                                                            <div className='statusTabtext'>Add Income Category</div>
+                                                        </div>
+
+                                                        <div
+                                                            className={`flex col-span-3 justify-center ${tab === 4 || tab === '4' ? 'tabDebit' : 'productTab'}`}
+                                                            onClick={() => {
+                                                                if (!isEdit) {
+                                                                    setTab(4);
+                                                                    filter ? getReportNetByFilter() : getReportNet();
+                                                                }
+                                                            }}
+                                                        >
+                                                            <div className='statusTabtext'>Net Business</div>
+                                                        </div>
+                                                    </>
+                                                ) : null}
                                             </div>
                                         </div>
-                                        {(tab === 1 || tab === '1' || tab === '4' || tab === 4) &&
+                                        {((tab === 1 || tab === '1' || tab === '4' || tab === 4) && SHOW_STATICS_RIGHTS.includes(userRole)) &&
                                             <div className='col-span-4 flex justify-end pr-4'>
                                                 <div className='dateRange text-center self-center' aria-describedby={ids} onClick={(e) => { if (!isEdit) { handleClick(e) } }}>
                                                     <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}

@@ -1128,7 +1128,7 @@ function StockInOut() {
                                                 name="productPrice"
                                                 id="outlined-required"
                                                 label="Product Price"
-                                                disabled={isEdit ? stockInFormData.isFullEdit ? false : true : false}
+                                                disabled={isEdit ? stockInFormData.isFullEdit ? true : true : true}
                                                 InputProps={{ style: { fontSize: 14 } }}
                                                 InputLabelProps={{ style: { fontSize: 14 } }}
                                                 fullWidth

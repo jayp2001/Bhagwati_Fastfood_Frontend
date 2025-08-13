@@ -19,6 +19,8 @@ import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import TextField from '@mui/material/TextField';
 import { ToastContainer, toast } from 'react-toastify';
+import { SHOW_STATICS_RIGHTS } from '../../../userRights';
+import { getUserRole } from '../../../utils/userRole';
 
 const style = {
     position: 'absolute',
@@ -41,7 +43,7 @@ function StaffCategoryTable() {
         staffCategoryId: '',
         staffCategoryPosition: '',
     })
-
+    const userRole = getUserRole();
     useEffect(() => {
         const handleKeyDown = (event) => {
             if (event.key === 'F10') {
@@ -328,10 +330,10 @@ function StaffCategoryTable() {
                                                     {row.numberOfActiveEmployee}
                                                 </TableCell>
                                                 <TableCell component="th" scope="row">
-                                                    {parseFloat(row.totalSalary ? row.totalSalary : 0).toLocaleString('en-IN')}
+                                                    {SHOW_STATICS_RIGHTS.includes(userRole) ? parseFloat(row.totalSalary ? row.totalSalary : 0).toLocaleString('en-IN') : "####"}
                                                 </TableCell>
                                                 <TableCell component="th" scope="row">
-                                                    {row.percentageOfTotalSalary}
+                                                    {SHOW_STATICS_RIGHTS.includes(userRole) ? row.percentageOfTotalSalary : "# %"}
                                                 </TableCell>
                                                 <TableCell component="th" scope="row">
                                                     {row.numberOfInActiveEmployee}

@@ -17,7 +17,8 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import ListAltIcon from '@mui/icons-material/ListAlt';
+import DirectionsBikeIcon from '@mui/icons-material/DirectionsBike';
+import PersonSearchIcon from '@mui/icons-material/PersonSearch';
 import DomainAddIcon from '@mui/icons-material/DomainAdd';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
@@ -38,7 +39,10 @@ import MoneyOffIcon from '@mui/icons-material/MoneyOff';
 import AllInboxIcon from '@mui/icons-material/AllInbox';
 import { BACKEND_BASE_URL } from '../../url';
 import axios from 'axios';
+import { getUserRole } from '../../utils/userRole';
+import { SHOW_STATICS_RIGHTS } from '../../userRights';
 function NavBar() {
+    const userRole = getUserRole();
     const location = useLocation();
     const decryptData = (text) => {
         const key = process.env.REACT_APP_AES_KEY;
@@ -387,14 +391,15 @@ function NavBar() {
                                                     <ListItemText primary={'Products'} />
                                                 </ListItemButton>
                                             </ListItem>
-                                            <ListItem key={9}>
-                                                <ListItemButton to="/productTable">
-                                                    <ListItemIcon>
-                                                        <ListAltOutlinedIcon />
-                                                    </ListItemIcon>
-                                                    <ListItemText primary={'Product Table'} />
-                                                </ListItemButton>
-                                            </ListItem>
+                                            {SHOW_STATICS_RIGHTS.includes(userRole) &&
+                                                <ListItem key={9}>
+                                                    <ListItemButton to="/productTable">
+                                                        <ListItemIcon>
+                                                            <ListAltOutlinedIcon />
+                                                        </ListItemIcon>
+                                                        <ListItemText primary={'Product Table'} />
+                                                    </ListItemButton>
+                                                </ListItem>}
                                             <ListItem key={3}>
                                                 <ListItemButton to="/stockInOut">
                                                     <ListItemIcon>
@@ -419,14 +424,14 @@ function NavBar() {
                                                     <ListItemText primary={'Categories'} />
                                                 </ListItemButton>
                                             </ListItem>
-                                            <ListItem key={6}>
+                                            {SHOW_STATICS_RIGHTS.includes(userRole) && <ListItem key={6}>
                                                 <ListItemButton to="/transactionTable">
                                                     <ListItemIcon>
                                                         <AccountBalanceWalletIcon />
                                                     </ListItemIcon>
                                                     <ListItemText primary={'Transaction History'} />
                                                 </ListItemButton>
-                                            </ListItem>
+                                            </ListItem>}
                                         </>
                 }
             </List>
@@ -535,6 +540,57 @@ function NavBar() {
         </Box>
     );
 
+    const deliveryPickup = (anchor) => (
+        <Box
+            sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 300, color: 'gray' }}
+            role="presentation"
+            onClick={toggleDrawer(anchor, false)}
+            onKeyDown={toggleDrawer(anchor, false)}
+        >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', backgroundColor: '#333', color: '#fff' }}>
+                <div style={{ fontSize: 27 }}><InventoryIcon fontSize='large' />&nbsp;&nbsp;Delivery Point</div>
+                <Button onClick={toggleDrawer(anchor, false)} color="inherit">
+                    <ArrowBackIcon fontSize='small' />
+                </Button>
+            </Box>
+            <Divider />
+            <List>
+                <ListItem key={1}>
+                    <ListItemButton to="/dashboard">
+                        <ListItemIcon>
+                            <DashboardIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={'Dashboard'} />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem key={2}>
+                    <ListItemButton to="/deliveryManagement/Dashboard">
+                        <ListItemIcon>
+                            <DirectionsBikeIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={'Delivery Console'} />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem key={3}>
+                    <ListItemButton to="/deliveryManagement/DeliveryMan">
+                        <ListItemIcon>
+                            <PersonSearchIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={'Delivery Man'} />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem key={4}>
+                    <ListItemButton to="/deliveryManagement/tokenViewForMobile">
+                        <ListItemIcon>
+                            <StyleOutlinedIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={'Token Ready'} />
+                    </ListItemButton>
+                </ListItem>
+            </List>
+        </Box>
+    );
+
 
     const navigate = useNavigate();
     const logout = () => {
@@ -595,55 +651,7 @@ function NavBar() {
         });
         setError(false);
     }
-
-    const navbar = () => {
-        if (location.pathname != '/deliveryManagement/tokenView') {
-            return (<div className="navBar grid content-center">
-                <div className='flex justify-between h-full'>
-                    <div className='logoWrp flex h-full'>
-                        {
-                            location.pathname.split('/')[1] != 'dashboard' ?
-                                <div className='h-full grid content-center'>
-                                    <div>
-                                        {['left'].map((anchor) => (
-                                            <React.Fragment key={anchor}>
-                                                <Button onClick={toggleDrawer(anchor, true)}><MenuIcon fontSize='large' style={{ color: 'black' }} /></Button>
-                                                <Drawer
-                                                    anchor={anchor}
-                                                    open={state[anchor]}
-                                                    onClose={toggleDrawer(anchor, false)}
-                                                >
-                                                    {list(anchor)}
-                                                </Drawer>
-                                            </React.Fragment>
-                                        ))}
-                                    </div>
-                                </div>
-                                : null
-                        }
-                        <div>
-                            <img className='headerImg' src={bhagwatiHeaderLogo} alt='No Image Found' />
-                        </div>
-                    </div>
-                    <div className='logoutWrp flex justify-end'>
-                        {
-                            <div className='greeting h-full grid content-center mr-24'>
-                                {role != 6 ? greetMsg + ', ' + user?.userName : ''}
-                            </div>
-                        }
-                        <button className='h-full grid content-center' onClick={logout}>
-                            <LogoutIcon fontSize='medium' />
-                        </button>
-                    </div>
-                </div>
-                <ToastContainer />
-            </div>)
-        }
-        else {
-            <></>
-        }
-    }
-
+    console.log('LL', location.pathname.split('/')[1], location.pathname.split('/'))
     return (
         // navbar()
         <div className="navBar grid content-center">
@@ -661,7 +669,7 @@ function NavBar() {
                                                 open={state[anchor]}
                                                 onClose={toggleDrawer(anchor, false)}
                                             >
-                                                {location.pathname.split('/')[1] == 'hotel' ? hotel(anchor) : location.pathname.split('/')[1] == 'menu' ? menu(anchor) : list(anchor)}
+                                                {location.pathname.split('/')[1] == 'deliveryManagement' || location.pathname.split('/')[1] == 'DeliveryManagement' ? deliveryPickup(anchor) : location.pathname.split('/')[1] == 'hotel' ? hotel(anchor) : location.pathname.split('/')[1] == 'menu' ? menu(anchor) : list(anchor)}
                                             </Drawer>
                                         </React.Fragment>
                                     ))}

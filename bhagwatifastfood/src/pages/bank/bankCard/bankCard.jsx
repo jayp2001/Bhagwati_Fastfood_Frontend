@@ -1,6 +1,6 @@
 import './bankCard.css'
-import deliveryBoyLogo from '../../../assets/deliveryBoy.svg'
-import bhagwatiLogo from '../../../assets/bhagwatiLogo.png';
+import { SHOW_STATICS_RIGHTS } from "../../../userRights";
+import { getUserRole } from "../../../utils/userRole";
 import BOB from '../../../assets/bank/BOBBANK.png';
 import CentralBank from '../../../assets/bank/CENTRALBANK.png';
 import DenaBank from '../../../assets/bank/DENABANK.webp';
@@ -16,8 +16,10 @@ import caterers from '../../../assets/bank/caterers.png';
 import school from '../../../assets/bank/school.png';
 import spareBalnce from '../../../assets/bank/balanceSheep.png';
 import exchange from '../../../assets/bank/exchange.png';
+import { ro } from 'date-fns/locale';
 
 function BankCard(props) {
+    const userRole = getUserRole();
     const getImg = (imgname) => {
         switch (imgname) {
             case 'BOB':
@@ -65,7 +67,7 @@ function BankCard(props) {
                         Available Balance
                     </div>
                     <div className={`statacticsDisplayDisplay ${props.data.availableBalance ? props.data.availableBalance < 0 ? 'redText' : props.data.availableBalance > 0 ? 'greenText' : '' : ''}`} >
-                        {parseFloat(props.data.availableBalance).toLocaleString('en-IN')}
+                        {SHOW_STATICS_RIGHTS.includes(userRole) ? parseFloat(props.data.availableBalance).toLocaleString('en-IN') : "####"}
                     </div>
                 </div>
             </div>

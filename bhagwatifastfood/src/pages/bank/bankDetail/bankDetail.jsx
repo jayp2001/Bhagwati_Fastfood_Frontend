@@ -1,5 +1,7 @@
 import './bankDetail.css';
 import { useState, useEffect } from "react";
+import { SHOW_STATICS_RIGHTS } from '../../../userRights';
+import { getUserRole } from '../../../utils/userRole';
 import React from "react";
 import { BACKEND_BASE_URL } from '../../../url';
 import axios from 'axios';
@@ -71,6 +73,7 @@ const style = {
 
 function BankDetail() {
     const regex = /^-?\d*(?:\.\d*)?$/;
+    const userRole = getUserRole();
 
     let { id } = useParams();
     const [tab, setTab] = React.useState(1);
@@ -1202,7 +1205,7 @@ function BankDetail() {
                                                 <Tooltip title={row.transactionType} placement="top-start" arrow>
                                                     <TableCell align="left" >{row.transactionType == 'CREDIT' ? <CreditIcon sx={{ color: 'green' }} /> : <DebitIcon sx={{ color: 'red' }} />}</TableCell>
                                                 </Tooltip>
-                                                <TableCell align="left"  >₹ {parseFloat(row.balance ? row.balance : 0).toLocaleString('en-IN')}</TableCell>
+                                                <TableCell align="left"  >₹ {SHOW_STATICS_RIGHTS.includes(userRole) ? parseFloat(row.balance ? row.balance : 0).toLocaleString('en-IN') : "####"}</TableCell>
                                                 {/* {row.transactionType} */}
                                                 <TableCell align="right">
                                                     <BankTransactionMenu data={row} handleEditExpense={handleEditExpense} handleDeleteBank={handleDeleteBank} handleEditTransaction={handleEditTransaction} handleDeleteExpense={handleDeleteExpense} />

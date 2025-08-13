@@ -26,6 +26,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import Popover from '@mui/material/Popover';
 import SearchIcon from '@mui/icons-material/Search';
+import { getUserRole } from '../../../utils/userRole';
+import { SHOW_STATICS_RIGHTS } from '../../../userRights';
 
 const styleStockIn = {
     position: 'absolute',
@@ -77,6 +79,7 @@ function StaffList() {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const ids = open ? 'simple-popover' : undefined;
+    const userRole = getUserRole();
     const config = {
         headers: {
             "Content-Type": "application/json",

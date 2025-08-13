@@ -51,6 +51,9 @@ import ExpenseMenu from "./menu/menuExpense";
 import { useParams } from 'react-router-dom';
 import ExportMenu from '../exportMenu/exportMenu';
 import CountCard from '../countCard/countCard';
+import { getUserRole } from '../../../utils/userRole';
+import { SHOW_STATICS_RIGHTS } from '../../../userRights';
+
 const style = {
     position: 'absolute',
     top: '50%',
@@ -67,6 +70,7 @@ const style = {
 };
 
 function ExpenseTableSubCategory() {
+    const userRole = getUserRole();
     const regex = /^-?\d*(?:\.\d*)?$/;
 
     const { categoryName, categoryId, subCategoryId, subCategoryName } = useParams()

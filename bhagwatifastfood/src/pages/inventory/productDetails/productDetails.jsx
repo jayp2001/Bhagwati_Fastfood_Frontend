@@ -40,8 +40,11 @@ import { DesktopDatePicker } from '@mui/x-date-pickers/DesktopDatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import MenuItem from '@mui/material/MenuItem';
 import { ToastContainer, toast } from 'react-toastify';
+import { SHOW_STATICS_RIGHTS } from '../../../userRights';
+import { getUserRole } from '../../../utils/userRole';
 
 function ProductDetails() {
+    const userRole = getUserRole();
     var customParseFormat = require('dayjs/plugin/customParseFormat')
     dayjs.extend(customParseFormat)
     const [loading, setLoading] = React.useState(false);
@@ -1097,12 +1100,6 @@ function ProductDetails() {
                                 <div className='col-span-3'>
                                     <CountCard color={'yellow'} count={statisticsCount && statisticsCount.minProductQty ? statisticsCount.minProductQty : 0} desc={'Min Product Qty'} productDetail={true} unitDesc={unit} />
                                 </div>
-                                {/* <div className='col-span-3'>
-                                    <CountCard color={'green'} count={statisticsCount && statisticsCount.totalBusinessOfCash ? statisticsCount.totalBusinessOfCash : 0} desc={'Total Cash'} />
-                                </div>
-                                <div className='col-span-3'>
-                                    <CountCard color={'yellow'} count={statisticsCount && statisticsCount.totalProduct ? statisticsCount.totalProduct : 0} desc={'Total Product'} />
-                                </div> */}
                             </div>
                         </div> :
                         tab === 2 || tab === '2' ?
@@ -1244,7 +1241,7 @@ function ProductDetails() {
                                             error={stockInFormDataError.productPrice}
                                             helperText={stockInFormDataError.productPrice ? "Enter Price" : ''}
                                             name="productPrice"
-                                            disabled={isEdit ? stockInFormData.isFullEdit ? false : true : false}
+                                            disabled={isEdit ? stockInFormData.isFullEdit ? true : true : true}
                                             id="outlined-required"
                                             label="Product Price"
                                             InputProps={{ style: { fontSize: 14 } }}

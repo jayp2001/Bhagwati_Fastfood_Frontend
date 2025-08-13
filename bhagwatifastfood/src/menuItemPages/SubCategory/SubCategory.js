@@ -34,6 +34,8 @@ import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import AlarmIcon from '@mui/icons-material/Alarm';
 import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
+import { SHOW_STATICS_RIGHTS } from '../../userRights';
+import { getUserRole } from '../../utils/userRole';
 
 const Fade = React.forwardRef(function Fade(props, ref) {
     const {
@@ -96,7 +98,7 @@ function SubCategory() {
             Authorization: `Bearer ${userInfo.token}`,
         },
     };
-
+    const userRole = getUserRole();
     const [anchorEl, setAnchorEl] = React.useState(null);
     const openD = Boolean(anchorEl);
     const id = openD ? 'simple-popover' : undefined;
@@ -692,7 +694,7 @@ function SubCategory() {
                                                 {category.displayRank}
                                             </TableCell>
                                             <TableCell component="th" scope="row">
-                                                {parseFloat(category.totalRs ? category.totalRs : 0).toLocaleString('en-IN')}
+                                                {SHOW_STATICS_RIGHTS.includes(userRole) ? parseFloat(category.totalRs ? category.totalRs : 0).toLocaleString('en-IN') : "####"}
                                             </TableCell>
                                             <TableCell>
                                                 {category.subCategoryName ? (

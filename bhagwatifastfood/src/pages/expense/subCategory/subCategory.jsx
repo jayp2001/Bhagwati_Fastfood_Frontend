@@ -37,6 +37,8 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import ExportMenu from '../exportMenu/exportMenu';
 import InputAdornment from '@mui/material/InputAdornment';
 import SearchIcon from '@mui/icons-material/Search';
+import { getUserRole } from '../../../utils/userRole';
+import { SHOW_STATICS_RIGHTS } from '../../../userRights';
 
 const style = {
     position: 'absolute',
@@ -54,6 +56,7 @@ const style = {
 };
 
 function SubCategoryTable() {
+    const userRole = getUserRole();
     const { categoryName, categoryId } = useParams()
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
@@ -466,7 +469,7 @@ function SubCategoryTable() {
                                         //     }
                                         // ])
                                     }}>
-                                        <div className='statusTabtext'>Sub Catagories for {categoryName}&nbsp;&nbsp; ||&nbsp;&nbsp;&nbsp;Total Expense : {parseFloat(totalExpense ? totalExpense : 0).toLocaleString('en-IN')}</div>
+                                        <div className='statusTabtext'>Sub Catagories for {categoryName}&nbsp;&nbsp; ||&nbsp;&nbsp;&nbsp;Total Expense : {SHOW_STATICS_RIGHTS.includes(userRole) ? parseFloat(totalExpense ? totalExpense : 0).toLocaleString('en-IN') : "##"}</div>
                                     </div>
                                     {/* <div className={`flex col-span-3 justify-center ${tab === 2 || tab === '2' ? 'productTabOut' : 'productTab'}`} onClick={() => {
                                         setTab(2);
@@ -635,8 +638,8 @@ function SubCategoryTable() {
                                                     <TableCell component="th" scope="row" onClick={() => { navigateToDetail(categoryName, row.subCategoryName, categoryId, row.subCategoryId) }}>
                                                         {row.subCategoryName}
                                                     </TableCell>
-                                                    <TableCell align="right" onClick={() => { navigateToDetail(categoryName, row.subCategoryName, categoryId, row.subCategoryId) }}>{parseFloat(row.expenseAmt ? row.expenseAmt : 0).toLocaleString('en-IN')}</TableCell>
-                                                    <TableCell align="right" onClick={() => { navigateToDetail(categoryName, row.subCategoryName, categoryId, row.subCategoryId) }}>{row.expPercentage}</TableCell>
+                                                    <TableCell align="right" onClick={() => { navigateToDetail(categoryName, row.subCategoryName, categoryId, row.subCategoryId) }}>{SHOW_STATICS_RIGHTS.includes(userRole) ? parseFloat(row.expenseAmt ? row.expenseAmt : 0).toLocaleString('en-IN') : "####"}</TableCell>
+                                                    <TableCell align="right" onClick={() => { navigateToDetail(categoryName, row.subCategoryName, categoryId, row.subCategoryId) }}>{SHOW_STATICS_RIGHTS.includes(userRole) ? row.expPercentage : "##"}</TableCell>
                                                     <TableCell align="right" ><div className=''><button className='editCategoryBtn mr-6' onClick={() => handleEdit(row.subCategoryId, row.subCategoryName)}>Edit</button><button className='deleteCategoryBtn' onClick={() => handleDelete(row.subCategoryId)}>Delete</button></div></TableCell>
                                                     <TableCell align="right">
                                                     </TableCell>

@@ -16,8 +16,11 @@ import DeliveryDiningIcon from '@mui/icons-material/DeliveryDining';
 import FoodBankIcon from '@mui/icons-material/FoodBank';
 import DirectionsRunIcon from '@mui/icons-material/DirectionsRun';
 import AlarmIcon from '@mui/icons-material/Alarm';
+import { SHOW_STATICS_RIGHTS } from '../../../userRights';
+import { getUserRole } from '../../../utils/userRole';
 
 function CountCard(props) {
+    const userRole = getUserRole();
     const getImg = (imgname) => {
         switch (imgname) {
             case 'Total Purchase':

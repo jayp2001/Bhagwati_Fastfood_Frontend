@@ -15,7 +15,11 @@ import CreditScoreOutlinedIcon from '@mui/icons-material/CreditScoreOutlined';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 import BalanceIcon from '@mui/icons-material/Balance';
+import { SHOW_STATICS_RIGHTS } from '../../../../userRights';
+import { getUserRole } from '../../../../utils/userRole';
+
 function CountCard(props) {
+    const userRole = getUserRole();
     const getImg = (imgname) => {
         switch (imgname) {
             case 'Total Purchase':
@@ -59,7 +63,7 @@ function CountCard(props) {
             </div>
             <div className='self-center w-full'>
                 <div className='countText'>
-                    <span>{props.productDetail ? props.unitDesc === 0 ? <CurrencyRupeeIcon fontSize='large' /> : '' : ''}</span> {parseFloat(props.count ? props.count : 0).toLocaleString('en-IN')} <span className='unitDisplay'>{props.productDetail ? props.unitDesc !== 0 ? props.unitDesc : '' : ''}</span>
+                    <span>{props.productDetail ? props.unitDesc === 0 ? <CurrencyRupeeIcon fontSize='large' /> : '' : ''}</span> {SHOW_STATICS_RIGHTS.includes(userRole) ? parseFloat(props.count ? props.count : 0).toLocaleString('en-IN') : "####"} <span className='unitDisplay'>{props.productDetail ? props.unitDesc !== 0 ? props.unitDesc : '' : ''}</span>
                 </div>
                 <div className='countDescription'>
                     {props.desc}

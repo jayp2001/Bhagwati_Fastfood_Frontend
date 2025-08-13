@@ -28,6 +28,8 @@ import Autocomplete from "@mui/material/Autocomplete";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
 import { setISODay } from 'date-fns';
+import { SHOW_STATICS_RIGHTS } from '../../userRights';
+import { getUserRole } from '../../utils/userRole';
 
 const styleStockIn = {
     position: 'absolute',
@@ -73,6 +75,7 @@ const styleGave = {
 };
 
 function DueAccounts() {
+    const userRole = getUserRole();
     const [searchWord, setSearchWord] = React.useState('');
     const [accountList, setAccountList] = useState([]);
     const [totalDue, setTotalDue] = useState(0);
@@ -572,7 +575,7 @@ function DueAccounts() {
                                     Due Accounts List
                                 </div>
                                 <div>
-                                    Total Remaining Payment : {parseInt(totalDue ? totalDue : 0).toLocaleString('en-IN')}
+                                    Total Remaining Payment : {SHOW_STATICS_RIGHTS.includes() ? parseInt(totalDue ? totalDue : 0).toLocaleString('en-IN') : "####"}
                                 </div>
                             </div>
                         </div>

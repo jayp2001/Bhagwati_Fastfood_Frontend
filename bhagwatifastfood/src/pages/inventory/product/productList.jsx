@@ -898,6 +898,7 @@ function ProductList() {
                         </div>
                         <div className='col-span-3'>
                             <TextField
+                                disabled
                                 onBlur={(e) => {
                                     if (e.target.value < 0) {
                                         setStockInFormDataError((perv) => ({

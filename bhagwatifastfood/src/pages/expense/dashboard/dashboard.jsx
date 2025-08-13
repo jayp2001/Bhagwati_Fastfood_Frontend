@@ -50,6 +50,9 @@ import BankMenu from '../../bank/dashboard/menu/menuBank';
 import dayjs from 'dayjs';
 import ExpenseMenu from "./menu/menuExpense";
 import ExportMenu from '../exportMenu/exportMenu';
+import { getUserRole } from "../../../utils/userRole";
+import { SHOW_STATICS_RIGHTS } from "../../../userRights";
+
 const style = {
     position: 'absolute',
     top: '50%',
@@ -65,6 +68,7 @@ const style = {
     borderRadius: '10px'
 };
 function ExpenseDashboard() {
+    const userRole = getUserRole();
     const regex = /^-?\d*(?:\.\d*)?$/;
     const emailRegx = /^[a-zA-Z0-9_\.\+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-\.]+$/;
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
@@ -1413,12 +1417,17 @@ function ExpenseDashboard() {
                                                         {/* <TableCell align="right" onClick={() => navigateToDetail(row.categoryName, row.categoryId)}>{parseFloat(row.outPrice ? row.outPrice : 0).toLocaleString('en-IN')}</TableCell> */}
                                                         <TableCell align="left" onClick={() => navigateToDetail(row.categoryName, row.categoryId)} >{row.categoryIconName}</TableCell>
                                                         <TableCell align="right" scope="row" onClick={() => navigateToDetail(row.categoryName, row.categoryId)}>
-                                                            {parseFloat(row.expenseAmt ? row.expenseAmt : 0).toLocaleString('en-IN')}
+                                                            {SHOW_STATICS_RIGHTS.includes(userRole) ? parseFloat(row.expenseAmt ? row.expenseAmt : 0).toLocaleString('en-IN') : "####"}
                                                         </TableCell>
                                                         <TableCell align="right" scope="row" onClick={() => navigateToDetail(row.categoryName, row.categoryId)}>
-                                                            {row.categoryPercentage}
+                                                            {SHOW_STATICS_RIGHTS.includes(userRole) ? row.categoryPercentage : "##"}
                                                         </TableCell>
-                                                        <TableCell align="right" ><div className=''><button className='editCategoryBtn mr-6' onClick={() => handleEdit(row.categoryId, row.categoryName, row.categoryIconName)}>Edit</button><button className='deleteCategoryBtn' onClick={() => handleDelete(row.categoryId)}>Delete</button></div></TableCell>
+                                                        <TableCell align="right" >
+                                                            <div className=''>
+                                                                <button className='editCategoryBtn mr-6' onClick={() => handleEdit(row.categoryId, row.categoryName, row.categoryIconName)}>Edit</button>
+                                                                <button className='deleteCategoryBtn' onClick={() => handleDelete(row.categoryId)}>Delete</button>
+                                                            </div>
+                                                        </TableCell>
                                                     </TableRow> :
                                                     <TableRow
                                                         key={row.userId}

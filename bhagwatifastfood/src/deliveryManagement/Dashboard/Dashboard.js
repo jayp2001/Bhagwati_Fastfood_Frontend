@@ -50,6 +50,7 @@ const Dashboard = () => {
     const tokenRef = useRef(null);
     const commentRef = useRef(null)
     const priceRef = useRef(null)
+    const deliveryManSelectRef = useRef(null)
     const ITEM_HEIGHT = 48;
 
 
@@ -131,6 +132,14 @@ const Dashboard = () => {
         };
     }, []);
 
+    useEffect(() => {
+        if (deliveryStaticCard && deliveryManSelectRef.current) {
+            // Small delay to ensure the DOM is rendered
+            setTimeout(() => {
+                deliveryManSelectRef.current.focus();
+            }, 100);
+        }
+    }, [deliveryStaticCard]);
 
 
     const handleDesiredAmountChange = (e) => {
@@ -812,6 +821,7 @@ const Dashboard = () => {
                                                                 setDeliveryManId(selectedPerson?.personId || '');
                                                                 setDeliveryManName(selectedPerson?.personName || '')
                                                             }}
+                                                            ref={deliveryManSelectRef}
                                                         >
                                                             <option value="" disabled>Delivery Man</option>
                                                             {deliveryManData && deliveryManData.map((val, index) => (

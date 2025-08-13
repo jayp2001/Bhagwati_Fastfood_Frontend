@@ -3,9 +3,6 @@ import { BACKEND_BASE_URL, SOCKET_URL } from '../../url';
 import axios from 'axios';
 import io from 'socket.io-client';
 import Video from './with_you.mp4';
-import FullScreenVideo from './videoPlayer';
-import './video.css'
-import MenuIcon from '@mui/icons-material/Menu';
 import LogoutIcon from '@mui/icons-material/Logout';
 import bhagwatiHeaderLogo from '../../assets/bhagwatiHeaderLogo.png';
 import bhagwatiLogo from '../../assets/bhagwatiLogo.png';
@@ -293,7 +290,7 @@ const TokenView = () => {
                         style={{
                             width: '100%',
                             height: '100%',
-                            objectFit: 'cover'
+                            objectFit: 'fill'
                         }}
                     />
                 </div>
