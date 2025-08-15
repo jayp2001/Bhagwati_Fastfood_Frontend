@@ -1,16 +1,31 @@
 import ConsoleCard from "./component/consoleCard/consoleCard";
 import './dashboard.css';
 import { useNavigate, useLocation, Navigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import jwt_decode from 'jwt-decode';
 import CryptoJS from 'crypto-js';
-import { getUserRole } from "../../../utils/userRole";
 
+const consoleCards = [
+    { name: "Inventory", imgName: 'img11', path: '/productList', roles: [1, 2] },
+    { name: "Staff Salary", imgName: 'staff', path: '/staff/staffList', roles: [1, 2] },
+    { name: "Expense", imgName: 'expense', path: '/expense/dashboard', roles: [1, 2] },
+    { name: "Banks", imgName: 'bank', path: '/bank/dashboard', roles: [1, 2] },
+    { name: "Business Report", imgName: 'report', path: '/businessReport', roles: [1, 2] },
+    { name: "Add User", imgName: 'userAdd', path: '/addUser', roles: [1] },
+    { name: "User List", imgName: 'userList', path: '/userTable', roles: [1] },
+    { name: "Hotels", imgName: 'hotel', path: '/hotel/hotelTable', roles: [1] },
+    { name: "Delivery Console", imgName: 'delivery', path: '/deliveryManagement/Dashboard', roles: [1, 2, 3] },
+    { name: "Delivery Man", imgName: 'deliveryMen', path: '/deliveryManagement/DeliveryMan', roles: [1, 2, 3] },
+    { name: "Token Ready", imgName: 'mobileView', path: '/deliveryManagement/tokenViewForMobile', roles: [1, 2, 3] },
+    { name: "Token Display", imgName: 'scoreboard', path: '/deliveryManagement/tokenView', roles: [1, 2, 3] },
+    { name: "Menu", imgName: 'Menu', path: '/menu/Dashboard', roles: [1, 2] },
+    { name: "Khata Book", imgName: 'khatabook', path: '/due/account', roles: [1, 2] },
+    { name: "Sales Report", imgName: 'sales', path: '/menu/salesReport', roles: [1] },
+    { name: "Analyzes", imgName: 'analyze', path: '/category/analyze', roles: [1] }
+];
 function Dashboard() {
     const navigate = useNavigate();
-    const userRole = getUserRole();
-
-    const [value, setValue] = useState({ startDate: null, endDate: null });
+    const location = useLocation();
 
     const decryptData = (text) => {
         const key = process.env.REACT_APP_AES_KEY;
@@ -19,53 +34,33 @@ function Dashboard() {
     };
 
     const user = JSON.parse(localStorage.getItem('userInfo'));
-    let location = useLocation();
+
+    // ✅ still safe: hooks always run before return
+    const role = user?.userRights ? Number(decryptData(user.userRights)) : null;
+    const decoded = user ? jwt_decode(user.token) : null;
+    const expirationTime = decoded ? decoded.exp * 1000 - 60000 : null;
+
+    const allowedCards = useMemo(() => {
+        if (!role) return [];
+        return consoleCards.filter(
+            card => !card.roles?.length || card.roles.includes(role)
+        );
+    }, [role]);
 
     if (!user) {
         return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
-    const role = user.userRights ? decryptData(user.userRights) : '';
-    const decoded = jwt_decode(user.token);
-    const expirationTime = decoded.exp * 1000 - 60000; // minus 1 minute
-
-    // Generic navigation handler
-    const handleNavigation = (path, allowedRoles = []) => {
-        const isTokenValid = new Date(expirationTime) > new Date();
-        const isRoleAllowed = allowedRoles.length === 0 || allowedRoles.includes(role);
-
-        if (isTokenValid && isRoleAllowed) {
+    const handleNavigation = (path) => {
+        const isTokenValid = expirationTime && new Date(expirationTime) > new Date();
+        if (isTokenValid) {
             navigate(path);
         } else {
-            if (window.confirm("You are not Authorised. You want to Login again ?")) {
+            if (window.confirm("Session expired. Do you want to Login again ?")) {
                 navigate('/login');
             }
         }
     };
-
-    // All console cards in one config array
-    const consoleCards = [
-        { name: "Inventory", imgName: 'img11', path: '/productList', roles: [1, 2] },
-        { name: "Staff Salary", imgName: 'staff', path: '/staff/staffList', roles: [1, 2] },
-        { name: "Expense", imgName: 'expense', path: '/expense/dashboard', roles: [1, 2] },
-        { name: "Banks", imgName: 'bank', path: '/bank/dashboard', roles: [1, 2] },
-        { name: "Business Report", imgName: 'report', path: '/businessReport', roles: [1, 2] },
-        { name: "Add User", imgName: 'userAdd', path: '/addUser', roles: [1] },
-        { name: "User List", imgName: 'userList', path: '/userTable', roles: [1] },
-        { name: "Hotels", imgName: 'hotel', path: '/hotel/hotelTable', roles: [1] },
-        { name: "Delivery Console", imgName: 'delivery', path: '/deliveryManagement/Dashboard', roles: [1, 2, 3] },
-        { name: "Delivery Man", imgName: 'deliveryMen', path: '/deliveryManagement/DeliveryMan', roles: [1, 2, 3] },
-        { name: "Token Ready", imgName: 'mobileView', path: '/deliveryManagement/tokenViewForMobile', roles: [1, 2, 3] },
-        { name: "Token Display", imgName: 'scoreboard', path: '/deliveryManagement/tokenView', roles: [1, 2, 3] },
-        { name: "Menu", imgName: 'Menu', path: '/menu/Dashboard', roles: [1, 2] },
-        { name: "Khata Book", imgName: 'khatabook', path: '/due/account', roles: [1, 2] },
-        { name: "Sales Report", imgName: 'sales', path: '/menu/salesReport', roles: [1] },
-        { name: "Analyzes", imgName: 'analyze', path: '/category/analyze', roles: [1] }
-    ];
-    const allowedCards = consoleCards.filter(card => {
-        if (!card.roles || card.roles.length === 0) return true;
-        return card.roles.includes(role);
-    });
 
     return (
         <div className='mainBody'>
@@ -75,7 +70,7 @@ function Dashboard() {
                         {allowedCards.map((card, index) => (
                             <ConsoleCard
                                 key={index}
-                                goToAddUSer={() => handleNavigation(card.path, card.roles)}
+                                goToAddUSer={() => handleNavigation(card.path)}
                                 name={card.name}
                                 imgName={card.imgName}
                             />
@@ -88,8 +83,8 @@ function Dashboard() {
                 )}
             </div>
         </div>
-
     );
 }
+
 
 export default Dashboard;
