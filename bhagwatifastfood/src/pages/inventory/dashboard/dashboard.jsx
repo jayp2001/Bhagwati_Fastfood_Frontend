@@ -18,8 +18,11 @@ const consoleCards = [
     { name: "Delivery Man", imgName: 'deliveryMen', path: '/deliveryManagement/DeliveryMan', roles: [1, 2, 3] },
     { name: "Token Ready", imgName: 'mobileView', path: '/deliveryManagement/tokenViewForMobile', roles: [1, 2, 3] },
     { name: "Token Display", imgName: 'scoreboard', path: '/deliveryManagement/tokenView', roles: [1, 2, 3] },
+    { name: "Comment", imgName: 'comment', path: '/comment', roles: [1] },
+    { name: "UPI", imgName: 'UPI', path: '/upi', roles: [1] },
     { name: "Menu", imgName: 'Menu', path: '/menu/Dashboard', roles: [1, 2] },
     { name: "Khata Book", imgName: 'khatabook', path: '/due/account', roles: [1, 2] },
+    { name: "Firm", imgName: 'firm', path: '/firmList', roles: [1] },
     { name: "Sales Report", imgName: 'sales', path: '/menu/salesReport', roles: [1] },
     { name: "Analyzes", imgName: 'analyze', path: '/category/analyze', roles: [1] }
 ];
@@ -66,7 +69,7 @@ function Dashboard() {
         <div className='mainBody'>
             <div className="cardWrp relative">
                 {allowedCards.length > 0 ? (
-                    <div className="grid lg:grid-cols-3 mobile:grid-cols-2 tablet1:grid-cols-3 tablet:grid-cols-4 laptop:grid-cols-5 desktop1:grid-cols-6 desktop2:grid-cols-7 desktop2:grid-cols-8 gap-6">
+                    <div className="grid grid-cols-2 min-[640px]:grid-cols-3 min-[768px]:grid-cols-4 min-[1024px]:grid-cols-5 min-[1280px]:grid-cols-6 min-[1536px]:grid-cols-7 min-[1920px]:grid-cols-8 gap-x-4 gap-y-6">
                         {allowedCards.map((card, index) => (
                             <ConsoleCard
                                 key={index}

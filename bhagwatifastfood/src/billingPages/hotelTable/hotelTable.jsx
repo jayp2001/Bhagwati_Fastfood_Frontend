@@ -513,19 +513,9 @@ function HotelTable() {
             .then((res) => {
                 setSuccess(true);
                 setLoading(false);
-                setTab('')
-                setPage(0);
-                setRowsPerPage(10);
-                // setFilter(false);
-                // setState([
-                //     {
-                //         startDate: new Date(),
-                //         endDate: new Date(),
-                //         key: 'selection'
-                //     }
-                // ])
-                // getCountData();
-                getAllData();
+                setTab('');
+                // Refresh data on current page
+                getAllDataOnPageChange(page + 1, rowsPerPage);
                 handleCloseAddHotel();
             })
             .catch((error) => {

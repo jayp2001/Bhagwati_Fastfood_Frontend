@@ -1010,7 +1010,7 @@ function HotelDetails() {
                                         value={formData.paidAmount ? formData.paidAmount : 0}
                                         error={formDataError.paidAmount}
                                         // helperText={formData.supplierName && !formDataError.productQty ? `Remain Payment  ${formData.remainingAmount}` : formDataError.paidAmount ? formData.paidAmount > formData.remainingAmount ? `Payment Amount can't be more than ${formData.remainingAmount}` : "Please Enter Amount" : ''}
-                                        helperText={`Remaining Payment ${formData.remainingAmount}`}
+                                        helperText={`Remaining Payment ${formData.remainingAmount || 0}`}
                                         name="paidAmount"
                                         InputProps={{
                                             startAdornment: <InputAdornment position="start"><CurrencyRupeeIcon /></InputAdornment>,

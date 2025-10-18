@@ -1786,6 +1786,7 @@ function BankDashboard() {
                                             <MenuItem key={'POST'} value={'POST'}>{'POST Bank'}</MenuItem>
                                             <MenuItem key={'Other'} value={'Other'}>{'Other Bank'}</MenuItem>
                                             <MenuItem key={'caterers'} value={'caterers'}>{'Caterers'}</MenuItem>
+                                            <MenuItem key={'Gpay'} value={'Gpay'}>{'Gpay'}</MenuItem>
                                             <MenuItem key={'School'} value={'School'}>{'School'}</MenuItem>
                                             <MenuItem key={'spareBalnce'} value={'spareBalnce'}>{'Spare Balnce'}</MenuItem>
                                             <MenuItem key={'exchange'} value={'exchange'}>{'Exchange'}</MenuItem>
