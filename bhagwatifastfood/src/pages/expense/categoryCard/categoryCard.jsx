@@ -9,6 +9,7 @@ import inventory from '../../../assets/mainCategory/inventory.png';
 import mistake from '../../../assets/mainCategory/mistake.png';
 import renovate from '../../../assets/mainCategory/renovate.png';
 import restaurant from '../../../assets/mainCategory/restaurant.png';
+import family from '../../../assets/mainCategory/family.png';
 import tag from '../../../assets/mainCategory/tag.png';
 import { SHOW_STATICS_RIGHTS } from '../../../userRights';
 import { getUserRole } from '../../../utils/userRole';
@@ -38,6 +39,8 @@ function CategoryCard(props) {
                 return restaurant;
             case 'tag':
                 return tag;
+            case 'family':
+                return family;
             default:
                 return other1;
         }

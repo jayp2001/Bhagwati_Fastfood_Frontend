@@ -5,18 +5,22 @@ import img11 from '../../../../../assets/img11.png';
 import userAdd from '../../../../../assets/userAdd.png';
 import staff from '../../../../../assets/staff2.png';
 import expense from '../../../../../assets/expense.png';
+import comment from '../../../../../assets/billing/comment.png';
 import userList from '../../../../../assets/userList.png';
 import bank from '../../../../../assets/bank.png';
 import report from '../../../../../assets/report.png';
-import hotel from '../../../../../assets/billing/hotel.png'
+import hotel from '../../../../../assets/billing/hotel.png';
 import scoreboard from '../../../../../assets/billing/scoreboard.png';
 import delivery from '../../../../../assets/billing/delivery.png';
-import mobileView from '../../../../../assets/billing/smartphone.png'
-import deliveryMen from '../../../../../assets/billing/express.png'
-import khatabook from '../../../../../assets/billing/account.png'
-import sales from '../../../../../assets/billing/salesReport.png'
-import analyze from '../../../../../assets/billing/analyze.png'
-import Menu from '../../../../../assets/menu.png'
+import mobileView from '../../../../../assets/billing/smartphone.png';
+import deliveryMen from '../../../../../assets/billing/express.png';
+import khatabook from '../../../../../assets/billing/account.png';
+import sales from '../../../../../assets/billing/salesReport.png';
+import analyze from '../../../../../assets/billing/analyze.png';
+import Menu from '../../../../../assets/menu.png';
+import upi from '../../../../../assets/bank/scan.png';
+import firm from '../../../../../assets/firm.png';
+
 function ConsoleCard(props) {
     const getImg = (imgname) => {
         switch (imgname) {
@@ -50,6 +54,12 @@ function ConsoleCard(props) {
                 return analyze;
             case 'Menu':
                 return Menu;
+            case 'UPI':
+                return upi;
+            case 'comment':
+                return comment;
+            case 'firm':
+                return firm;
             default:
                 return userAdd;
         }

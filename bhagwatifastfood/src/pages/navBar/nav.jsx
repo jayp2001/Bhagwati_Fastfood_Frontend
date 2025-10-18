@@ -37,10 +37,15 @@ import CryptoJS from 'crypto-js';
 import { ToastContainer, toast } from 'react-toastify';
 import MoneyOffIcon from '@mui/icons-material/MoneyOff';
 import AllInboxIcon from '@mui/icons-material/AllInbox';
+import QrCodeIcon from '@mui/icons-material/QrCode';
 import { BACKEND_BASE_URL } from '../../url';
 import axios from 'axios';
 import { getUserRole } from '../../utils/userRole';
 import { SHOW_STATICS_RIGHTS } from '../../userRights';
+import BusinessIcon from '@mui/icons-material/Business';
+import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
+import PeopleIcon from '@mui/icons-material/People';
+
 function NavBar() {
     const userRole = getUserRole();
     const location = useLocation();
@@ -540,6 +545,165 @@ function NavBar() {
         </Box>
     );
 
+    const upiList = (anchor) => (
+        <Box
+            sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 300, color: 'gray' }}
+            role="presentation"
+            onClick={toggleDrawer(anchor, false)}
+            onKeyDown={toggleDrawer(anchor, false)}
+        >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', backgroundColor: '#333', color: '#fff' }}>
+                <div style={{ fontSize: 35 }}><InventoryIcon fontSize='large' />&nbsp;&nbsp;UPI</div>
+                <Button onClick={toggleDrawer(anchor, false)} color="inherit">
+                    <ArrowBackIcon fontSize='small' />
+                </Button>
+            </Box>
+            <Divider />
+            <List>
+                <ListItem key={1}>
+                    <ListItemButton to="/dashboard">
+                        <ListItemIcon>
+                            <DashboardIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={'Dashboard'} />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem key={2}>
+                    <ListItemButton to="/upi">
+                        <ListItemIcon>
+                            <QrCodeScannerIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={'UPI List'} />
+                    </ListItemButton>
+                </ListItem>
+            </List>
+        </Box>
+    );
+
+    const firmList = (anchor) => (
+        <Box
+            sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 300, color: 'gray' }}
+            role="presentation"
+            onClick={toggleDrawer(anchor, false)}
+            onKeyDown={toggleDrawer(anchor, false)}
+        >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', backgroundColor: '#333', color: '#fff' }}>
+                <div style={{ fontSize: 35 }}><InventoryIcon fontSize='large' />&nbsp;&nbsp;Firm</div>
+                <Button onClick={toggleDrawer(anchor, false)} color="inherit">
+                    <ArrowBackIcon fontSize='small' />
+                </Button>
+            </Box>
+            <Divider />
+            <List>
+                <ListItem key={1}>
+                    <ListItemButton to="/dashboard">
+                        <ListItemIcon>
+                            <DashboardIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={'Dashboard'} />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem key={2}>
+                    <ListItemButton to="/firmList">
+                        <ListItemIcon>
+                            <BusinessIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={'Firm List'} />
+                    </ListItemButton>
+                </ListItem>
+            </List>
+        </Box>
+    );
+
+    const dueList = (anchor) => (
+        <Box
+            sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 300, color: 'gray' }}
+            role="presentation"
+            onClick={toggleDrawer(anchor, false)}
+            onKeyDown={toggleDrawer(anchor, false)}
+        >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', backgroundColor: '#333', color: '#fff' }}>
+                <div style={{ fontSize: 30 }}><InventoryIcon fontSize='large' />&nbsp;&nbsp;Khata Book</div>
+                <Button onClick={toggleDrawer(anchor, false)} color="inherit">
+                    <ArrowBackIcon fontSize='small' />
+                </Button>
+            </Box>
+            <Divider />
+            <List>
+                <ListItem key={1}>
+                    <ListItemButton to="/dashboard">
+                        <ListItemIcon>
+                            <DashboardIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={'Dashboard'} />
+                    </ListItemButton>
+                </ListItem>
+                <ListItem key={2}>
+                    <ListItemButton to="/due/account">
+                        <ListItemIcon>
+                            <PeopleIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={'Customer List'} />
+                    </ListItemButton>
+                </ListItem>
+            </List>
+        </Box>
+    );
+
+    const commentList = (anchor) => (
+        <Box
+            sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 300, color: 'gray' }}
+            role="presentation"
+            onClick={toggleDrawer(anchor, false)}
+            onKeyDown={toggleDrawer(anchor, false)}
+        >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', backgroundColor: '#333', color: '#fff' }}>
+                <div style={{ fontSize: 35 }}><InventoryIcon fontSize='large' />&nbsp;&nbsp;Comment</div>
+                <Button onClick={toggleDrawer(anchor, false)} color="inherit">
+                    <ArrowBackIcon fontSize='small' />
+                </Button>
+            </Box>
+            <Divider />
+            <List>
+                <ListItem key={1}>
+                    <ListItemButton to="/dashboard">
+                        <ListItemIcon>
+                            <DashboardIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={'Dashboard'} />
+                    </ListItemButton>
+                </ListItem>
+            </List>
+        </Box>
+    );
+
+    const analysisList = (anchor) => (
+        <Box
+            sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 300, color: 'gray' }}
+            role="presentation"
+            onClick={toggleDrawer(anchor, false)}
+            onKeyDown={toggleDrawer(anchor, false)}
+        >
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', backgroundColor: '#333', color: '#fff' }}>
+                <div style={{ fontSize: 35 }}><InventoryIcon fontSize='large' />&nbsp;&nbsp;Analyse</div>
+                <Button onClick={toggleDrawer(anchor, false)} color="inherit">
+                    <ArrowBackIcon fontSize='small' />
+                </Button>
+            </Box>
+            <Divider />
+            <List>
+                <ListItem key={1}>
+                    <ListItemButton to="/dashboard">
+                        <ListItemIcon>
+                            <DashboardIcon />
+                        </ListItemIcon>
+                        <ListItemText primary={'Dashboard'} />
+                    </ListItemButton>
+                </ListItem>
+            </List>
+        </Box>
+    );
+
     const deliveryPickup = (anchor) => (
         <Box
             sx={{ width: anchor === 'top' || anchor === 'bottom' ? 'auto' : 300, color: 'gray' }}
@@ -590,7 +754,6 @@ function NavBar() {
             </List>
         </Box>
     );
-
 
     const navigate = useNavigate();
     const logout = () => {
@@ -669,7 +832,23 @@ function NavBar() {
                                                 open={state[anchor]}
                                                 onClose={toggleDrawer(anchor, false)}
                                             >
-                                                {location.pathname.split('/')[1] == 'deliveryManagement' || location.pathname.split('/')[1] == 'DeliveryManagement' ? deliveryPickup(anchor) : location.pathname.split('/')[1] == 'hotel' ? hotel(anchor) : location.pathname.split('/')[1] == 'menu' ? menu(anchor) : list(anchor)}
+                                                {location.pathname.split('/')[1] == 'deliveryManagement' || location.pathname.split('/')[1] == 'DeliveryManagement'
+                                                    ? deliveryPickup(anchor)
+                                                    : location.pathname.split('/')[1] == 'hotel'
+                                                        ? hotel(anchor)
+                                                        : location.pathname.split('/')[1] == 'menu'
+                                                            ? menu(anchor)
+                                                            : location.pathname.split('/')[1] == 'upi'
+                                                                ? upiList(anchor)
+                                                                : location.pathname.split('/')[1] == 'firmList'
+                                                                    ? firmList(anchor)
+                                                                    : location.pathname.split('/')[1] == 'comment'
+                                                                        ? commentList(anchor)
+                                                                        : location.pathname.split('/')[1] == 'category'
+                                                                            ? analysisList(anchor)
+                                                                            : location.pathname.split('/')[1] == 'due'
+                                                                                ? dueList(anchor)
+                                                                                : list(anchor)}
                                             </Drawer>
                                         </React.Fragment>
                                     ))}

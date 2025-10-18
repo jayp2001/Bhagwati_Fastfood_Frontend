@@ -69,6 +69,30 @@ const Dashboard = () => {
         getDeliveryManData();
         getDeliverCardData();
     }, []);
+
+    // F12 Keyboard Shortcut for handleAddCards
+    useEffect(() => {
+        const handleKeyDown = (event) => {
+            // Check if F12 is pressed (key code 123 or key === 'F12')
+            if (event.key === 'F12' || event.keyCode === 123) {
+                event.preventDefault(); // Prevent default browser behavior
+
+                // Only call handleAddCards if deliveryStaticCard is true AND deliveryManId is set
+                if (deliveryStaticCard && deliveryManId && itemList.length > 0) {
+                    handleAddCards();
+                }
+            }
+        };
+
+        // Add event listener
+        window.addEventListener('keydown', handleKeyDown);
+
+        // Cleanup on unmount
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [deliveryStaticCard, deliveryManId, itemList]); // Re-run when state changes
+
     const onSearchChange = (e) => {
         setSearchWord(e.target.value);
     };
@@ -117,13 +141,11 @@ const Dashboard = () => {
     };
     useEffect(() => {
         const handleKeyDown = (event) => {
-            if (event.ctrlKey && event.key === 'm') {
+            if (event.ctrlKey && (event.key === 'm' || event.key === 'M')) {
+                event.preventDefault(); // Prevent default browser behavior
                 setDeliveyStaticCard((prevState) => !prevState);
                 handleClose();
                 handleReset();
-                // if (tokenRef && tokenRef.current) {
-                //     tokenRef.current.focus();
-                // }
             }
         };
         window.addEventListener('keydown', handleKeyDown);
@@ -426,34 +448,7 @@ const Dashboard = () => {
                     desiredAmt: parseFloat(item.desiredAmount) || 0
                 }))
             };
-            // const data = {
-            //     "personId": "person_1719777904918",
-            //     "totalBillAmt": 200,
-            //     "totalChange": 0,
-            //     "totalDesiredAmt": 200,
-            //     "durationTime": "00:00:00",
-            //     "deliveryBillData": [
-            //         {
-            //             "billId": "",
-            //             "billAddress": "Cow Bill",
-            //             "deliveryType": "Other",
-            //             "billPayType": "cash",
-            //             "billAmt": 1000,
-            //             "billChange": 0,
-            //             "desiredAmt": 1000
-            //         },
-            //         {
-            //             "billId": "bill_1719757042089_2",
-            //             "billAddress": "Kevdawadi",
-            //             "deliveryType": "delivery",
-            //             "billPayType": "cash",
-            //             "billAmt": 100,
-            //             "billChange": 0,
-            //             "desiredAmt": 100
-            //         }
-            //     ]
-            // }
-            console.log('Final Data', data)
+
             await axios.post(`${BACKEND_BASE_URL}deliveryAndPickUprouter/addDeliveryData`, data, config)
                 .then((res) => {
                     console.log('Response Data', res)
@@ -476,7 +471,6 @@ const Dashboard = () => {
                         setUpdateDeliveryPopUpData(error.response.data)
                     }
                     else {
-                        setDeliveryManName('')
                         setError(error?.response?.data || 'Network Error!!..')
                     }
                     setLoading(false)
@@ -821,6 +815,14 @@ const Dashboard = () => {
                                                                 setDeliveryManId(selectedPerson?.personId || '');
                                                                 setDeliveryManName(selectedPerson?.personName || '')
                                                             }}
+                                                            onKeyDown={(e) => {
+                                                                if (e.key === 'Enter' && deliveryManId) {
+                                                                    e.preventDefault();
+                                                                    if (tokenRef && tokenRef.current) {
+                                                                        tokenRef.current.focus();
+                                                                    }
+                                                                }
+                                                            }}
                                                             ref={deliveryManSelectRef}
                                                         >
                                                             <option value="" disabled>Delivery Man</option>
@@ -994,22 +996,6 @@ const Dashboard = () => {
                                                                             disabled={!formData.token ? true : false}
                                                                         />
                                                                     </div>
-                                                                    {/* <div className="bottomHeaderBillNo col-span-3 mr-5">
-                                                                     <input
-                                                                         type="text"
-                                                                         placeholder="Desired Amount"
-                                                                         className="popoverSearch w-full p-1 rounded-md border border-black"
-                                                                         ref={desiredAmountRef}
-                                                                         value={formData.desiredAmount}
-                                                                         onChange={handleDesiredAmountChange}
-                                                                         onKeyDown={(e) => {
-                                                                             if (e.key === 'Enter') {
-                                                                                 e.preventDefault();
-                                                                                 handleAddData();
-                                                                             }
-                                                                         }}
-                                                                     />
-                                                                 </div> */}
                                                                 </>
                                                             ) :
                                                                 (
@@ -1189,6 +1175,7 @@ const Dashboard = () => {
                                                             amount: '0',
                                                             change: '0'
                                                         })
+                                                        deliveryManSelectRef.current.focus();
                                                     }}
                                                 >
                                                     Reset

@@ -1237,7 +1237,8 @@ function BankDetail() {
                                     <TableRow>
                                         <TableCell>No.</TableCell>
                                         <TableCell>Month</TableCell>
-                                        <TableCell align="left">Due Ammount</TableCell>
+                                        <TableCell align="left">Total Get</TableCell>
+                                        <TableCell align="left">Due Amount</TableCell>
                                         <TableCell align="left">Remaining Amount</TableCell>
                                         <TableCell align="left">Paid Amount</TableCell>
                                     </TableRow>
@@ -1256,6 +1257,7 @@ function BankDetail() {
                                                 <TableCell component="th" scope="row">
                                                     {row.date}
                                                 </TableCell>
+                                                <TableCell align="left" >{parseFloat(row.debitAmt ? row.debitAmt : 0).toLocaleString('en-IN')}</TableCell>
                                                 <TableCell align="left" >{parseFloat(row.amount ? row.amount : 0).toLocaleString('en-IN')}</TableCell>
                                                 <TableCell align="left" >{parseFloat(row.amt ? row.amt : 0).toLocaleString('en-IN')}</TableCell>
                                                 <TableCell align="left" >{parseFloat((row.amount ? row.amount : 0) - (row.amt ? row.amt : 0)).toLocaleString('en-IN')}</TableCell>

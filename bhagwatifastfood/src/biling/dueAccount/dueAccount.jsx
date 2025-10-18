@@ -575,7 +575,7 @@ function DueAccounts() {
                                     Due Accounts List
                                 </div>
                                 <div>
-                                    Total Remaining Payment : {SHOW_STATICS_RIGHTS.includes() ? parseInt(totalDue ? totalDue : 0).toLocaleString('en-IN') : "####"}
+                                    Total Remaining Payment : {parseInt(totalDue ? totalDue : 0).toLocaleString('en-IN')}
                                 </div>
                             </div>
                         </div>

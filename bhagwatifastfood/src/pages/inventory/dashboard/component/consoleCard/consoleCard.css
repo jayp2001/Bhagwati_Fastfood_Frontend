@@ -1,4 +1,4 @@
-.consoleCard{
+.consoleCard {
     width: 150px;
     height: 150px;
     border-radius: 10px;
@@ -6,8 +6,15 @@
     box-shadow: rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem, rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem;
     overflow: hidden;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
-.consoleLogo{
+
+.consoleCard:hover {
+    transform: translateY(-3px);
+    box-shadow: rgba(0, 0, 0, 0.15) 0rem 0.5rem 1rem -0.125rem, rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.5rem -0.125rem;
+}
+
+.consoleLogo {
     height: 75%;
     width: 100%;
     background-color: #fff;
@@ -16,6 +23,7 @@
     padding-left: 10px;
     padding-right: 10px;
 }
+
 .consoleName {
     padding-top: 5px;
     height: 25%;

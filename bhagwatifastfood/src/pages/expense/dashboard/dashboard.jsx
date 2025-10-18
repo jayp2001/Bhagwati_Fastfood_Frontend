@@ -1541,6 +1541,7 @@ function ExpenseDashboard() {
                                             <MenuItem key={'inventory'} value={'inventory'}>{'inventory'}</MenuItem>
                                             <MenuItem key={'renovate'} value={'renovate'}>{'renovate'}</MenuItem>
                                             <MenuItem key={'mistake'} value={'mistake'}>{'mistake'}</MenuItem>
+                                            <MenuItem key={'family'} value={'family'}>{'Family'}</MenuItem>
                                             <MenuItem key={'restaurant'} value={'restaurant'}>{'restaurant'}</MenuItem>
                                             <MenuItem key={'tag'} value={'tag'}>{'tag'}</MenuItem>
                                         </Select>

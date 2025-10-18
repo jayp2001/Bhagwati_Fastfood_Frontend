@@ -16,7 +16,7 @@ import caterers from '../../../assets/bank/caterers.png';
 import school from '../../../assets/bank/school.png';
 import spareBalnce from '../../../assets/bank/balanceSheep.png';
 import exchange from '../../../assets/bank/exchange.png';
-import { ro } from 'date-fns/locale';
+import Gpay from '../../../assets/bank/GPAY.png';
 
 function BankCard(props) {
     const userRole = getUserRole();
@@ -50,6 +50,8 @@ function BankCard(props) {
                 return spareBalnce;
             case 'exchange':
                 return exchange;
+            case 'Gpay':
+                return Gpay;
             case 'Wallet':
                 return Wallet;
             default:
