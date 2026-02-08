@@ -22,7 +22,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TablePagination from '@mui/material/TablePagination';
 import Paper from '@mui/material/Paper';
-import { Select, MenuItem, FormControl, InputLabel, Button, Modal, IconButton, Divider } from '@mui/material';
+import { Select, MenuItem, FormControl, InputLabel, Button, Modal, IconButton, Divider, Menu } from '@mui/material';
 import TuneIcon from '@mui/icons-material/Tune';
 import Popper from '@mui/material/Popper';
 import VisibilityIcon from '@mui/icons-material/Visibility';
@@ -31,6 +31,9 @@ import TableBarIcon from '@mui/icons-material/TableBar';
 import CurrencyRupeeIcon from '@mui/icons-material/CurrencyRupee';
 import PrintIcon from '@mui/icons-material/Print';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import TableChartIcon from '@mui/icons-material/TableChart';
 
 const style = {
     position: 'absolute',
@@ -93,6 +96,10 @@ function FirmDetail() {
     // Bill Info Modal state
     const [infoPopUpOpen, setInfoPopUpOpen] = useState(false);
     const [infoPopUpData, setInfoPopUpData] = useState(null);
+
+    // Month View Export menu state
+    const [anchorElExport, setAnchorElExport] = useState(null);
+    const [selectedExportRow, setSelectedExportRow] = useState(null);
 
     // Filter modal state
     const [anchorElFilter, setAnchorElFilter] = React.useState(null);
@@ -380,6 +387,41 @@ function FirmDetail() {
         }
     };
 
+    // Handle Export Excel for Month View
+    const handleExportExcel = async (startDate, endDate, monthYear) => {
+        try {
+            const url = `${BACKEND_BASE_URL}billingrouter/getTaxReportByFirmIdExcel?firmId=${id}&startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
+            const response = await axios.get(url, {
+                ...config,
+                responseType: 'blob'
+            });
+
+            const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = `TaxReport_${monthYear}.xlsx`;
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            window.URL.revokeObjectURL(downloadUrl);
+        } catch (error) {
+            if (error.response?.status === 404) {
+                const reader = new FileReader();
+                reader.onload = () => {
+                    setError(reader.result === "No Data Found" ? "No Data Found" : error.response?.data || "Network Error ...!!!");
+                };
+                if (error.response?.data) {
+                    reader.readAsText(error.response.data);
+                } else {
+                    setError("No Data Found");
+                }
+            } else {
+                setError(error.response ? error.response.data : "Network Error ...!!!");
+            }
+        }
+    };
+
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
@@ -486,6 +528,63 @@ function FirmDetail() {
         setPage(0);
         // Clear dropdowns; keep date if active
         fetchBills(1, rowsPerPage, filter, '', '');
+    };
+
+    const exportPdf = async () => {
+        if (window.confirm('Are you sure you want to Download PDF ... ?')) {
+            const startDate = filter && state[0]?.startDate ? state[0].startDate.toDateString() : '';
+            const endDate = filter && state[0]?.endDate ? state[0].endDate.toDateString() : '';
+            let url = '';
+            let suffix = '';
+            if (tableTab === 1) {
+                const billPayType = filterFormData.billPayType || '';
+                const billType = filterFormData.billType || '';
+                url = `${BACKEND_BASE_URL}billingrouter/exportPDFforBillDataByFirmId?firmId=${id}&billPayType=${billPayType}&billType=${billType}&startDate=${startDate}&endDate=${endDate}`;
+                suffix = 'Bills';
+            } else if (tableTab === 2) {
+                const billType = cancelFilterFormData.billType || '';
+                url = `${BACKEND_BASE_URL}billingrouter/exportPDFforCancelBillDataByFirmId?firmId=${id}&searchWord=&billPayType=&billType=${billType}&startDate=${startDate}&endDate=${endDate}`;
+                suffix = 'Cancel';
+            } else if (tableTab === 3) {
+                const billPayType = complimentaryFilterFormData.billPayType || '';
+                const billType = complimentaryFilterFormData.billType || '';
+                url = `${BACKEND_BASE_URL}billingrouter/exportPDFforComplimentaryBillDataByFirmId?firmId=${id}&billPayType=${billPayType}&billType=${billType}&startDate=${startDate}&endDate=${endDate}`;
+                suffix = 'Complimentary';
+            }
+            if (!url) return;
+            await axios({
+                url,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob',
+            }).then((response) => {
+                const href = URL.createObjectURL(response.data);
+                const link = document.createElement('a');
+                const name = (suppilerDetails?.firmName || 'Firm') + '_' + suffix + '_' + new Date().toLocaleDateString() + '.pdf';
+                link.href = href;
+                link.setAttribute('download', name);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            }).catch((err) => {
+                if (err.response?.status === 400 || err.response?.status === 404) {
+                    const data = err.response?.data;
+                    if (data instanceof Blob) {
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            const message = typeof reader.result === 'string' ? reader.result.trim() : 'No Data Found';
+                            setError(message || 'No Data Found');
+                        };
+                        reader.readAsText(data);
+                    } else {
+                        setError(typeof data === 'string' ? data : (data?.message || 'No Data Found'));
+                    }
+                } else {
+                    setError(err.response?.data?.message || (typeof err.response?.data === 'string' ? err.response.data : null) || 'Network Error ...!!!');
+                }
+            });
+        }
     };
 
     // Cancel tab pagination handlers
@@ -1111,6 +1210,13 @@ function FirmDetail() {
                             </div>
                         </> : <></>
                     }
+                    {[1, 2, 3].includes(tableTab) && (
+                        <div className='col-span-6 col-start-7 pr-5 flex justify-end'>
+                            <button className='exportExcelBtn' onClick={exportPdf}>
+                                <FileDownloadIcon />&nbsp;&nbsp;Export PDF
+                            </button>
+                        </div>
+                    )}
                 </div>
                 <div className='tableContainerWrapper'>
                     <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
@@ -1122,7 +1228,7 @@ function FirmDetail() {
                                         <TableCell>Month / Year</TableCell>
                                         <TableCell align="center">Total Bill Amount</TableCell>
                                         <TableCell align="center">Total Settled Amount</TableCell>
-                                        <TableCell align="center">Export PDF</TableCell>
+                                        <TableCell align="center">Export</TableCell>
                                     </TableRow>
                                 ) : (
                                     <TableRow>
@@ -1302,65 +1408,26 @@ function FirmDetail() {
                                             <TableCell align="center" className="greenText">₹{parseFloat(row.totalBillAmount).toLocaleString('en-IN')}</TableCell>
                                             <TableCell align="center" className="greenText">₹{parseFloat(row.totalSettledAmount).toLocaleString('en-IN')}</TableCell>
                                             <TableCell align="center">
-                                                <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                                    <IconButton
-                                                        size="small"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleExportPDF(row.firstDate, row.lastDate, row.monthYear, 'cash');
-                                                        }}
-                                                        sx={{
-                                                            width: 28,
-                                                            height: 28,
-                                                            backgroundColor: '#16a34a',
-                                                            color: 'white',
-                                                            '&:hover': {
-                                                                backgroundColor: '#15803d',
-                                                            },
-                                                        }}
-                                                        title="Export Cash PDF"
-                                                    >
-                                                        <PictureAsPdfIcon sx={{ fontSize: 16 }} />
-                                                    </IconButton>
-                                                    <IconButton
-                                                        size="small"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleExportPDF(row.firstDate, row.lastDate, row.monthYear, 'debit');
-                                                        }}
-                                                        sx={{
-                                                            width: 28,
-                                                            height: 28,
-                                                            backgroundColor: '#2563eb',
-                                                            color: 'white',
-                                                            '&:hover': {
-                                                                backgroundColor: '#1d4ed8',
-                                                            },
-                                                        }}
-                                                        title="Export Debit PDF"
-                                                    >
-                                                        <PictureAsPdfIcon sx={{ fontSize: 16 }} />
-                                                    </IconButton>
-                                                    <IconButton
-                                                        size="small"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleExportPDF(row.firstDate, row.lastDate, row.monthYear);
-                                                        }}
-                                                        sx={{
-                                                            width: 28,
-                                                            height: 28,
-                                                            backgroundColor: '#7c3aed',
-                                                            color: 'white',
-                                                            '&:hover': {
-                                                                backgroundColor: '#6d28d9',
-                                                            },
-                                                        }}
-                                                        title="Export All Payments PDF"
-                                                    >
-                                                        <PictureAsPdfIcon sx={{ fontSize: 16 }} />
-                                                    </IconButton>
-                                                </div>
+                                                <IconButton
+                                                    size="small"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setAnchorElExport(e.currentTarget);
+                                                        setSelectedExportRow(row);
+                                                    }}
+                                                    sx={{
+                                                        width: 32,
+                                                        height: 32,
+                                                        backgroundColor: '#1976d2',
+                                                        color: 'white',
+                                                        '&:hover': {
+                                                            backgroundColor: '#1565c0',
+                                                        },
+                                                    }}
+                                                    title="Export"
+                                                >
+                                                    <MoreVertIcon sx={{ fontSize: 18 }} />
+                                                </IconButton>
                                             </TableCell>
                                         </TableRow> :
                                         <TableRow
@@ -1374,6 +1441,63 @@ function FirmDetail() {
                                 ))}
                             </TableBody>
                         </Table>
+                        {tableTab === 4 && (
+                            <Menu
+                                anchorEl={anchorElExport}
+                                open={Boolean(anchorElExport)}
+                                onClose={() => {
+                                    setAnchorElExport(null);
+                                    setSelectedExportRow(null);
+                                }}
+                                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                                transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                            >
+                                <MenuItem
+                                    onClick={() => {
+                                        if (selectedExportRow) {
+                                            handleExportPDF(selectedExportRow.firstDate, selectedExportRow.lastDate, selectedExportRow.monthYear, 'cash');
+                                        }
+                                        setAnchorElExport(null);
+                                        setSelectedExportRow(null);
+                                    }}
+                                >
+                                    <PictureAsPdfIcon sx={{ fontSize: 18, mr: 1 }} /> Export Cash PDF
+                                </MenuItem>
+                                <MenuItem
+                                    onClick={() => {
+                                        if (selectedExportRow) {
+                                            handleExportPDF(selectedExportRow.firstDate, selectedExportRow.lastDate, selectedExportRow.monthYear, 'debit');
+                                        }
+                                        setAnchorElExport(null);
+                                        setSelectedExportRow(null);
+                                    }}
+                                >
+                                    <PictureAsPdfIcon sx={{ fontSize: 18, mr: 1 }} /> Export Debit PDF
+                                </MenuItem>
+                                <MenuItem
+                                    onClick={() => {
+                                        if (selectedExportRow) {
+                                            handleExportPDF(selectedExportRow.firstDate, selectedExportRow.lastDate, selectedExportRow.monthYear);
+                                        }
+                                        setAnchorElExport(null);
+                                        setSelectedExportRow(null);
+                                    }}
+                                >
+                                    <PictureAsPdfIcon sx={{ fontSize: 18, mr: 1 }} /> Export All Payments PDF
+                                </MenuItem>
+                                <MenuItem
+                                    onClick={() => {
+                                        if (selectedExportRow) {
+                                            handleExportExcel(selectedExportRow.firstDate, selectedExportRow.lastDate, selectedExportRow.monthYear);
+                                        }
+                                        setAnchorElExport(null);
+                                        setSelectedExportRow(null);
+                                    }}
+                                >
+                                    <TableChartIcon sx={{ fontSize: 18, mr: 1 }} /> Export Excel
+                                </MenuItem>
+                            </Menu>
+                        )}
                         {tableTab === 1 && (
                             <TablePagination
                                 rowsPerPageOptions={[5, 10, 25]}

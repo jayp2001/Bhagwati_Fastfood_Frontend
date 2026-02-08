@@ -19,6 +19,10 @@ import CloseIcon from '@mui/icons-material/Close';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import { useParams } from 'react-router-dom';
 import CountCard from '../expense/countCard/countCard';
+import IconButton from '@mui/material/IconButton';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import BillDetailsModal from '../../components/BillDetailsModal/BillDetailsModal';
 
 function UpiDetailPage() {
     const { onlineId, holderName } = useParams()
@@ -39,6 +43,8 @@ function UpiDetailPage() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [billModalOpen, setBillModalOpen] = useState(false);
+    const [billModalId, setBillModalId] = useState(null);
 
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const config = {
@@ -132,6 +138,44 @@ function UpiDetailPage() {
         await getStatistics(startDate, endDate);
     }
 
+    const exportPdf = async () => {
+        if (window.confirm('Are you sure you want to Download PDF ... ?')) {
+            const startDate = filter && state[0]?.startDate ? state[0].startDate : '';
+            const endDate = filter && state[0]?.endDate ? state[0].endDate : '';
+            await axios({
+                url: `${BACKEND_BASE_URL}billingrouter/exportPdfForUPITransactionById?upiId=${onlineId}&startDate=${startDate}&endDate=${endDate}`,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob',
+            }).then((response) => {
+                const href = URL.createObjectURL(response.data);
+                const link = document.createElement('a');
+                const name = 'UPI_Transactions_' + (upiHolderName || onlineId) + '_' + new Date().toLocaleDateString() + '.pdf';
+                link.href = href;
+                link.setAttribute('download', name);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            }).catch((err) => {
+                if (err.response?.status === 400 || err.response?.status === 404) {
+                    const data = err.response?.data;
+                    if (data instanceof Blob) {
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            const message = typeof reader.result === 'string' ? reader.result.trim() : 'No Data Found';
+                            setError(message || 'No Data Found');
+                        };
+                        reader.readAsText(data);
+                    } else {
+                        setError(typeof data === 'string' ? data : (data?.message || 'No Data Found'));
+                    }
+                } else {
+                    setError(err.response?.data?.message || (typeof err.response?.data === 'string' ? err.response.data : null) || 'Network Error ...!!!');
+                }
+            });
+        }
+    }
 
     useEffect(() => {
         if (holderName) {
@@ -241,7 +285,7 @@ function UpiDetailPage() {
                             <div className='userTableSubContainer pt-4'>
                                 <div className='grid grid-cols-12'>
                                     <div className='ml-4 col-span-6 mt-2' >
-                                        <div className='flex'>
+                                        <div className='flex items-center gap-2'>
                                             <div className='dateRange text-center' aria-describedby={id} onClick={handleClick}>
                                                 <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
                                             </div>
@@ -301,6 +345,9 @@ function UpiDetailPage() {
                                             </Box>
                                         </Popover>
                                     </div>
+                                    <button className='exportExcelBtn col-start-10 col-span-2' onClick={exportPdf}>
+                                        <FileDownloadIcon />&nbsp;&nbsp;Export PDF
+                                    </button>
                                 </div>
                                 <div className='tableContainerWrapper'>
                                     <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
@@ -315,6 +362,7 @@ function UpiDetailPage() {
                                                     <TableCell align="left">Date</TableCell>
                                                     <TableCell align="left">Day</TableCell>
                                                     <TableCell align="left">Time</TableCell>
+                                                    <TableCell align="center">Action</TableCell>
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
@@ -336,12 +384,35 @@ function UpiDetailPage() {
                                                             <TableCell align="left">{row.onlineDate}</TableCell>
                                                             <TableCell align="left">{row.onlineDay}</TableCell>
                                                             <TableCell align="left">{row.onlineTime}</TableCell>
+                                                            <TableCell align="center">
+                                                                <IconButton
+                                                                    size="small"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        if (row.billId) {
+                                                                            setBillModalId(row.billId);
+                                                                            setBillModalOpen(true);
+                                                                        }
+                                                                    }}
+                                                                    disabled={!row.billId}
+                                                                    sx={{
+                                                                        width: 32,
+                                                                        height: 32,
+                                                                        backgroundColor: row.billId ? '#1976d2' : '#ccc',
+                                                                        color: 'white',
+                                                                        '&:hover': row.billId ? { backgroundColor: '#1565c0' } : {},
+                                                                        '&.Mui-disabled': { color: 'white', backgroundColor: '#e0e0e0' }
+                                                                    }}
+                                                                >
+                                                                    <VisibilityIcon sx={{ fontSize: 18 }} />
+                                                                </IconButton>
+                                                            </TableCell>
                                                         </TableRow> :
                                                         <TableRow
                                                             key="no-data"
                                                             sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                                         >
-                                                            <TableCell align="left" style={{ fontSize: "18px" }} colSpan={6}>{"No Data Found...!"}</TableCell>
+                                                            <TableCell align="left" style={{ fontSize: "18px" }} colSpan={9}>{"No Data Found...!"}</TableCell>
                                                         </TableRow>
 
                                                 ))}
@@ -363,6 +434,12 @@ function UpiDetailPage() {
                     </div >
                 </div>
             </div>
+            <BillDetailsModal
+                open={billModalOpen}
+                onClose={() => { setBillModalOpen(false); setBillModalId(null); }}
+                billId={billModalId}
+                onError={(msg) => setError(msg)}
+            />
             <ToastContainer />
         </div >
     )

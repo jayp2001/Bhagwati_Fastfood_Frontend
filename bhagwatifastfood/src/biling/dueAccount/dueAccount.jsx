@@ -559,7 +559,6 @@ function DueAccounts() {
     }
 
     const handleSearch = () => {
-        console.log(':::???:::', document.getElementById('searchWord').value)
         search(document.getElementById('searchWord').value)
     }
 

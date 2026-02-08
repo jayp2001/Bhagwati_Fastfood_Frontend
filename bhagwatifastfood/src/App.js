@@ -65,7 +65,12 @@ import UpiDetailPage from './pages/upi/upiDetailPage';
 import Comment from './pages/commentData/comment';
 import Firm from './pages/firm/firmList';
 import FirmDetail from './pages/firm/firmDetail';
+import AllBillView from './pages/billing/allBillView/allBillView';
 
+import AssignAddonGroup from './menuItemPages/assignAddonGroup/AssignAddonGroup';
+import BillCategories from './menuItemPages/billCategories/BillCategories';
+import CustomerList from './pages/customer/CustomerList/CustomerList';
+import CustomerDetails from './pages/customer/customerDetailPage/customerDetails';
 // import SetPrinter from './setPrinter';
 function App() {
   return (
@@ -157,6 +162,12 @@ function App() {
               <Route path="/billing/comments" element={<CommentTable />} />
               <Route path="/hotel/hotelDetails/:id" element={<HotelDetails />} />
               <Route path="/saveAndSettel" element={<SaveAndSettel />} />
+              <Route path='/firmList' element={<Firm />} />
+              <Route path="/firmList/firmDetail/:id" element={<FirmDetail />} />
+              <Route path="/allBillView" element={<AllBillView />} />
+              <Route path='/billCategories' element={<BillCategories />} />
+              <Route path='/customerList' element={<CustomerList />} />
+              <Route path="/customerList/customerDetail/:id" element={<CustomerDetails />} />
             </Route>
             <Route path='/thermal' exact element={<PrintButton />} />
             {/* <Route path='/setPrinter' exact element={<SetPrinter />}/> */}
@@ -168,12 +179,11 @@ function App() {
             <Route path='/menu/Unit' element={<Unit />} />
             <Route path='/menu/SubCategory' element={<SubCategory />} />
             <Route path='/menu/addOns' element={<AddOns />} />
+            <Route path='/menu/assignAddonGroup/:groupId/:groupName' element={<AssignAddonGroup />} />
             <Route path='/menu/MenuCategory' element={<MenuCategory />} />
             <Route path='/comment' element={<Comment />} />
             <Route path='/upi' element={<UPI />} />
             <Route path='/upi/detail/:onlineId/:holderName' element={<UpiDetailPage />} />
-            <Route path='/firmList' element={<Firm />} />
-            <Route path="/firmList/firmDetail/:id" element={<FirmDetail />} />
           </Routes>
         </div>
       </BrowserRouter>

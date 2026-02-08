@@ -23,8 +23,11 @@ const consoleCards = [
     { name: "Menu", imgName: 'Menu', path: '/menu/Dashboard', roles: [1, 2] },
     { name: "Khata Book", imgName: 'khatabook', path: '/due/account', roles: [1, 2] },
     { name: "Firm", imgName: 'firm', path: '/firmList', roles: [1] },
+    { name: "All Bill View", imgName: 'report', path: '/allBillView', roles: [1, 2] },
     { name: "Sales Report", imgName: 'sales', path: '/menu/salesReport', roles: [1] },
-    { name: "Analyzes", imgName: 'analyze', path: '/category/analyze', roles: [1] }
+    { name: "Analyzes", imgName: 'analyze', path: '/category/analyze', roles: [1] },
+    { name: "Bill Categories", imgName: 'report', path: '/billCategories', roles: [1] },
+    { name: "Customer List", imgName: 'userList', path: '/customerList', roles: [1, 2] }
 ];
 function Dashboard() {
     const navigate = useNavigate();

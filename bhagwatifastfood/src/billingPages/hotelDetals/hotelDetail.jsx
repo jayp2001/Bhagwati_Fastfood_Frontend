@@ -32,6 +32,7 @@ import TablePagination from '@mui/material/TablePagination';
 import Paper from '@mui/material/Paper';
 import Menutemp from './menuT';
 import MenuStockInOut from './menu';
+import BillDetailsModal from '../../components/BillDetailsModal/BillDetailsModal';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -78,6 +79,8 @@ function HotelDetails() {
     const [productQtyCount, setProductQty] = useState();
     const [debitTransaction, setDebitTransaction] = React.useState();
     const [productTable, setProductTable] = React.useState();
+    const [billModalOpen, setBillModalOpen] = React.useState(false);
+    const [billModalId, setBillModalId] = React.useState(null);
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const config = {
         headers: {
@@ -564,32 +567,47 @@ function HotelDetails() {
         }
     }
 
-    // const exportPdf = async () => {
-    //     if (window.confirm('Are you sure you want to Download Pdf ... ?')) {
-    //         await axios({
-    //             url: filter ? `${BACKEND_BASE_URL}billingrouter/exportPdfBillDataById?hotelId=${id}&payType=${tabStockIn}` : `${BACKEND_BASE_URL}billingrouter/exportPdfBillDataById?hotelId=${id}&payType=${tabStockIn}`,
-    //             method: 'GET',
-    //             headers: { Authorization: `Bearer ${userInfo.token}` },
-    //             responseType: 'blob', // important
-    //         }).then((response) => {
-    //             // create file link in browser's memory
-    //             const href = URL.createObjectURL(response.data);
-    //             // create "a" HTML element with href to file & click
-    //             const link = document.createElement('a');
-    //             const name = hotelDetails.hotelName + '_' + tabStockIn + '_' + new Date().toLocaleDateString() + '.pdf'
-    //             link.href = href;
-    //             link.setAttribute('download', name); //or any other extension
-    //             document.body.appendChild(link);
-    //             link.click();
-
-    //             // clean up "a" element & remove ObjectURL
-    //             document.body.removeChild(link);
-    //             URL.revokeObjectURL(href);
-    //         }).catch((error) => {
-    //             setError(error.response ? error.response.data : "Network Error ...!!!")
-    //         })
-    //     }
-    // }
+    const exportPdf = async () => {
+        if (window.confirm('Are you sure you want to Download PDF ... ?')) {
+            const startDate = filter && state[0]?.startDate ? state[0].startDate.toDateString() : '';
+            const endDate = filter && state[0]?.endDate ? state[0].endDate.toDateString() : '';
+            const payType = (tabStockIn === '' || tabStockIn === null) ? '' : tabStockIn;
+            const url = `${BACKEND_BASE_URL}billingrouter/exportPdfHotelBillDataById?hotelId=${id}&payType=${payType}&startDate=${startDate}&endDate=${endDate}`;
+            await axios({
+                url,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob',
+            }).then((response) => {
+                const href = URL.createObjectURL(response.data);
+                const link = document.createElement('a');
+                const suffix = payType || 'All';
+                const name = hotelDetails.hotelName + '_' + suffix + '_' + new Date().toLocaleDateString() + '.pdf';
+                link.href = href;
+                link.setAttribute('download', name);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            }).catch((err) => {
+                if (err.response?.status === 400 || err.response?.status === 404) {
+                    const data = err.response?.data;
+                    if (data instanceof Blob) {
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            const message = typeof reader.result === 'string' ? reader.result.trim() : 'No Data Found';
+                            setError(message || 'No Data Found');
+                        };
+                        reader.readAsText(data);
+                    } else {
+                        setError(typeof data === 'string' ? data : (data?.message || 'No Data Found'));
+                    }
+                } else {
+                    setError(err.response?.data?.message || (typeof err.response?.data === 'string' ? err.response.data : null) || 'Network Error ...!!!');
+                }
+            });
+        }
+    }
     // const exportPdfTransaction = async (tId) => {
     //     if (window.confirm('Are you sure you want to Download Invoice ... ?')) {
     //         await axios({
@@ -637,9 +655,22 @@ function HotelDetails() {
                 // clean up "a" element & remove ObjectURL
                 document.body.removeChild(link);
                 URL.revokeObjectURL(href);
-            }).catch((error) => {
-                console.log('ERT', error)
-                setError(error.response ? error.response.data : "Network Error ...!!!")
+            }).catch((err) => {
+                if (err.response?.status === 400 || err.response?.status === 404) {
+                    const data = err.response?.data;
+                    if (data instanceof Blob) {
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            const message = typeof reader.result === 'string' ? reader.result.trim() : 'No Data Found';
+                            setError(message || 'No Data Found');
+                        };
+                        reader.readAsText(data);
+                    } else {
+                        setError(typeof data === 'string' ? data : (data?.message || 'No Data Found'));
+                    }
+                } else {
+                    setError(err.response?.data?.message || (typeof err.response?.data === 'string' ? err.response.data : null) || 'Network Error ...!!!');
+                }
             })
         }
     }
@@ -1118,11 +1149,13 @@ function HotelDetails() {
             </div>
             <div className='userTableSubContainer mt-6'>
                 <div className='grid grid-cols-12 pt-6'>
-                    <div className='col-span-6 col-start-7 pr-5 flex justify-end'>
-                        {/* <button className='exportExcelBtn'
-                            onClick={() => { tabStockIn === 'transaction' ? exportPdfTransaction() : exportPdf() }}
-                        ><FileDownloadIcon />&nbsp;&nbsp;Export Pdf</button> */}
-                    </div>
+                    {['', 'cash', 'debit'].includes(tabStockIn) && (
+                        <div className='col-span-6 col-start-7 pr-5 flex justify-end'>
+                            <button className='exportExcelBtn' onClick={exportPdf}>
+                                <FileDownloadIcon />&nbsp;&nbsp;Export PDF
+                            </button>
+                        </div>
+                    )}
                 </div>
                 <div className='tableContainerWrapper'>
                     {
@@ -1232,7 +1265,12 @@ function HotelDetails() {
                                                         <TableCell align="left" >{row.billDate}</TableCell>
                                                         <TableCell align="left" >{row.billTime}</TableCell>
                                                         <TableCell align="right">
-                                                            <MenuStockInOut stockInOutId={row.stockInId} data={row} deleteStockInOut={handleDeleteStockIn} />
+                                                            <MenuStockInOut
+                                                                stockInOutId={row.stockInId}
+                                                                data={row}
+                                                                deleteStockInOut={handleDeleteStockIn}
+                                                                onViewBill={(billId) => { setBillModalId(billId); setBillModalOpen(true); }}
+                                                            />
                                                         </TableCell>
                                                     </TableRow> :
                                                     <TableRow
@@ -1317,6 +1355,12 @@ function HotelDetails() {
                     }
                 </div>
             </div>
+            <BillDetailsModal
+                open={billModalOpen}
+                onClose={() => { setBillModalOpen(false); setBillModalId(null); }}
+                billId={billModalId}
+                onError={(msg) => setError(msg)}
+            />
             <ToastContainer />
         </div >
     )

@@ -618,6 +618,23 @@ function BusinessReport() {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
+    const getFillBusinessCategory = async () => {
+        try {
+            const res = await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/fillBusinessCategory`, config);
+            if (res.data && Array.isArray(res.data)) {
+                const fillFormData = {};
+                res.data.forEach((item) => {
+                    fillFormData[item.businessCategoryId] = item.fillAmount ?? 0;
+                });
+                setFormData((prev) => ({
+                    ...prev,
+                    ...fillFormData
+                }));
+            }
+        } catch (err) {
+            setError(err.response?.data ?? "Failed to load pre-filled data");
+        }
+    }
     const getExpenseList = async (date) => {
         await axios.get(`${BACKEND_BASE_URL}expenseAndBankrouter/getExpenseAndClosingBalanceByDate?brDate=${date}`, config)
             .then((res) => {
@@ -735,7 +752,7 @@ function BusinessReport() {
                                                     onClick={() => {
                                                         if (!isEdit) {
                                                             setTab(2);
-                                                            getIncomeSource();
+                                                            getIncomeSource().then(() => getFillBusinessCategory());
                                                             setFormDataOther({
                                                                 openingBalanceAmt: '',
                                                                 openingBalanceComment: "",

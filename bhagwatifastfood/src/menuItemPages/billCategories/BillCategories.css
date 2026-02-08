@@ -1,0 +1,241 @@
+.billCategoriesContainer {
+    padding: 20px;
+}
+
+.userTableSubContainerBillCategories {
+    background: #fff;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem,
+        rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem;
+}
+
+.tableContainerWrapper {
+    margin-top: 10px;
+}
+
+.tableRow {
+    cursor: pointer;
+}
+
+.tableRow:hover {
+    background-color: #f5f5f5;
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.modalHeader h2 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+    font-weight: 600;
+}
+
+.modalHeaderCategory {
+    font-weight: 500;
+    color: #1976d2;
+}
+
+.viewModalContent {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.viewModalSections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+}
+
+.viewModalSection {
+    padding: 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: #fafafa;
+}
+
+.viewModalSectionHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #1976d2;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.editModalSections {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+}
+
+.editModalSection {
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: #fafafa;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.editModalSection .MuiFormControl-root,
+.editModalSection .MuiTextField-root,
+.editModalSection .formRow {
+    margin: 0 !important;
+    min-height: 0;
+}
+
+.editModalSection .MuiFormControl-root .MuiInputBase-root,
+.editModalSection .MuiTextField-root .MuiInputBase-root {
+    font-size: 0.875rem;
+}
+
+.editModalSection .MuiInputLabel-root {
+    font-size: 0.875rem;
+}
+
+.editModalSection .MuiTextField-root textarea {
+    font-size: 0.875rem;
+}
+
+.editModalSectionHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: #1976d2;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+@media (max-width: 768px) {
+
+    .viewModalSections,
+    .editModalSections {
+        grid-template-columns: 1fr;
+    }
+}
+
+.detailRow {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.detailRow.fullWidth {
+    flex-direction: column;
+    gap: 8px;
+}
+
+.detailLabel {
+    font-weight: 600;
+    color: #666;
+    min-width: 150px;
+    font-size: 14px;
+}
+
+.detailValue {
+    color: #333;
+    font-size: 14px;
+    flex: 1;
+    word-wrap: break-word;
+}
+
+.editModalContent {
+    display: flex;
+    flex-direction: column;
+}
+
+.formRow {
+    width: 100%;
+}
+
+.formRowGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+}
+
+.formActions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.stockInBtnBillCategories {
+    background-color: #1976d2;
+    color: white;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.stockInBtnBillCategories:hover:not(:disabled) {
+    background-color: #1565c0;
+}
+
+.stockInBtnBillCategories:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.stockOutBtnBillCategories {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 10px 30px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    transition: background-color 0.3s;
+}
+
+.stockOutBtnBillCategories:hover {
+    background-color: #d32f2f;
+}
+
+.categoryNameDisplay {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background-color: #f5f5f5;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    border-left: 4px solid #1976d2;
+}
+
+.categoryNameLabel {
+    font-weight: 600;
+    color: #666;
+    font-size: 14px;
+}
+
+.categoryNameValue {
+    font-weight: 700;
+    color: #1976d2;
+    font-size: 16px;
+}

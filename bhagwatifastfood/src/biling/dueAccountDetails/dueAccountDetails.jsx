@@ -33,6 +33,9 @@ import TablePagination from '@mui/material/TablePagination';
 import Paper from '@mui/material/Paper';
 import Menutemp from '../../pages/inventory/transactionTable/menu';
 import MenuStockInOut from './menu';
+import BillDetailsModal from '../../components/BillDetailsModal/BillDetailsModal';
+import IconButton from '@mui/material/IconButton';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -147,6 +150,8 @@ function DueAccountDetail() {
     const [productQtyCount, setProductQty] = useState();
     const [debitTransaction, setDebitTransaction] = React.useState();
     const [productTable, setProductTable] = React.useState();
+    const [billModalOpen, setBillModalOpen] = React.useState(false);
+    const [billModalId, setBillModalId] = React.useState(null);
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const config = {
         headers: {
@@ -779,6 +784,50 @@ function DueAccountDetail() {
         }
     }
 
+    const exportPdf = async () => {
+        if (window.confirm('Are you sure you want to Download PDF ... ?')) {
+            const startDate = filter && state[0]?.startDate ? state[0].startDate.toDateString() : '';
+            const endDate = filter && state[0]?.endDate ? state[0].endDate.toDateString() : '';
+            const isPaidBills = tabStockIn === 'Transactions';
+            const url = isPaidBills
+                ? `${BACKEND_BASE_URL}billingrouter/exportPdfForDueBillTransactionData?accountId=${id}&startDate=${startDate}&endDate=${endDate}`
+                : `${BACKEND_BASE_URL}billingrouter/exportPdfForDueBillData?accountId=${id}&startDate=${startDate}&endDate=${endDate}`;
+            await axios({
+                url,
+                method: 'GET',
+                headers: { Authorization: `Bearer ${userInfo.token}` },
+                responseType: 'blob',
+            }).then((response) => {
+                const href = URL.createObjectURL(response.data);
+                const link = document.createElement('a');
+                const suffix = isPaidBills ? 'PaidBills' : 'DueBills';
+                const name = (suppilerDetails?.customerName || 'DueAccount') + '_' + suffix + '_' + new Date().toLocaleDateString() + '.pdf';
+                link.href = href;
+                link.setAttribute('download', name);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(href);
+            }).catch((err) => {
+                if (err.response?.status === 400 || err.response?.status === 404) {
+                    const data = err.response?.data;
+                    if (data instanceof Blob) {
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            const message = typeof reader.result === 'string' ? reader.result.trim() : 'No Data Found';
+                            setError(message || 'No Data Found');
+                        };
+                        reader.readAsText(data);
+                    } else {
+                        setError(typeof data === 'string' ? data : (data?.message || 'No Data Found'));
+                    }
+                } else {
+                    setError(err.response?.data?.message || (typeof err.response?.data === 'string' ? err.response.data : null) || 'Network Error ...!!!');
+                }
+            });
+        }
+    }
+
     const transactionExportExcel = async () => {
         if (window.confirm('Are you sure you want to export Excel ... ?')) {
             await axios({
@@ -853,7 +902,7 @@ function DueAccountDetail() {
     return (
         <div className='suppilerListContainer'>
             <div className='grid grid-cols-12 gap-8'>
-                <div className='col-span-5 mt-6 grid gap-2 dueAccountDetailContainer'>
+                <div className='col-span-5 mt-6 grid gap-2 relative dueAccountDetailContainer'>
                     <div className='suppilerHeader'>
                         Account Details
                     </div>
@@ -1157,11 +1206,13 @@ function DueAccountDetail() {
             </div>
             <div className='userTableSubContainer mt-6'>
                 <div className='grid grid-cols-12 pt-6'>
-                    {/* <div className='col-span-6 col-start-7 pr-5 flex justify-end'>
-                        <button className='exportExcelBtn'
-                            onClick={() => { tabStockIn !== 'transaction' && tabStockIn !== 'products' ? stockInExportExcel() : tabStockIn === 'products' ? allProductExportExcel() : transactionExportExcel() }}
-                        ><FileDownloadIcon />&nbsp;&nbsp;Export Excle</button>
-                    </div> */}
+                    {tabStockIn !== 'Monthly' && (
+                        <div className='col-span-6 col-start-7 pr-5 flex justify-end'>
+                            <button className='exportExcelBtn' onClick={exportPdf}>
+                                <FileDownloadIcon />&nbsp;&nbsp;Export PDF
+                            </button>
+                        </div>
+                    )}
                 </div>
                 <div className='tableContainerWrapper'>
                     {
@@ -1313,7 +1364,30 @@ function DueAccountDetail() {
                                                         <TableCell align="left" >{row.displayDate}</TableCell>
                                                         <TableCell align="left" >{row.diplayTime}</TableCell>
                                                         <TableCell align="right">
-                                                            <MenuStockInOut stockInOutId={row.dabId} data={row} deleteStockInOut={handleDeleteStockIn} />
+                                                            <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end', alignItems: 'center' }}>
+                                                                <IconButton
+                                                                    size="small"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        if (row.billId) {
+                                                                            setBillModalId(row.billId);
+                                                                            setBillModalOpen(true);
+                                                                        }
+                                                                    }}
+                                                                    disabled={!row.billId}
+                                                                    sx={{
+                                                                        width: 32,
+                                                                        height: 32,
+                                                                        backgroundColor: row.billId ? '#1976d2' : '#e0e0e0',
+                                                                        color: 'white',
+                                                                        '&:hover': row.billId ? { backgroundColor: '#1565c0' } : {},
+                                                                        '&.Mui-disabled': { color: 'white', backgroundColor: '#e0e0e0' }
+                                                                    }}
+                                                                >
+                                                                    <VisibilityIcon sx={{ fontSize: 18 }} />
+                                                                </IconButton>
+                                                                <MenuStockInOut stockInOutId={row.dabId} data={row} deleteStockInOut={handleDeleteStockIn} />
+                                                            </div>
                                                         </TableCell>
                                                     </TableRow> :
                                                     <TableRow
@@ -1541,6 +1615,12 @@ function DueAccountDetail() {
                     </div>
                 </Box>
             </Modal>
+            <BillDetailsModal
+                open={billModalOpen}
+                onClose={() => { setBillModalOpen(false); setBillModalId(null); }}
+                billId={billModalId}
+                onError={(msg) => setError(msg)}
+            />
             <ToastContainer />
         </div >
     )

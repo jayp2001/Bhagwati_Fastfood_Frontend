@@ -302,7 +302,6 @@ function AllPayments() {
         setFineStatus(e.target.value)
     };
     const handleSearch = () => {
-        console.log(':::???:::', document.getElementById('searchWord').value)
         search(document.getElementById('searchWord').value)
     }
     const debounceFunction = React.useCallback(debounce(handleSearch), [])

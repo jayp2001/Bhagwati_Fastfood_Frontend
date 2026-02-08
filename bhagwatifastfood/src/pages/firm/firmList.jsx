@@ -23,6 +23,10 @@ import { ToastContainer, toast } from 'react-toastify';
 import SearchIcon from '@mui/icons-material/Search';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
 
 const styleStockIn = {
     position: 'absolute',
@@ -63,7 +67,9 @@ function FirmListTable() {
         firmMobileNo: '',
         otherMobileNo: '',
         isSettlement: false,
-        csr: 0
+        csr: 0,
+        resetMonth: '',
+        resetDay: ''
     });
     const [formDataError, setFormDataError] = React.useState({
         firmName: false,
@@ -71,14 +77,18 @@ function FirmListTable() {
         firmAddress: false,
         pincode: false,
         firmMobileNo: false,
-        csr: false
+        csr: false,
+        resetMonth: false,
+        resetDay: false
     });
     const [formDataErrorFeild, setFormDataErrorFeild] = React.useState([
         'firmName',
         'gstNumber',
         'firmAddress',
         'pincode',
-        'firmMobileNo'
+        'firmMobileNo',
+        'resetMonth',
+        'resetDay'
     ]);
     const [loading, setLoading] = React.useState(false);
     const [error, setError] = React.useState(false);
@@ -106,7 +116,9 @@ function FirmListTable() {
             firmMobileNo: '',
             otherMobileNo: '',
             isSettlement: false,
-            csr: 0
+            csr: 0,
+            resetMonth: '',
+            resetDay: ''
         })
         setFormDataError({
             firmName: false,
@@ -114,7 +126,9 @@ function FirmListTable() {
             firmAddress: false,
             pincode: false,
             firmMobileNo: false,
-            csr: false
+            csr: false,
+            resetMonth: false,
+            resetDay: false
         })
         setIsEditMode(false);
         setModalOpen(false);
@@ -129,12 +143,21 @@ function FirmListTable() {
             firmMobileNo: '',
             otherMobileNo: '',
             isSettlement: false,
-            csr: 0
+            csr: 0,
+            resetMonth: '',
+            resetDay: ''
         })
         setIsEditMode(false);
         setModalOpen(true);
     }
     const handleEditFirmOpen = (row) => {
+        let month = '';
+        let day = '';
+        if (row.resetDate) {
+            const [monthPart, dayPart] = row.resetDate.split('-');
+            month = monthPart || '';
+            day = dayPart || '';
+        }
         setFormData({
             firmId: row.firmId,
             firmName: row.firmName,
@@ -144,7 +167,9 @@ function FirmListTable() {
             firmMobileNo: row.firmMobileNo,
             otherMobileNo: row.otherMobileNo,
             isSettlement: row.isSettlement === 1 || row.isSettlement === true,
-            csr: row.csr || 0
+            csr: row.csr || 0,
+            resetMonth: month,
+            resetDay: day
         })
         setIsEditMode(true);
         setModalOpen(true);
@@ -185,6 +210,11 @@ function FirmListTable() {
                     ...perv,
                     csr: value.length === 0 || !regex.test(value) || numericValue < 1 || numericValue > 100
                 }))
+            } else if (fieldName === 'resetMonth' || fieldName === 'resetDay') {
+                setFormDataError((perv) => ({
+                    ...perv,
+                    [fieldName]: value === '' || !value
+                }))
             }
         } else if (event === 'onFocus') {
             // onFocus - clear error when user starts interacting with field
@@ -220,6 +250,9 @@ function FirmListTable() {
     };
     const addFirm = async () => {
         setLoading(true);
+        const resetDateFormatted = formData.resetMonth && formData.resetDay
+            ? `${formData.resetMonth.padStart(2, '0')}-${formData.resetDay.padStart(2, '0')}`
+            : null;
         await axios.post(`${BACKEND_BASE_URL}billingrouter/addFirmData`, {
             firmName: formData.firmName,
             gstNumber: formData.gstNumber,
@@ -228,7 +261,8 @@ function FirmListTable() {
             firmMobileNo: formData.firmMobileNo,
             otherMobileNo: formData.otherMobileNo,
             isSettlement: formData.isSettlement ? 1 : 0,
-            csr: formData.isSettlement ? formData.csr : 0
+            csr: formData.isSettlement ? formData.csr : 0,
+            resetDate: resetDateFormatted
         }, config)
             .then((res) => {
                 setLoading(false)
@@ -245,6 +279,9 @@ function FirmListTable() {
     }
     const updateFirm = async () => {
         setLoading(true);
+        const resetDateFormatted = formData.resetMonth && formData.resetDay
+            ? `${formData.resetMonth.padStart(2, '0')}-${formData.resetDay.padStart(2, '0')}`
+            : null;
         await axios.post(`${BACKEND_BASE_URL}billingrouter/updateFirmData`, {
             firmId: formData.firmId,
             firmName: formData.firmName,
@@ -254,7 +291,8 @@ function FirmListTable() {
             firmMobileNo: formData.firmMobileNo,
             otherMobileNo: formData.otherMobileNo,
             isSettlement: formData.isSettlement ? 1 : 0,
-            csr: formData.isSettlement ? formData.csr : 0
+            csr: formData.isSettlement ? formData.csr : 0,
+            resetDate: resetDateFormatted
         }, config)
             .then((res) => {
                 setLoading(false)
@@ -405,6 +443,26 @@ function FirmListTable() {
     }
 
     const debounceFunction = React.useCallback(debounce(handleSearch), [])
+
+    const getDaysInMonth = (month) => {
+        if (!month) return 31;
+        const monthInt = parseInt(month);
+        const daysInMonth = {
+            1: 31, 2: 29, 3: 31, 4: 30, 5: 31, 6: 30, 7: 31, 8: 31, 9: 30, 10: 31, 11: 30, 12: 31
+        };
+        return daysInMonth[monthInt] || 31;
+    }
+
+    const handleMonthChange = (newMonth) => {
+        const maxDays = getDaysInMonth(newMonth);
+        const currentDay = parseInt(formData.resetDay);
+        setFormData((prevState) => ({
+            ...prevState,
+            resetMonth: newMonth,
+            resetDay: currentDay > maxDays ? '' : prevState.resetDay
+        }));
+    }
+
     return (
         <div className='suppilerListContainer'>
             <div className='grid grid-cols-12 userTableContainer'>
@@ -763,6 +821,69 @@ function FirmListTable() {
                             </div>
                         </div>
                     )}
+                    <div className='mt-6 grid grid-cols-12 gap-6'>
+                        <div className='col-span-6'>
+                            <FormControl fullWidth error={formDataError.resetMonth}>
+                                <InputLabel style={{ fontSize: 14 }}>Reset Month</InputLabel>
+                                <Select
+                                    value={formData.resetMonth}
+                                    label="Reset Month"
+                                    onChange={(e) => handleMonthChange(e.target.value)}
+                                    onFocus={() => handleFieldValidation('resetMonth', formData.resetMonth, 'onFocus')}
+                                    onBlur={() => handleFieldValidation('resetMonth', formData.resetMonth, 'onBlur')}
+                                    style={{ fontSize: 14 }}
+                                >
+                                    <MenuItem value="01">January</MenuItem>
+                                    <MenuItem value="02">February</MenuItem>
+                                    <MenuItem value="03">March</MenuItem>
+                                    <MenuItem value="04">April</MenuItem>
+                                    <MenuItem value="05">May</MenuItem>
+                                    <MenuItem value="06">June</MenuItem>
+                                    <MenuItem value="07">July</MenuItem>
+                                    <MenuItem value="08">August</MenuItem>
+                                    <MenuItem value="09">September</MenuItem>
+                                    <MenuItem value="10">October</MenuItem>
+                                    <MenuItem value="11">November</MenuItem>
+                                    <MenuItem value="12">December</MenuItem>
+                                </Select>
+                                {formDataError.resetMonth && (
+                                    <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5, fontSize: 12 }}>
+                                        Select reset month
+                                    </Typography>
+                                )}
+                            </FormControl>
+                        </div>
+                        <div className='col-span-6'>
+                            <FormControl fullWidth error={formDataError.resetDay}>
+                                <InputLabel style={{ fontSize: 14 }}>Reset Day</InputLabel>
+                                <Select
+                                    value={formData.resetDay}
+                                    label="Reset Day"
+                                    onChange={(e) => {
+                                        setFormData((prevState) => ({
+                                            ...prevState,
+                                            resetDay: e.target.value
+                                        }))
+                                    }}
+                                    onFocus={() => handleFieldValidation('resetDay', formData.resetDay, 'onFocus')}
+                                    onBlur={() => handleFieldValidation('resetDay', formData.resetDay, 'onBlur')}
+                                    style={{ fontSize: 14 }}
+                                    disabled={!formData.resetMonth}
+                                >
+                                    {Array.from({ length: getDaysInMonth(formData.resetMonth) }, (_, i) => i + 1).map((day) => (
+                                        <MenuItem key={day} value={day.toString().padStart(2, '0')}>
+                                            {day}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                                {formDataError.resetDay && (
+                                    <Typography variant="caption" color="error" sx={{ mt: 0.5, ml: 1.5, fontSize: 12 }}>
+                                        Select reset day
+                                    </Typography>
+                                )}
+                            </FormControl>
+                        </div>
+                    </div>
                     <div className='mt-6 grid grid-cols-12 gap-6'>
                         <div className='col-start-7 col-span-3'>
                             <button className='addCategorySaveBtn' onClick={submitForm}>

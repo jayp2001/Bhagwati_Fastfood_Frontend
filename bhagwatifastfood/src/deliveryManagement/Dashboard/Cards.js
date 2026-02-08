@@ -954,7 +954,9 @@ const Cards = ({ data, getDeliverCardData }) => {
                 (type === 'online' && deliveryData.billPayType === 'cash') ||
                 (type === 'debit' && deliveryData.billPayType === 'cash') ||
                 (type === 'online' && deliveryData.billPayType === 'due') ||
-                (type === 'due' && deliveryData.billPayType === 'online')) {
+                (type === 'due' && deliveryData.billPayType === 'online') ||
+                (type === 'debit' && deliveryData.billPayType === 'online') ||
+                (type === 'online' && deliveryData.billPayType === 'debit')) {
                 calculateAmounts(deliveryData.desiredAmt, deliveryData.billChange, deliveryData.billAmt);
             } else if (type === 'cash') {
                 totalDesiredAmount = parseFloat(totalValues.desiredAmount || 0) + parseFloat(deliveryData.billAmt || 0);
@@ -1572,7 +1574,26 @@ const Cards = ({ data, getDeliverCardData }) => {
                                                         )}
                                                         {selectedBill.deliveryType === 'Hotel' && (
                                                             <>
-                                                                <MenuItem onClick={() => updateMarkingOfDelivery(bill, 'Cancel')}>
+                                                                {['cash', 'debit', 'online'].includes(selectedBill.billPayType) && (
+                                                                    <>
+                                                                        {selectedBill.billPayType !== 'cash' && (
+                                                                            <MenuItem onClick={() => updateMarkingOfDelivery(selectedBill, 'cash')}>
+                                                                                Cash
+                                                                            </MenuItem>
+                                                                        )}
+                                                                        {selectedBill.billPayType !== 'debit' && (
+                                                                            <MenuItem onClick={() => updateMarkingOfDelivery(selectedBill, 'debit')}>
+                                                                                Debit
+                                                                            </MenuItem>
+                                                                        )}
+                                                                        {selectedBill.billPayType !== 'online' && (
+                                                                            <MenuItem onClick={() => setUpiIdPopUp(true)}>
+                                                                                Online
+                                                                            </MenuItem>
+                                                                        )}
+                                                                    </>
+                                                                )}
+                                                                <MenuItem onClick={() => updateMarkingOfDelivery(selectedBill, 'Cancel')}>
                                                                     Cancel
                                                                 </MenuItem>
                                                                 <MenuItem onClick={handleDeleteItem}>

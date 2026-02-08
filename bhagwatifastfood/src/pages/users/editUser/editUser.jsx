@@ -83,11 +83,22 @@ function EditUser() {
         await axios.post(`${BACKEND_BASE_URL}userrouter/updateUserDetails`, formData, config)
             .then((res) => {
                 setLoading(false);
+                toast.dismiss('loading');
+                toast.success('User updated successfully!', {
+                    position: "bottom-right",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    theme: "colored",
+                });
                 setSuccess(true);
-                navigate(`/userTable`)
+                setTimeout(() => navigate(`/userTable`), 100);
             })
             .catch((error) => {
                 setLoading(false);
+                toast.dismiss('loading');
                 setError(error.response && error.response.data ? error.response.data : "Network Error ...!!!");
             })
     }

@@ -3,8 +3,7 @@ import IconButton from '@mui/material/IconButton';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
-import { useNavigate } from "react-router-dom";
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
 const ITEM_HEIGHT = 48;
 
@@ -14,13 +13,10 @@ function MenuStockInOut(props) {
     const handleClick = (event) => {
         setAnchorEl(event.currentTarget);
     };
-    const navigate = useNavigate();
     const handleClose = () => {
         setAnchorEl(null);
     };
-    const handleEditClick = (id) => {
-        navigate(`/editSuppiler/${id}`)
-    }
+    const hasBillId = props.data?.billId;
     return (
         <div>
             <IconButton
@@ -48,12 +44,16 @@ function MenuStockInOut(props) {
                     },
                 }}
             >
-                <MenuItem key={'delete'}
+                <MenuItem
+                    key="view"
                     onClick={() => {
                         handleClose();
-                        props.deleteStockInOut(props.stockInOutId)
-                    }}>
-                    Delete
+                        if (hasBillId && props.onViewBill) props.onViewBill(props.data.billId);
+                    }}
+                    disabled={!hasBillId}
+                >
+                    <VisibilityIcon sx={{ fontSize: 18, mr: 1 }} />
+                    View
                 </MenuItem>
             </Menu>
         </div >
