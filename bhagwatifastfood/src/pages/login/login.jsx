@@ -125,6 +125,7 @@ function LoginPage() {
                                         // onChange={onChange}
                                         value={userName}
                                         autoComplete='off'
+                                        autoFocus
                                         name="agentFirstName"
                                         id="outlined-required"
                                         label="User Name"

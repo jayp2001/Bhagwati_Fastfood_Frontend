@@ -67,6 +67,8 @@ const toTimeFormat = (value) => {
     return `${h}:${m}:${s}`
 }
 
+const amountRangeRegex = /^-?\d*(?:\.\d*)?$/
+
 /** Converts HH:mm:ss or HH:mm to 12-hour AM/PM format for display */
 const to12HourFormat = (value) => {
     if (value == null || value === '') return '-'
@@ -95,14 +97,13 @@ function BillCategories() {
         isOfficial: 0,
         billFooterNote: '',
         appriciateLine: '',
-        kotFooterNote: '',
         // Online store
         onlineMenuId: '',
         onlineMenuName: '',
         onlineStoreStatus: 1,
         storeStartTime: '00:00:00',
         storeEndTime: '00:00:00',
-        amountRange: 0,
+        amountRange: '',
         stopAutoAcceptStartTime: '00:00:00',
         stopAutoAcceptCloseTime: '00:00:00',
     })
@@ -215,13 +216,12 @@ function BillCategories() {
             isOfficial: categoryToUse.isOfficial ?? 0,
             billFooterNote: categoryToUse.billFooterNote ?? '',
             appriciateLine: categoryToUse.appriciateLine ?? '',
-            kotFooterNote: categoryToUse.kotFooterNote ?? '',
             onlineMenuId: categoryToUse.onlineMenuId || (menuCategoryList[0]?.menuCategoryId ?? ''),
             onlineMenuName: categoryToUse.onlineMenuName || onlineMenu?.menuCategoryName || '',
             onlineStoreStatus: categoryToUse.onlineStoreStatus ?? 1,
             storeStartTime: (categoryToUse.storeStartTime || '00:00:00').slice(0, 5),
             storeEndTime: (categoryToUse.storeEndTime || '00:00:00').slice(0, 5),
-            amountRange: categoryToUse.amountRange ?? 0,
+            amountRange: (categoryToUse.amountRange === 0 || categoryToUse.amountRange === '0' || categoryToUse.amountRange === '' || categoryToUse.amountRange == null) ? '' : String(categoryToUse.amountRange),
             stopAutoAcceptStartTime: (categoryToUse.stopAutoAcceptStartTime || '00:00:00').slice(0, 5),
             stopAutoAcceptCloseTime: (categoryToUse.stopAutoAcceptCloseTime || '00:00:00').slice(0, 5),
         })
@@ -258,13 +258,12 @@ function BillCategories() {
             isOfficial: 0,
             billFooterNote: '',
             appriciateLine: '',
-            kotFooterNote: '',
             onlineMenuId: '',
             onlineMenuName: '',
             onlineStoreStatus: 1,
             storeStartTime: '00:00:00',
             storeEndTime: '00:00:00',
-            amountRange: 0,
+            amountRange: '',
             stopAutoAcceptStartTime: '00:00:00',
             stopAutoAcceptCloseTime: '00:00:00',
         })
@@ -278,7 +277,11 @@ function BillCategories() {
     const handleInputChange = (e) => {
         const { name, value } = e.target
         let parsed = value
-        if (name === 'amountRange') parsed = value === '' ? 0 : Number(value)
+        if (name === 'amountRange') {
+            const digitCount = (value.match(/\d/g) || []).length
+            if (value !== '' && (!amountRangeRegex.test(value) || digitCount > 5)) return
+            parsed = value === '' ? '' : value
+        }
         setFormData((prev) => ({ ...prev, [name]: parsed }))
     }
 
@@ -352,23 +355,23 @@ function BillCategories() {
                 onlineStoreStatus: formData.onlineStoreStatus,
                 storeStartTime: toTimeFormat(formData.storeStartTime),
                 storeEndTime: toTimeFormat(formData.storeEndTime),
-                amountRange: Number(formData.amountRange) || 0,
+                amountRange: formData.amountRange || '',
                 stopAutoAcceptStartTime: toTimeFormat(formData.stopAutoAcceptStartTime),
                 stopAutoAcceptCloseTime: toTimeFormat(formData.stopAutoAcceptCloseTime),
                 billFooterNote: formData.billFooterNote ?? '',
-                kotFooterNote: formData.kotFooterNote ?? null,
+                appriciateLine: formData.appriciateLine ?? '',
             }
             await axios.post(
                 `${BACKEND_BASE_URL}billingrouter/updateBillCategoryData`,
                 updateData,
                 config
             )
-            toast.success('Bill category updated successfully')
+            toast.success('Category updated successfully')
             handleCloseEditModal()
             fetchBillCategories()
         } catch (error) {
-            console.error('Error updating bill category:', error)
-            toast.error(error.response?.data?.message || 'Failed to update bill category')
+            console.error('Error updating category:', error)
+            toast.error(error.response?.data?.message || 'Failed to update category')
         } finally {
             setLoading(false)
         }
@@ -394,6 +397,7 @@ function BillCategories() {
                                     <TableCell>Category</TableCell>
                                     <TableCell>Menu Category</TableCell>
                                     <TableCell>Firm Name</TableCell>
+                                    <TableCell>Online Store</TableCell>
                                     <TableCell align="center">Action</TableCell>
                                 </TableRow>
                             </TableHead>
@@ -418,6 +422,11 @@ function BillCategories() {
                                                     '-'}
                                             </TableCell>
                                             <TableCell align="left">{category.firmName || '-'}</TableCell>
+                                            <TableCell align="left">
+                                                <span className={category.onlineStoreStatus == 1 ? 'statusOpen' : 'statusClose'}>
+                                                    {category.onlineStoreStatus == 1 ? 'Open' : 'Close'}
+                                                </span>
+                                            </TableCell>
                                             <TableCell align="center">
                                                 <IconButton
                                                     onClick={(e) => handleEdit(e, category)}
@@ -500,7 +509,7 @@ function BillCategories() {
                                     </div>
                                     <div className='detailRow'>
                                         <span className='detailLabel'>Status:</span>
-                                        <span className='detailValue'>{selectedCategory.onlineStoreStatus === 1 ? 'Active' : 'Inactive'}</span>
+                                        <span className='detailValue'>{selectedCategory.onlineStoreStatus == 1 ? 'Open' : 'Close'}</span>
                                     </div>
                                     <div className='detailRow'>
                                         <span className='detailLabel'>Online Menu:</span>
@@ -609,17 +618,6 @@ function BillCategories() {
                                         multiline
                                         rows={2}
                                     />
-                                    <TextField
-                                        fullWidth
-                                        size="small"
-                                        label="KOT Footer Note"
-                                        name="kotFooterNote"
-                                        value={formData.kotFooterNote}
-                                        onChange={handleInputChange}
-                                        variant="outlined"
-                                        multiline
-                                        rows={2}
-                                    />
                                 </div>
                                 <div className='editModalSection'>
                                     <div className='editModalSectionHeader'>
@@ -635,10 +633,10 @@ function BillCategories() {
                                                     color="primary"
                                                 />
                                             }
-                                            label="Online Store Status (Active)"
+                                            label={`Online Store Status (${formData.onlineStoreStatus == 1 ? 'Open' : 'Close'})`}
                                         />
                                     </div>
-                                    <FormControl fullWidth size="small">
+                                    <FormControl fullWidth size="small" disabled={formData.onlineStoreStatus != 1}>
                                         <InputLabel>Online Menu</InputLabel>
                                         <Select
                                             name="onlineMenuId"
@@ -653,61 +651,70 @@ function BillCategories() {
                                             ))}
                                         </Select>
                                     </FormControl>
-                                    <TextField
-                                        fullWidth
-                                        size="small"
-                                        label="Store Start Time"
-                                        name="storeStartTime"
-                                        type="time"
-                                        value={formData.storeStartTime}
-                                        onChange={handleInputChange}
-                                        variant="outlined"
-                                        InputLabelProps={{ shrink: true }}
-                                    />
-                                    <TextField
-                                        fullWidth
-                                        size="small"
-                                        label="Store End Time"
-                                        name="storeEndTime"
-                                        type="time"
-                                        value={formData.storeEndTime}
-                                        onChange={handleInputChange}
-                                        variant="outlined"
-                                        InputLabelProps={{ shrink: true }}
-                                    />
+                                    <div className='formRow formRowGrid'>
+                                        <TextField
+                                            fullWidth
+                                            size="small"
+                                            label="Store Start Time"
+                                            name="storeStartTime"
+                                            type="time"
+                                            value={formData.storeStartTime}
+                                            onChange={handleInputChange}
+                                            variant="outlined"
+                                            InputLabelProps={{ shrink: true }}
+                                            disabled={formData.onlineStoreStatus != 1}
+                                        />
+                                        <TextField
+                                            fullWidth
+                                            size="small"
+                                            label="Store End Time"
+                                            name="storeEndTime"
+                                            type="time"
+                                            value={formData.storeEndTime}
+                                            onChange={handleInputChange}
+                                            variant="outlined"
+                                            InputLabelProps={{ shrink: true }}
+                                            disabled={formData.onlineStoreStatus != 1}
+                                        />
+                                    </div>
                                     <TextField
                                         fullWidth
                                         size="small"
                                         label="Amount Range"
                                         name="amountRange"
-                                        type="number"
+                                        type="text"
                                         value={formData.amountRange}
                                         onChange={handleInputChange}
                                         variant="outlined"
-                                        inputProps={{ min: 0 }}
+                                        inputProps={{ maxLength: 7 }}
+                                        disabled={formData.onlineStoreStatus != 1}
                                     />
-                                    <TextField
-                                        fullWidth
-                                        size="small"
-                                        label="Stop Auto Accept Start"
-                                        name="stopAutoAcceptStartTime"
-                                        type="time"
-                                        value={formData.stopAutoAcceptStartTime}
-                                        onChange={handleInputChange}
-                                        variant="outlined"
-                                        InputLabelProps={{ shrink: true }}
-                                    />
-                                    <TextField
-                                        fullWidth
-                                        size="small"
-                                        label="Stop Auto Accept End"
-                                        name="stopAutoAcceptCloseTime"
-                                        type="time"
-                                        value={formData.stopAutoAcceptCloseTime}
-                                        onChange={handleInputChange}
-                                        variant="outlined"
-                                        InputLabelProps={{ shrink: true }}
-                                    />
+                                    <div className='formRow formRowGrid'>
+                                        <TextField
+                                            fullWidth
+                                            size="small"
+                                            label="Stop Auto Accept Start"
+                                            name="stopAutoAcceptStartTime"
+                                            type="time"
+                                            value={formData.stopAutoAcceptStartTime}
+                                            onChange={handleInputChange}
+                                            variant="outlined"
+                                            InputLabelProps={{ shrink: true }}
+                                            disabled={formData.onlineStoreStatus != 1}
+                                        />
+                                        <TextField
+                                            fullWidth
+                                            size="small"
+                                            label="Stop Auto Accept End"
+                                            name="stopAutoAcceptCloseTime"
+                                            type="time"
+                                            value={formData.stopAutoAcceptCloseTime}
+                                            onChange={handleInputChange}
+                                            variant="outlined"
+                                            InputLabelProps={{ shrink: true }}
+                                            disabled={formData.onlineStoreStatus != 1}
+                                        />
+                                    </div>
                                 </div>
                             </div>
                             <div className='formActions'>

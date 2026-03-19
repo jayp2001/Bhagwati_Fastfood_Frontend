@@ -337,20 +337,21 @@ function CustomerDetails() {
         return key;
     };
 
-    // Color mapping for different stat types
+    // Color mapping for different stat types (matches API response keys)
     const getColorForKey = (key) => {
         const colorMap = {
             'Pickup Summary': 'purple',
             'Delivery Summary': 'teal',
             'DineIn Summary': 'indigo',
-            'Cash Summary': 'blue',
-            'Due Summary': 'pink',
-            'Online Summary': 'green',
-            'Complimentary Summary': 'purple',
-            'Cancel Summary': 'orange',
+            'Cash Payment': 'blue',
+            'Due Payment': 'pink',
+            'Online Payment': 'green',
+            'Complimentary Order': 'purple',
+            'Cancel Order': 'orange',
             'Total Discount': 'cyan',
             'Visit': 'yellow',
             'Total Business': 'black',
+            'Total Last Month Visit': 'indigo',
             'Average Visit Per Month': 'yellow',
             'Average Business Per Year': 'red'
         };

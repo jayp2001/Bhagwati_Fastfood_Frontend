@@ -20,6 +20,9 @@ import analyze from '../../../../../assets/billing/analyze.png';
 import Menu from '../../../../../assets/menu.png';
 import upi from '../../../../../assets/bank/scan.png';
 import firm from '../../../../../assets/firm.png';
+import customer from '../../../../../assets/billing/customer.png';
+import category from '../../../../../assets/billing/category.png';
+import allOrders from '../../../../../assets/billing/allOrders.png';
 
 function ConsoleCard(props) {
     const getImg = (imgname) => {
@@ -60,6 +63,12 @@ function ConsoleCard(props) {
                 return comment;
             case 'firm':
                 return firm;
+            case 'customer':
+                return customer;
+            case 'category':
+                return category;
+            case 'allOrders':
+                return allOrders;
             default:
                 return userAdd;
         }

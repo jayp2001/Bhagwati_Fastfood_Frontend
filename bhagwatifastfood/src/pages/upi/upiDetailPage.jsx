@@ -285,7 +285,7 @@ function UpiDetailPage() {
                             <div className='userTableSubContainer pt-4'>
                                 <div className='grid grid-cols-12'>
                                     <div className='ml-4 col-span-6 mt-2' >
-                                        <div className='flex items-center gap-2'>
+                                        <div className='flex items-center'>
                                             <div className='dateRange text-center' aria-describedby={id} onClick={handleClick}>
                                                 <CalendarMonthIcon className='calIcon' />&nbsp;&nbsp;{(state[0].startDate && filter ? state[0].startDate.toDateString() : 'Select Date')} -- {(state[0].endDate && filter ? state[0].endDate.toDateString() : 'Select Date')}
                                             </div>
@@ -345,9 +345,11 @@ function UpiDetailPage() {
                                             </Box>
                                         </Popover>
                                     </div>
-                                    <button className='exportExcelBtn col-start-10 col-span-2' onClick={exportPdf}>
-                                        <FileDownloadIcon />&nbsp;&nbsp;Export PDF
-                                    </button>
+                                    <div className='col-span-2 col-start-11 pr-5 flex justify-end'>
+                                        <button className='exportExcelBtn' onClick={exportPdf}>
+                                            <FileDownloadIcon />&nbsp;&nbsp;Export PDF
+                                        </button>
+                                    </div>
                                 </div>
                                 <div className='tableContainerWrapper'>
                                     <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
