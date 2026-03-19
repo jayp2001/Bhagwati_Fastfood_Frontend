@@ -1,40 +1,176 @@
+/* Modal container - flex layout with scrolling */
+.addProdutModal {
+    display: flex !important;
+    flex-direction: column !important;
+    max-height: 90vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+    transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+}
+
+@media (max-width: 600px) {
+    .addProdutModal {
+        max-height: 95vh;
+        padding: 12px !important;
+    }
+}
+
+@media (max-height: 700px) {
+    .addProdutModal {
+        max-height: 98vh;
+        padding: 12px !important;
+    }
+}
+
+@media (max-height: 600px) {
+    .addProdutModal {
+        max-height: 98vh;
+        padding: 10px !important;
+    }
+}
+
+/* Allow overflow for transliterate dropdowns */
+.addProdutModal .ao-transliterate-wrapper {
+    overflow: visible !important;
+}
+
+/* Responsive header for smaller heights */
+.modal-header-responsive {
+    flex-shrink: 0;
+    transition: margin-bottom 0.3s ease-in-out, padding-bottom 0.3s ease-in-out;
+}
+
+.modal-header-responsive .text-lg,
+.modal-header-responsive .text-xl {
+    transition: font-size 0.3s ease-in-out;
+}
+
+@media (max-height: 700px) {
+    .modal-header-responsive {
+        margin-bottom: 8px;
+        padding-bottom: 8px;
+    }
+    
+    .modal-header-responsive .text-lg,
+    .modal-header-responsive .text-xl {
+        font-size: 1rem !important;
+    }
+}
+
+@media (max-height: 600px) {
+    .modal-header-responsive {
+        margin-bottom: 6px;
+        padding-bottom: 6px;
+    }
+    
+    .modal-header-responsive .text-lg,
+    .modal-header-responsive .text-xl {
+        font-size: 0.9rem !important;
+    }
+}
+
+/* Action buttons responsive */
+.modal-action-buttons {
+    flex-shrink: 0;
+    margin-top: 12px;
+    transition: margin-top 0.3s ease-in-out;
+}
+
+@media (max-height: 700px) {
+    .modal-action-buttons {
+        margin-top: 8px;
+    }
+}
+
+@media (max-height: 600px) {
+    .modal-action-buttons {
+        margin-top: 6px;
+    }
+}
+
 /* Local styles for Customer List page - matching addOns.css */
 .ao-compact-btn {
-  height: 40px !important; /* match MUI TextField size='small' */
-  line-height: 40px !important;
-  padding: 0 16px !important;
-  font-size: 0.875rem;
-  border-radius: 4px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+    height: 40px !important;
+    /* match MUI TextField size='small' */
+    line-height: 40px !important;
+    padding: 0 16px !important;
+    font-size: 0.875rem;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Increase specificity to beat global .addCategory* rules */
-.addCategorySaveBtn.ao-compact-btn { height: 40px !important; line-height: 40px !important; padding: 0 16px !important; }
-.addCategoryCancleBtn.ao-compact-btn { height: 40px !important; line-height: 40px !important; padding: 0 16px !important; }
+.addCategorySaveBtn.ao-compact-btn {
+    height: 40px !important;
+    line-height: 40px !important;
+    padding: 0 16px !important;
+}
+
+.addCategoryCancleBtn.ao-compact-btn {
+    height: 40px !important;
+    line-height: 40px !important;
+    padding: 0 16px !important;
+}
+
+/* Small compact buttons for Save/Cancel */
+.ao-compact-btn-small {
+    height: 36px !important;
+    line-height: 36px !important;
+    padding: 0 18px !important;
+    font-size: 0.875rem !important;
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: auto;
+    width: auto;
+    white-space: nowrap;
+}
+
+.addCategorySaveBtn.ao-compact-btn-small {
+    height: 36px !important;
+    line-height: 36px !important;
+    padding: 0 18px !important;
+    font-size: 0.875rem !important;
+    min-width: auto;
+    width: auto;
+}
+
+.addCategoryCancleBtn.ao-compact-btn-small {
+    height: 36px !important;
+    line-height: 36px !important;
+    padding: 0 18px !important;
+    font-size: 0.875rem !important;
+    min-width: auto;
+    width: auto;
+}
 
 .ao-rtl-input {
-  height: 40px; /* match MUI TextField size='small' */
-  padding: 8px 12px;
-  font-size: 0.875rem;
-  border: 1px solid #cbd5e1; /* slate-300 */
-  border-radius: 4px;
-  width: 100%;
-  box-sizing: border-box;
+    height: 40px;
+    /* match MUI TextField size='small' */
+    padding: 10px 12px;
+    font-size: 0.875rem;
+    border: 1px solid #cbd5e1;
+    /* slate-300 */
+    border-radius: 4px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* Search text field styling - matching upiDashboard */
 .sarchText {
-  margin-bottom: 8px;
+    margin-bottom: 8px;
 }
 
 .sarchText .MuiInput-root {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 .sarchText .MuiInputLabel-root {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 /* White card container - matching upiDashboard */
@@ -53,3 +189,371 @@
     margin-top: 30px;
 }
 
+/* Add/Edit Modal - Two-column layout (40% / 60%) */
+.addEditModalLayout {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 4px;
+    align-items: flex-start;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    transition: gap 0.3s ease-in-out;
+}
+
+/* Responsive: Stack vertically on mobile/tablet */
+@media (min-width: 768px) {
+    .addEditModalLayout {
+        flex-direction: row;
+        gap: 20px;
+    }
+}
+
+/* Reduce gaps on smaller heights */
+@media (max-height: 700px) {
+    .addEditModalLayout {
+        gap: 12px;
+    }
+}
+
+@media (max-height: 600px) {
+    .addEditModalLayout {
+        gap: 10px;
+    }
+}
+
+.addEditModalLeft {
+    width: 100%;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 0;
+    transition: gap 0.3s ease-in-out;
+}
+
+@media (min-width: 768px) {
+    .addEditModalLeft {
+        width: 30%;
+        gap: 12px;
+    }
+}
+
+@media (max-height: 700px) {
+    .addEditModalLeft {
+        gap: 8px;
+    }
+}
+
+.addEditModalRight {
+    width: 100%;
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 0;
+    overflow: hidden;
+    transition: gap 0.3s ease-in-out;
+}
+
+@media (min-width: 768px) {
+    .addEditModalRight {
+        width: 70%;
+        gap: 12px;
+    }
+}
+
+@media (max-height: 700px) {
+    .addEditModalRight {
+        gap: 8px;
+    }
+}
+
+.addEditModalAddressAdd {
+    flex-shrink: 0;
+}
+
+/* Add Address row - flex layout to prevent button cut-off */
+.addEditModalAddressRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.addEditModalAddressField {
+    flex: 1;
+    min-width: 120px;
+    position: relative;
+}
+
+@media (max-width: 640px) {
+    .addEditModalAddressField {
+        min-width: 100%;
+        flex: 1 1 100%;
+    }
+}
+
+.addEditModalAddressButtons {
+    flex-shrink: 0;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    width: 100%;
+    justify-content: flex-end;
+}
+
+@media (min-width: 640px) {
+    .addEditModalAddressButtons {
+        width: auto;
+    }
+}
+
+/* Address/Locality input - same size as read-only saved addresses */
+.ao-rtl-input-address {
+    height: 40px;
+    padding: 10px 12px;
+    font-size: 14px;
+}
+
+.addEditAddressInput .MuiInputBase-root {
+    min-height: 32px;
+    height: 32px;
+}
+
+.addEditAddressInput .MuiInputBase-input {
+    font-size: 12px;
+    padding: 4px 8px;
+}
+
+/* Add/Save/Cancel buttons beside Address and Locality */
+.addEditAddressBtn {
+    height: 40px;
+    min-width: 70px;
+    padding: 0 16px;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.addEditAddressBtnAdd,
+.addEditAddressBtnSave {
+    background: linear-gradient(195deg, rgb(102, 187, 106), rgb(67, 160, 71));
+    color: white;
+}
+
+.addEditAddressBtnAdd:hover,
+.addEditAddressBtnSave:hover {
+    opacity: 0.9;
+}
+
+.addEditAddressBtnCancel {
+    background: #4b5563;
+    color: white;
+}
+
+.addEditAddressBtnCancel:hover {
+    background: #374151;
+}
+
+.addEditModalSavedAddresses {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Saved Addresses - Scrollable when overflow */
+.savedAddressesTableWrapper {
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    max-height: 300px;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out;
+}
+
+@media (max-width: 640px) {
+    .savedAddressesTableWrapper {
+        max-height: 250px;
+    }
+}
+
+@media (max-height: 700px) {
+    .savedAddressesTableWrapper {
+        max-height: 200px;
+    }
+}
+
+@media (max-height: 600px) {
+    .savedAddressesTableWrapper {
+        max-height: 150px;
+    }
+}
+
+.savedAddressesTableHeader {
+    display: grid;
+    grid-template-columns: 32px 1fr 1fr 100px;
+    column-gap: 10px;
+    align-items: center;
+    padding: 8px 10px;
+    background: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+    flex-shrink: 0;
+    z-index: 1;
+}
+
+@media (max-width: 640px) {
+    .savedAddressesTableHeader {
+        grid-template-columns: 24px 1fr 1fr 80px;
+        column-gap: 6px;
+        padding: 6px 8px;
+        font-size: 11px;
+    }
+}
+
+.savedAddressesTh {
+    font-size: 12px;
+    font-weight: 600;
+    color: #4b5563;
+}
+
+.savedAddressesTh:first-child,
+.savedAddressesThActions {
+    text-align: center;
+    font-size: 12px;
+}
+
+.savedAddressesTableBody {
+    overflow-y: auto;
+    overflow-x: hidden;
+    flex: 1;
+    min-height: 0;
+}
+
+.savedAddressesTableBody::-webkit-scrollbar {
+    width: 6px;
+}
+
+.savedAddressesTableBody::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.savedAddressesTableBody::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.savedAddressesRow {
+    display: grid;
+    grid-template-columns: 32px 1fr 1fr 100px;
+    column-gap: 10px;
+    align-items: center;
+    padding: 4px 10px;
+    border-bottom: 1px solid #f3f4f6;
+    min-width: 0;
+}
+
+@media (max-width: 640px) {
+    .savedAddressesRow {
+        grid-template-columns: 24px 1fr 1fr 80px;
+        column-gap: 6px;
+        padding: 4px 8px;
+    }
+}
+
+.savedAddressesRow:last-child {
+    border-bottom: none;
+}
+
+.savedAddressesRowEditing {
+    background-color: rgba(25, 118, 210, 0.08);
+    border-radius: 4px;
+}
+
+.savedAddressesRow>div:first-child {
+    text-align: center;
+}
+
+.savedAddressesRow>div:last-child {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
+/* Read-only inputs in saved addresses - same size as Address/Locality add section */
+.savedAddressesRow .MuiTextField-root .MuiInputBase-root,
+.savedAddressesRow .savedAddressesReadOnlyInput .MuiInputBase-root {
+    min-height: 32px;
+    height: 32px;
+}
+
+.savedAddressesRow .MuiTextField-root .MuiInputBase-input,
+.savedAddressesRow .savedAddressesReadOnlyInput .MuiInputBase-input {
+    font-size: 12px;
+    padding: 4px 8px;
+}
+
+.savedAddressesRow .ao-rtl-input {
+    font-size: 12px;
+    padding: 4px 8px;
+    height: 32px;
+}
+
+/* Gujarati Transliterate Dropdown - Fix overflow and z-index */
+.ao-transliterate-wrapper {
+    position: relative;
+    z-index: 1000;
+    overflow: visible !important;
+}
+
+/* Fix ReactTransliterate dropdown overflow */
+.ao-transliterate-wrapper .ao-rtl-suggestions,
+.ao-transliterate-wrapper ul[class*="suggestions"],
+.ao-transliterate-wrapper div[class*="suggestions"] {
+    z-index: 10000 !important;
+    position: absolute !important;
+    max-height: 200px !important;
+    overflow-y: auto !important;
+    background: white !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 4px !important;
+    margin-top: 2px !important;
+    width: 100% !important;
+    left: 0 !important;
+    top: 100% !important;
+}
+
+@media (max-width: 640px) {
+    .ao-transliterate-wrapper .ao-rtl-suggestions,
+    .ao-transliterate-wrapper ul[class*="suggestions"],
+    .ao-transliterate-wrapper div[class*="suggestions"] {
+        max-height: 150px !important;
+        font-size: 13px !important;
+    }
+}
+
+/* Ensure parent containers allow overflow for dropdown */
+.addEditModalLayout,
+.addEditModalLeft,
+.addEditModalRight,
+.addEditModalAddressAdd,
+.addEditModalAddressField {
+    overflow: visible;
+}
+
+.addEditModalSavedAddresses {
+    overflow: hidden;
+}

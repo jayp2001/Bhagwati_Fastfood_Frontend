@@ -17,6 +17,11 @@ import axios from 'axios';
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
 import CloseIcon from '@mui/icons-material/Close';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import Slider from '@mui/material/Slider';
 import { useLocation } from 'react-router-dom';
 import { useNavigate, useParams } from "react-router-dom";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -25,6 +30,48 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 
 import { useRef } from 'react';
 import dayjs from 'dayjs';
+import Cropper from 'react-easy-crop';
+
+const getCroppedImg = (imageSrc, pixelCrop) => {
+    return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.crossOrigin = 'anonymous';
+        image.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = pixelCrop.width;
+            canvas.height = pixelCrop.height;
+            const ctx = canvas.getContext('2d');
+
+            if (!ctx) {
+                reject(new Error('Canvas context not available'));
+                return;
+            }
+
+            ctx.drawImage(
+                image,
+                pixelCrop.x,
+                pixelCrop.y,
+                pixelCrop.width,
+                pixelCrop.height,
+                0,
+                0,
+                pixelCrop.width,
+                pixelCrop.height
+            );
+
+            canvas.toBlob((blob) => {
+                if (!blob) {
+                    reject(new Error('Canvas is empty'));
+                    return;
+                }
+                resolve(blob);
+            }, 'image/jpeg');
+        };
+        image.onerror = (error) => reject(error);
+        image.src = imageSrc;
+    });
+};
+
 function AddEditStaff() {
     const textFieldRef = useRef(null);
     const focus = () => {
@@ -124,6 +171,12 @@ function AddEditStaff() {
     const [fileName, setFileName] = React.useState(null);
     const [file, setFile] = React.useState('');
     const [filePreview, setFilePreview] = React.useState();
+    const [cropModalOpen, setCropModalOpen] = React.useState(false);
+    const [crop, setCrop] = React.useState({ x: 0, y: 0 });
+    const [zoom, setZoom] = React.useState(1);
+    const [croppedAreaPixels, setCroppedAreaPixels] = React.useState(null);
+    const [rawImageFile, setRawImageFile] = React.useState(null);
+    const [imageSrc, setImageSrc] = React.useState(null);
     const [formData, setFormData] = useState({
         employeeFirstName: '',
         employeeLastName: '',
@@ -162,29 +215,104 @@ function AddEditStaff() {
         maxLeave: false,
         files: false,
         joiningDate: false
-    })
+    });
+
+    const onCropComplete = (croppedArea, croppedAreaPx) => {
+        setCroppedAreaPixels(croppedAreaPx);
+    };
+
     const handleFileUpload = (event) => {
-        console.log("FILE", event.target.files)
-        setFilePreview(URL.createObjectURL(event.target.files[0]))
-        setFile(event.target.files)
-        setFormData((perv) => ({
-            ...perv,
-            files: event.target.files
-        }))
-        setFileName(event.target.files[0].name)
-        if (event.target.files[0].name) {
-            setFormDataError((perv) => ({
-                ...perv,
-                files: false,
-            }))
+        const selectedFiles = event.target.files;
+        if (!selectedFiles || selectedFiles.length === 0) {
+            return;
         }
-        else {
+        const selectedFile = selectedFiles[0];
+
+        if (!selectedFile.type || !selectedFile.type.startsWith('image/')) {
+            toast('Only image files are allowed', {
+                type: 'error',
+                position: "bottom-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+            });
+            event.target.value = "";
             setFormDataError((perv) => ({
                 ...perv,
                 files: true,
-            }))
+            }));
+            return;
         }
-    }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+            setImageSrc(reader.result);
+            setRawImageFile(selectedFile);
+            setCrop({ x: 0, y: 0 });
+            setZoom(1);
+            setCropModalOpen(true);
+        };
+        reader.readAsDataURL(selectedFile);
+    };
+
+    const handleCropCancel = () => {
+        setCropModalOpen(false);
+        setImageSrc(null);
+        setRawImageFile(null);
+        setCroppedAreaPixels(null);
+        document.getElementById("fileUpload").value = "";
+    };
+
+    const handleCropSave = async () => {
+        try {
+            if (!imageSrc || !croppedAreaPixels || !rawImageFile) {
+                handleCropCancel();
+                return;
+            }
+
+            const croppedBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
+            const croppedFile = new File([croppedBlob], rawImageFile.name, {
+                type: rawImageFile.type || 'image/jpeg',
+            });
+
+            const fileArray = [croppedFile];
+            const previewUrl = URL.createObjectURL(croppedFile);
+
+            setFile(fileArray);
+            setFormData((prev) => ({
+                ...prev,
+                files: fileArray,
+            }));
+            setFileName(croppedFile.name);
+            setFilePreview(previewUrl);
+            setFormDataError((perv) => ({
+                ...perv,
+                files: false,
+            }));
+
+            setCropModalOpen(false);
+            setImageSrc(null);
+            setRawImageFile(null);
+            setCroppedAreaPixels(null);
+        } catch (e) {
+            console.error('Crop failed', e);
+            toast('Failed to crop image', {
+                type: 'error',
+                position: "bottom-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+            });
+        }
+    };
     const navigateToList = () => {
         navigate('/staff/staffList')
     }
@@ -229,9 +357,9 @@ function AddEditStaff() {
             employeeNickName: false,
             joiningDate: false
         })
-        setFileName('')
+        setFileName('');
         setFilePreview();
-    }
+    };
     const [fields, setFields] = useState([
         'employeeFirstName',
         'employeeLastName',
@@ -943,8 +1071,8 @@ function AddEditStaff() {
                                                     <div>
                                                         <IconButton onClick={() => {
                                                             document.getElementById("fileUpload").value = "";
-                                                            setFile(null)
-                                                            setFileName('')
+                                                            setFile(null);
+                                                            setFileName('');
                                                             setFilePreview();
                                                         }} fontSize='large' sx={{ minHeight: 0, minWidth: 0, padding: 0 }}>
                                                             <CloseIcon />
@@ -957,8 +1085,8 @@ function AddEditStaff() {
                                         <div className='uploadBtnWrp w-full flex justify-center'>
                                             <div className='col-start-4 col-span-5'>
                                                 <Button variant="contained" component="label">
-                                                    Upload reciept
-                                                    <input hidden accept="application/image/*" id='fileUpload' onChange={handleFileUpload} type="file" />
+                                                    Upload Photo
+                                                    <input hidden accept="image/*" id='fileUpload' onChange={handleFileUpload} type="file" />
                                                 </Button>
                                             </div>
                                         </div>
@@ -984,6 +1112,42 @@ function AddEditStaff() {
                     </div>
                 </div>
             </div>
+            <Dialog
+                open={cropModalOpen}
+                onClose={handleCropCancel}
+                maxWidth="sm"
+                fullWidth
+            >
+                <DialogTitle>Crop Profile Image (1:1)</DialogTitle>
+                <DialogContent>
+                    <div style={{ position: 'relative', width: '100%', height: 350, background: '#333' }}>
+                        {imageSrc && (
+                            <Cropper
+                                image={imageSrc}
+                                crop={crop}
+                                zoom={zoom}
+                                aspect={1}
+                                onCropChange={setCrop}
+                                onZoomChange={setZoom}
+                                onCropComplete={onCropComplete}
+                            />
+                        )}
+                    </div>
+                    <div style={{ marginTop: 16 }}>
+                        <Slider
+                            value={zoom}
+                            min={1}
+                            max={3}
+                            step={0.1}
+                            onChange={(_, value) => setZoom(value)}
+                        />
+                    </div>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleCropCancel}>Cancel</Button>
+                    <Button variant="contained" onClick={handleCropSave}>Save</Button>
+                </DialogActions>
+            </Dialog>
             <ToastContainer />
         </div>
     )

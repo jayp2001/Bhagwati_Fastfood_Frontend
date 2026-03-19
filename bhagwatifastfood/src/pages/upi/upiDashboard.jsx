@@ -365,7 +365,7 @@ function UPIListTable() {
                                     fullWidth
                                 />
                             </div>
-                            <div className='col-span-4 col-start-9 pr-8 flex justify-end'>
+                            <div className='col-span-4 col-start-9 mt-2 pr-8 flex justify-end'>
                                 <button className='exportExcelBtn' onClick={handleAddUpiOpen}>Add UPI</button>
                             </div>
                         </div>

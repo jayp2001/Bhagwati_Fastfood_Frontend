@@ -77,11 +77,17 @@ const modalStyle = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 'min(1000px, 95vw)',
+    width: { xs: '95vw', sm: '90vw', md: 'min(1300px, 95vw)' },
+    maxWidth: { xs: '100%', md: '1300px' },
+    maxHeight: { xs: '95vh', sm: '90vh', md: '90vh' },
+    height: { xs: 'auto', sm: 'auto', md: 'auto' },
     bgcolor: 'background.paper',
     boxShadow: 24,
-    p: 4,
+    p: { xs: 1.5, sm: 2, md: 3 },
     borderRadius: '10px',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
 };
 
 function CustomerList() {
@@ -92,6 +98,15 @@ function CustomerList() {
             "Content-Type": "application/json",
             Authorization: userInfo?.token ? `Bearer ${userInfo.token}` : undefined,
         },
+    };
+
+    // Get current month and year dynamically
+    const getCurrentMonthYear = () => {
+        const now = new Date();
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const month = monthNames[now.getMonth()];
+        const year = now.getFullYear();
+        return `${month} - ${year}`;
     };
 
     const [customers, setCustomers] = useState([]);
@@ -127,16 +142,20 @@ function CustomerList() {
     const [editingAddressIndex, setEditingAddressIndex] = useState(null);
 
     const autoFocus = useRef(null);
+    const addressInputRef = useRef(null);
 
     useEffect(() => {
         fetchCustomers();
     }, [page, rowsPerPage]);
 
     useEffect(() => {
-        if (open && autoFocus.current) {
-            setTimeout(() => {
-                autoFocus.current.focus();
-            }, 100);
+        if (open) {
+            const timer = setTimeout(() => {
+                if (autoFocus.current) {
+                    autoFocus.current.focus();
+                }
+            }, 200);
+            return () => clearTimeout(timer);
         }
     }, [open]);
 
@@ -377,6 +396,10 @@ function CustomerList() {
             address: '',
             locality: ''
         });
+        setTimeout(() => {
+            const el = addressInputRef.current?.querySelector?.('input') || addressInputRef.current;
+            if (el?.focus) el.focus();
+        }, 0);
     };
 
     const handleRemoveAddress = (index) => {
@@ -409,6 +432,10 @@ function CustomerList() {
             locality: addr.locality || ''
         });
         setEditingAddressIndex(index);
+        setTimeout(() => {
+            const el = addressInputRef.current?.querySelector?.('input') || addressInputRef.current;
+            if (el?.focus) el.focus();
+        }, 0);
     };
 
     const handleSaveEditedAddress = () => {
@@ -431,6 +458,10 @@ function CustomerList() {
         }
         setEditingAddressIndex(null);
         setAddressInput({ address: '', locality: '' });
+        setTimeout(() => {
+            const el = addressInputRef.current?.querySelector?.('input') || addressInputRef.current;
+            if (el?.focus) el.focus();
+        }, 0);
     };
 
     const handleCancelEditAddress = () => {
@@ -583,6 +614,7 @@ function CustomerList() {
                                 }}
                                 InputLabelProps={{ style: { fontSize: 14 } }}
                                 fullWidth
+                                autoComplete="off"
                             />
                         </div>
                     </div>
@@ -591,12 +623,14 @@ function CustomerList() {
                             <Table sx={{ minWidth: 650 }} aria-label="simple table">
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>No.</TableCell>
-                                        <TableCell>Customer Name</TableCell>
-                                        <TableCell>Mobile Number</TableCell>
-                                        <TableCell>Birth Date</TableCell>
-                                        <TableCell>Anniversary Date</TableCell>
-                                        <TableCell align="center">Actions</TableCell>
+                                        <TableCell sx={{ fontWeight: 'bold' }}>No.</TableCell>
+                                        <TableCell sx={{ fontWeight: 'bold' }}>Mobile Number</TableCell>
+                                        <TableCell sx={{ fontWeight: 'bold' }}>Customer Name</TableCell>
+                                        <TableCell align="center" sx={{ fontWeight: 'bold' }}>Birth Date</TableCell>
+                                        <TableCell align="center" sx={{ fontWeight: 'bold' }}>Anniversary Date</TableCell>
+                                        <TableCell align="center" sx={{ fontWeight: 'bold' }}>{getCurrentMonthYear()}</TableCell>
+                                        <TableCell align="center" sx={{ fontWeight: 'bold' }}>Last Order Date</TableCell>
+                                        <TableCell align="center" sx={{ fontWeight: 'bold' }}>Actions</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -611,20 +645,22 @@ function CustomerList() {
                                                 <TableCell>
                                                     {searchWord ? (index + 1) : (index + 1) + (page * rowsPerPage)}
                                                 </TableCell>
-                                                <TableCell>{customer.customerName}</TableCell>
                                                 <TableCell>{customer.customerMobileNumber}</TableCell>
-                                                <TableCell>
+                                                <TableCell>{customer.customerName}</TableCell>
+                                                <TableCell align="center">
                                                     {customer.birthDate
                                                         ? new Date(customer.birthDate).toLocaleDateString('en-GB')
                                                         : '-'}
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell align="center">
                                                     {customer.anniversaryDate
                                                         ? new Date(customer.anniversaryDate).toLocaleDateString('en-GB')
                                                         : '-'}
                                                 </TableCell>
+                                                <TableCell align="center">{customer.totalOrdersCurrentMonth ? customer.totalOrdersCurrentMonth + " Orders" : "0 Orders"}</TableCell>
+                                                <TableCell align="center">{customer.lastOrderDate ? customer.lastOrderDate : "-"}</TableCell>
                                                 <TableCell align="center">
-                                                    <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                                    <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
                                                         <IconButton
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
@@ -705,27 +741,66 @@ function CustomerList() {
             {/* Add/Edit Customer Modal */}
             <Modal open={open} onClose={handleClose}>
                 <Box sx={modalStyle} className='addProdutModal'>
-                    <div className='flex justify-between items-center mb-3'>
-                        <div className='text-xl p-1 font-semibold'>
+                    <div className='flex justify-between items-center mb-2 pb-2 flex-shrink-0 modal-header-responsive' style={{ borderBottom: '1px solid #e5e7eb' }}>
+                        <div className='text-lg sm:text-xl p-1 font-semibold'>
                             {editData ? 'Edit Customer' : 'Add Customer'}
                         </div>
                         <div className='flex items-center gap-2'>
-                            <span className={`text-sm ${!isGujarati ? 'font-bold text-blue-600' : 'text-gray-400'}`}>EN</span>
+                            <span className={`text-xs sm:text-sm ${!isGujarati ? 'font-bold text-blue-600' : 'text-gray-400'}`}>EN</span>
                             <Switch
                                 checked={isGujarati}
                                 onChange={(e) => setIsGujarati(e.target.checked)}
                                 size="small"
                             />
-                            <span className={`text-sm ${isGujarati ? 'font-bold text-blue-600' : 'text-gray-400'}`}>ગુજ</span>
+                            <span className={`text-xs sm:text-sm ${isGujarati ? 'font-bold text-blue-600' : 'text-gray-400'}`}>ગુજ</span>
                         </div>
                     </div>
 
-                    {/* Customer Details Section */}
-                    <div className="grid grid-cols-12 gap-4">
-                        <div className="col-span-6">
+                    {/* Two-column layout: Left 40%, Right 60% */}
+                    <div className='addEditModalLayout'>
+                        {/* Left side - Customer details (20%) */}
+                        <div className='addEditModalLeft'>
+                            {isGujarati ? (
+                                <div className="relative w-full ao-transliterate-wrapper">
+                                    <ReactTransliterate
+                                        value={formData.customerName}
+                                        onChangeText={(text) => {
+                                            setFormData({ ...formData, customerName: text });
+                                            setFormValidation({ ...formValidation, customerName: false });
+                                        }}
+                                        className='ao-rtl-input ao-rtl-input-compact'
+                                        placeholder='ગ્રાહકનું નામ'
+                                        lang='gu'
+                                        inputRef={autoFocus}
+                                        autoFocus
+                                    />
+                                    {formValidation.customerName && (
+                                        <div className="text-red-500 text-xs mt-1">Customer name is required</div>
+                                    )}
+                                </div>
+                            ) : (
+                                <TextField
+                                    size='small'
+                                    placeholder="Customer Name"
+                                    inputRef={autoFocus}
+                                    autoFocus
+                                    variant="outlined"
+                                    className='w-full'
+                                    InputProps={{ sx: { '& input': { fontSize: '14px', padding: '10px 10px' } } }}
+                                    error={formValidation.customerName}
+                                    helperText={formValidation.customerName ? 'Customer name is required' : ''}
+                                    value={formData.customerName}
+                                    onChange={(e) => {
+                                        setFormData({ ...formData, customerName: e.target.value });
+                                        setFormValidation({ ...formValidation, customerName: false });
+                                    }}
+                                    autoComplete="off"
+                                />
+                            )}
                             <TextField
                                 size='small'
-                                label="Mobile Number"
+                                placeholder="Mobile Number"
+                                InputProps={{ sx: { '& input': { fontSize: '13px', padding: '10px 10px' } } }}
                                 variant="outlined"
                                 className='w-full'
                                 error={formValidation.mobileNumber}
@@ -739,262 +814,193 @@ function CustomerList() {
                                     }
                                 }}
                                 autoComplete="off"
-                                inputRef={autoFocus}
                             />
-                        </div>
-
-                        <div className="col-span-6">
-                            {isGujarati ? (
-                                <div className="relative">
-                                    <ReactTransliterate
-                                        value={formData.customerName}
-                                        onChangeText={(text) => {
-                                            setFormData({ ...formData, customerName: text });
-                                            setFormValidation({ ...formValidation, customerName: false });
-                                        }}
-                                        className='ao-rtl-input'
-                                        placeholder='ગ્રાહક નામ'
-                                        lang='gu'
-                                    />
-                                    {formValidation.customerName && (
-                                        <div className="text-red-500 text-xs mt-1">Customer name is required</div>
-                                    )}
-                                </div>
-                            ) : (
-                                <TextField
-                                    size='small'
-                                    label="Customer Name"
-                                    variant="outlined"
-                                    className='w-full'
-                                    error={formValidation.customerName}
-                                    helperText={formValidation.customerName ? 'Customer name is required' : ''}
-                                    value={formData.customerName}
-                                    onChange={(e) => {
-                                        setFormData({ ...formData, customerName: e.target.value });
-                                        setFormValidation({ ...formValidation, customerName: false });
-                                    }}
-                                    autoComplete="off"
-                                />
-                            )}
-                        </div>
-
-                        <div className="col-span-6">
                             <TextField
                                 size='small'
                                 label="Birth Date"
                                 type="date"
                                 variant="outlined"
                                 className='w-full'
+                                InputProps={{ sx: { '& input': { fontSize: '13px', padding: '10px 10px' } } }}
                                 InputLabelProps={{ shrink: true }}
                                 value={formData.birthDate}
                                 onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
                             />
-                        </div>
-
-                        <div className="col-span-6">
                             <TextField
                                 size='small'
                                 label="Anniversary Date"
                                 type="date"
                                 variant="outlined"
                                 className='w-full'
+                                InputProps={{ sx: { '& input': { fontSize: '13px', padding: '10px 10px' } } }}
                                 InputLabelProps={{ shrink: true }}
                                 value={formData.anniversaryDate}
                                 onChange={(e) => setFormData({ ...formData, anniversaryDate: e.target.value })}
                             />
                         </div>
-                    </div>
 
-                    {/* Address Section */}
-                    <div className="text-lg p-1 mt-5 font-semibold mb-3">
-                        {editingAddressIndex != null ? 'Edit Address' : 'Add Address'}
-                    </div>
-
-                    <div className='grid grid-cols-12 gap-4 mt-1'>
-                        <div className='col-span-5'>
-                            {isGujarati ? (
-                                <ReactTransliterate
-                                    value={addressInput.address}
-                                    onChangeText={(text) => setAddressInput({ ...addressInput, address: text })}
-                                    className='ao-rtl-input'
-                                    placeholder='સરનામું'
-                                    lang='gu'
-                                />
-                            ) : (
-                                <TextField
-                                    size='small'
-                                    label="Address"
-                                    variant="outlined"
-                                    className='w-full'
-                                    value={addressInput.address}
-                                    onChange={(e) => setAddressInput({ ...addressInput, address: e.target.value })}
-                                    autoComplete="off"
-                                />
-                            )}
-                        </div>
-
-                        <div className='col-span-5'>
-                            {isGujarati ? (
-                                <ReactTransliterate
-                                    value={addressInput.locality}
-                                    onChangeText={(text) => setAddressInput({ ...addressInput, locality: text })}
-                                    className='ao-rtl-input'
-                                    placeholder='વિસ્તાર'
-                                    lang='gu'
-                                />
-                            ) : (
-                                <TextField
-                                    size='small'
-                                    label="Locality"
-                                    variant="outlined"
-                                    className='w-full'
-                                    value={addressInput.locality}
-                                    onChange={(e) => setAddressInput({ ...addressInput, locality: e.target.value })}
-                                    autoComplete="off"
-                                />
-                            )}
-                        </div>
-
-                        <div className='col-span-2 flex items-center gap-2'>
-                            {editingAddressIndex != null ? (
-                                <>
-                                    <button onClick={handleSaveEditedAddress} className='addCategorySaveBtn ao-compact-btn flex-1'>Save</button>
-                                    <button onClick={handleCancelEditAddress} className='addCategoryCancleBtn ao-compact-btn flex-1 bg-gray-700'>Cancel</button>
-                                </>
-                            ) : (
-                                <button onClick={handleAddAddress} className='addCategorySaveBtn ao-compact-btn w-full'>Add</button>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Address List */}
-                    {(editData ? editData.addressDetails : formData.addressDetails)?.length > 0 && (
-                        <div className='mt-6'>
-                            <div className='text-lg font-semibold p-1 mb-2'>Saved Addresses</div>
-
-                            <div style={{
-                                maxHeight: '45vh',
-                                overflowY: 'auto',
-                                overflowX: 'hidden',
-                                border: '1px solid #e5e7eb',
-                                borderRadius: 8,
-                            }}>
-<div
-                                        className='px-3 py-2 sticky top-0 bg-white'
-                                        style={{
-                                            borderBottom: '1px solid #e5e7eb',
-                                            display: 'grid',
-                                            gridTemplateColumns: '40px 4fr 3fr 120px',
-                                            columnGap: '12px',
-                                            alignItems: 'center'
-                                        }}
-                                >
-                                    <div className='text-xs font-semibold text-gray-600 text-center'>#</div>
-                                    <div className='text-xs font-semibold text-gray-600'>Address</div>
-                                    <div className='text-xs font-semibold text-gray-600'>Locality</div>
-                                    <div className='text-xs font-semibold text-gray-600 text-center'>Actions</div>
+                        {/* Right side - Address section (60%) */}
+                        <div className='addEditModalRight'>
+                            {/* Add Address section */}
+                            <div className='addEditModalAddressAdd'>
+                                <div className='addEditModalAddressRow'>
+                                    <div className='addEditModalAddressField ao-transliterate-wrapper' ref={addressInputRef}>
+                                        {isGujarati ? (
+                                            <ReactTransliterate
+                                                value={addressInput.address}
+                                                onChangeText={(text) => setAddressInput({ ...addressInput, address: text })}
+                                                className='ao-rtl-input ao-rtl-input-address'
+                                                placeholder='સરનામું'
+                                                lang='gu'
+                                            />
+                                        ) : (
+                                            <TextField
+                                                size='small'
+                                                placeholder="Address"
+                                                variant="outlined"
+                                                className='w-full'
+                                                value={addressInput.address}
+                                                onChange={(e) => setAddressInput({ ...addressInput, address: e.target.value })}
+                                                autoComplete="off"
+                                                InputProps={{ sx: { '& input': { fontSize: '13px', padding: '10px 10px' } } }}
+                                            />
+                                        )}
+                                    </div>
+                                    <div className='addEditModalAddressField ao-transliterate-wrapper'>
+                                        {isGujarati ? (
+                                            <ReactTransliterate
+                                                value={addressInput.locality}
+                                                onChangeText={(text) => setAddressInput({ ...addressInput, locality: text })}
+                                                className='ao-rtl-input ao-rtl-input-address'
+                                                placeholder='વિસ્તાર'
+                                                lang='gu'
+                                            />
+                                        ) : (
+                                            <TextField
+                                                size='small'
+                                                placeholder="Locality"
+                                                variant="outlined"
+                                                className='w-full'
+                                                value={addressInput.locality}
+                                                onChange={(e) => setAddressInput({ ...addressInput, locality: e.target.value })}
+                                                autoComplete="off"
+                                                InputProps={{ sx: { '& input': { fontSize: '13px', padding: '10px 10px' } } }}
+                                            />
+                                        )}
+                                    </div>
+                                    <div className='addEditModalAddressButtons'>
+                                        {editingAddressIndex != null ? (
+                                            <>
+                                                <button onClick={handleSaveEditedAddress} className='addEditAddressBtn addEditAddressBtnSave'>Save</button>
+                                                <button onClick={handleCancelEditAddress} className='addEditAddressBtn addEditAddressBtnCancel'>Cancel</button>
+                                            </>
+                                        ) : (
+                                            <button onClick={handleAddAddress} className='addEditAddressBtn addEditAddressBtnAdd'>Add</button>
+                                        )}
+                                    </div>
                                 </div>
+                            </div>
 
-                                {(editData ? editData.addressDetails : formData.addressDetails).map((addr, index) => (
-                                    <div
-                                        key={index}
-                                        className='px-3 py-3'
-                                        style={{
-                                            borderBottom: '1px solid #f3f4f6',
-                                            display: 'grid',
-                                            gridTemplateColumns: '40px 4fr 3fr 120px',
-                                            columnGap: '12px',
-                                            alignItems: 'center',
-                                            minWidth: 0,
-                                            backgroundColor: editingAddressIndex === index ? 'rgba(25, 118, 210, 0.08)' : 'transparent',
-                                            borderRadius: 4,
-                                        }}
-                                    >
-                                        <div className='text-center'>{index + 1}</div>
-                                        <div style={{ minWidth: 0 }}>
-                                            {isGujarati ? (
-                                                <input
-                                                    type='text'
-                                                    value={addr.address || ''}
-                                                    readOnly
-                                                    className='ao-rtl-input'
-                                                    style={{ backgroundColor: '#f9fafb', cursor: 'not-allowed' }}
-                                                />
-                                            ) : (
-                                                <TextField
-                                                    size='small'
-                                                    placeholder='Address'
-                                                    variant='outlined'
-                                                    className='w-full'
-                                                    value={addr.address || ''}
-                                                    disabled
-                                                    InputProps={{ readOnly: true, sx: { backgroundColor: '#f9fafb' } }}
-                                                />
-                                            )}
+                            {/* Saved Addresses section */}
+                            {(editData ? editData.addressDetails : formData.addressDetails)?.length > 0 && (
+                                <div className='addEditModalSavedAddresses'>
+                                    <div className='savedAddressesTableWrapper'>
+                                        <div className='savedAddressesTableHeader'>
+                                            <div className='savedAddressesTh'>#</div>
+                                            <div className='savedAddressesTh'>Address</div>
+                                            <div className='savedAddressesTh'>Locality</div>
+                                            <div className='savedAddressesThActions'>Actions</div>
                                         </div>
-                                        <div style={{ minWidth: 0 }}>
-                                            {isGujarati ? (
-                                                <input
-                                                    type='text'
-                                                    value={addr.locality || ''}
-                                                    readOnly
-                                                    className='ao-rtl-input'
-                                                    style={{ backgroundColor: '#f9fafb', cursor: 'not-allowed' }}
-                                                />
-                                            ) : (
-                                                <TextField
-                                                    size='small'
-                                                    placeholder='Locality'
-                                                    variant='outlined'
-                                                    className='w-full'
-                                                    value={addr.locality || ''}
-                                                    disabled
-                                                    InputProps={{ readOnly: true, sx: { backgroundColor: '#f9fafb' } }}
-                                                />
-                                            )}
-                                        </div>
-                                        <div className='flex items-center justify-center gap-1'>
-                                            <IconButton
-                                                size='small'
-                                                onClick={() => handleEditAddress(index)}
-                                                sx={{
-                                                    width: 32,
-                                                    height: 32,
-                                                    backgroundColor: '#1976d2',
-                                                    color: 'white',
-                                                    '&:hover': { backgroundColor: '#1565c0' }
-                                                }}
-                                            >
-                                                <BorderColorIcon sx={{ fontSize: 16 }} />
-                                            </IconButton>
-                                            <IconButton
-                                                size='small'
-                                                onClick={() => handleRemoveAddress(index)}
-                                                sx={{
-                                                    width: 32,
-                                                    height: 32,
-                                                    backgroundColor: '#d32f2f',
-                                                    color: 'white',
-                                                    '&:hover': { backgroundColor: '#c62828' }
-                                                }}
-                                            >
-                                                <DeleteIcon sx={{ fontSize: 16 }} />
-                                            </IconButton>
+                                        <div className='savedAddressesTableBody'>
+                                            {(editData ? editData.addressDetails : formData.addressDetails).map((addr, index) => (
+                                                <div
+                                                    key={index}
+                                                    className={`m-2 savedAddressesRow ${editingAddressIndex === index ? 'savedAddressesRowEditing' : ''}`}
+                                                >
+                                                    <div className='text-center'>{index + 1}</div>
+                                                    <div style={{ minWidth: 0 }}>
+                                                        {isGujarati ? (
+                                                            <input
+                                                                type='text'
+                                                                value={addr.address || ''}
+                                                                readOnly
+                                                                className='ao-rtl-input'
+                                                                style={{ backgroundColor: '#f9fafb', cursor: 'not-allowed', fontSize: '12px', padding: '4px 8px', height: '32px' }}
+                                                            />
+                                                        ) : (
+                                                            <TextField
+                                                                size='small'
+                                                                placeholder='Address'
+                                                                variant='outlined'
+                                                                className='w-full savedAddressesReadOnlyInput'
+                                                                value={addr.address || ''}
+                                                                disabled
+                                                                InputProps={{ readOnly: true, sx: { backgroundColor: '#f9fafb', '& input': { fontSize: '12px', padding: '4px 8px' } } }}
+                                                            />
+                                                        )}
+                                                    </div>
+                                                    <div style={{ minWidth: 0 }}>
+                                                        {isGujarati ? (
+                                                            <input
+                                                                type='text'
+                                                                value={addr.locality || ''}
+                                                                readOnly
+                                                                className='ao-rtl-input'
+                                                                style={{ backgroundColor: '#f9fafb', cursor: 'not-allowed', fontSize: '12px', padding: '4px 8px', height: '32px' }}
+                                                            />
+                                                        ) : (
+                                                            <TextField
+                                                                size='small'
+                                                                placeholder='Locality'
+                                                                variant='outlined'
+                                                                className='w-full savedAddressesReadOnlyInput'
+                                                                value={addr.locality || ''}
+                                                                disabled
+                                                                InputProps={{ readOnly: true, sx: { backgroundColor: '#f9fafb', '& input': { fontSize: '12px', padding: '4px 8px' } } }}
+                                                            />
+                                                        )}
+                                                    </div>
+                                                    <div className='flex items-center justify-center gap-1'>
+                                                        <IconButton
+                                                            size='small'
+                                                            onClick={() => handleEditAddress(index)}
+                                                            sx={{
+                                                                width: 28,
+                                                                height: 28,
+                                                                backgroundColor: '#1976d2',
+                                                                color: 'white',
+                                                                '&:hover': { backgroundColor: '#1565c0' }
+                                                            }}
+                                                        >
+                                                            <BorderColorIcon sx={{ fontSize: 16 }} />
+                                                        </IconButton>
+                                                        <IconButton
+                                                            size='small'
+                                                            onClick={() => handleRemoveAddress(index)}
+                                                            sx={{
+                                                                width: 28,
+                                                                height: 28,
+                                                                backgroundColor: '#d32f2f',
+                                                                color: 'white',
+                                                                '&:hover': { backgroundColor: '#c62828' }
+                                                            }}
+                                                        >
+                                                            <DeleteIcon sx={{ fontSize: 16 }} />
+                                                        </IconButton>
+                                                    </div>
+                                                </div>
+                                            ))}
                                         </div>
                                     </div>
-                                ))}
-                            </div>
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </div>
 
                     {/* Action Buttons */}
-                    <div className='flex gap-9 mt-6 w-full mr-7 justify-end px-4'>
-                        <div className='w-1/5'>
-                            <button onClick={handleSubmit} className='addCategorySaveBtn ao-compact-btn ml-4 w-full'>Save</button>
-                        </div>
-                        <div className='w-1/5'>
-                            <button onClick={handleClose} className='addCategoryCancleBtn ao-compact-btn ml-4 bg-gray-700 w-full'>Cancel</button>
-                        </div>
+                    <div className='flex gap-2 mt-4 justify-end flex-shrink-0 modal-action-buttons'>
+                        <button onClick={handleSubmit} className='addCategorySaveBtn ao-compact-btn-small'>Save</button>
+                        <button onClick={handleClose} className='addCategoryCancleBtn ao-compact-btn-small bg-gray-700'>Cancel</button>
                     </div>
                 </Box>
             </Modal>

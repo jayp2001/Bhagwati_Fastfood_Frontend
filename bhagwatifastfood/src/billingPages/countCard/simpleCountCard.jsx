@@ -98,19 +98,26 @@ function SimpleCountCard(props) {
             case 'DineIn Summary':
                 return <RestaurantIcon fontSize='large' />;
             case 'Cash Summary':
+            case 'Cash Payment':
                 return <LocalAtmIcon fontSize='large' />;
             case 'Due Summary':
+            case 'Due Payment':
                 return <AccountBalanceWalletIcon fontSize='large' />;
             case 'Online Summary':
+            case 'Online Payment':
                 return <CreditCardIcon fontSize='large' />;
             case 'Complimentary Summary':
+            case 'Complimentary Order':
                 return <RedeemIcon fontSize='large' />;
             case 'Cancel Summary':
+            case 'Cancel Order':
                 return <CancelIcon fontSize='large' />;
             case 'Total Discount':
                 return <DiscountIcon fontSize='large' />;
             case 'Visit':
                 return <PeopleIcon fontSize='large' />;
+            case 'Total Last Month Visit':
+                return <CalendarMonthIcon fontSize='large' />;
             case 'Average Visit Per Month':
                 return <CalendarMonthIcon fontSize='large' />;
             case 'Average Business Per Year':
