@@ -52,7 +52,7 @@ function CustomerDetails() {
     const [filter, setFilter] = React.useState(false);
     const [customerDetails, setCustomerDetails] = useState(null);
     const [statisticsCount, setStatisticsCounts] = useState();
-    const [detailTab, setDetailTab] = React.useState(1); // Tab for customer details section (1: Info, 2: Statistics)
+    const [detailTab, setDetailTab] = React.useState(1); // Tab order: 1 Statistics, 2 Bills, 3 Customer Info
 
     // Table state variables
     const [billData, setBillData] = useState([]);
@@ -378,19 +378,19 @@ function CustomerDetails() {
                                         className={`flex col-span-2 justify-center ${detailTab === 1 ? 'productTabAll' : 'productTab'}`}
                                         onClick={() => setDetailTab(1)}
                                     >
-                                        <div className='statusTabtext'>Customer Info</div>
+                                        <div className='statusTabtext'>Statistics</div>
                                     </div>
                                     <div
                                         className={`flex col-span-2 justify-center ${detailTab === 2 ? 'productTabAll' : 'productTab'}`}
                                         onClick={() => setDetailTab(2)}
                                     >
-                                        <div className='statusTabtext'>Statistics</div>
+                                        <div className='statusTabtext'>Bills</div>
                                     </div>
                                     <div
                                         className={`flex col-span-2 justify-center ${detailTab === 3 ? 'productTabAll' : 'productTab'}`}
                                         onClick={() => setDetailTab(3)}
                                     >
-                                        <div className='statusTabtext'>Bills</div>
+                                        <div className='statusTabtext'>Customer Info</div>
                                     </div>
                                     <div className='col-span-6 flex justify-end pr-4'>
                                         <div className={`dateRange text-center self-center ${filter ? 'filterActive' : ''}`} aria-describedby={ids} onClick={handleClick}>
@@ -462,7 +462,7 @@ function CustomerDetails() {
 
             {/* Tab Content */}
             <div className='mt-3'>
-                {detailTab === 1 && (
+                {detailTab === 3 && (
                     <div className='customerInfoContainer'>
                         <div className='grid grid-cols-12 gap-4'>
                             {/* Left Column - Basic Info Cards */}
@@ -524,7 +524,7 @@ function CustomerDetails() {
                     </div>
                 )}
 
-                {detailTab === 2 && (
+                {detailTab === 1 && (
                     <div className='statisticsContainer'>
                         <div className='grid gap-2'>
                             {/* Dynamically render CountCards for all statistics keys */}
@@ -568,7 +568,7 @@ function CustomerDetails() {
                     </div>
                 )}
 
-                {detailTab === 3 && (
+                {detailTab === 2 && (
                     <div className='billsContainer'>
                         <div className='grid grid-cols-12 pt-6'>
                             <div className='col-span-6 col-start-7 pr-5 flex justify-end'>

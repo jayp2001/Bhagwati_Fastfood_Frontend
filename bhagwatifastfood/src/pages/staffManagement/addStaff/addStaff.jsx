@@ -1118,7 +1118,7 @@ function AddEditStaff() {
                 maxWidth="sm"
                 fullWidth
             >
-                <DialogTitle>Crop Profile Image (1:1)</DialogTitle>
+                <DialogTitle>Crop Image</DialogTitle>
                 <DialogContent>
                     <div style={{ position: 'relative', width: '100%', height: 350, background: '#333' }}>
                         {imageSrc && (

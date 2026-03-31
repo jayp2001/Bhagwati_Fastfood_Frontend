@@ -1,5 +1,5 @@
 import './dueAccountDetails.css';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import React from "react";
 import { BACKEND_BASE_URL } from '../../url';
 import axios from 'axios';
@@ -144,7 +144,7 @@ function DueAccountDetail() {
     const [totalRowsProduct, setTotalRowsProduct] = React.useState(0);
     const [filter, setFilter] = React.useState(false);
     const [tab, setTab] = React.useState(1);
-    const [tabStockIn, setTabStockIn] = React.useState('');
+    const [tabStockIn, setTabStockIn] = React.useState('Khata');
     const [suppilerDetails, setSuppilerDetails] = useState();
     const [statisticsCount, setStatisticsCounts] = useState();
     const [productQtyCount, setProductQty] = useState();
@@ -152,6 +152,8 @@ function DueAccountDetail() {
     const [productTable, setProductTable] = React.useState();
     const [billModalOpen, setBillModalOpen] = React.useState(false);
     const [billModalId, setBillModalId] = React.useState(null);
+    const gotFirstInputRef = useRef(null);
+    const gaveFirstInputRef = useRef(null);
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const config = {
         headers: {
@@ -290,6 +292,47 @@ function DueAccountDetail() {
                 setError(error.response ? error.response.data : "Network Error ...!!!")
             })
     }
+
+    // Khata Book (Due transaction list) - table data via getDueTransactionDataById
+    const formatKhataDateParam = (date) => {
+        if (!date) return '';
+        const d = dayjs(date);
+        if (!d.isValid()) return '';
+        // Example: "Feb 10 2026" (matches sample without weekday)
+        return d.format('MMM D YYYY');
+    }
+
+    const getKhataBookDataById = async (pageNum, rowPerPageNum, useFilter) => {
+        const startDate = useFilter ? formatKhataDateParam(state[0]?.startDate) : '';
+        const endDate = useFilter ? formatKhataDateParam(state[0]?.endDate) : '';
+
+        const url = `${BACKEND_BASE_URL}billingrouter/getDueTransactionDataById?page=${pageNum}&numPerPage=${rowPerPageNum}&accountId=${id}&startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`;
+
+        await axios.get(url, config)
+            .then((res) => {
+                setStockInData(res.data?.rows || []);
+                setTotalRows(res.data?.numRows || 0);
+            })
+            .catch((error) => {
+                setError(error.response ? error.response.data : "Network Error ...!!!")
+            })
+    }
+
+    const getKhataBookByTab = async () => {
+        await getKhataBookDataById(1, 5, false);
+    }
+
+    const getKhataBookByTabByFilter = async () => {
+        await getKhataBookDataById(1, 5, true);
+    }
+
+    const getKhataBookOnPageChange = async (pageNum, rowPerPageNum) => {
+        await getKhataBookDataById(pageNum, rowPerPageNum, false);
+    }
+
+    const getKhataBookOnPageChangeByFilter = async (pageNum, rowPerPageNum) => {
+        await getKhataBookDataById(pageNum, rowPerPageNum, true);
+    }
     // const getStockInDataonRemoveFilter = async (tab) => {
     //     await axios.get(`${BACKEND_BASE_URL}billingrouter/getDueBillDataById?startDate=${state[0].startDate}&endDate=${state[0].endDate}&page=${page + 1}&numPerPage=${rowsPerPage}&accountId=${id}&payType=${tabStockIn}`, config)
     //         .then((res) => {
@@ -375,7 +418,15 @@ function DueAccountDetail() {
     };
     const handleChangePage = (event, newPage) => {
         setPage(newPage);
-        if (tabStockIn == 'Monthly') {
+        if (tabStockIn === 'Khata') {
+            if (filter) {
+                getKhataBookOnPageChangeByFilter(newPage + 1, rowsPerPage)
+            }
+            else {
+                getKhataBookOnPageChange(newPage + 1, rowsPerPage)
+            }
+        }
+        else if (tabStockIn == 'Monthly') {
             getMonthlyDataOnPageChange(newPage + 1, rowsPerPage)
         }
         else if (tabStockIn !== 'transaction' && tabStockIn !== 'products') {
@@ -405,7 +456,15 @@ function DueAccountDetail() {
     const handleChangeRowsPerPage = (event) => {
         setRowsPerPage(parseInt(event.target.value, 10));
         setPage(0);
-        if (tabStockIn == 'Monthly') {
+        if (tabStockIn === 'Khata') {
+            if (filter) {
+                getKhataBookOnPageChangeByFilter(1, parseInt(event.target.value, 10))
+            }
+            else {
+                getKhataBookOnPageChange(1, parseInt(event.target.value, 10))
+            }
+        }
+        else if (tabStockIn == 'Monthly') {
             getMonthlyDataOnPageChange(1, parseInt(event.target.value, 10))
         }
         else if (tabStockIn !== 'transaction' && tabStockIn !== 'products') {
@@ -535,8 +594,39 @@ function DueAccountDetail() {
         // getProductCount();
         getStatistics();
         getSuppilerDetails();
-        getStockInData()
+        getKhataBookByTab()
     }, [])
+
+    useEffect(() => {
+        if (open0) {
+            setTimeout(() => {
+                gotFirstInputRef.current?.focus();
+            }, 50);
+        }
+    }, [open0]);
+
+    useEffect(() => {
+        if (open1) {
+            setTimeout(() => {
+                gaveFirstInputRef.current?.focus();
+            }, 50);
+        }
+    }, [open1]);
+
+    const refreshCurrentTabData = () => {
+        if (tabStockIn === 'Khata') {
+            filter ? getKhataBookByTabByFilter() : getKhataBookByTab();
+        }
+        else if (tabStockIn === 'Transactions') {
+            filter ? getPaidBillByTebByFillter() : getPaidBillsByTab();
+        }
+        else if (tabStockIn === 'Monthly') {
+            getMonthlyPaidBillsByTab('cash');
+        }
+        else {
+            filter ? getStockInDataByTabByFilter('') : getStockInDataByTab('');
+        }
+    }
     const handlDueDate = (date) => {
         setFormDataDue((prevState) => ({
             ...prevState,
@@ -549,18 +639,9 @@ function DueAccountDetail() {
             .then((res) => {
                 setLoading(false)
                 setSuccess(true)
-                setFilter(false);
-                setState([
-                    {
-                        startDate: new Date(),
-                        endDate: new Date(),
-                        key: 'selection'
-                    }
-                ])
                 setPage(0);
                 setRowsPerPage(5);
-                getStockInDataByTab('');
-                setTabStockIn('')
+                refreshCurrentTabData();
                 handleClose1();
                 getStatistics();
                 // getPaidBillsByTab('');
@@ -610,19 +691,10 @@ function DueAccountDetail() {
             .then((res) => {
                 setSuccess(true)
                 setLoading(false)
-                setFilter(false);
-                setState([
-                    {
-                        startDate: new Date(),
-                        endDate: new Date(),
-                        key: 'selection'
-                    }
-                ])
                 getStatistics();
                 setPage(0);
                 setRowsPerPage(5);
-                getPaidBillsByTab('');
-                setTabStockIn('Transactions');
+                refreshCurrentTabData();
                 handleClose0();
 
             })
@@ -789,9 +861,12 @@ function DueAccountDetail() {
             const startDate = filter && state[0]?.startDate ? state[0].startDate.toDateString() : '';
             const endDate = filter && state[0]?.endDate ? state[0].endDate.toDateString() : '';
             const isPaidBills = tabStockIn === 'Transactions';
-            const url = isPaidBills
-                ? `${BACKEND_BASE_URL}billingrouter/exportPdfForDueBillTransactionData?accountId=${id}&startDate=${startDate}&endDate=${endDate}`
-                : `${BACKEND_BASE_URL}billingrouter/exportPdfForDueBillData?accountId=${id}&startDate=${startDate}&endDate=${endDate}`;
+            const isKhataBook = tabStockIn === 'Khata';
+            const url = isKhataBook
+                ? `${BACKEND_BASE_URL}billingrouter/exportPdfForDueTransactionDataById?accountId=${id}&startDate=${startDate}&endDate=${endDate}`
+                : isPaidBills
+                    ? `${BACKEND_BASE_URL}billingrouter/exportPdfForDueBillTransactionData?accountId=${id}&startDate=${startDate}&endDate=${endDate}`
+                    : `${BACKEND_BASE_URL}billingrouter/exportPdfForDueBillData?accountId=${id}&startDate=${startDate}&endDate=${endDate}`;
             await axios({
                 url,
                 method: 'GET',
@@ -800,7 +875,7 @@ function DueAccountDetail() {
             }).then((response) => {
                 const href = URL.createObjectURL(response.data);
                 const link = document.createElement('a');
-                const suffix = isPaidBills ? 'PaidBills' : 'DueBills';
+                const suffix = isKhataBook ? 'KhataBook' : (isPaidBills ? 'PaidBills' : 'DueBills');
                 const name = (suppilerDetails?.customerName || 'DueAccount') + '_' + suffix + '_' + new Date().toLocaleDateString() + '.pdf';
                 link.href = href;
                 link.setAttribute('download', name);
@@ -924,14 +999,9 @@ function DueAccountDetail() {
                         </div>
                     </div>
                     {/* </div> */}
-                    <div>
-
-                    </div>
-                    <div>
-
-                    </div>
-                    <div>
-
+                    <div className='dueAccountActionButtons mt-0 w-full flex justify-between gap-2'>
+                        <button className='gotBtn flex-1' onClick={handleOpen}>You &nbsp;Got</button>
+                        <button className='gaveBtn flex-1' onClick={handleOpen1}>You Gave</button>
                     </div>
                 </div>
                 <div className='col-span-7 mt-6'>
@@ -958,6 +1028,7 @@ function DueAccountDetail() {
                                                 <button
                                                     className={`${!filter ? 'reSetBtn' : 'reSetBtnActive'}`}
                                                     onClick={() => {
+                                                        const currentTab = tabStockIn
                                                         setFilter(false);
                                                         setState([
                                                             {
@@ -967,7 +1038,25 @@ function DueAccountDetail() {
                                                             }
                                                         ])
                                                         getStatistics();
-                                                        setTabStockIn(''); setPage(0); setRowsPerPage(5); getStockInDataByTab('')
+                                                        setPage(0);
+                                                        setRowsPerPage(5);
+
+                                                        if (currentTab === 'Monthly') {
+                                                            setTabStockIn('Monthly');
+                                                            getMonthlyPaidBillsByTab('cash')
+                                                        }
+                                                        else if (currentTab === 'Transactions') {
+                                                            setTabStockIn('Transactions');
+                                                            getPaidBillsByTab()
+                                                        }
+                                                        else if (currentTab === 'Khata') {
+                                                            setTabStockIn('Khata');
+                                                            getKhataBookByTab()
+                                                        }
+                                                        else {
+                                                            setTabStockIn('');
+                                                            getStockInDataByTab('')
+                                                        }
                                                     }}><CloseIcon /></button>
                                             </div>
                                             <Popover
@@ -993,7 +1082,30 @@ function DueAccountDetail() {
                                                     <div className='mt-8 grid gap-4 grid-cols-12'>
                                                         <div className='col-span-3 col-start-7'>
                                                             <button className='stockInBtn' onClick={() => {
-                                                                setFilter(true); handleClose(); getStatisticsByFilter(); setTabStockIn(''); setPage(0); setRowsPerPage(5); getStockInDataByTabByFilter(''); getProductCountByFilter();
+                                                                const currentTab = tabStockIn
+                                                                setFilter(true);
+                                                                handleClose();
+                                                                getStatisticsByFilter();
+                                                                setPage(0);
+                                                                setRowsPerPage(5);
+
+                                                                if (currentTab === 'Monthly') {
+                                                                    setTabStockIn('Monthly');
+                                                                    getMonthlyPaidBillsByTab('cash')
+                                                                }
+                                                                else if (currentTab === 'Transactions') {
+                                                                    setTabStockIn('Transactions');
+                                                                    getPaidBillByTebByFillter()
+                                                                }
+                                                                else if (currentTab === 'Khata') {
+                                                                    setTabStockIn('Khata');
+                                                                    getKhataBookByTabByFilter()
+                                                                }
+                                                                else {
+                                                                    setTabStockIn('');
+                                                                    getStockInDataByTabByFilter('');
+                                                                    getProductCountByFilter();
+                                                                }
                                                             }}>Apply</button>
                                                         </div>
                                                         <div className='col-span-3'>
@@ -1173,6 +1285,14 @@ function DueAccountDetail() {
                         <div className='h-full grid grid-cols-12'>
                             <div className='h-full col-span-9'>
                                 <div className='grid grid-cols-12 pl-6 gap-3 h-full'>
+                                    <div className={`flex col-span-3 justify-center ${tabStockIn === 'Khata' ? 'tabDebit' : 'productTab'}`} onClick={() => {
+                                        setTabStockIn('Khata');
+                                        setPage(0);
+                                        filter ? getKhataBookByTabByFilter() : getKhataBookByTab();
+                                        setRowsPerPage(5);
+                                    }}>
+                                        <div className='statusTabtext'>Khata Book</div>
+                                    </div>
                                     <div className={`flex col-span-3 justify-center ${tabStockIn === null || tabStockIn === '' ? 'productTabAll' : 'productTab'}`} onClick={() => {
                                         setTabStockIn(''); setPage(0); setRowsPerPage(5); filter ? getStockInDataByTabByFilter('') : getStockInDataByTab('');
                                     }}>
@@ -1190,16 +1310,7 @@ function DueAccountDetail() {
                                     </div>
                                 </div>
                             </div>
-                            <div className=' grid col-span-2 pr-3  h-full'>
-                                <div className='self-center justify-self-end'>
-                                    <button className='gotBtn' onClick={handleOpen}>You &nbsp;Got</button>
-                                </div>
-                            </div>
-                            <div className=' grid col-span-1 pr-3  h-full'>
-                                <div className='self-center justify-self-end'>
-                                    <button className='gaveBtn' onClick={handleOpen1}>You Gave</button>
-                                </div>
-                            </div>
+                            {/* Buttons moved into Account Details container */}
                         </div>
                     </div>
                 </div>
@@ -1329,87 +1440,164 @@ function DueAccountDetail() {
                                         onRowsPerPageChange={handleChangeRowsPerPage}
                                     />
                                 </TableContainer> :
-                                <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
-                                    <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell>No.</TableCell>
-                                                <TableCell>Entered By</TableCell>
-                                                <TableCell align="left">Due Amount</TableCell>
-                                                <TableCell align="left">Note</TableCell>
-                                                <TableCell align="left">Date</TableCell>
-                                                <TableCell align="left">Time</TableCell>
-                                                <TableCell align="left"></TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {stockInData?.map((row, index) => (
-                                                totalRows !== 0 ?
-                                                    <TableRow
-                                                        hover
-                                                        key={row.dabId}
-                                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                                        style={{ cursor: "pointer" }}
-                                                        className='tableRow'
-                                                    >
-                                                        <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
-                                                        <Tooltip title={row.userName} placement="top-start" arrow>
+                                tabStockIn === 'Khata' ?
+                                    <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
+                                        <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell>No.</TableCell>
+                                                    <TableCell>Enter By</TableCell>
+                                                    <TableCell align="left">Details</TableCell>
+                                                    <TableCell align="left">Type</TableCell>
+                                                    <TableCell align="right">Debit</TableCell>
+                                                    <TableCell align="right">Credit</TableCell>
+                                                    <TableCell align="right">Balance</TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {stockInData?.length > 0 ? (
+                                                    stockInData.map((row, index) => (
+                                                        <TableRow
+                                                            hover
+                                                            key={row.transactionId || index}
+                                                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                            style={{ cursor: "default" }}
+                                                            className='tableRow'
+                                                        >
+                                                            <TableCell align="left">{(index + 1) + (page * rowsPerPage)}</TableCell>
                                                             <TableCell component="th" scope="row">
                                                                 {row.enterBy}
                                                             </TableCell>
-                                                        </Tooltip>
-                                                        <TableCell align="left" >{parseFloat(row.billAmount ? row.billAmount : 0).toLocaleString('en-IN')}</TableCell>
-                                                        {/* <TableCell align="left" >{row.dueNote}</TableCell> */}
-                                                        <Tooltip title={row.dueNote} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.dueNote}</div></TableCell></Tooltip>
-                                                        <TableCell align="left" >{row.displayDate}</TableCell>
-                                                        <TableCell align="left" >{row.diplayTime}</TableCell>
-                                                        <TableCell align="right">
-                                                            <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end', alignItems: 'center' }}>
-                                                                <IconButton
-                                                                    size="small"
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        if (row.billId) {
-                                                                            setBillModalId(row.billId);
-                                                                            setBillModalOpen(true);
-                                                                        }
-                                                                    }}
-                                                                    disabled={!row.billId}
-                                                                    sx={{
-                                                                        width: 32,
-                                                                        height: 32,
-                                                                        backgroundColor: row.billId ? '#1976d2' : '#e0e0e0',
-                                                                        color: 'white',
-                                                                        '&:hover': row.billId ? { backgroundColor: '#1565c0' } : {},
-                                                                        '&.Mui-disabled': { color: 'white', backgroundColor: '#e0e0e0' }
-                                                                    }}
-                                                                >
-                                                                    <VisibilityIcon sx={{ fontSize: 18 }} />
-                                                                </IconButton>
-                                                                <MenuStockInOut stockInOutId={row.dabId} data={row} deleteStockInOut={handleDeleteStockIn} />
-                                                            </div>
+                                                            <TableCell align="left">
+                                                                <div>{row.displayDate} || {row.diplayTime}</div>
+                                                                <div className='Comment'>{row.transactionNote || ''}</div>
+                                                            </TableCell>
+                                                            <TableCell align="left">
+                                                                {row.transactionType
+                                                                    ? row.transactionType.charAt(0).toUpperCase() + row.transactionType.slice(1)
+                                                                    : '-'}
+                                                            </TableCell>
+                                                            <TableCell align="right">
+                                                                {row.transactionType === 'debit' ? (
+                                                                    <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 4, color: '#dc2626', fontWeight: 700 }}>
+                                                                        ₹{parseFloat(row.transactionAmt || 0).toLocaleString('en-IN')}
+                                                                    </div>
+                                                                ) : '-'}
+                                                            </TableCell>
+                                                            <TableCell align="right">
+                                                                {row.transactionType === 'credit' ? (
+                                                                    <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 4, color: '#16a34a', fontWeight: 700 }}>
+                                                                        ₹{parseFloat(row.transactionAmt || 0).toLocaleString('en-IN')}
+                                                                    </div>
+                                                                ) : '-'}
+                                                            </TableCell>
+                                                            <TableCell align="right">
+                                                                <span style={{ fontWeight: 700, color: Number(row.balance || 0) < 0 ? '#dc2626' : '#16a34a' }}>
+                                                                    ₹{Math.abs(parseFloat(row.balance || 0)).toLocaleString('en-IN')}
+                                                                </span>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ))
+                                                ) : (
+                                                    <TableRow>
+                                                        <TableCell align="left" style={{ fontSize: "18px" }} colSpan={7}>
+                                                            {"No Data Found...!"}
                                                         </TableCell>
-                                                    </TableRow> :
-                                                    <TableRow
-                                                        key={row.userId}
-                                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                                    >
-                                                        <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
                                                     </TableRow>
+                                                )}
+                                            </TableBody>
+                                        </Table>
+                                        <TablePagination
+                                            rowsPerPageOptions={[5, 10, 25]}
+                                            component="div"
+                                            count={totalRows}
+                                            rowsPerPage={rowsPerPage}
+                                            page={page}
+                                            onPageChange={handleChangePage}
+                                            onRowsPerPageChange={handleChangeRowsPerPage}
+                                        />
+                                    </TableContainer> :
+                                    <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>
+                                        <Table sx={{ minWidth: 650 }} stickyHeader aria-label="sticky table">
+                                            <TableHead>
+                                                <TableRow>
+                                                    <TableCell>No.</TableCell>
+                                                    <TableCell>Entered By</TableCell>
+                                                    <TableCell align="left">Due Amount</TableCell>
+                                                    <TableCell align="left">Note</TableCell>
+                                                    <TableCell align="left">Date</TableCell>
+                                                    <TableCell align="left">Time</TableCell>
+                                                    <TableCell align="left"></TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {stockInData?.map((row, index) => (
+                                                    totalRows !== 0 ?
+                                                        <TableRow
+                                                            hover
+                                                            key={row.dabId}
+                                                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                            style={{ cursor: "pointer" }}
+                                                            className='tableRow'
+                                                        >
+                                                            <TableCell align="left" >{(index + 1) + (page * rowsPerPage)}</TableCell>
+                                                            <Tooltip title={row.userName} placement="top-start" arrow>
+                                                                <TableCell component="th" scope="row">
+                                                                    {row.enterBy}
+                                                                </TableCell>
+                                                            </Tooltip>
+                                                            <TableCell align="left" >{parseFloat(row.billAmount ? row.billAmount : 0).toLocaleString('en-IN')}</TableCell>
+                                                            {/* <TableCell align="left" >{row.dueNote}</TableCell> */}
+                                                            <Tooltip title={row.dueNote} placement="top-start" arrow><TableCell align="left" ><div className='Comment'>{row.dueNote}</div></TableCell></Tooltip>
+                                                            <TableCell align="left" >{row.displayDate}</TableCell>
+                                                            <TableCell align="left" >{row.diplayTime}</TableCell>
+                                                            <TableCell align="right">
+                                                                <div style={{ display: 'flex', gap: 4, justifyContent: 'flex-end', alignItems: 'center' }}>
+                                                                    <IconButton
+                                                                        size="small"
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            if (row.billId) {
+                                                                                setBillModalId(row.billId);
+                                                                                setBillModalOpen(true);
+                                                                            }
+                                                                        }}
+                                                                        disabled={!row.billId}
+                                                                        sx={{
+                                                                            width: 32,
+                                                                            height: 32,
+                                                                            backgroundColor: row.billId ? '#1976d2' : '#e0e0e0',
+                                                                            color: 'white',
+                                                                            '&:hover': row.billId ? { backgroundColor: '#1565c0' } : {},
+                                                                            '&.Mui-disabled': { color: 'white', backgroundColor: '#e0e0e0' }
+                                                                        }}
+                                                                    >
+                                                                        <VisibilityIcon sx={{ fontSize: 18 }} />
+                                                                    </IconButton>
+                                                                    <MenuStockInOut stockInOutId={row.dabId} data={row} deleteStockInOut={handleDeleteStockIn} />
+                                                                </div>
+                                                            </TableCell>
+                                                        </TableRow> :
+                                                        <TableRow
+                                                            key={row.userId}
+                                                            sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                                        >
+                                                            <TableCell align="left" style={{ fontSize: "18px" }} >{"No Data Found...!"}</TableCell>
+                                                        </TableRow>
 
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                    <TablePagination
-                                        rowsPerPageOptions={[5, 10, 25]}
-                                        component="div"
-                                        count={totalRows}
-                                        rowsPerPage={rowsPerPage}
-                                        page={page}
-                                        onPageChange={handleChangePage}
-                                        onRowsPerPageChange={handleChangeRowsPerPage}
-                                    />
-                                </TableContainer>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                        <TablePagination
+                                            rowsPerPageOptions={[5, 10, 25]}
+                                            component="div"
+                                            count={totalRows}
+                                            rowsPerPage={rowsPerPage}
+                                            page={page}
+                                            onPageChange={handleChangePage}
+                                            onRowsPerPageChange={handleChangeRowsPerPage}
+                                        />
+                                    </TableContainer>
                     }
                 </div>
             </div>
@@ -1426,6 +1614,7 @@ function DueAccountDetail() {
                     <div className='mt-6 grid grid-cols-12 gap-6'>
                         <div className='col-span-4'>
                             <TextField
+                                inputRef={gotFirstInputRef}
                                 onBlur={(e) => {
                                     if (e.target.value < 2) {
                                         setFormDataError((perv) => ({
@@ -1541,6 +1730,7 @@ function DueAccountDetail() {
                     <div className='mt-6 grid grid-cols-12 gap-6'>
                         <div className='col-span-6'>
                             <TextField
+                                inputRef={gaveFirstInputRef}
                                 onBlur={(e) => {
                                     if (e.target.value < 0) {
                                         setFormDataErrorDue((perv) => ({

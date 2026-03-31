@@ -34,6 +34,8 @@ import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import AlarmIcon from '@mui/icons-material/Alarm';
 import RestaurantMenuIcon from '@mui/icons-material/RestaurantMenu';
+import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
+import Cropper from 'react-easy-crop';
 import { SHOW_STATICS_RIGHTS } from '../../userRights';
 import { getUserRole } from '../../utils/userRole';
 
@@ -90,6 +92,44 @@ const anotherStyle = {
     boxShadow: 24,
     p: 4,
 };
+
+const getCroppedImg = (imageSrc, pixelCrop) => {
+    return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.crossOrigin = 'anonymous';
+        image.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = pixelCrop.width;
+            canvas.height = pixelCrop.height;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) {
+                reject(new Error('Canvas context not available'));
+                return;
+            }
+            ctx.drawImage(
+                image,
+                pixelCrop.x,
+                pixelCrop.y,
+                pixelCrop.width,
+                pixelCrop.height,
+                0,
+                0,
+                pixelCrop.width,
+                pixelCrop.height
+            );
+            canvas.toBlob((blob) => {
+                if (!blob) {
+                    reject(new Error('Canvas is empty'));
+                    return;
+                }
+                resolve(blob);
+            }, 'image/jpeg');
+        };
+        image.onerror = (error) => reject(error);
+        image.src = imageSrc;
+    });
+};
+
 function SubCategory() {
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const config = {
@@ -533,6 +573,115 @@ function SubCategory() {
         }
     };
     const [hoveredRow, setHoveredRow] = useState(null);
+    const [openImageModal, setOpenImageModal] = useState(false);
+    const [openCropModal, setOpenCropModal] = useState(false);
+    const [selectedSubCategoryForImage, setSelectedSubCategoryForImage] = useState(null);
+    const [existingImageUrl, setExistingImageUrl] = useState('');
+    const [newImagePreview, setNewImagePreview] = useState('');
+    const [selectedImageFileName, setSelectedImageFileName] = useState('');
+    const [croppedFile, setCroppedFile] = useState(null);
+    const [crop, setCrop] = useState({ x: 0, y: 0 });
+    const [zoom, setZoom] = useState(1);
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+    const [imageSrc, setImageSrc] = useState(null);
+
+    const getFullImageUrl = (imgLink) => {
+        if (!imgLink) return '';
+        return `${BACKEND_BASE_URL}${imgLink}`;
+    };
+
+    const handleOpenImageModal = (category) => {
+        setSelectedSubCategoryForImage(category);
+        setExistingImageUrl(getFullImageUrl(category?.imgLink));
+        setNewImagePreview('');
+        setSelectedImageFileName('');
+        setCroppedFile(null);
+        setOpenImageModal(true);
+    };
+
+    const handleCloseImageModal = () => {
+        setOpenImageModal(false);
+        setSelectedSubCategoryForImage(null);
+        setNewImagePreview('');
+        setSelectedImageFileName('');
+        setCroppedFile(null);
+        setImageSrc(null);
+        setOpenCropModal(false);
+        setCroppedAreaPixels(null);
+    };
+
+    const onCropComplete = (croppedArea, croppedAreaPx) => {
+        setCroppedAreaPixels(croppedAreaPx);
+    };
+
+    const handleImageInputChange = (event) => {
+        const selectedFile = event.target.files?.[0];
+        if (!selectedFile) return;
+        if (!selectedFile.type || !selectedFile.type.startsWith('image/')) {
+            setError('Only image files are allowed');
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => {
+            setImageSrc(reader.result);
+            setCrop({ x: 0, y: 0 });
+            setZoom(1);
+            setOpenCropModal(true);
+        };
+        reader.readAsDataURL(selectedFile);
+        setSelectedImageFileName(selectedFile.name);
+    };
+
+    const handleSaveCroppedImage = async () => {
+        try {
+            if (!imageSrc || !croppedAreaPixels || !selectedImageFileName) return;
+            const croppedBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
+            const newFile = new File([croppedBlob], selectedImageFileName, { type: 'image/jpeg' });
+            setCroppedFile(newFile);
+            const previewUrl = URL.createObjectURL(newFile);
+            setNewImagePreview(previewUrl);
+            // Show changed image in current image preview area immediately
+            setExistingImageUrl(previewUrl);
+            setOpenCropModal(false);
+        } catch (e) {
+            setError('Failed to crop image');
+        }
+    };
+
+    const handleUploadSubCategoryImage = async () => {
+        if (!selectedSubCategoryForImage?.subCategoryId) {
+            setError('Sub category is missing');
+            return;
+        }
+        if (!croppedFile) {
+            setError('Please upload and crop image first');
+            return;
+        }
+        try {
+            setLoading(true);
+            const formData = new FormData();
+            formData.append('subCategoryId', selectedSubCategoryForImage.subCategoryId);
+            formData.append('files', croppedFile);
+            await axios.post(
+                `${BACKEND_BASE_URL}menuItemrouter/uploadSubCategoryImage`,
+                formData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${userInfo.token}`,
+                        'Content-Type': 'multipart/form-data'
+                    }
+                }
+            );
+            setSuccess('Image uploaded successfully');
+            handleCloseImageModal();
+            getSubCategory();
+        } catch (uploadErr) {
+            setError(uploadErr?.response?.data || 'Image upload failed');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleMouseEnter = (index) => {
         setHoveredRow(index);
     };
@@ -704,6 +853,9 @@ function SubCategory() {
                                                         </div>
                                                         <div onClick={() => handleDeleteSubcategory(category.subCategoryId)} className='rounded-lg bg-gray-100 p-2 ml-4 cursor-pointer table_Actions_icon2 hover:bg-red-600'><DeleteOutlineOutlinedIcon className='text-gray-600 table_icon2 ' /></div>
                                                         <div onClick={() => { setOpenTime(true); setTimeEditName(category.subCategoryName); handleCategoryId(category); }} className='rounded-lg bg-gray-100 p-2 ml-4 cursor-pointer table_Actions_icon2 hover:bg-green-600'><AlarmIcon className='text-gray-600 table_icon2 ' /></div>
+                                                        <div onClick={() => handleOpenImageModal(category)} className='rounded-lg bg-gray-100 p-2 ml-4 cursor-pointer table_Actions_icon2 hover:bg-purple-600'>
+                                                            <AddPhotoAlternateIcon className='text-gray-600 table_icon2 ' />
+                                                        </div>
                                                     </div>
                                                 ) : (<></>)}
                                             </TableCell>
@@ -1010,6 +1162,100 @@ function SubCategory() {
                         </div>
                     </div>
                 </Box>
+            </Modal>
+            <Modal
+                open={openImageModal}
+                onClose={handleCloseImageModal}
+                closeAfterTransition
+            >
+                <Fade in={openImageModal}>
+                    <Box sx={{ ...anotherStyle, width: '60%', border: 'none', borderRadius: '10px' }}>
+                        <div className="bg-white w-full">
+                            <div className="w-full text-xl mb-4 popHeading">
+                                Upload Sub Category Image {selectedSubCategoryForImage?.subCategoryName ? `- ${selectedSubCategoryForImage.subCategoryName}` : ''}
+                            </div>
+                            <hr className='mb-4' />
+                            <div className='grid grid-cols-12 gap-6'>
+                                <div className='col-span-6'>
+                                    <div className='mb-2 text-sm font-semibold'>Upload Image</div>
+                                    <div className='subCategoryUploadBox'>
+                                        <label className='subCategoryUploadButton'>
+                                            Upload Image
+                                            <input hidden accept="image/*" type="file" onChange={handleImageInputChange} />
+                                        </label>
+                                    </div>
+                                    <div className='text-xs text-gray-600 mt-3'>
+                                        {selectedImageFileName ? selectedImageFileName : 'No image selected'}
+                                    </div>
+                                </div>
+                                <div className='col-span-6'>
+                                    <div className='mb-2 text-sm font-semibold'>Current Image</div>
+                                    <div className='subCategoryImagePreviewBox'>
+                                        {existingImageUrl ? (
+                                            <img src={existingImageUrl} alt="Current Preview" className='subCategoryImagePreview' />
+                                        ) : (
+                                            <div className='text-sm text-gray-500'>No current image found</div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                            <div className='flex gap-4 mt-6'>
+                                <div className='w-full'>
+                                    <button onClick={handleUploadSubCategoryImage} className="addCategorySaveBtn w-full">Upload</button>
+                                </div>
+                                <div className='w-full'>
+                                    <button onClick={handleCloseImageModal} className="addCategoryCancleBtn w-full bg-gray-700">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </Box>
+                </Fade>
+            </Modal>
+            <Modal
+                open={openCropModal}
+                onClose={() => setOpenCropModal(false)}
+                closeAfterTransition
+            >
+                <Fade in={openCropModal}>
+                    <Box sx={{ ...anotherStyle, width: '45%', border: 'none', borderRadius: '10px' }}>
+                        <div className='bg-white w-full'>
+                            <div className="w-full text-xl mb-4 popHeading">Crop Image (1:1)</div>
+                            <hr className='mb-4' />
+                            <div style={{ position: 'relative', width: '100%', height: 350, background: '#333' }}>
+                                {imageSrc && (
+                                    <Cropper
+                                        image={imageSrc}
+                                        crop={crop}
+                                        zoom={zoom}
+                                        aspect={1}
+                                        onCropChange={setCrop}
+                                        onZoomChange={setZoom}
+                                        onCropComplete={onCropComplete}
+                                    />
+                                )}
+                            </div>
+                            <div className='mt-4'>
+                                <input
+                                    type="range"
+                                    min={1}
+                                    max={3}
+                                    step={0.1}
+                                    value={zoom}
+                                    onChange={(e) => setZoom(Number(e.target.value))}
+                                    className='cropZoomRange'
+                                />
+                            </div>
+                            <div className='flex gap-4 mt-6'>
+                                <div className='w-full'>
+                                    <button onClick={handleSaveCroppedImage} className="addCategorySaveBtn w-full">Save Crop</button>
+                                </div>
+                                <div className='w-full'>
+                                    <button onClick={() => setOpenCropModal(false)} className="addCategoryCancleBtn w-full bg-gray-700">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </Box>
+                </Fade>
             </Modal>
             <ToastContainer />
         </div>

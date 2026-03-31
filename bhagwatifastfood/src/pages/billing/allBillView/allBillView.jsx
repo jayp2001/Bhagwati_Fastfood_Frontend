@@ -10,6 +10,8 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import VisibilityIcon from '@mui/icons-material/Visibility';
+import LanguageIcon from '@mui/icons-material/Language';
+import StorefrontIcon from '@mui/icons-material/Storefront';
 import IconButton from '@mui/material/IconButton';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -30,10 +32,40 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import dayjs from 'dayjs';
 import BillDetailsModal from '../../../components/BillDetailsModal/BillDetailsModal';
 
+/** True when the backend/flow reports empty data — show table empty state only, no error toast. */
+function isEmptyDataMessage(errValue) {
+    if (errValue == null || errValue === '') return false;
+    const text =
+        typeof errValue === 'string'
+            ? errValue
+            : typeof errValue?.message === 'string'
+                ? errValue.message
+                : JSON.stringify(errValue);
+    return /no\s*data/i.test(text);
+}
+
+function getCurrentDate() {
+    const now = new Date();
+    const hours = now.getHours();
+
+    if (hours <= 4) { // If it's 6 AM or later, increment the date
+        now.setDate(now.getDate() - 1);
+    }
+    return now.toDateString().slice(4, 15);
+}
+
+function dayjsBusinessToday() {
+    return dayjs(new Date(getCurrentDate()));
+}
+
+function businessTodayToDateString() {
+    return new Date(getCurrentDate()).toDateString();
+}
+
 function AllBillView() {
     const [billCategories, setBillCategories] = useState([]);
     const [selectedTab, setSelectedTab] = useState(0);
-    const [billDate, setBillDate] = useState(dayjs());
+    const [billDate, setBillDate] = useState(() => dayjsBusinessToday());
     const [billData, setBillData] = useState([]);
     const [error, setError] = useState(false);
     const [billModalOpen, setBillModalOpen] = useState(false);
@@ -68,7 +100,7 @@ function AllBillView() {
     const fetchOrders = async () => {
         const dateStr = (billDate && typeof billDate.toDate === 'function')
             ? billDate.toDate().toDateString()
-            : (billDate?.$d ? new Date(billDate.$d).toDateString() : new Date().toDateString());
+            : (billDate?.$d ? new Date(billDate.$d).toDateString() : businessTodayToDateString());
         const billType = billCategories[selectedTab] || '';
         const url = `${BACKEND_BASE_URL}billingrouter/getAllOrdersData?billDate=${encodeURIComponent(dateStr)}&billType=${encodeURIComponent(billType)}`;
         await axios.get(url, config)
@@ -78,7 +110,14 @@ function AllBillView() {
             })
             .catch((err) => {
                 setBillData([]);
-                setError(err.response ? err.response.data : "Network Error ...!!!");
+                if (!err.response) {
+                    setError("Network Error ...!!!");
+                    return;
+                }
+                const payload = err.response.data;
+                if (!isEmptyDataMessage(payload)) {
+                    setError(payload);
+                }
             });
     };
 
@@ -97,11 +136,11 @@ function AllBillView() {
     }, [selectedTab]);
 
     const handleDateChange = (date) => {
-        setBillDate(date || dayjs());
+        setBillDate(date || dayjsBusinessToday());
     };
 
     const isCurrentDateSelected = billDate
-        ? dayjs(billDate).format('YYYY-MM-DD') === dayjs().format('YYYY-MM-DD')
+        ? dayjs(billDate).format('YYYY-MM-DD') === dayjsBusinessToday().format('YYYY-MM-DD')
         : true;
 
     const filteredBillData = billData.filter((row) => {
@@ -145,19 +184,21 @@ function AllBillView() {
     }, [billCategories]);
 
     if (error) {
-        toast.dismiss();
-        toast(error, {
-            type: 'error',
-            position: "top-right",
-            toastId: 'error',
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "colored",
-        });
+        if (!isEmptyDataMessage(error)) {
+            toast.dismiss();
+            toast(error, {
+                type: 'error',
+                position: "top-right",
+                toastId: 'error',
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "colored",
+            });
+        }
         setError(false);
     }
 
@@ -215,7 +256,7 @@ function AllBillView() {
                                 </LocalizationProvider>
                                 <button
                                     className={`reSetBtn ${!isCurrentDateSelected ? 'resetDateBtnActive' : ''}`}
-                                    onClick={() => setBillDate(dayjs())}
+                                    onClick={() => setBillDate(dayjsBusinessToday())}
                                     title="Reset to today"
                                 >
                                     <RestoreIcon sx={{ fontSize: 20, opacity: 1 }} />
@@ -285,7 +326,14 @@ function AllBillView() {
                                         >
                                             <TableCell align="left">{index + 1}</TableCell>
                                             <TableCell component="th" scope="row">
-                                                {row.tokenNo || row.billNumber}
+                                                <div className='flex items-center gap-1'>
+                                                    {row.menuStatus === 'Online' ? (
+                                                        <LanguageIcon sx={{ fontSize: 16 }} />
+                                                    ) : (
+                                                        <StorefrontIcon sx={{ fontSize: 16 }} />
+                                                    )}
+                                                    <span>{row.tokenNo || row.billNumber}</span>
+                                                </div>
                                             </TableCell>
                                             <TableCell align="left">{row.cashier}</TableCell>
                                             <TableCell align="left" style={{ textTransform: 'capitalize' }}>

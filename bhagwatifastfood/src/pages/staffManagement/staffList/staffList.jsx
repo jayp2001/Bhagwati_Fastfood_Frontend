@@ -26,8 +26,6 @@ import CloseIcon from '@mui/icons-material/Close';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import Popover from '@mui/material/Popover';
 import SearchIcon from '@mui/icons-material/Search';
-import { getUserRole } from '../../../utils/userRole';
-import { SHOW_STATICS_RIGHTS } from '../../../userRights';
 
 const styleStockIn = {
     position: 'absolute',
@@ -79,7 +77,6 @@ function StaffList() {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const ids = open ? 'simple-popover' : undefined;
-    const userRole = getUserRole();
     const config = {
         headers: {
             "Content-Type": "application/json",
@@ -124,6 +121,25 @@ function StaffList() {
         'amountType',
         'amountDate',
     ]);
+    const giveSalaryFirstFieldRef = useRef(null);
+    const addLeaveFirstFieldRef = useRef(null);
+
+    useEffect(() => {
+        if (!openModal) return;
+        const id = window.setTimeout(() => {
+            giveSalaryFirstFieldRef.current?.focus?.();
+        }, 100);
+        return () => window.clearTimeout(id);
+    }, [openModal]);
+
+    useEffect(() => {
+        if (!openAddLeave) return;
+        const id = window.setTimeout(() => {
+            addLeaveFirstFieldRef.current?.focus?.();
+        }, 100);
+        return () => window.clearTimeout(id);
+    }, [openAddLeave]);
+
     const handleCloseModal = () => {
         setFormData({
             employeeId: '',
@@ -878,6 +894,7 @@ function StaffList() {
                     <div className='mt-6 grid grid-cols-12 gap-6'>
                         <div className='col-span-4'>
                             <TextField
+                                inputRef={giveSalaryFirstFieldRef}
                                 onBlur={(e) => {
                                     if (e.target.value < 0) {
                                         setFormDataError((perv) => ({
@@ -898,8 +915,6 @@ function StaffList() {
                                 onChange={onChange}
                                 value={formData.payAmount}
                                 error={formDataError.payAmount}
-                                // helperText={formData.supplierName && !formDataError.productQty ? `Remain Payment  ${formData.remainingAmount}` : formDataError.paidAmount ? formData.paidAmount > formData.remainingAmount ? `Payment Amount can't be more than ${formData.remainingAmount}` : "Please Enter Amount" : ''}
-                                // helperText={formData.amountType == 1 ? formData.payAmount ? formData.payAmount > formData.totalSalary ? `Amount can't be more than ${formData.totalSalary}` : `Remaining Payment ${formData.paymentDue}` : formDataError.totalSalary ? "Please Enter Amount" : `Remaining Payment ${formData.paymentDue}` : ''}
                                 name="payAmount"
                                 InputProps={{
                                     startAdornment: <InputAdornment position="start"><CurrencyRupeeIcon /></InputAdornment>,
@@ -976,9 +991,13 @@ function StaffList() {
                     </div>
                     <div className='mt-4 grid grid-cols-12 gap-6'>
                         <div className='col-span-3 col-start-7'>
-                            <button className='addCategorySaveBtn' onClick={() => {
-                                submit();
-                            }}>Make Payment</button>
+                            <button
+                                type="button"
+                                className='addCategorySaveBtn'
+                                onClick={() => {
+                                    submit();
+                                }}
+                            >Make Payment</button>
                         </div>
                         <div className='col-span-3'>
                             <button className='addCategoryCancleBtn' onClick={() => {
@@ -1006,6 +1025,7 @@ function StaffList() {
                     <div className='mt-6 grid grid-cols-12 gap-6'>
                         <div className='col-span-6'>
                             <TextField
+                                inputRef={addLeaveFirstFieldRef}
                                 onBlur={(e) => {
                                     if (e.target.value < 0) {
                                         setAddLeaveFormDataError((perv) => ({

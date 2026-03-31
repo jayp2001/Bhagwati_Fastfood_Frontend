@@ -646,6 +646,30 @@ function HotelTable() {
             });
         }
     }
+    const exportPdfHotelOnlineURL = async () => {
+        if (window.confirm('Are you sure you want to export PDF ... ?')) {
+            try {
+                const response = await axios({
+                    url: `${BACKEND_BASE_URL}billingrouter/exportPdfHotelOnlineURL`,
+                    method: 'GET',
+                    headers: { Authorization: `Bearer ${userInfo.token}` },
+                    responseType: 'blob',
+                })
+                const href = URL.createObjectURL(response.data)
+                const link = document.createElement('a')
+                const name = 'Hotel_Online_URL_' + new Date().toLocaleDateString() + '.pdf'
+                link.href = href
+                link.setAttribute('download', name)
+                document.body.appendChild(link)
+                link.click()
+                document.body.removeChild(link)
+                URL.revokeObjectURL(href)
+            } catch (error) {
+                console.error('exportPdfHotelOnlineURL:', error)
+                toast.error('Failed to export PDF')
+            }
+        }
+    }
     if (loading) {
         console.log('>>>>??')
         toast.loading("Please wait...", {
@@ -824,8 +848,8 @@ function HotelTable() {
             <div className='grid grid-cols-12 mt-6'>
                 <div className='col-span-12'>
                     <div className='userTableSubContainer'>
-                        <div className='grid grid-cols-12 pt-6'>
-                            <div className='col-span-3 ml-6'>
+                        <div className='flex flex-row flex-nowrap items-center justify-between gap-4 pt-6 px-6'>
+                            <div className='flex-1 min-w-0 max-w-md'>
                                 <TextField
                                     className='sarchText'
                                     onChange={(e) => { onSearchChange(e); debounceFunction() }}
@@ -842,9 +866,11 @@ function HotelTable() {
                                     fullWidth
                                 />
                             </div>
-                            {/* <div className='col-span-4 col-start-9 pr-5 flex justify-end'>
-                                {tab === 1 || tab === '1' || tab === 2 || tab === '2' || tab === 3 || tab === '3' ? null : <button className='exportExcelBtn' onClick={productExportExcel}><FileDownloadIcon />&nbsp;&nbsp;Export Excle</button>}
-                            </div> */}
+                            <div className='flex shrink-0 items-center'>
+                                <button type="button" className='exportExcelBtn' onClick={exportPdfHotelOnlineURL}>
+                                    <FileDownloadIcon />&nbsp;&nbsp;Export URL
+                                </button>
+                            </div>
                         </div>
                         <div className='tableContainerWrapper'>
                             <TableContainer sx={{ borderBottomLeftRadius: '10px', borderBottomRightRadius: '10px', paddingLeft: '10px', paddingRight: '10px' }} component={Paper}>

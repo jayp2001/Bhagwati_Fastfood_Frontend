@@ -1,5 +1,5 @@
 import './employDetails.css';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import React from "react";
 import { BACKEND_BASE_URL } from '../../../url';
 import axios from 'axios';
@@ -52,6 +52,8 @@ import MenuLeaves from './menus/menuLeaves';
 import MenuTransaction from './menus/menuTransaction';
 import ExportMenu from '../exportMenu';
 import CountCard from '../countCard/countCard';
+import { getUserRole } from '../../../utils/userRole';
+import { SHOW_STATICS_RIGHTS } from '../../../userRights';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import Collapse from '@mui/material/Collapse';
@@ -144,6 +146,10 @@ function EmployeeDetails() {
     const [workDays, setWorkDays] = useState();
     const [searchWord, setSearchWord] = React.useState('');
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+    const userRole = getUserRole();
+    const canViewStaffSalary = SHOW_STATICS_RIGHTS.some(
+        (r) => r === userRole || String(r) === String(userRole)
+    );
     const [toggel, setToggel] = useState(false);
     const label = { inputProps: { 'aria-label': 'Size switch demo' } };
     const [addLeaveFormData, setAddLeaveFormData] = React.useState({
@@ -181,6 +187,25 @@ function EmployeeDetails() {
         'amountType',
         'amountDate',
     ]);
+
+    const giveSalaryFirstFieldRef = useRef(null);
+    const addLeaveFirstFieldRef = useRef(null);
+
+    useEffect(() => {
+        if (!openModal) return;
+        const id = window.setTimeout(() => {
+            giveSalaryFirstFieldRef.current?.focus?.();
+        }, 100);
+        return () => window.clearTimeout(id);
+    }, [openModal]);
+
+    useEffect(() => {
+        if (!openAddLeave) return;
+        const id = window.setTimeout(() => {
+            addLeaveFirstFieldRef.current?.focus?.();
+        }, 100);
+        return () => window.clearTimeout(id);
+    }, [openAddLeave]);
 
     const [editFormData, setEditFormData] = React.useState();
 
@@ -2417,7 +2442,9 @@ function EmployeeDetails() {
                                             Per Day Salary
                                         </div>
                                         <div className='col-span-7 suppilerDetailFeild'>
-                                            ₹ {parseFloat(data.perDaySalary ? data.perDaySalary : 0).toLocaleString('en-IN')} /-
+                                            {canViewStaffSalary
+                                                ? `₹ ${parseFloat(data.perDaySalary ? data.perDaySalary : 0).toLocaleString('en-IN')} /-`
+                                                : '####'}
                                         </div>
                                     </div>
                                 </div>
@@ -2427,7 +2454,9 @@ function EmployeeDetails() {
                                             Current Salary :
                                         </div>
                                         <div className='col-span-7 suppilerDetailFeild'>
-                                            ₹ {parseFloat(data.salary ? data.salary : 0).toLocaleString('en-IN')} /-
+                                            {canViewStaffSalary
+                                                ? `₹ ${parseFloat(data.salary ? data.salary : 0).toLocaleString('en-IN')} /-`
+                                                : '####'}
                                         </div>
                                     </div>
                                     <div className='grid grid-cols-12 gap-3 hrLine'>
@@ -2540,7 +2569,7 @@ function EmployeeDetails() {
                                                             <TableCell align="left" >{(index + 1) + (pageLeaves * rowsPerPageLeaves)}</TableCell>
                                                             {/* <Tooltip title={row.userName} placement="top-start" arrow> */}
                                                             <TableCell component="th" scope="row" >
-                                                                {row.salary}
+                                                                {canViewStaffSalary ? row.salary : '####'}
                                                             </TableCell>
                                                             <TableCell component="th" scope="row" >
                                                                 {row.salaryPeriod}
@@ -2879,14 +2908,14 @@ function EmployeeDetails() {
                                                                 {row.salaryMonth}
                                                             </TableCell>
                                                         </Tooltip>
-                                                        <TableCell align="center" >₹ {parseFloat(row.totalSalary).toLocaleString('en-IN')} /-</TableCell>
-                                                        <TableCell align="center" >₹ {parseFloat(row.remainSalary).toLocaleString('en-IN')} /-</TableCell>
-                                                        <TableCell align="center" >₹ {parseFloat(row.amountOfAdvance).toLocaleString('en-IN')} /-</TableCell>
-                                                        <TableCell align="center" >₹ {parseFloat(row.amountOfFine).toLocaleString('en-IN')} /-</TableCell>
+                                                        <TableCell align="center" >{canViewStaffSalary ? `₹ ${parseFloat(row.totalSalary).toLocaleString('en-IN')} /-` : '####'}</TableCell>
+                                                        <TableCell align="center" >{canViewStaffSalary ? `₹ ${parseFloat(row.remainSalary).toLocaleString('en-IN')} /-` : '####'}</TableCell>
+                                                        <TableCell align="center" >{canViewStaffSalary ? `₹ ${parseFloat(row.amountOfAdvance).toLocaleString('en-IN')} /-` : '####'}</TableCell>
+                                                        <TableCell align="center" >{canViewStaffSalary ? `₹ ${parseFloat(row.amountOfFine).toLocaleString('en-IN')} /-` : '####'}</TableCell>
                                                         <TableCell align="center" >{row.maxLeave} Day</TableCell>
                                                         <TableCell align="center" >{row.takenLeaves} Day</TableCell>
                                                         <TableCell align="center" >{row.extraLeaves} Day</TableCell>
-                                                        <TableCell align="center" >₹ {row.deductionSalaryOfLeave} /-</TableCell>
+                                                        <TableCell align="center" >{canViewStaffSalary ? `₹ ${row.deductionSalaryOfLeave} /-` : '####'}</TableCell>
                                                         <TableCell align="center" >{row.presentDays} Day</TableCell>
                                                         {index == 0 && row.totalSalary == row.remainSalary && data.employeeStatus != 1 ?
                                                             <TableCell align="right">
@@ -3268,6 +3297,7 @@ function EmployeeDetails() {
                     <div className='mt-6 grid grid-cols-12 gap-6'>
                         <div className='col-span-4'>
                             <TextField
+                                inputRef={giveSalaryFirstFieldRef}
                                 onBlur={(e) => {
                                     if (e.target.value < 0) {
                                         setFormDataError((perv) => ({
@@ -3404,6 +3434,7 @@ function EmployeeDetails() {
                     <div className='mt-6 grid grid-cols-12 gap-6'>
                         <div className='col-span-6'>
                             <TextField
+                                inputRef={addLeaveFirstFieldRef}
                                 onBlur={(e) => {
                                     if (e.target.value < 0) {
                                         setAddLeaveFormDataError((perv) => ({

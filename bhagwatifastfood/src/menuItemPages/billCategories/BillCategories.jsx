@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import './BillCategories.css'
 import axios from 'axios'
 import { BACKEND_BASE_URL } from '../../url'
@@ -18,6 +18,7 @@ import {
     TableRow,
     Paper,
     IconButton,
+    Tooltip,
     Select,
     MenuItem,
     FormControl,
@@ -27,18 +28,20 @@ import BorderColorIcon from '@mui/icons-material/BorderColor'
 import CloseIcon from '@mui/icons-material/Close'
 import StorefrontIcon from '@mui/icons-material/Storefront'
 import LanguageIcon from '@mui/icons-material/Language'
+import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import CheckIcon from '@mui/icons-material/Check'
 
 const modalStyle = {
     position: 'absolute',
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 'min(1000px, 95vw)',
+    width: { xs: '96vw', sm: '94vw', md: 'min(1000px, 95vw)' },
     bgcolor: 'background.paper',
     boxShadow: 24,
-    p: 2.5,
+    p: { xs: 1.5, sm: 2, md: 2.5 },
     borderRadius: '10px',
-    maxHeight: '90vh',
+    maxHeight: { xs: '92vh', sm: '94vh', md: '95vh' },
     overflowY: 'auto',
 }
 
@@ -47,12 +50,12 @@ const viewModalStyle = {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 'min(800px, 95vw)',
+    width: { xs: '96vw', sm: '94vw', md: 'min(800px, 95vw)' },
     bgcolor: 'background.paper',
     boxShadow: 24,
-    p: 2.5,
+    p: { xs: 1.5, sm: 2, md: 2.5 },
     borderRadius: '10px',
-    maxHeight: '90vh',
+    maxHeight: { xs: '92vh', sm: '94vh', md: '95vh' },
     overflowY: 'auto',
 }
 
@@ -106,9 +109,13 @@ function BillCategories() {
         amountRange: '',
         stopAutoAcceptStartTime: '00:00:00',
         stopAutoAcceptCloseTime: '00:00:00',
+        onlineURL: '',
+        onlineNote: '',
     })
     const [firmList, setFirmList] = useState([])
     const [menuCategoryList, setMenuCategoryList] = useState([])
+    const [onlineUrlCopied, setOnlineUrlCopied] = useState(false)
+    const copyUrlSuccessTimerRef = useRef(null)
 
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || '{}')
     const config = {
@@ -122,6 +129,14 @@ function BillCategories() {
         fetchBillCategories()
         fetchFirmData()
         fetchMenuCategoryData()
+    }, [])
+
+    useEffect(() => {
+        return () => {
+            if (copyUrlSuccessTimerRef.current != null) {
+                clearTimeout(copyUrlSuccessTimerRef.current)
+            }
+        }
     }, [])
 
     useEffect(() => {
@@ -195,7 +210,31 @@ function BillCategories() {
         }
     }
 
+    const copyOnlineUrlToClipboard = async (url) => {
+        const text = url != null ? String(url).trim() : ''
+        if (!text) return
+        try {
+            await navigator.clipboard.writeText(text)
+            if (copyUrlSuccessTimerRef.current != null) {
+                clearTimeout(copyUrlSuccessTimerRef.current)
+            }
+            setOnlineUrlCopied(true)
+            copyUrlSuccessTimerRef.current = setTimeout(() => {
+                setOnlineUrlCopied(false)
+                copyUrlSuccessTimerRef.current = null
+            }, 5000)
+        } catch (err) {
+            console.error('Copy failed:', err)
+            toast.error('Could not copy URL')
+        }
+    }
+
     const handleRowClick = (category) => {
+        if (copyUrlSuccessTimerRef.current != null) {
+            clearTimeout(copyUrlSuccessTimerRef.current)
+            copyUrlSuccessTimerRef.current = null
+        }
+        setOnlineUrlCopied(false)
         setSelectedCategory(category)
         setViewModalOpen(true)
     }
@@ -224,6 +263,8 @@ function BillCategories() {
             amountRange: (categoryToUse.amountRange === 0 || categoryToUse.amountRange === '0' || categoryToUse.amountRange === '' || categoryToUse.amountRange == null) ? '' : String(categoryToUse.amountRange),
             stopAutoAcceptStartTime: (categoryToUse.stopAutoAcceptStartTime || '00:00:00').slice(0, 5),
             stopAutoAcceptCloseTime: (categoryToUse.stopAutoAcceptCloseTime || '00:00:00').slice(0, 5),
+            onlineURL: categoryToUse.onlineURL ?? '',
+            onlineNote: categoryToUse.onlineNote ?? '',
         })
         setEditModalOpen(true)
     }
@@ -266,10 +307,17 @@ function BillCategories() {
             amountRange: '',
             stopAutoAcceptStartTime: '00:00:00',
             stopAutoAcceptCloseTime: '00:00:00',
+            onlineURL: '',
+            onlineNote: '',
         })
     }
 
     const handleCloseViewModal = () => {
+        if (copyUrlSuccessTimerRef.current != null) {
+            clearTimeout(copyUrlSuccessTimerRef.current)
+            copyUrlSuccessTimerRef.current = null
+        }
+        setOnlineUrlCopied(false)
         setViewModalOpen(false)
         setSelectedCategory(null)
     }
@@ -360,6 +408,8 @@ function BillCategories() {
                 stopAutoAcceptCloseTime: toTimeFormat(formData.stopAutoAcceptCloseTime),
                 billFooterNote: formData.billFooterNote ?? '',
                 appriciateLine: formData.appriciateLine ?? '',
+                onlineURL: formData.onlineURL ? formData.onlineURL : null,
+                onlineNote: formData.onlineNote ? formData.onlineNote : null,
             }
             await axios.post(
                 `${BACKEND_BASE_URL}billingrouter/updateBillCategoryData`,
@@ -530,6 +580,55 @@ function BillCategories() {
                                         <span className='detailValue'>
                                             {to12HourFormat(selectedCategory.stopAutoAcceptStartTime)} - {to12HourFormat(selectedCategory.stopAutoAcceptCloseTime)}
                                         </span>
+                                    </div>
+                                    <div className='detailRow'>
+                                        <span className='detailLabel'>Online URL:</span>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                alignItems: 'flex-start',
+                                                gap: 0.5,
+                                                flex: 1,
+                                                minWidth: 0,
+                                            }}
+                                        >
+                                            <span className='detailValue' style={{ flex: 1, minWidth: 0 }}>
+                                                {selectedCategory.onlineURL || '-'}
+                                            </span>
+                                            {selectedCategory.onlineURL ? (
+                                                onlineUrlCopied ? (
+                                                    <Box
+                                                        sx={{
+                                                            flexShrink: 0,
+                                                            width: 34,
+                                                            height: 34,
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            mt: -0.25,
+                                                        }}
+                                                        aria-hidden
+                                                    >
+                                                        <CheckIcon sx={{ color: 'success.main', fontSize: 22 }} />
+                                                    </Box>
+                                                ) : (
+                                                    <Tooltip title="Copy URL">
+                                                        <IconButton
+                                                            size="small"
+                                                            aria-label="Copy online URL"
+                                                            onClick={() => copyOnlineUrlToClipboard(selectedCategory.onlineURL)}
+                                                            sx={{ color: 'gray', flexShrink: 0, mt: -0.25 }}
+                                                        >
+                                                            <ContentCopyIcon fontSize="small" />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                )
+                                            ) : null}
+                                        </Box>
+                                    </div>
+                                    <div className='detailRow fullWidth'>
+                                        <span className='detailLabel'>Online Note:</span>
+                                        <span className='detailValue'>{selectedCategory.onlineNote || '-'}</span>
                                     </div>
                                 </div>
                             </div>
@@ -715,6 +814,29 @@ function BillCategories() {
                                             disabled={formData.onlineStoreStatus != 1}
                                         />
                                     </div>
+                                    <TextField
+                                        fullWidth
+                                        size="small"
+                                        label="Online URL"
+                                        name="onlineURL"
+                                        type="text"
+                                        value={formData.onlineURL}
+                                        onChange={handleInputChange}
+                                        variant="outlined"
+                                        disabled={formData.onlineStoreStatus != 1}
+                                    />
+                                    <TextField
+                                        fullWidth
+                                        size="small"
+                                        label="Online Note"
+                                        name="onlineNote"
+                                        value={formData.onlineNote}
+                                        onChange={handleInputChange}
+                                        variant="outlined"
+                                        multiline
+                                        rows={2}
+                                        disabled={formData.onlineStoreStatus != 1}
+                                    />
                                 </div>
                             </div>
                             <div className='formActions'>

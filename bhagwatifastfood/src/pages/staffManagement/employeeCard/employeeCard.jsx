@@ -39,6 +39,9 @@ const styleStockIn = {
 };
 function EmployeeCard(props) {
     const userRole = getUserRole();
+    const canViewStaffSalary = SHOW_STATICS_RIGHTS.some(
+        (r) => r === userRole || String(r) === String(userRole)
+    );
     const navigate = useNavigate();
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const [open, setOpen] = useState(false);
@@ -198,6 +201,14 @@ function EmployeeCard(props) {
     }
     console.log(">>>", parseFloat(''))
     const label = { inputProps: { 'aria-label': 'Size switch demo' } };
+    const salaryNum = (n) =>
+        canViewStaffSalary
+            ? parseFloat(n != null && n !== '' ? n : 0).toLocaleString('en-IN')
+            : '####';
+    const dueSalaryText = () =>
+        canViewStaffSalary
+            ? '₹ ' + parseFloat(props.data.paymentDue ? props.data.paymentDue : 0).toLocaleString('en-IN')
+            : '####';
     return (
         <div className='employeeCard' key={props.data.category + props.data.employeeId + 'employeeCard'}>
             <div className='flex h-full'>
@@ -216,9 +227,9 @@ function EmployeeCard(props) {
                                 {props.data.category}
                             </div>
                         </Tooltip>
-                        <Tooltip title={('₹' + props.data.salary).toLocaleString('en-IN')} placement="top-start" arrow>
+                        <Tooltip title={canViewStaffSalary ? ('₹' + props.data.salary).toLocaleString('en-IN') : '####'} placement="top-start" arrow>
                             <div className='categoryWrp'>
-                                <b>Salary</b> : ₹ {parseFloat(props.data.salary ? props.data.salary : 0).toLocaleString('en-IN')}
+                                <b>Salary</b> : ₹ {salaryNum(props.data.salary)}
                             </div>
                         </Tooltip>
                     </div>
@@ -234,7 +245,7 @@ function EmployeeCard(props) {
                             />
                             {/* <span>{toggel ? 'Active' : 'Inactive'}</span> */}
                         </div>
-                        {SHOW_STATICS_RIGHTS.includes(userRole) ? <Menutemp handleDelete={handleDelete} handleEdit={handleEdit} handleViewDetail={handleViewDetail} /> : ""}
+                        {canViewStaffSalary ? <Menutemp handleDelete={handleDelete} handleEdit={handleEdit} handleViewDetail={handleViewDetail} /> : ""}
                     </div>
                     <div className='salaryDetailWrp grid grid-cols-3 gap-4'>
                         <div>
@@ -242,7 +253,7 @@ function EmployeeCard(props) {
                                 Mo. Salary
                             </div>
                             <div className='salaryNum mt-1'>
-                                {parseFloat(props.data.totalSalary ? props.data.totalSalary : 0).toLocaleString('en-IN')}
+                                {salaryNum(props.data.totalSalary)}
                             </div>
                         </div>
                         <div>
@@ -250,7 +261,7 @@ function EmployeeCard(props) {
                                 Advanced
                             </div>
                             <div className='salaryNum mt-1'>
-                                {parseFloat(props.data.advanceAmount).toLocaleString('en-IN')}
+                                {salaryNum(props.data.advanceAmount)}
                             </div>
                         </div>
                         <div>
@@ -258,11 +269,11 @@ function EmployeeCard(props) {
                                 Fine/Penalty
                             </div>
                             <div className='salaryNum mt-1'>
-                                {parseFloat(props.data.fineAmount).toLocaleString('en-IN')}
+                                {salaryNum(props.data.fineAmount)}
                             </div>
                         </div>
                     </div>
-                    <div className='salaryDetailWrp grid grid-cols-3 mt-3 gap-4'>
+                    <div className='salaryDetailWrp grid grid-cols-3 gap-4 mt-3'>
                         <div>
                             <div className='salaryHeader'>
                                 Max-Leave
@@ -284,7 +295,7 @@ function EmployeeCard(props) {
                                 Daily Salary
                             </div>
                             <div className='salaryNum mt-1'>
-                                {parseFloat(props.data.perDaySalary ? props.data.perDaySalary : 0).toLocaleString('en-IN')}
+                                {salaryNum(props.data.perDaySalary)}
                             </div>
                         </div>
                     </div>
@@ -294,7 +305,7 @@ function EmployeeCard(props) {
                         </div>
                     </div>
                     <div className={`${props.data.paymentDue > 0 ? 'dueSalaryWrpGreen' : props.data.paymentDue == 0 ? 'dueSalaryWrpBlack' : ''} dueSalaryWrp mt-3 ml-6 mr-6`}>
-                        {'₹ ' + parseFloat(props.data.paymentDue ? props.data.paymentDue : 0).toLocaleString('en-IN')}
+                        {dueSalaryText()}
                     </div>
                     <div className='mt-3 ml-6 mr-6 grid grid-cols-2 gap-6'>
                         <button className='addSalary' onClick={() => props.handleOpen(props.data)}>Give Salary</button>
@@ -348,8 +359,6 @@ function EmployeeCard(props) {
                                 onChange={(e) => props.onChange(e)}
                                 value={props.formData.payAmount}
                                 error={props.formDataError.payAmount}
-                                // helperText={props.formData.supplierName && !props.formDataError.productQty ? `Remain Payment  ${props.formData.remainingAmount}` : props.formDataError.paidAmount ? props.formData.paidAmount > props.formData.remainingAmount ? `Payment Amount can't be more than ${props.formData.remainingAmount}` : "Please Enter Amount" : ''}
-                                // helperText={props.formData.amountType == 1 ? props.formData.payAmount ? props.formData.payAmount > props.formData.totalSalary ? `Amount can't be more than ${props.formData.totalSalary}` : `Remaining Payment ${props.formData.paymentDue}` : props.formDataError.totalSalary ? "Please Enter Amount" : `Remaining Payment ${props.formData.paymentDue}` : ''}
                                 name="payAmount"
                                 InputProps={{
                                     startAdornment: <InputAdornment position="start"><CurrencyRupeeIcon /></InputAdornment>,
@@ -428,9 +437,13 @@ function EmployeeCard(props) {
                             }}>Just InActive</button>
                         </div>
                         <div className='col-span-3 col-start-7'>
-                            <button className='addCategorySaveBtn' onClick={() => {
-                                makeInActive(true)
-                            }}>Make Payment</button>
+                            <button
+                                type="button"
+                                className='addCategorySaveBtn'
+                                onClick={() => {
+                                    makeInActive(true)
+                                }}
+                            >Make Payment</button>
                         </div>
                         <div className='col-span-3'>
                             <button className='addCategoryCancleBtn' onClick={() => {

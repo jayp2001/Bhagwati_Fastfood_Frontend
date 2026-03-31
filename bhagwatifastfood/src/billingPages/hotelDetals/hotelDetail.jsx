@@ -1,9 +1,11 @@
 import './hotelDetail.css';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import React from "react";
 import { BACKEND_BASE_URL } from '../../url';
 import axios from 'axios';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import CheckIcon from '@mui/icons-material/Check';
 import { useParams, useNavigate } from 'react-router-dom';
 import CountCard from '../countCard/countCard';
 import CloseIcon from '@mui/icons-material/Close';
@@ -14,6 +16,7 @@ import { DateRangePicker } from 'react-date-range';
 import 'react-date-range/dist/styles.css'; // main style file
 import 'react-date-range/dist/theme/default.css';
 import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
 import ProductQtyCountCard from '../productQtyCard/productQtyCard';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
@@ -81,6 +84,8 @@ function HotelDetails() {
     const [productTable, setProductTable] = React.useState();
     const [billModalOpen, setBillModalOpen] = React.useState(false);
     const [billModalId, setBillModalId] = React.useState(null);
+    const [onlineUrlCopied, setOnlineUrlCopied] = useState(false);
+    const copyUrlSuccessTimerRef = useRef(null);
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const config = {
         headers: {
@@ -433,7 +438,20 @@ function HotelDetails() {
         getStatistics();
         getHotelDetails();
         getStockInData()
+        return () => {
+            if (copyUrlSuccessTimerRef.current != null) {
+                clearTimeout(copyUrlSuccessTimerRef.current)
+            }
+        }
     }, [])
+
+    useEffect(() => {
+        setOnlineUrlCopied(false)
+        if (copyUrlSuccessTimerRef.current != null) {
+            clearTimeout(copyUrlSuccessTimerRef.current)
+            copyUrlSuccessTimerRef.current = null
+        }
+    }, [id])
     const onChange = (e) => {
         if (e.target.name === 'paidAmount') {
             setFormData((prevState) => ({
@@ -725,6 +743,26 @@ function HotelDetails() {
         }
     }
 
+    const copyHotelOnlineUrl = async () => {
+        const url = hotelDetails?.onlineURL
+        const text = url != null ? String(url).trim() : ''
+        if (!text) return
+        try {
+            await navigator.clipboard.writeText(text)
+            if (copyUrlSuccessTimerRef.current != null) {
+                clearTimeout(copyUrlSuccessTimerRef.current)
+            }
+            setOnlineUrlCopied(true)
+            copyUrlSuccessTimerRef.current = setTimeout(() => {
+                setOnlineUrlCopied(false)
+                copyUrlSuccessTimerRef.current = null
+            }, 5000)
+        } catch (err) {
+            console.error('copyHotelOnlineUrl:', err)
+            toast.error('Could not copy URL')
+        }
+    }
+
     if (!hotelDetails) {
         return null;
     }
@@ -775,8 +813,39 @@ function HotelDetails() {
         <div className='suppilerListContainer'>
             <div className='grid grid-cols-12 gap-8'>
                 <div className='col-span-5 mt-6 grid gap-2 suppilerDetailContainer'>
-                    <div className='suppilerHeader'>
-                        Hotel Details
+                    <div className='flex w-full flex-row flex-nowrap items-start justify-between gap-2 pr-1'>
+                        <div className='suppilerHeader'>
+                            Hotel Details
+                        </div>
+                        {hotelDetails.onlineURL?.trim() ? (
+                            onlineUrlCopied ? (
+                                <Box
+                                    sx={{
+                                        flexShrink: 0,
+                                        width: 34,
+                                        height: 34,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        mt: '-4px',
+                                    }}
+                                    aria-hidden
+                                >
+                                    <CheckIcon sx={{ color: 'success.main', fontSize: 22 }} />
+                                </Box>
+                            ) : (
+                                <Tooltip title="Copy online URL">
+                                    <IconButton
+                                        size="small"
+                                        aria-label="Copy online URL"
+                                        onClick={copyHotelOnlineUrl}
+                                        sx={{ color: 'gray', flexShrink: 0, mt: '-4px' }}
+                                    >
+                                        <ContentCopyIcon fontSize="small" />
+                                    </IconButton>
+                                </Tooltip>
+                            )
+                        ) : null}
                     </div>
                     <div className='grid grid-cols-12 gap-3 hrLine'>
                         <div className='col-span-5 suppilerDetailFeildHeader'>

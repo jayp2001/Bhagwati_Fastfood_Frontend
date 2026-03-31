@@ -146,6 +146,10 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     },
 }));
 function MenuDashboard() {
+    const normalizeSubCategoryStatus = (status) => {
+        return !(status === 0 || status === '0');
+    };
+
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     const config = {
         headers: {
@@ -271,7 +275,7 @@ function MenuDashboard() {
     const [clickedSubCategory, setClickedSubCategory] = useState(null);
     const [editItemPopUp, setEditItemPopup] = useState(false)
     const [unitPrice, setUnitPrice] = React.useState('');
-    const [subCategoryStatus, setSubCategoryStatus] = useState('')
+    const [subCategoryStatus, setSubCategoryStatus] = useState(false)
     const [allFormValidation, setAllFormValidation] = useState({
         itemName: false,
         itemGujaratiName: false,
@@ -770,7 +774,7 @@ function MenuDashboard() {
             const subCategories = response.data;
             setSubCategories(subCategories);
             setMenuId(menu)
-            const firstSubCategoryId = subCategories[0].subCategoryId;
+            const firstSubCategoryId = subCategories?.[0]?.subCategoryId;
             // const status = subCategories[0].status;
             // if (status) {
             //     console.log('==>sub Category Status ==>', status)
@@ -778,15 +782,18 @@ function MenuDashboard() {
             // }
             // setSubCategoryStatus(true)
             // updatedSubCategory(menu);
-            if (finalSelected) {
-                console.log('reload', finalSelected)
-                handleSubCategoryClick(finalSelected, menu);
+            const selectedExistsInCurrentMenu = subCategories.some(
+                (subCategory) => subCategory.subCategoryId === finalSelected
+            );
+            const nextSubCategoryId = selectedExistsInCurrentMenu ? finalSelected : firstSubCategoryId;
+            if (nextSubCategoryId) {
+                console.log('reload', nextSubCategoryId)
+                handleSubCategoryClick(nextSubCategoryId, menu, subCategories);
+                setItemDataNull(false)
+            } else {
+                setItemData([]);
+                setItemDataNull(true);
             }
-            else {
-                handleSubCategoryClick(firstSubCategoryId, menu);
-                setSubCategoryStatus(true)
-            }
-            setItemDataNull(false)
         } catch (error) {
             setError(error?.response?.data || 'Network Error!!!...')
         }
@@ -804,12 +811,12 @@ function MenuDashboard() {
             console.log('<<==><==>>', status)
             if (status >= 0) {
                 console.log('==><==', status)
-                setSubCategoryStatus(status)
+                setSubCategoryStatus(normalizeSubCategoryStatus(status))
             }
             else {
                 console.log('==>===<==')
                 const firstId = subCategories[0].status;
-                setSubCategoryStatus(firstId)
+                setSubCategoryStatus(normalizeSubCategoryStatus(firstId))
             }
 
             setItemDataNull(false)
@@ -839,15 +846,16 @@ function MenuDashboard() {
         }
     }
 
-    const handleSubCategoryClick = async (subCategoryId, menuCategory) => {
+    const handleSubCategoryClick = async (subCategoryId, menuCategory, subCategoryList) => {
         setClickedSubCategory(subCategoryId);
         setSubCategoryFirstId(subCategoryId)
         setMenuId(menuCategory)
-        const findingData = subCategories.find(val => val.subCategoryId === subCategoryId)
+        const activeSubCategories = Array.isArray(subCategoryList) ? subCategoryList : subCategories;
+        const findingData = activeSubCategories.find(val => val.subCategoryId === subCategoryId)
         setFinalSelected(subCategoryId)
         const status = findingData?.status
         console.log(`status`, findingData)
-        setSubCategoryStatus(status)
+        setSubCategoryStatus(normalizeSubCategoryStatus(status))
         // updatedSubCategory()
         // if (status === 1) {
         //     setSubCategoryStatus(true)
@@ -861,8 +869,9 @@ function MenuDashboard() {
             setSideBarColor(true)
             await axios.get(`${BACKEND_BASE_URL}menuItemrouter/getItemData?menuId=${menuCategory}&subCategoryId=${subCategoryId}`, config)
                 .then((res) => {
-                    setItemData(res.data);
-                    if (itemData.length > 0) {
+                    const rows = Array.isArray(res.data) ? res.data : [];
+                    setItemData(rows);
+                    if (rows.length > 0) {
                         setItemDataNull(false)
                         setFullData({
                             itemName: '',
@@ -1089,7 +1098,7 @@ function MenuDashboard() {
                     console.log(response.data)
                     console.log(`Switch value changed to ${switchValue}`);
                     if (response.data === 'Status Updated Successfully') {
-                        setSubCategoryStatus(false)
+                        setSubCategoryStatus(normalizeSubCategoryStatus(switchValue ? 1 : 0))
                         getAllUnits();
                         // getAllCategory();
                         updatedSubCategory(menuId);
@@ -1116,13 +1125,13 @@ function MenuDashboard() {
         const correctPassword = '123';
 
         if (userEnteredPassword === correctPassword) {
-            const switchValue = !subCategoryStatus ? true : false;
+            const switchValue = !subCategoryStatus;
             await axios.get(`${BACKEND_BASE_URL}menuItemrouter/updateItemStatus?menuId=${menuId}&subCategoryId=${finalSelected}&status=${switchValue}`, config)
                 .then(response => {
                     console.log(response.data)
                     console.log(`Switch value changed to ${switchValue}`);
                     if (response.data === 'Status Updated Successfully') {
-                        setSubCategoryStatus(false)
+                        setSubCategoryStatus(normalizeSubCategoryStatus(switchValue ? 1 : 0))
                         getAllUnits();
                         // getAllCategory();
                         getAllUnits();
@@ -1289,10 +1298,8 @@ function MenuDashboard() {
                                             onClick={() => {
                                                 if (!editPriceMode) {
                                                     const menuCategories = menu?.menuCategoryId;
-                                                    setSubCategoryStatus(false);
                                                     // getAllItems(menuCategories);
-                                                    setMenuId(menuCategories);
-                                                    handleSubCategoryClick(finalSelected, menuCategories);
+                                                    getSubCategory(menuCategories);
                                                     setTab(index);
                                                     setSearchWord('');
                                                     setDataSearch([]);
@@ -1409,7 +1416,7 @@ function MenuDashboard() {
                                                         {selectedcategoryName?.subCategoryName} Status :
                                                         <Switch
                                                             {...label}
-                                                            checked={subCategoryStatus ? true : false}
+                                                            checked={subCategoryStatus}
                                                             color="success"
                                                             onClick={(e) => { handleSubCategoryStatusChange() }}
                                                         // onClick={(e) => { handleItemStatusChange(item) }}

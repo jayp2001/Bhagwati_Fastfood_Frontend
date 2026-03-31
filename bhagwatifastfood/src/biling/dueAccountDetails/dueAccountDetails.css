@@ -8,6 +8,14 @@
   box-shadow: rgba(0, 0, 0, 0.1) 0rem 0.25rem 0.375rem -0.0625rem,
     rgba(0, 0, 0, 0.06) 0rem 0.125rem 0.25rem -0.0625rem;
   font-size: 14px;
+  /* Ensure buttons can be anchored at the bottom */
+  display: flex !important;
+  flex-direction: column;
+  min-height: 300px;
+}
+
+.dueAccountDetailContainer .dueAccountActionButtons {
+  margin-top: auto;
 }
 
 .suppilerHeader {
@@ -23,12 +31,10 @@
   text-align: center;
   padding-top: 8px;
   color: #fff;
-  background: linear-gradient(
-    90deg,
-    rgba(2, 0, 36, 1) 0%,
-    rgba(0, 122, 255, 1) 0%,
-    rgba(0, 156, 255, 1) 78%
-  );
+  background: linear-gradient(90deg,
+      rgba(2, 0, 36, 1) 0%,
+      rgba(0, 122, 255, 1) 0%,
+      rgba(0, 156, 255, 1) 78%);
 }
 
 .hrLine {
@@ -96,6 +102,14 @@
   border-radius: 5px;
   background: #16a34a;
   color: #fff;
+  flex: 1;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out, transform 0.02s ease-in-out;
+}
+
+.gotBtn:hover {
+  background: #12813b;
 }
 
 .gaveBtn {
@@ -105,4 +119,12 @@
   border-radius: 5px;
   background: red;
   color: #fff;
+  flex: 1;
+  width: 100%;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out, transform 0.02s ease-in-out;
+}
+
+.gaveBtn:hover {
+  background: #b91c1c;
 }
