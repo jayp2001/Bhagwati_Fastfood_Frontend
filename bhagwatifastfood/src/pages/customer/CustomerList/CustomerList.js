@@ -366,8 +366,8 @@ function CustomerList() {
     };
 
     const handleAddAddress = () => {
-        if (!addressInput.address.trim() && !addressInput.locality.trim()) {
-            setError('Please enter address or locality');
+        if (!addressInput.address.trim()) {
+            setError('Address is required');
             return;
         }
 
@@ -440,8 +440,8 @@ function CustomerList() {
 
     const handleSaveEditedAddress = () => {
         if (editingAddressIndex == null) return;
-        if (!addressInput.address.trim() && !addressInput.locality.trim()) {
-            setError('Please enter address or locality');
+        if (!addressInput.address.trim()) {
+            setError('Address is required');
             return;
         }
         const addresses = [...(editData ? editData.addressDetails : formData.addressDetails)];
